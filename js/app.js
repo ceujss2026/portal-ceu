@@ -447,50 +447,141 @@
         } else if (action === 'getEvents') {
           resolve({ success: true, data: mock.events });
         } else if (action === 'submitRsvp') {
+          const userEmail = (State.currentUser && State.currentUser.email) ? State.currentUser.email.toLowerCase() : 'ahmad.bakar@moe.bn';
+          if (!mock.rsvps) mock.rsvps = [];
+          const existingRsvp = mock.rsvps.find(r => r.event_id === payload.eventId && (r.user_email || '').toLowerCase() === userEmail);
+          if (existingRsvp) {
+            existingRsvp.response_status = payload.status;
+            existingRsvp.rep_name = payload.repName || '';
+            existingRsvp.rep_phone = payload.repPhone || '';
+            existingRsvp.absence_reason = payload.absenceReason || '';
+            existingRsvp.submitted_at = new Date().toISOString();
+          } else {
+            mock.rsvps.push({
+              rsvp_id: 'RSVP-' + Date.now(),
+              event_id: payload.eventId,
+              user_email: userEmail,
+              response_status: payload.status,
+              rep_name: payload.repName || '',
+              rep_phone: payload.repPhone || '',
+              absence_reason: payload.absenceReason || '',
+              submitted_at: new Date().toISOString()
+            });
+          }
+          State.adminData = null; // Paksa kalkulasi semula secara dinamik
           resolve({ success: true, message: 'RSVP berjaya dihantar.' });
         } else if (action === 'getMemos') {
           resolve({ success: true, data: mock.memos });
         } else if (action === 'getAdminDashboard') {
+          // Kiraan 100% DINAMIK dari data sebenar mock.users & mock.rsvps
+          const teachers = (mock.users || []).filter(u => u.role !== 'Admin');
+          const totalTeachers = teachers.length;
+          const publishedEvents = (mock.events || []).filter(e => (e.status || 'Published').toLowerCase() !== 'draft');
+          const requestedEventId = payload && payload.eventId;
+          const targetEvent = (requestedEventId && mock.events.find(e => e.event_id === requestedEventId))
+            || publishedEvents[0]
+            || (mock.events && mock.events[0])
+            || null;
+          const targetEventId = targetEvent ? targetEvent.event_id : '';
+
+          let attending = 0;
+          let representative = 0;
+          let absent = 0;
+
+          const districtBreakdown = {
+            'Brunei-Muara': { total: 0, hadir: 0, wakil: 0, tidakHadir: 0 },
+            'Belait': { total: 0, hadir: 0, wakil: 0, tidakHadir: 0 },
+            'Tutong': { total: 0, hadir: 0, wakil: 0, tidakHadir: 0 },
+            'Temburong': { total: 0, hadir: 0, wakil: 0, tidakHadir: 0 }
+          };
+
+          teachers.forEach(t => {
+            const d = t.district || 'Brunei-Muara';
+            if (districtBreakdown[d]) districtBreakdown[d].total++;
+          });
+
+          if (targetEventId) {
+            const eventRsvps = (mock.rsvps || []).filter(r => String(r.event_id) === String(targetEventId));
+            eventRsvps.forEach(r => {
+              const st = String(r.response_status || '').toLowerCase();
+              const u = teachers.find(t => String(t.email).toLowerCase() === String(r.user_email).toLowerCase());
+              const d = (u && u.district) || 'Brunei-Muara';
+
+              if (st.includes('hadir') && !st.includes('tidak')) {
+                attending++;
+                if (districtBreakdown[d]) districtBreakdown[d].hadir++;
+              } else if (st.includes('wakil')) {
+                representative++;
+                if (districtBreakdown[d]) districtBreakdown[d].wakil++;
+              } else if (st.includes('tidak')) {
+                absent++;
+                if (districtBreakdown[d]) districtBreakdown[d].tidakHadir++;
+              }
+            });
+          }
+
+          const answered = attending + representative + absent;
+          const pending = Math.max(0, totalTeachers - answered);
+          const rsvpRate = totalTeachers > 0 ? Math.round((answered / totalTeachers) * 100) : 0;
+
           resolve({
             success: true,
             data: {
               kpi: {
-                totalTeachers: 42,
-                rsvpRate: 88,
-                attending: 30,
-                representative: 4,
-                absent: 3,
-                pending: 5
+                totalTeachers,
+                rsvpRate,
+                attending,
+                representative,
+                absent,
+                pending
               },
-              latestEvent: mock.events[0],
+              latestEvent: targetEvent,
+              allEvents: publishedEvents,
               donutData: [
-                { label: 'Hadir', count: 30, color: '#10B981' },
-                { label: 'Mewakilkan', count: 4, color: '#F59E0B' },
-                { label: 'Tidak Hadir', count: 3, color: '#EF4444' },
-                { label: 'Belum Respon', count: 5, color: '#94A3B8' }
+                { label: 'Hadir', count: attending, color: '#10B981' },
+                { label: 'Mewakilkan', count: representative, color: '#F59E0B' },
+                { label: 'Tidak Hadir', count: absent, color: '#EF4444' },
+                { label: 'Belum Respon', count: pending, color: '#94A3B8' }
               ],
-              districtBreakdown: {
-                'Brunei-Muara': { total: 18, hadir: 15, wakil: 2, tidakHadir: 1 },
-                'Tutong': { total: 7, hadir: 6, wakil: 1, tidakHadir: 0 },
-                'Belait': { total: 8, hadir: 6, wakil: 1, tidakHadir: 1 },
-                'Temburong': { total: 4, hadir: 3, wakil: 0, tidakHadir: 1 }
-              }
+              districtBreakdown
             }
           });
         } else if (action === 'getAdminRsvpTable') {
-          const rows = mock.users.map((u, i) => ({
-            no: i + 1,
-            email: u.email,
-            name: u.name,
-            school: u.school,
-            district: u.district,
-            phone: u.phone,
-            status: i === 0 ? 'Hadir' : (i === 1 ? 'Mewakilkan' : (i === 2 ? 'Tidak Hadir' : 'Hadir')),
-            repName: i === 1 ? 'Cikgu Noraini' : '',
-            absenceReason: i === 2 ? 'Tugas Rasmi Sukan' : '',
-            submittedAt: '2026-03-11 09:30'
-          }));
-          resolve({ success: true, data: rows });
+          // Senarai baris RSVP dinamik mengikut jawapan sebenar guru bagi acara yang dipilih
+          const teachers = (mock.users || []).filter(u => u.role !== 'Admin');
+          const publishedEvents = (mock.events || []).filter(e => (e.status || 'Published').toLowerCase() !== 'draft');
+          const requestedEventId = payload && payload.eventId;
+          const targetEvent = (requestedEventId && mock.events.find(e => e.event_id === requestedEventId))
+            || publishedEvents[0]
+            || (mock.events && mock.events[0])
+            || null;
+          const targetEventId = targetEvent ? targetEvent.event_id : '';
+
+          const rows = teachers.map((u, i) => {
+            const userRsvp = (mock.rsvps || []).find(r =>
+              String(r.user_email).toLowerCase() === String(u.email).toLowerCase() &&
+              String(r.event_id) === String(targetEventId)
+            );
+
+            return {
+              no: i + 1,
+              email: u.email,
+              name: u.name,
+              school: u.school,
+              district: u.district,
+              phone: u.phone,
+              status: userRsvp ? userRsvp.response_status : 'Belum Respon',
+              repName: userRsvp ? (userRsvp.rep_name || '') : '',
+              absenceReason: userRsvp ? (userRsvp.absence_reason || '') : '',
+              submittedAt: userRsvp ? (userRsvp.submitted_at ? userRsvp.submitted_at.replace('T', ' ').substring(0, 16) : '-') : '-'
+            };
+          });
+
+          resolve({
+            success: true,
+            data: rows,
+            targetEvent: targetEvent
+          });
         } else if (action === 'saveEvent') {
           const newEvt = {
             event_id: 'EVT-' + Date.now(),
@@ -535,6 +626,47 @@
               ? 'Draf acara berjaya disimpan (belum diterbitkan kepada guru).'
               : `Acara berjaya diterbitkan & disiarkan kepada ${payload.targetCount || 42} orang guru!`,
             data: newEvt
+          });
+        } else if (action === 'generateAttendancePdf') {
+          const targetEventId = payload && payload.eventId;
+          const teachers = (mock.users || []).filter(u => u.role !== 'Admin');
+          const totalTeachers = teachers.length;
+          const publishedEvents = (mock.events || []).filter(e => (e.status || 'Published').toLowerCase() !== 'draft');
+          const activeEvent = (targetEventId && mock.events.find(e => e.event_id === targetEventId))
+            || publishedEvents[0]
+            || (mock.events && mock.events[0])
+            || null;
+          const activeId = activeEvent ? activeEvent.event_id : '';
+
+          let attending = 0, rep = 0, absent = 0;
+          if (activeId) {
+            const evRsvps = (mock.rsvps || []).filter(r => String(r.event_id) === String(activeId));
+            evRsvps.forEach(r => {
+              const st = String(r.response_status || '').toLowerCase();
+              if (st.includes('hadir') && !st.includes('tidak')) attending++;
+              else if (st.includes('wakil')) rep++;
+              else if (st.includes('tidak')) absent++;
+            });
+          }
+          const pending = Math.max(0, totalTeachers - (attending + rep + absent));
+          const reportId = 'REP-CEU-' + Date.now().toString(36).toUpperCase();
+
+          resolve({
+            success: true,
+            report: {
+              reportId: reportId,
+              generatedAt: new Date().toISOString(),
+              event: activeEvent,
+              summary: {
+                totalTeachers: totalTeachers,
+                attending: attending,
+                representative: rep,
+                absent: absent,
+                pending: pending
+              },
+              hmacSignature: 'HMAC-SHA256-' + Math.random().toString(36).substring(2, 10).toUpperCase() + '-MOE-BN',
+              verificationUrl: `https://ceujss2026.github.io/portal-ceu/?verify=${reportId}`
+            }
           });
         } else if (action === 'deleteEvent') {
           const eventId = payload.eventId;
@@ -1383,13 +1515,16 @@
     const res = await api('submitRsvp', payload);
     if (res && res.success) {
       showToast(State.lang === 'en' ? 'RSVP submitted successfully: ' + status : 'RSVP berjaya dihantar: ' + status, 'success');
-      const existingIdx = State.rsvps.findIndex(r => r.event_id === ev.event_id);
+      const userEmail = (State.currentUser && State.currentUser.email) ? State.currentUser.email : '';
+      const existingIdx = State.rsvps.findIndex(r => r.event_id === ev.event_id && (r.user_email || '').toLowerCase() === userEmail.toLowerCase());
       const newEntry = {
         event_id: ev.event_id,
+        user_email: userEmail,
         response_status: status,
         rep_name: repName,
         rep_phone: repPhone,
-        absence_reason: absenceReason
+        absence_reason: absenceReason,
+        submitted_at: new Date().toISOString()
       };
       if (existingIdx >= 0) State.rsvps[existingIdx] = newEntry;
       else State.rsvps.push(newEntry);
@@ -1564,29 +1699,63 @@
   // ==========================================================================
   // 13. RENDER ADMIN DASHBOARD (KPI, DONUT & DISTRICT BARS)
   // ==========================================================================
+  let _adminSelectedEventId = null;
+
   async function renderAdminDashboardView() {
-    let data = State.adminData;
-    if (!data) {
-      const res = await api('getAdminDashboard', {});
-      if (res && res.success && res.data) {
-        State.adminData = res.data;
-        data = res.data;
-      }
+    const publishedEvents = (State.events || []).filter(e => (e.status || 'Published').toLowerCase() !== 'draft');
+    if (!_adminSelectedEventId && publishedEvents.length > 0) {
+      _adminSelectedEventId = publishedEvents[0].event_id;
     }
-    if (!data) return;
+
+    const res = await api('getAdminDashboard', { eventId: _adminSelectedEventId });
+    if (!res || !res.success || !res.data) return;
+    State.adminData = res.data;
+    const data = res.data;
+
+    const eventSelect = document.getElementById('admin-dashboard-event-select');
+    if (eventSelect && publishedEvents.length) {
+      eventSelect.innerHTML = publishedEvents.map(e => `
+        <option value="${e.event_id}" ${e.event_id === _adminSelectedEventId ? 'selected' : ''}>
+          ${e.event_date} — ${e.title_bm}
+        </option>
+      `).join('');
+
+      eventSelect.onchange = async () => {
+        _adminSelectedEventId = eventSelect.value;
+        const syncSelectRsvp = document.getElementById('admin-rsvp-event-select');
+        if (syncSelectRsvp) syncSelectRsvp.value = _adminSelectedEventId;
+        await renderAdminDashboardView();
+      };
+    }
 
     const kpi = data.kpi || {};
-    document.getElementById('kpi-total-teachers').textContent = kpi.totalTeachers || 0;
-    document.getElementById('kpi-rsvp-rate').textContent = (kpi.rsvpRate || 0) + '%';
-    document.getElementById('kpi-attending').textContent = kpi.attending || 0;
-    document.getElementById('kpi-rep-absent').textContent = `${kpi.representative || 0} / ${kpi.absent || 0}`;
+    const countTotalEl = document.getElementById('kpi-total-teachers');
+    const countRateEl = document.getElementById('kpi-rsvp-rate');
+    const countAttendEl = document.getElementById('kpi-attending');
+    const countRepAbsentEl = document.getElementById('kpi-rep-absent');
 
-    renderDonutChart(data.donutData || []);
+    if (countTotalEl) countTotalEl.textContent = kpi.totalTeachers || 0;
+    if (countRateEl) countRateEl.textContent = (kpi.rsvpRate || 0) + '%';
+    if (countAttendEl) countAttendEl.textContent = kpi.attending || 0;
+    if (countRepAbsentEl) countRepAbsentEl.textContent = `${kpi.representative || 0} / ${kpi.absent || 0}`;
+
+    // Kemas kini legenda teks donut chart secara dinamik
+    const legendHadir = document.getElementById('donut-legend-hadir');
+    const legendWakil = document.getElementById('donut-legend-wakil');
+    const legendTidak = document.getElementById('donut-legend-tidak-hadir');
+    const legendBelum = document.getElementById('donut-legend-belum-jawab');
+
+    if (legendHadir) legendHadir.textContent = `${State.lang === 'en' ? 'Attending' : 'Hadir'} (${kpi.attending || 0})`;
+    if (legendWakil) legendWakil.textContent = `${State.lang === 'en' ? 'Representative' : 'Wakil'} (${kpi.representative || 0})`;
+    if (legendTidak) legendTidak.textContent = `${State.lang === 'en' ? 'Absent' : 'Tak Hadir'} (${kpi.absent || 0})`;
+    if (legendBelum) legendBelum.textContent = `${State.lang === 'en' ? 'Pending' : 'Belum Jawab'} (${kpi.pending || 0})`;
+
+    renderDonutChart(data.donutData || [], kpi.rsvpRate || 0);
     renderDistrictBarChart(data.districtBreakdown || {});
     renderAdminEventsManagementList();
   }
 
-  function renderDonutChart(donutData) {
+  function renderDonutChart(donutData, liveRate) {
     const svg = document.getElementById('admin-donut-svg');
     if (!svg) return;
 
@@ -1613,11 +1782,13 @@
       `;
     }).join('');
 
+    const displayRate = liveRate !== undefined ? liveRate : (State.adminData?.kpi?.rsvpRate || 0);
+
     svg.innerHTML = `
       ${paths}
       <circle cx="${cx}" cy="${cy}" r="36" fill="#ffffff" />
       <text x="${cx}" y="${cy - 2}" text-anchor="middle" font-size="14" font-weight="700" fill="#0F172A">
-        ${State.adminData?.kpi?.rsvpRate || 0}%
+        ${displayRate}%
       </text>
       <text x="${cx}" y="${cy + 12}" text-anchor="middle" font-size="9" font-weight="500" fill="#64748B">
         ${State.lang === 'en' ? 'Responded' : 'Dijawab'}
@@ -1770,26 +1941,124 @@
   // ==========================================================================
   // 14. JADUAL RSVP PENTADBIR & PENJANAAN PDF
   // ==========================================================================
+  let _adminRsvpStatusFilter = 'all'; // 'all' | 'hadir' | 'wakil' | 'tidakhadir' | 'belum'
+  let _adminRsvpSearchQuery = '';
+
   async function renderAdminRsvpTableView() {
     const tableBody = document.getElementById('admin-rsvp-table-body');
     if (!tableBody) return;
 
+    const publishedEvents = (State.events || []).filter(e => (e.status || 'Published').toLowerCase() !== 'draft');
+    if (!_adminSelectedEventId && publishedEvents.length > 0) {
+      _adminSelectedEventId = publishedEvents[0].event_id;
+    }
+
+    const eventSelect = document.getElementById('admin-rsvp-event-select');
+    if (eventSelect && publishedEvents.length) {
+      eventSelect.innerHTML = publishedEvents.map(e => `
+        <option value="${e.event_id}" ${e.event_id === _adminSelectedEventId ? 'selected' : ''}>
+          ${e.event_date} — ${e.title_bm}
+        </option>
+      `).join('');
+
+      eventSelect.onchange = async () => {
+        _adminSelectedEventId = eventSelect.value;
+        const syncSelectDash = document.getElementById('admin-dashboard-event-select');
+        if (syncSelectDash) syncSelectDash.value = _adminSelectedEventId;
+        await renderAdminRsvpTableView();
+      };
+    }
+
+    // Sambung butang penapis status RSVP
+    document.querySelectorAll('.admin-rsvp-status-btn').forEach(btn => {
+      btn.onclick = () => {
+        _adminRsvpStatusFilter = btn.dataset.status;
+        renderAdminRsvpTableView();
+      };
+    });
+
+    // Sambung carian teks
+    const searchInput = document.getElementById('admin-rsvp-search-input');
+    if (searchInput) {
+      searchInput.oninput = (e) => {
+        _adminRsvpSearchQuery = e.target.value.trim();
+        renderAdminRsvpTableView();
+      };
+    }
+
     tableBody.innerHTML = `<tr><td colspan="7" class="p-6 text-center text-on-surface-variant font-headline text-xs">${State.lang === 'en' ? 'Loading attendance data across 4 districts...' : 'Memuatkan data kehadiran seluruh daerah...'}</td></tr>`;
 
-    const res = await api('getAdminRsvpTable', {});
+    const res = await api('getAdminRsvpTable', { eventId: _adminSelectedEventId });
     if (!res || !res.success || !res.data) {
       tableBody.innerHTML = `<tr><td colspan="7" class="p-6 text-center text-error font-headline text-xs">${State.lang === 'en' ? 'Failed to load attendance records.' : 'Gagal memuatkan data.'}</td></tr>`;
       return;
     }
 
-    const rows = res.data;
+    const allRows = res.data;
+
+    // Kira nombor bagi pil penapis status
+    const countAll = allRows.length;
+    const countHadir = allRows.filter(r => (r.status || '').toLowerCase().includes('hadir') && !(r.status || '').toLowerCase().includes('tidak')).length;
+    const countWakil = allRows.filter(r => (r.status || '').toLowerCase().includes('wakil')).length;
+    const countTidak = allRows.filter(r => (r.status || '').toLowerCase().includes('tidak')).length;
+    const countBelum = allRows.filter(r => (r.status || '').toLowerCase().includes('belum')).length;
+
+    const elAll = document.getElementById('rsvp-filter-count-all');
+    const elHadir = document.getElementById('rsvp-filter-count-hadir');
+    const elWakil = document.getElementById('rsvp-filter-count-wakil');
+    const elTidak = document.getElementById('rsvp-filter-count-tidak');
+    const elBelum = document.getElementById('rsvp-filter-count-belum');
+
+    if (elAll) elAll.textContent = countAll;
+    if (elHadir) elHadir.textContent = countHadir;
+    if (elWakil) elWakil.textContent = countWakil;
+    if (elTidak) elTidak.textContent = countTidak;
+    if (elBelum) elBelum.textContent = countBelum;
+
+    // Kemas kini gaya aktif pada butang penapis status
+    document.querySelectorAll('.admin-rsvp-status-btn').forEach(btn => {
+      const isMatch = btn.dataset.status === _adminRsvpStatusFilter;
+      btn.classList.toggle('bg-primary', isMatch);
+      btn.classList.toggle('text-white', isMatch);
+      btn.classList.toggle('bg-surface-container', !isMatch);
+      btn.classList.toggle('text-on-surface-variant', !isMatch);
+    });
+
+    // Penapisan baris
+    let rows = allRows;
+    if (_adminRsvpStatusFilter === 'hadir') {
+      rows = rows.filter(r => (r.status || '').toLowerCase().includes('hadir') && !(r.status || '').toLowerCase().includes('tidak'));
+    } else if (_adminRsvpStatusFilter === 'wakil') {
+      rows = rows.filter(r => (r.status || '').toLowerCase().includes('wakil'));
+    } else if (_adminRsvpStatusFilter === 'tidakhadir') {
+      rows = rows.filter(r => (r.status || '').toLowerCase().includes('tidak'));
+    } else if (_adminRsvpStatusFilter === 'belum') {
+      rows = rows.filter(r => (r.status || '').toLowerCase().includes('belum'));
+    }
+
+    if (_adminRsvpSearchQuery) {
+      const q = _adminRsvpSearchQuery.toLowerCase();
+      rows = rows.filter(r =>
+        (r.name && r.name.toLowerCase().includes(q)) ||
+        (r.email && r.email.toLowerCase().includes(q)) ||
+        (r.school && r.school.toLowerCase().includes(q)) ||
+        (r.district && r.district.toLowerCase().includes(q))
+      );
+    }
+
+    if (!rows.length) {
+      tableBody.innerHTML = `<tr><td colspan="7" class="p-8 text-center text-on-surface-variant font-headline text-xs font-semibold">Tiada rekod pegawai dijumpai untuk kriteria penapisan ini.</td></tr>`;
+      return;
+    }
+
     tableBody.innerHTML = rows.map((r, i) => {
       let badge = '';
-      if (r.status.includes('Hadir') && !r.status.includes('Tidak')) {
+      const st = (r.status || '').toLowerCase();
+      if (st.includes('hadir') && !st.includes('tidak')) {
         badge = `<span class="bg-[#DCFCE7] text-[#15803D] px-2 py-0.5 rounded-full font-headline text-[10px] font-bold">${State.lang === 'en' ? 'ATTENDING' : 'HADIR'}</span>`;
-      } else if (r.status.includes('Wakil')) {
+      } else if (st.includes('wakil')) {
         badge = `<span class="bg-[#FEF3C7] text-[#B45309] px-2 py-0.5 rounded-full font-headline text-[10px] font-bold">${State.lang === 'en' ? 'REP: ' : 'WAKIL: '} ${r.repName || '-'}</span>`;
-      } else if (r.status.includes('Tidak')) {
+      } else if (st.includes('tidak')) {
         badge = `<span class="bg-[#FEE2E2] text-[#B91C1C] px-2 py-0.5 rounded-full font-headline text-[10px] font-bold">${State.lang === 'en' ? 'ABSENT' : 'TAK HADIR'}</span>`;
       } else {
         badge = `<span class="bg-[#F1F5F9] text-[#475569] px-2 py-0.5 rounded-full font-headline text-[10px] font-bold">${State.lang === 'en' ? 'PENDING' : 'BELUM JAWAB'}</span>`;
@@ -1822,7 +2091,7 @@
   // Penjanaan Dokumen Laporan Rasmi PDF A4 Ber-QR HMAC
   async function openOfficialPdfReportModal() {
     showToast(State.lang === 'en' ? 'Generating official report...' : 'Menjana laporan rasmi...', 'info');
-    const res = await api('generateAttendancePdf', {});
+    const res = await api('generateAttendancePdf', { eventId: _adminSelectedEventId });
     if (!res || !res.success || !res.report) {
       showToast(State.lang === 'en' ? 'Failed to generate report.' : 'Gagal menjana laporan.', 'error');
       return;

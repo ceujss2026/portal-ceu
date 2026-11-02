@@ -579,10 +579,19 @@
           <h2 data-i18n="adminDashboard" class="font-headline text-lg font-bold text-on-surface">Papan Pemuka Pentadbir UPK</h2>
           <p data-i18n="adminDashboardSubtitle" class="font-body text-xs text-on-surface-variant">Analisis kehadiran 4 daerah dan pengurusan rasmi.</p>
         </div>
-        <button id="btn-admin-view-rsvp" type="button" class="px-3 py-1.5 rounded-xl bg-primary text-white font-headline text-xs font-semibold shadow flex items-center gap-1 active:scale-95 transition-all">
+        <button id="btn-admin-view-rsvp" type="button" class="px-3 py-1.5 rounded-xl bg-primary text-white font-headline text-xs font-semibold shadow flex items-center gap-1 active:scale-95 transition-all cursor-pointer">
           <span class="material-symbols-outlined text-base">table_view</span>
           <span data-i18n="adminTableViewBtn">Semakan Jadual</span>
         </button>
+      </div>
+
+      <!-- Pemilih Acara untuk Analisis Dinamik & Real-Time -->
+      <div class="flex items-center gap-2 mb-4 bg-surface-container-lowest p-2.5 rounded-2xl border border-outline-variant/30 shadow-sm">
+        <span class="material-symbols-outlined text-primary text-lg">event_available</span>
+        <label for="admin-dashboard-event-select" class="text-xs font-bold text-on-surface whitespace-nowrap">Analisis Acara:</label>
+        <select id="admin-dashboard-event-select" class="flex-1 bg-surface-container-low text-on-surface text-xs font-semibold py-1.5 px-2.5 rounded-lg border border-outline-variant/40 focus:ring-1 focus:ring-primary focus:outline-none truncate cursor-pointer">
+          <!-- Populated by JavaScript -->
+        </select>
       </div>
 
       <!-- 4 KPI Cards -->
@@ -617,11 +626,11 @@
           <div class="relative w-36 h-36 flex items-center justify-center my-1">
             <svg id="admin-donut-svg" class="w-full h-full" viewBox="0 0 140 140"></svg>
           </div>
-          <div class="grid grid-cols-2 gap-2 w-full mt-3 text-xs border-t border-outline-variant/20 pt-2.5">
-            <div class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-[#10B981]"></span><span>Hadir (30)</span></div>
-            <div class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-[#F59E0B]"></span><span>Wakil (4)</span></div>
-            <div class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-[#EF4444]"></span><span>Tak Hadir (3)</span></div>
-            <div class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-[#94A3B8]"></span><span>Belum Jawab (5)</span></div>
+          <div id="admin-donut-legend" class="grid grid-cols-2 gap-2 w-full mt-3 text-xs border-t border-outline-variant/20 pt-2.5">
+            <div class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-[#10B981]"></span><span id="donut-legend-hadir" class="font-medium text-on-surface">Hadir (30)</span></div>
+            <div class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-[#F59E0B]"></span><span id="donut-legend-wakil" class="font-medium text-on-surface">Wakil (4)</span></div>
+            <div class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-[#EF4444]"></span><span id="donut-legend-tidak-hadir" class="font-medium text-on-surface">Tak Hadir (3)</span></div>
+            <div class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-[#94A3B8]"></span><span id="donut-legend-belum-jawab" class="font-medium text-on-surface">Belum Jawab (5)</span></div>
           </div>
         </div>
 
@@ -694,6 +703,32 @@
           <span class="material-symbols-outlined text-sm">picture_as_pdf</span>
           <span data-i18n="exportPdfBtn">Eksport PDF</span>
         </button>
+      </div>
+
+      <!-- Penapis Acara, Status & Carian bagi Jadual Semakan -->
+      <div class="bg-surface-container-lowest p-3 rounded-2xl shadow-sm border border-outline-variant/30 mb-3 flex flex-col gap-2.5">
+        <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5">
+          <div class="flex items-center gap-2 flex-1">
+            <span class="material-symbols-outlined text-primary text-base">event</span>
+            <label for="admin-rsvp-event-select" class="text-xs font-bold text-on-surface whitespace-nowrap">Acara:</label>
+            <select id="admin-rsvp-event-select" class="flex-1 bg-surface-container-low text-on-surface text-xs font-semibold py-1.5 px-2.5 rounded-lg border border-outline-variant/40 focus:ring-1 focus:ring-primary focus:outline-none truncate cursor-pointer">
+              <!-- Populated via JS -->
+            </select>
+          </div>
+          <div class="relative w-full sm:w-56">
+            <span class="material-symbols-outlined absolute left-2.5 top-2 text-on-surface-variant text-base">search</span>
+            <input id="admin-rsvp-search-input" type="text" placeholder="Cari nama, sekolah, daerah..." class="w-full pl-8 pr-3 py-1.5 rounded-lg bg-surface-container-low text-xs border border-outline-variant/40 focus:ring-1 focus:ring-primary focus:outline-none text-on-surface">
+          </div>
+        </div>
+
+        <!-- Filter Status RSVP Pills -->
+        <div class="flex items-center gap-1.5 overflow-x-auto pb-0.5" id="admin-rsvp-status-filter-pills">
+          <button type="button" class="admin-rsvp-status-btn px-2.5 py-1 rounded-lg text-[11px] font-bold bg-primary text-white cursor-pointer transition-all" data-status="all">Semua (<span id="rsvp-filter-count-all">0</span>)</button>
+          <button type="button" class="admin-rsvp-status-btn px-2.5 py-1 rounded-lg text-[11px] font-bold bg-surface-container text-on-surface-variant hover:text-primary cursor-pointer transition-all" data-status="hadir">Hadir (<span id="rsvp-filter-count-hadir">0</span>)</button>
+          <button type="button" class="admin-rsvp-status-btn px-2.5 py-1 rounded-lg text-[11px] font-bold bg-surface-container text-on-surface-variant hover:text-primary cursor-pointer transition-all" data-status="wakil">Wakil (<span id="rsvp-filter-count-wakil">0</span>)</button>
+          <button type="button" class="admin-rsvp-status-btn px-2.5 py-1 rounded-lg text-[11px] font-bold bg-surface-container text-on-surface-variant hover:text-primary cursor-pointer transition-all" data-status="tidakhadir">Tak Hadir (<span id="rsvp-filter-count-tidak">0</span>)</button>
+          <button type="button" class="admin-rsvp-status-btn px-2.5 py-1 rounded-lg text-[11px] font-bold bg-surface-container text-on-surface-variant hover:text-primary cursor-pointer transition-all" data-status="belum">Belum Jawab (<span id="rsvp-filter-count-belum">0</span>)</button>
+        </div>
       </div>
 
       <!-- Data Table Card -->
@@ -1568,8 +1603,8 @@
   </nav>
 
   <!-- Application Logic Scripts -->
-  <script src="js/config.js?v=1.1.0"></script>
-  <script src="js/data-mock.js?v=1.1.0"></script>
-  <script src="js/app.js?v=1.1.0"></script>
+  <script src="js/config.js?v=1.1.2"></script>
+  <script src="js/data-mock.js?v=1.1.2"></script>
+  <script src="js/app.js?v=1.1.2"></script>
 </body>
 </html>
