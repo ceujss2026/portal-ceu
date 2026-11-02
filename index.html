@@ -641,14 +641,40 @@
 
       <!-- Quick Admin Actions -->
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
-        <button id="btn-admin-create-event" type="button" class="h-12 rounded-xl bg-primary text-white font-headline text-xs font-bold shadow-md flex items-center justify-center gap-2 hover:bg-primary-dark active:scale-98 transition-all">
+        <button id="btn-admin-create-event" type="button" class="h-12 rounded-xl bg-primary text-white font-headline text-xs font-bold shadow-md flex items-center justify-center gap-2 hover:bg-primary-dark active:scale-98 transition-all cursor-pointer">
           <span class="material-symbols-outlined text-lg">event_available</span>
           <span data-i18n="createNewEventBtn">+ Terbitkan Program Baharu</span>
         </button>
-        <button id="btn-admin-generate-pdf" type="button" class="h-12 rounded-xl bg-tertiary text-white font-headline text-xs font-bold shadow-md flex items-center justify-center gap-2 hover:bg-tertiary-container active:scale-98 transition-all">
+        <button id="btn-admin-generate-pdf" type="button" class="h-12 rounded-xl bg-tertiary text-white font-headline text-xs font-bold shadow-md flex items-center justify-center gap-2 hover:bg-tertiary-container active:scale-98 transition-all cursor-pointer">
           <span class="material-symbols-outlined text-lg">picture_as_pdf</span>
           <span data-i18n="generatePdfBtn">Jana Laporan PDF Rasmi Ber-QR</span>
         </button>
+      </div>
+
+      <!-- Pengurusan Acara & Draf Program UPK -->
+      <div class="bg-surface-container-lowest p-4 sm:p-5 rounded-2xl shadow-sm border border-outline-variant/30 mb-5">
+        <div class="flex items-center justify-between mb-3">
+          <div class="flex items-center gap-2">
+            <span class="material-symbols-outlined text-primary text-[22px]">event_note</span>
+            <div>
+              <h3 class="font-headline font-bold text-sm text-on-surface">Pengurusan Acara &amp; Draf Program</h3>
+              <p class="text-[11px] text-on-surface-variant">Urus, terbitkan draf, atau padamkan acara rasmi.</p>
+            </div>
+          </div>
+          <span id="admin-events-total-badge" class="px-2.5 py-0.5 rounded-full bg-secondary-fixed text-on-secondary-fixed-variant text-[11px] font-bold">0 Acara</span>
+        </div>
+
+        <!-- Filter Draf / Published -->
+        <div class="flex items-center gap-2 mb-3">
+          <button type="button" class="admin-event-filter-btn px-3 py-1 rounded-lg text-xs font-bold transition-all bg-primary text-white cursor-pointer" data-filter="all">Semua</button>
+          <button type="button" class="admin-event-filter-btn px-3 py-1 rounded-lg text-xs font-bold transition-all bg-surface-container text-on-surface-variant hover:text-primary cursor-pointer" data-filter="published">Diterbitkan</button>
+          <button type="button" class="admin-event-filter-btn px-3 py-1 rounded-lg text-xs font-bold transition-all bg-surface-container text-on-surface-variant hover:text-primary cursor-pointer" data-filter="draft">Draf Sahaja</button>
+        </div>
+
+        <!-- Event & Draft List Container -->
+        <div id="admin-events-management-list" class="flex flex-col gap-2.5">
+          <!-- Injected via JavaScript -->
+        </div>
       </div>
     </section>
 
@@ -1542,8 +1568,8 @@
   </nav>
 
   <!-- Application Logic Scripts -->
-  <script src="js/config.js?v=1.0.9"></script>
-  <script src="js/data-mock.js?v=1.0.9"></script>
-  <script src="js/app.js?v=1.0.9"></script>
+  <script src="js/config.js?v=1.1.0"></script>
+  <script src="js/data-mock.js?v=1.1.0"></script>
+  <script src="js/app.js?v=1.1.0"></script>
 </body>
 </html>

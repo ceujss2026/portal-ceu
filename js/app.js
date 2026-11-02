@@ -532,10 +532,41 @@
           resolve({
             success: true,
             message: payload.isDraft
-              ? 'Draf acara berjaya disimpan.'
+              ? 'Draf acara berjaya disimpan (belum diterbitkan kepada guru).'
               : `Acara berjaya diterbitkan & disiarkan kepada ${payload.targetCount || 42} orang guru!`,
             data: newEvt
           });
+        } else if (action === 'deleteEvent') {
+          const eventId = payload.eventId;
+          if (mock.events) {
+            mock.events = mock.events.filter(e => e.event_id !== eventId);
+          }
+          State.events = (State.events || []).filter(e => e.event_id !== eventId);
+          resolve({ success: true, message: 'Acara berjaya dipadamkan.' });
+        } else if (action === 'publishDraft') {
+          const eventId = payload.eventId;
+          const evt = (mock.events || []).find(e => e.event_id === eventId);
+          if (evt) {
+            evt.status = 'Published';
+            // Masukkan hebahan ke notifikasi
+            const newNotif = {
+              notif_id: 'NOTIF-' + Date.now(),
+              title_bm: 'Hebahan Program Baharu: ' + evt.title_bm,
+              title_en: 'New Event Notice: ' + (evt.title_en || evt.title_bm),
+              content_bm: `Program dijadualkan pada ${evt.event_date} di ${evt.venue || 'BPK'}. Sila lengkapkan RSVP anda.`,
+              content_en: `Scheduled on ${evt.event_date} at ${evt.venue || 'BPK'}. Please complete your RSVP.`,
+              type: 'Urgent',
+              sent_at: 'Baru sahaja',
+              is_read: false
+            };
+            if (!mock.notifications) mock.notifications = [];
+            mock.notifications.unshift(newNotif);
+            State.notifications = mock.notifications;
+            updateNotifBadge();
+            resolve({ success: true, message: 'Draf acara berjaya diterbitkan & disiarkan kepada guru!' });
+          } else {
+            resolve({ success: false, message: 'Acara tidak dijumpai.' });
+          }
         } else {
           resolve({ success: true, message: 'Operasi simulasi selesai.' });
         }
@@ -972,6 +1003,7 @@
     }
 
     const todayDateStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+    const publishedEvents = (State.events || []).filter(e => (e.status || 'Published').toLowerCase() !== 'draft');
 
     const cells = getMonthCalendarCells(year, month);
     container.innerHTML = cells.map(c => {
@@ -981,7 +1013,7 @@
 
       const isSelected = State.selectedCalendarDate === c.dateStr;
       const isToday = c.dateStr === todayDateStr;
-      const hasEvents = (State.events || []).some(e => e.event_date === c.dateStr);
+      const hasEvents = publishedEvents.some(e => e.event_date === c.dateStr);
 
       let dayClasses = 'cal-day-btn h-9 sm:h-10 rounded-xl flex flex-col items-center justify-center transition-all cursor-pointer relative ';
       if (isSelected) {
@@ -1060,11 +1092,12 @@
       .filter(r => (r.response_status || '').toLowerCase().includes('hadir') && !(r.response_status || '').toLowerCase().includes('tidak'))
       .map(r => r.event_id);
 
-    // Kemas kini nombor pada kad metrik pantas secara dinamik
+    // Kemas kini nombor pada kad metrik pantas secara dinamik (Hanya acara yang diterbitkan)
     const countMonthEl = document.getElementById('metric-count-month');
     const countAttendedEl = document.getElementById('metric-count-attended');
     const countUrgentEl = document.getElementById('metric-count-urgent');
-    const totalEventsCount = (State.events || []).length;
+    const publishedEvents = (State.events || []).filter(e => (e.status || 'Published').toLowerCase() !== 'draft');
+    const totalEventsCount = publishedEvents.length;
     const urgentCount = Math.max(0, totalEventsCount - myAnsweredIds.length);
     if (countMonthEl) countMonthEl.textContent = totalEventsCount;
     if (countAttendedEl) countAttendedEl.textContent = myAttendedIds.length;
@@ -1090,7 +1123,7 @@
       btnUrgent.classList.toggle('shadow-md', State.activeEventFilter === 'urgent');
     }
 
-    let filtered = State.events || [];
+    let filtered = publishedEvents;
     if (State.activeEventFilter === 'urgent') {
       filtered = filtered.filter(e => !myAnsweredIds.includes(e.event_id));
     } else if (State.activeEventFilter === 'attended') {
@@ -1218,6 +1251,12 @@
                 <span>Meet</span>
               </a>
             ` : ''}
+            ${(State.currentUser && State.currentUser.role === 'Admin') ? `
+              <button type="button" class="btn-delete-event w-full sm:w-auto bg-surface-container-low text-error border border-error/30 py-2.5 px-3.5 rounded-lg font-label-md text-xs font-bold flex items-center justify-center gap-1 hover:bg-error hover:text-white transition-all min-h-[44px] cursor-pointer" data-id="${ev.event_id}" title="Padam Acara">
+                <span class="material-symbols-outlined text-base">delete</span>
+                <span>Padam</span>
+              </button>
+            ` : ''}
           </div>
         </div>
       `;
@@ -1226,6 +1265,25 @@
     container.querySelectorAll('.btn-open-rsvp').forEach(btn => {
       btn.addEventListener('click', () => {
         openRsvpModal(btn.dataset.id);
+      });
+    });
+
+    container.querySelectorAll('.btn-delete-event').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const eventId = btn.dataset.id;
+        const conf = confirm(State.lang === 'en' ? 'Are you sure you want to delete this event? This action cannot be undone.' : 'Adakah anda pasti ingin memadamkan acara ini? Tindakan ini tidak boleh diundur.');
+        if (!conf) return;
+
+        showToast(State.lang === 'en' ? 'Deleting event...' : 'Memadamkan acara...', 'info');
+        const res = await api('deleteEvent', { eventId });
+        if (res && res.success) {
+          showToast(res.message, 'success');
+          await loadAppBoot();
+          renderHomeView();
+          renderAdminDashboardView();
+        } else {
+          showToast((res && res.message) || 'Gagal memadamkan acara.', 'error');
+        }
       });
     });
   }
@@ -1525,6 +1583,7 @@
 
     renderDonutChart(data.donutData || []);
     renderDistrictBarChart(data.districtBreakdown || {});
+    renderAdminEventsManagementList();
   }
 
   function renderDonutChart(donutData) {
@@ -1596,6 +1655,116 @@
     }).join('');
 
     container.innerHTML = list;
+  }
+
+  // ==========================================================================
+  // 13B. PENGURUSAN ACARA & DRAF PENTADBIR (SENARAI, TERBITKAN DRAF & PADAM)
+  // ==========================================================================
+  let _adminEventFilter = 'all'; // 'all' | 'published' | 'draft'
+
+  function renderAdminEventsManagementList() {
+    const container = document.getElementById('admin-events-management-list');
+    const badgeTotal = document.getElementById('admin-events-total-badge');
+    if (!container) return;
+
+    const allEvents = State.events || [];
+    if (badgeTotal) badgeTotal.textContent = `${allEvents.length} Acara`;
+
+    let filtered = allEvents;
+    if (_adminEventFilter === 'published') {
+      filtered = allEvents.filter(e => (e.status || 'Published').toLowerCase() !== 'draft');
+    } else if (_adminEventFilter === 'draft') {
+      filtered = allEvents.filter(e => (e.status || '').toLowerCase() === 'draft');
+    }
+
+    if (!filtered.length) {
+      container.innerHTML = `
+        <div class="p-6 text-center text-xs text-on-surface-variant bg-surface-container-low rounded-xl border border-outline-variant/30 flex flex-col items-center">
+          <span class="material-symbols-outlined text-[32px] text-primary/60 mb-2">event_busy</span>
+          <p class="font-bold">Tiada acara dijumpai untuk penapis ini.</p>
+        </div>
+      `;
+      return;
+    }
+
+    container.innerHTML = filtered.map(ev => {
+      const isDraft = (ev.status || '').toLowerCase() === 'draft';
+      const statusBadge = isDraft
+        ? `<span class="px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 border border-amber-300 text-[10px] font-bold uppercase tracking-wider">Draf</span>`
+        : `<span class="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300 text-[10px] font-bold uppercase tracking-wider">Diterbitkan</span>`;
+
+      return `
+        <div class="p-3.5 rounded-xl bg-surface-container-low border border-outline-variant/30 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:bg-surface-container transition-all">
+          <div class="min-w-0 flex-1">
+            <div class="flex items-center gap-2 mb-1">
+              ${statusBadge}
+              <span class="text-[11px] text-on-surface-variant font-medium flex items-center gap-1">
+                <span class="material-symbols-outlined text-xs text-primary">calendar_month</span>
+                ${ev.event_date}
+              </span>
+              <span class="text-[11px] text-on-surface-variant font-medium flex items-center gap-1">
+                <span class="material-symbols-outlined text-xs text-secondary">schedule</span>
+                ${ev.start_time || '08:30'}
+              </span>
+            </div>
+            <h4 class="font-headline text-xs sm:text-sm font-bold text-on-surface truncate">${ev.title_bm}</h4>
+            <p class="text-[11px] text-on-surface-variant truncate mt-0.5">
+              📍 ${ev.venue || 'Dalam Talian'} • Sasaran: ${ev.target_count || 42} pegawai
+            </p>
+          </div>
+
+          <!-- Tindakan Draf & Padam -->
+          <div class="flex items-center gap-2 shrink-0 pt-1 sm:pt-0 border-t sm:border-t-0 border-outline-variant/20">
+            ${isDraft ? `
+              <button type="button" class="btn-publish-draft px-3 py-1.5 rounded-lg bg-primary hover:bg-primary-dark text-white text-xs font-bold flex items-center gap-1 shadow-sm transition-all cursor-pointer" data-id="${ev.event_id}">
+                <span class="material-symbols-outlined text-sm">send</span>
+                <span>Terbitkan</span>
+              </button>
+            ` : ''}
+            <button type="button" class="btn-delete-event px-3 py-1.5 rounded-lg border border-error/40 text-error hover:bg-error hover:text-white text-xs font-bold flex items-center gap-1 transition-all cursor-pointer" data-id="${ev.event_id}">
+              <span class="material-symbols-outlined text-sm">delete</span>
+              <span>Padam</span>
+            </button>
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    container.querySelectorAll('.btn-publish-draft').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const eventId = btn.dataset.id;
+        btn.disabled = true;
+        btn.innerHTML = `<span class="material-symbols-outlined text-sm animate-spin">progress_activity</span><span>Menerbitkan...</span>`;
+        const res = await api('publishDraft', { eventId });
+        if (res && res.success) {
+          showToast(res.message, 'success');
+          await loadAppBoot();
+          renderAdminDashboardView();
+        } else {
+          showToast((res && res.message) || 'Gagal menerbitkan draf.', 'error');
+          btn.disabled = false;
+        }
+      });
+    });
+
+    container.querySelectorAll('.btn-delete-event').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const eventId = btn.dataset.id;
+        const conf = confirm(State.lang === 'en' ? 'Are you sure you want to delete this event? This action cannot be undone.' : 'Adakah anda pasti ingin memadamkan acara ini? Tindakan ini tidak boleh diundur.');
+        if (!conf) return;
+
+        showToast(State.lang === 'en' ? 'Deleting event...' : 'Memadamkan acara...', 'info');
+        const res = await api('deleteEvent', { eventId });
+        if (res && res.success) {
+          showToast(res.message, 'success');
+          await loadAppBoot();
+          renderAdminDashboardView();
+          renderHomeView();
+        } else {
+          showToast((res && res.message) || 'Gagal memadamkan acara.', 'error');
+        }
+      });
+    });
   }
 
   // ==========================================================================
@@ -2485,6 +2654,20 @@
 
     const btnAdminCreateEvent = document.getElementById('btn-admin-create-event');
     if (btnAdminCreateEvent) btnAdminCreateEvent.addEventListener('click', () => setView('admin-events'));
+
+    document.querySelectorAll('.admin-event-filter-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        _adminEventFilter = btn.dataset.filter;
+        document.querySelectorAll('.admin-event-filter-btn').forEach(b => {
+          const isMatch = b.dataset.filter === _adminEventFilter;
+          b.classList.toggle('bg-primary', isMatch);
+          b.classList.toggle('text-white', isMatch);
+          b.classList.toggle('bg-surface-container', !isMatch);
+          b.classList.toggle('text-on-surface-variant', !isMatch);
+        });
+        renderAdminEventsManagementList();
+      });
+    });
 
     const formCreateEvent = document.getElementById('form-create-event');
     if (formCreateEvent) {
