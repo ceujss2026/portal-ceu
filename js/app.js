@@ -541,17 +541,26 @@
     try {
       if (PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable) {
         const available = await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable();
-        if (!available) return false;
+        if (!available) {
+          showToast(State.lang === 'en' ? 'Biometric sensor not available on this device.' : 'Penderia biometrik tidak tersedia pada peranti ini.', 'warning');
+          return false;
+        }
       }
 
       const challenge = new Uint8Array(32);
       window.crypto.getRandomValues(challenge);
       const userId = new TextEncoder().encode((user && user.email) || 'ceu_user');
 
+      const hostname = window.location.hostname;
+      const rpConfig = { name: "Portal CEU UPK Brunei" };
+      if (hostname && hostname !== 'localhost' && !hostname.match(/^[0-9.]+$/)) {
+        rpConfig.id = hostname;
+      }
+
       const cred = await navigator.credentials.create({
         publicKey: {
           challenge: challenge,
-          rp: { name: "Portal CEU UPK Brunei" },
+          rp: rpConfig,
           user: {
             id: userId,
             name: (user && user.email) || 'guru@moe.edu.bn',
@@ -562,7 +571,9 @@
             { alg: -257, type: "public-key" } // RS256
           ],
           authenticatorSelection: {
-            authenticatorAttachment: "platform", // Cap jari / Face ID terbina dalam telefon
+            authenticatorAttachment: "platform", // Khas untuk cap jari / Face ID terbina dalam telefon
+            requireResidentKey: true,
+            residentKey: "required",
             userVerification: "required"
           },
           timeout: 60000
@@ -608,48 +619,54 @@
         const challenge = new Uint8Array(32);
         window.crypto.getRandomValues(challenge);
         const storedCredId = localStorage.getItem('ceu_webauthn_cred_id');
+        let verified = false;
 
-        let assertion = null;
         if (storedCredId) {
           const rawId = Uint8Array.from(atob(storedCredId), c => c.charCodeAt(0));
-          assertion = await navigator.credentials.get({
-            publicKey: {
-              challenge: challenge,
-              allowCredentials: [{
-                id: rawId,
-                type: 'public-key',
-                transports: ['internal']
-              }],
-              timeout: 60000,
-              userVerification: 'required'
-            }
+          const getOptions = {
+            challenge: challenge,
+            allowCredentials: [{
+              id: rawId,
+              type: 'public-key',
+              transports: ['internal']
+            }],
+            timeout: 60000,
+            userVerification: 'required'
+          };
+
+          const hostname = window.location.hostname;
+          if (hostname && hostname !== 'localhost' && !hostname.match(/^[0-9.]+$/)) {
+            getOptions.rpId = hostname;
+          }
+
+          const assertion = await navigator.credentials.get({
+            publicKey: getOptions
           });
+
+          if (assertion) verified = true;
         } else {
-          // Jika belum pernah create passkey, jalankan pendaftaran biometrik peranti
+          // Jika belum pernah simpan passkey, jalankan pendaftaran biometrik peranti
           let userObj = {};
           try { userObj = JSON.parse(storedBioUser); } catch(e) {}
           const registered = await registerPlatformBiometric(userObj);
-          if (registered) {
-            executeBiometricSuccess(storedBioToken);
-            return;
-          }
+          if (registered) verified = true;
         }
 
-        if (assertion) {
+        if (verified) {
           executeBiometricSuccess(storedBioToken);
-          return;
+        } else {
+          showToast(State.lang === 'en' ? 'Biometric verification was cancelled.' : 'Imbasan biometrik dibatalkan.', 'warning');
         }
+        return; // SELESAI: Jangan benarkan log masuk jika biometrik dibatalkan!
       } catch (err) {
-        if (err.name === 'NotAllowedError') {
-          showToast(State.lang === 'en' ? 'Biometric scan was cancelled.' : 'Imbasan biometrik dibatalkan.', 'warning');
-          return;
-        }
-        console.warn('WebAuthn prompt fallback:', err);
+        console.warn('WebAuthn prompt cancelled or error:', err);
+        showToast(State.lang === 'en' ? 'Biometric scan was cancelled.' : 'Imbasan biometrik dibatalkan.', 'warning');
+        return; // SELESAI: Tamat jika pengguna membatalkan!
       }
     }
 
-    // Fallback jika peranti/pelayar tidak menyokong perkakasan WebAuthn
-    executeBiometricSuccess(storedBioToken);
+    // Jika pelayar tidak menyokong WebAuthn perkakasan sama sekali
+    showToast(State.lang === 'en' ? 'Biometric is not supported on this browser. Please use official email OTP.' : 'Biometrik perkakasan tidak disokong pada pelayar ini. Sila gunakan OTP.', 'warning');
   }
 
   window.onBiometricSuccess = function (token) {
