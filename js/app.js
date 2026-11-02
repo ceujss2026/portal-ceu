@@ -343,7 +343,9 @@
     selectedEventForRsvp: null,
     activeEventFilter: 'all',
     activeMemoCategory: 'Semua',
-    activeDistrictFilter: 'Semua'
+    activeDistrictFilter: 'Semua',
+    selectedCalendarDate: null,
+    calendarOffsetWeeks: 0
   };
 
   // ==========================================================================
@@ -837,6 +839,8 @@
       }
 
       applyTranslations();
+      updateNotifBadge();
+      renderCalendarStrip();
       setView(State.currentUser.role === 'Admin' ? 'admin-dashboard' : 'home');
     } else {
       setView('auth');
@@ -844,25 +848,168 @@
   }
 
   // ==========================================================================
+  // NOTIFICATION BADGE HELPER
+  // ==========================================================================
+  function updateNotifBadge() {
+    let readIds = [];
+    try { readIds = JSON.parse(localStorage.getItem('ceu_read_notifs') || '[]'); } catch(e) {}
+    let unreadCount = 0;
+    (State.notifications || []).forEach(n => {
+      if (readIds.includes(n.notif_id)) {
+        n.is_read = true;
+      }
+      if (!n.is_read) unreadCount++;
+    });
+
+    const headerBadge = document.getElementById('header-notif-badge');
+    const bottomBadge = document.getElementById('bottom-notif-badge');
+    if (headerBadge) {
+      headerBadge.classList.toggle('hidden', unreadCount === 0);
+    }
+    if (bottomBadge) {
+      bottomBadge.classList.toggle('hidden', unreadCount === 0);
+    }
+  }
+
+  // ==========================================================================
+  // INTERACTIVE 7-DAY CALENDAR ENGINE
+  // ==========================================================================
+  function getCalendarDaysForWeek(offsetWeeks) {
+    const baseMonday = new Date(2026, 2, 9); // Isnin, 9 Mac 2026
+    baseMonday.setDate(baseMonday.getDate() + (offsetWeeks * 7));
+
+    const days = [];
+    const dayNamesBm = ['Isn', 'Sel', 'Rab', 'Kha', 'Jum', 'Sab', 'Aha'];
+    const dayNamesEn = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+
+    for (let i = 0; i < 7; i++) {
+      const d = new Date(baseMonday);
+      d.setDate(baseMonday.getDate() + i);
+      const yyyy = d.getFullYear();
+      const mm = String(d.getMonth() + 1).padStart(2, '0');
+      const dd = String(d.getDate()).padStart(2, '0');
+      const dateStr = `${yyyy}-${mm}-${dd}`;
+
+      days.push({
+        dateStr: dateStr,
+        dayNum: d.getDate(),
+        monthNum: d.getMonth() + 1,
+        year: yyyy,
+        nameBm: dayNamesBm[i],
+        nameEn: dayNamesEn[i]
+      });
+    }
+    return days;
+  }
+
+  function renderCalendarStrip() {
+    const container = document.getElementById('calendar-strip');
+    const monthLabel = document.getElementById('calendar-month-label');
+    const weekLabel = document.getElementById('calendar-week-label');
+    const filterIndicator = document.getElementById('calendar-filter-indicator');
+    const filterText = document.getElementById('calendar-filter-text');
+
+    if (!container) return;
+
+    const days = getCalendarDaysForWeek(State.calendarOffsetWeeks);
+    const monthsBm = ['Januari', 'Februari', 'Mac', 'April', 'Mei', 'Jun', 'Julai', 'Ogos', 'September', 'Oktober', 'November', 'Disember'];
+    const monthsEn = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+
+    const firstDay = days[0];
+    const monthName = State.lang === 'en' ? monthsEn[firstDay.monthNum - 1] : monthsBm[firstDay.monthNum - 1];
+    if (monthLabel) {
+      monthLabel.textContent = `${State.lang === 'en' ? 'Calendar' : 'Takwim'} ${monthName} ${firstDay.year}`;
+    }
+    if (weekLabel) {
+      const weekNum = 2 + State.calendarOffsetWeeks;
+      weekLabel.textContent = State.lang === 'en' ? `Week ${weekNum}` : `Minggu ${weekNum}`;
+    }
+
+    container.innerHTML = days.map(d => {
+      const isSelected = State.selectedCalendarDate === d.dateStr;
+      const hasEvents = (State.events || []).some(e => e.event_date === d.dateStr);
+      const dayName = State.lang === 'en' ? d.nameEn : d.nameBm;
+
+      return `
+        <button type="button" data-date="${d.dateStr}" class="cal-day-btn flex flex-col items-center py-2 px-1 rounded-xl transition-all cursor-pointer ${
+          isSelected
+            ? 'bg-primary text-white shadow-md font-bold scale-105 ring-2 ring-primary/40'
+            : 'bg-surface-container-lowest text-on-surface shadow-sm hover:border-primary/40 hover:bg-surface-container-low'
+        }">
+          <span class="text-[10px] ${isSelected ? 'text-white/90' : 'text-on-surface-variant'}">${dayName}</span>
+          <span class="font-headline text-xs font-bold mt-0.5">${d.dayNum}</span>
+          <span class="w-1.5 h-1.5 rounded-full mt-1 ${hasEvents ? (isSelected ? 'bg-white' : 'bg-tertiary') : 'bg-transparent'}"></span>
+        </button>
+      `;
+    }).join('');
+
+    if (filterIndicator) {
+      if (State.selectedCalendarDate) {
+        filterIndicator.classList.remove('hidden');
+        if (filterText) {
+          filterText.textContent = (State.lang === 'en' ? 'Filtering: ' : 'Menapis: ') + State.selectedCalendarDate;
+        }
+      } else {
+        filterIndicator.classList.add('hidden');
+      }
+    }
+
+    container.querySelectorAll('.cal-day-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const dateStr = btn.dataset.date;
+        if (State.selectedCalendarDate === dateStr) {
+          State.selectedCalendarDate = null;
+        } else {
+          State.selectedCalendarDate = dateStr;
+        }
+        renderCalendarStrip();
+        renderHomeView();
+      });
+    });
+  }
+
+  // ==========================================================================
   // 8. RENDER PAPARAN HOME (TAKWIN GURU)
   // ==========================================================================
   function renderHomeView() {
+    renderCalendarStrip();
+
     const container = document.getElementById('events-card-list');
     if (!container) return;
 
     let filtered = State.events;
     if (State.activeEventFilter === 'urgent') {
       const answeredIds = State.rsvps.map(r => r.event_id);
-      filtered = State.events.filter(e => !answeredIds.includes(e.event_id));
+      filtered = filtered.filter(e => !answeredIds.includes(e.event_id));
+    }
+    if (State.selectedCalendarDate) {
+      filtered = filtered.filter(e => e.event_date === State.selectedCalendarDate);
     }
 
     if (!filtered.length) {
       container.innerHTML = `
         <div class="bg-surface-container-low rounded-2xl p-8 text-center text-on-surface-variant my-4">
-          <span class="material-symbols-outlined text-[48px] text-primary/40 mb-2">event_available</span>
-          <p class="font-headline text-xs font-semibold">${I18N[State.lang].noEventsFound}</p>
+          <span class="material-symbols-outlined text-[48px] text-primary/40 mb-2">event_busy</span>
+          <p class="font-headline text-xs font-semibold">${
+            State.selectedCalendarDate
+              ? (State.lang === 'en' ? 'No events scheduled on ' + State.selectedCalendarDate : 'Tiada program dijadualkan pada ' + State.selectedCalendarDate)
+              : I18N[State.lang].noEventsFound
+          }</p>
+          ${State.selectedCalendarDate ? `
+            <button id="btn-reset-cal-filter" type="button" class="mt-4 px-4 py-2 bg-primary text-white rounded-xl text-xs font-bold shadow-sm cursor-pointer">
+              ${State.lang === 'en' ? 'Show All Programs' : 'Tunjuk Semua Program'}
+            </button>
+          ` : ''}
         </div>
       `;
+      const btnReset = document.getElementById('btn-reset-cal-filter');
+      if (btnReset) {
+        btnReset.addEventListener('click', () => {
+          State.selectedCalendarDate = null;
+          renderCalendarStrip();
+          renderHomeView();
+        });
+      }
       return;
     }
 
@@ -1145,6 +1292,16 @@
   // 11. RENDER NOTIFIKASI
   // ==========================================================================
   function renderNotifView() {
+    // Tandakan semua notifikasi telah dibaca serta-merta apabila pengguna melawat paparan ini
+    let readIds = [];
+    try { readIds = JSON.parse(localStorage.getItem('ceu_read_notifs') || '[]'); } catch(e) {}
+    (State.notifications || []).forEach(n => {
+      if (!readIds.includes(n.notif_id)) readIds.push(n.notif_id);
+      n.is_read = true;
+    });
+    localStorage.setItem('ceu_read_notifs', JSON.stringify(readIds));
+    updateNotifBadge();
+
     const container = document.getElementById('notif-list-container');
     if (!container) return;
 
@@ -1623,6 +1780,31 @@
         renderHomeView();
       });
     });
+
+    const btnPrevWeek = document.getElementById('btn-prev-week');
+    if (btnPrevWeek) {
+      btnPrevWeek.addEventListener('click', () => {
+        State.calendarOffsetWeeks--;
+        renderCalendarStrip();
+      });
+    }
+
+    const btnNextWeek = document.getElementById('btn-next-week');
+    if (btnNextWeek) {
+      btnNextWeek.addEventListener('click', () => {
+        State.calendarOffsetWeeks++;
+        renderCalendarStrip();
+      });
+    }
+
+    const btnClearDateFilter = document.getElementById('btn-clear-date-filter');
+    if (btnClearDateFilter) {
+      btnClearDateFilter.addEventListener('click', () => {
+        State.selectedCalendarDate = null;
+        renderCalendarStrip();
+        renderHomeView();
+      });
+    }
 
     const archiveSearch = document.getElementById('archive-search-input');
     if (archiveSearch) {

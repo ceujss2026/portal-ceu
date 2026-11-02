@@ -156,7 +156,7 @@
         <!-- Notification Bell -->
         <button type="button" onclick="window.CEU_APP.setView('notif')" aria-label="Notifikasi" class="relative w-10 h-10 flex items-center justify-center text-white rounded-full hover:bg-white/10 active:scale-95 transition-all">
           <span class="material-symbols-outlined text-2xl">notifications</span>
-          <span class="absolute top-2 right-2 w-2.5 h-2.5 bg-error rounded-full ring-2 ring-primary-dark animate-pulse"></span>
+          <span id="header-notif-badge" class="hidden absolute top-2 right-2 w-2.5 h-2.5 bg-error rounded-full ring-2 ring-primary-dark animate-pulse"></span>
         </button>
 
         <!-- User Profile Avatar Pill -->
@@ -354,49 +354,36 @@
         </div>
       </div>
 
-      <!-- 7-Day Calendar Strip -->
+      <!-- 7-Day Interactive Calendar Strip -->
       <div class="bg-surface-container-low p-3.5 rounded-2xl shadow-sm mb-4 border border-outline-variant/30">
         <div class="flex items-center justify-between mb-2">
           <div class="flex items-center gap-1.5">
             <span class="material-symbols-outlined text-primary text-base">calendar_month</span>
-            <span data-i18n="calendarTitle" class="font-headline text-xs font-bold text-on-surface">Takwim Mac 2026</span>
+            <span id="calendar-month-label" class="font-headline text-xs font-bold text-on-surface">Takwim Mac 2026</span>
           </div>
-          <span data-i18n="calendarWeek" class="font-body text-[11px] text-on-surface-variant font-medium">Minggu Ke-2</span>
+          <div class="flex items-center gap-1">
+            <button id="btn-prev-week" aria-label="Minggu Lepas" type="button" class="w-7 h-7 rounded-full bg-surface-container flex items-center justify-center text-on-surface-variant hover:text-primary active:scale-90 transition-all cursor-pointer">
+              <span class="material-symbols-outlined text-base">chevron_left</span>
+            </button>
+            <span id="calendar-week-label" class="font-body text-[11px] text-on-surface-variant font-medium px-1">Minggu 2</span>
+            <button id="btn-next-week" aria-label="Minggu Seterusnya" type="button" class="w-7 h-7 rounded-full bg-surface-container flex items-center justify-center text-on-surface-variant hover:text-primary active:scale-90 transition-all cursor-pointer">
+              <span class="material-symbols-outlined text-base">chevron_right</span>
+            </button>
+          </div>
         </div>
-        <div class="grid grid-cols-7 gap-1 text-center">
-          <div class="flex flex-col items-center py-2 px-1 rounded-xl bg-surface-container-lowest shadow-sm">
-            <span data-i18n="dayMon" class="font-body text-[10px] text-on-surface-variant">Isn</span>
-            <span class="font-headline text-xs font-bold text-on-surface">9</span>
-            <span class="w-1.5 h-1.5 rounded-full bg-tertiary mt-1"></span>
-          </div>
-          <div class="flex flex-col items-center py-2 px-1 rounded-xl bg-surface-container-lowest shadow-sm">
-            <span data-i18n="dayTue" class="font-body text-[10px] text-on-surface-variant">Sel</span>
-            <span class="font-headline text-xs font-bold text-on-surface">10</span>
-          </div>
-          <div class="flex flex-col items-center py-2 px-1 rounded-xl bg-surface-container-lowest shadow-sm">
-            <span data-i18n="dayWed" class="font-body text-[10px] text-on-surface-variant">Rab</span>
-            <span class="font-headline text-xs font-bold text-on-surface">11</span>
-            <span class="w-1.5 h-1.5 rounded-full bg-tertiary mt-1"></span>
-          </div>
-          <div class="flex flex-col items-center py-2 px-1 rounded-xl bg-primary text-white shadow-md scale-105 font-bold">
-            <span data-i18n="dayThu" class="font-body text-[10px] text-white/80">Kha</span>
-            <span class="font-headline text-xs text-white">12</span>
-            <span class="w-1.5 h-1.5 rounded-full bg-tertiary mt-1"></span>
-          </div>
-          <div class="flex flex-col items-center py-2 px-1 rounded-xl bg-surface-container-lowest shadow-sm">
-            <span data-i18n="dayFri" class="font-body text-[10px] text-on-surface-variant">Jum</span>
-            <span class="font-headline text-xs font-bold text-on-surface">13</span>
-          </div>
-          <div class="flex flex-col items-center py-2 px-1 rounded-xl bg-surface-container-lowest shadow-sm">
-            <span data-i18n="daySat" class="font-body text-[10px] text-on-surface-variant">Sab</span>
-            <span class="font-headline text-xs font-bold text-on-surface">14</span>
-            <span class="w-1.5 h-1.5 rounded-full bg-tertiary mt-1"></span>
-          </div>
-          <div class="flex flex-col items-center py-2 px-1 rounded-xl bg-surface-container-lowest shadow-sm">
-            <span data-i18n="daySun" class="font-body text-[10px] text-on-surface-variant">Aha</span>
-            <span class="font-headline text-xs font-bold text-on-surface">15</span>
-            <span class="w-1.5 h-1.5 rounded-full bg-tertiary mt-1"></span>
-          </div>
+        <div id="calendar-strip" class="grid grid-cols-7 gap-1.5 text-center">
+          <!-- Rendered dynamically by renderCalendarStrip() -->
+        </div>
+        <!-- Active Date Filter Indicator -->
+        <div id="calendar-filter-indicator" class="hidden mt-2.5 pt-2 border-t border-outline-variant/30 flex items-center justify-between">
+          <span class="text-xs font-semibold text-primary flex items-center gap-1">
+            <span class="material-symbols-outlined text-sm">filter_alt</span>
+            <span id="calendar-filter-text">Menapis: 15 Mac 2026</span>
+          </span>
+          <button id="btn-clear-date-filter" type="button" class="text-[11px] font-bold text-on-surface-variant hover:text-error flex items-center gap-0.5 cursor-pointer">
+            <span class="material-symbols-outlined text-xs">close</span>
+            <span data-i18n="resetFilter">Tunjuk Semua</span>
+          </button>
         </div>
       </div>
 
@@ -911,33 +898,33 @@
        FIXED BOTTOM NAVIGATION (5 TABS)
        ======================================================================== -->
   <nav id="app-bottom-nav" class="fixed bottom-0 w-full z-50 pb-safe bg-surface-container-lowest/95 backdrop-blur-xl border-t border-outline-variant/30 shadow-[0_-2px_12px_rgba(0,0,0,0.06)]" style="display: none;">
-    <div class="flex justify-around items-center h-16 px-space-2xs max-w-lg mx-auto">
-      <button type="button" data-tab="home" class="nav-tab-btn relative flex flex-col items-center justify-center flex-1 h-full pt-1 transition-colors min-h-[44px] text-primary border-t-2 border-tertiary">
-        <span class="material-symbols-outlined text-2xl">home</span>
-        <span data-i18n="navHome" class="font-label-sm text-label-sm mt-0.5">Utama</span>
+    <div class="flex justify-around items-center h-16 px-2 sm:px-8 max-w-2xl mx-auto">
+      <button type="button" data-tab="home" class="nav-tab-btn relative flex flex-col items-center justify-center flex-1 py-1 px-1 rounded-xl transition-all min-h-[48px] text-primary border-t-2 border-tertiary">
+        <span class="material-symbols-outlined text-[22px]">home</span>
+        <span data-i18n="navHome" class="text-[10px] sm:text-xs font-semibold mt-0.5 tracking-tight truncate">Utama</span>
       </button>
 
-      <button type="button" data-tab="archive" class="nav-tab-btn relative flex flex-col items-center justify-center flex-1 h-full pt-1 text-on-surface-variant hover:text-primary transition-colors min-h-[44px]">
-        <span class="material-symbols-outlined text-2xl">inventory_2</span>
-        <span data-i18n="navArchive" class="font-label-sm text-label-sm mt-0.5">Arkib</span>
+      <button type="button" data-tab="archive" class="nav-tab-btn relative flex flex-col items-center justify-center flex-1 py-1 px-1 rounded-xl text-on-surface-variant hover:text-primary transition-all min-h-[48px]">
+        <span class="material-symbols-outlined text-[22px]">inventory_2</span>
+        <span data-i18n="navArchive" class="text-[10px] sm:text-xs font-semibold mt-0.5 tracking-tight truncate">Arkib</span>
       </button>
 
-      <button type="button" data-tab="notif" class="nav-tab-btn relative flex flex-col items-center justify-center flex-1 h-full pt-1 text-on-surface-variant hover:text-primary transition-colors min-h-[44px]">
+      <button type="button" data-tab="notif" class="nav-tab-btn relative flex flex-col items-center justify-center flex-1 py-1 px-1 rounded-xl text-on-surface-variant hover:text-primary transition-all min-h-[48px]">
         <div class="relative flex items-center justify-center">
-          <span class="material-symbols-outlined text-2xl">notifications_active</span>
-          <span class="absolute -top-1 -right-1 w-2 h-2 bg-error rounded-full"></span>
+          <span class="material-symbols-outlined text-[22px]">notifications_active</span>
+          <span id="bottom-notif-badge" class="hidden absolute -top-1 -right-1 w-2 h-2 bg-error rounded-full animate-pulse"></span>
         </div>
-        <span data-i18n="navNotif" class="font-label-sm text-label-sm mt-0.5">Hebahan</span>
+        <span data-i18n="navNotif" class="text-[10px] sm:text-xs font-semibold mt-0.5 tracking-tight truncate">Hebahan</span>
       </button>
 
-      <button id="nav-btn-admin" type="button" data-tab="admin" class="nav-tab-btn relative flex flex-col items-center justify-center flex-1 h-full pt-1 text-on-surface-variant hover:text-primary transition-colors min-h-[44px]" style="display: none;">
-        <span class="material-symbols-outlined text-2xl">admin_panel_settings</span>
-        <span data-i18n="navAdmin" class="font-label-sm text-label-sm mt-0.5">Pentadbir</span>
+      <button id="nav-btn-admin" type="button" data-tab="admin" class="nav-tab-btn relative flex flex-col items-center justify-center flex-1 py-1 px-1 rounded-xl text-on-surface-variant hover:text-primary transition-all min-h-[48px]" style="display: none;">
+        <span class="material-symbols-outlined text-[22px]">admin_panel_settings</span>
+        <span data-i18n="navAdmin" class="text-[10px] sm:text-xs font-semibold mt-0.5 tracking-tight truncate">Pentadbir</span>
       </button>
 
-      <button type="button" data-tab="profile" class="nav-tab-btn relative flex flex-col items-center justify-center flex-1 h-full pt-1 text-on-surface-variant hover:text-primary transition-colors min-h-[44px]">
-        <span class="material-symbols-outlined text-2xl">manage_accounts</span>
-        <span data-i18n="navProfile" class="font-label-sm text-label-sm mt-0.5">Profil</span>
+      <button type="button" data-tab="profile" class="nav-tab-btn relative flex flex-col items-center justify-center flex-1 py-1 px-1 rounded-xl text-on-surface-variant hover:text-primary transition-all min-h-[48px]">
+        <span class="material-symbols-outlined text-[22px]">manage_accounts</span>
+        <span data-i18n="navProfile" class="text-[10px] sm:text-xs font-semibold mt-0.5 tracking-tight truncate">Profil</span>
       </button>
     </div>
   </nav>
