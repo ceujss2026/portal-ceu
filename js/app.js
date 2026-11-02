@@ -71,8 +71,10 @@
       updateRsvpBtn: 'Kemas Kini RSVP',
       viewDetailsBtn: 'Lihat Butiran',
       onlineMeeting: 'Sertai Google Meet',
-      calendarTitle: 'Takwim Mac 2026',
-      calendarWeek: 'Minggu Ke-2',
+      calendarTitle: 'Bulan Mac 2026',
+      calendarWeek: 'Bulan Mac 2026',
+      currentMonth: 'Bulan Ini',
+      resetFilter: 'Tunjuk Semua',
       noEventsFound: 'Semua program telah dijawab atau tiada program aktif buat masa ini.',
       
       // Status Badges
@@ -224,8 +226,10 @@
       updateRsvpBtn: 'Update RSVP',
       viewDetailsBtn: 'View Details',
       onlineMeeting: 'Join Google Meet',
-      calendarTitle: 'March 2026 Calendar',
-      calendarWeek: 'Week 2',
+      calendarTitle: 'Month: March 2026',
+      calendarWeek: 'Month: March 2026',
+      currentMonth: 'This Month',
+      resetFilter: 'Show All',
       noEventsFound: 'All events have been responded to or no active events at this time.',
 
       // Status Badges
@@ -345,7 +349,8 @@
     activeMemoCategory: 'Semua',
     activeDistrictFilter: 'Semua',
     selectedCalendarDate: null,
-    calendarOffsetWeeks: 0
+    calendarYear: 2026,
+    calendarMonth: 2
   };
 
   // ==========================================================================
@@ -840,7 +845,7 @@
 
       applyTranslations();
       updateNotifBadge();
-      renderCalendarStrip();
+      renderMonthlyCalendar();
       setView(State.currentUser.role === 'Admin' ? 'admin-dashboard' : 'home');
     } else {
       setView('auth');
@@ -872,73 +877,75 @@
   }
 
   // ==========================================================================
-  // INTERACTIVE 7-DAY CALENDAR ENGINE
+  // INTERACTIVE MONTHLY CALENDAR ENGINE
   // ==========================================================================
-  function getCalendarDaysForWeek(offsetWeeks) {
-    const baseMonday = new Date(2026, 2, 9); // Isnin, 9 Mac 2026
-    baseMonday.setDate(baseMonday.getDate() + (offsetWeeks * 7));
+  const MONTH_NAMES = {
+    bm: ['Januari', 'Februari', 'Mac', 'April', 'Mei', 'Jun', 'Julai', 'Ogos', 'September', 'Oktober', 'November', 'Disember'],
+    en: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
+  };
 
-    const days = [];
-    const dayNamesBm = ['Isn', 'Sel', 'Rab', 'Kha', 'Jum', 'Sab', 'Aha'];
-    const dayNamesEn = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+  function getMonthCalendarCells(year, month) {
+    const firstDay = new Date(year, month, 1);
+    const lastDay = new Date(year, month + 1, 0);
+    const totalDays = lastDay.getDate();
 
-    for (let i = 0; i < 7; i++) {
-      const d = new Date(baseMonday);
-      d.setDate(baseMonday.getDate() + i);
-      const yyyy = d.getFullYear();
-      const mm = String(d.getMonth() + 1).padStart(2, '0');
-      const dd = String(d.getDate()).padStart(2, '0');
-      const dateStr = `${yyyy}-${mm}-${dd}`;
+    let startingDayOfWeek = firstDay.getDay() - 1;
+    if (startingDayOfWeek === -1) startingDayOfWeek = 6;
 
-      days.push({
-        dateStr: dateStr,
-        dayNum: d.getDate(),
-        monthNum: d.getMonth() + 1,
-        year: yyyy,
-        nameBm: dayNamesBm[i],
-        nameEn: dayNamesEn[i]
+    const cells = [];
+    for (let p = 0; p < startingDayOfWeek; p++) {
+      cells.push({ isEmpty: true });
+    }
+    for (let day = 1; day <= totalDays; day++) {
+      const mm = String(month + 1).padStart(2, '0');
+      const dd = String(day).padStart(2, '0');
+      const dateStr = `${year}-${mm}-${dd}`;
+      cells.push({
+        isEmpty: false,
+        dayNum: day,
+        dateStr: dateStr
       });
     }
-    return days;
+    return cells;
   }
 
-  function renderCalendarStrip() {
-    const container = document.getElementById('calendar-strip');
+  function renderMonthlyCalendar() {
+    const container = document.getElementById('calendar-grid');
     const monthLabel = document.getElementById('calendar-month-label');
-    const weekLabel = document.getElementById('calendar-week-label');
     const filterIndicator = document.getElementById('calendar-filter-indicator');
     const filterText = document.getElementById('calendar-filter-text');
 
     if (!container) return;
 
-    const days = getCalendarDaysForWeek(State.calendarOffsetWeeks);
-    const monthsBm = ['Januari', 'Februari', 'Mac', 'April', 'Mei', 'Jun', 'Julai', 'Ogos', 'September', 'Oktober', 'November', 'Disember'];
-    const monthsEn = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+    const year = State.calendarYear || 2026;
+    const month = (State.calendarMonth !== undefined) ? State.calendarMonth : 2;
+    const monthName = (MONTH_NAMES[State.lang] || MONTH_NAMES.bm)[month];
 
-    const firstDay = days[0];
-    const monthName = State.lang === 'en' ? monthsEn[firstDay.monthNum - 1] : monthsBm[firstDay.monthNum - 1];
     if (monthLabel) {
-      monthLabel.textContent = `${State.lang === 'en' ? 'Calendar' : 'Takwim'} ${monthName} ${firstDay.year}`;
-    }
-    if (weekLabel) {
-      const weekNum = 2 + State.calendarOffsetWeeks;
-      weekLabel.textContent = State.lang === 'en' ? `Week ${weekNum}` : `Minggu ${weekNum}`;
+      monthLabel.textContent = `${State.lang === 'en' ? 'Month: ' : 'Bulan '}${monthName} ${year}`;
     }
 
-    container.innerHTML = days.map(d => {
-      const isSelected = State.selectedCalendarDate === d.dateStr;
-      const hasEvents = (State.events || []).some(e => e.event_date === d.dateStr);
-      const dayName = State.lang === 'en' ? d.nameEn : d.nameBm;
+    const cells = getMonthCalendarCells(year, month);
+    container.innerHTML = cells.map(c => {
+      if (c.isEmpty) {
+        return `<div class="h-9 sm:h-10"></div>`;
+      }
+
+      const isSelected = State.selectedCalendarDate === c.dateStr;
+      const hasEvents = (State.events || []).some(e => e.event_date === c.dateStr);
 
       return `
-        <button type="button" data-date="${d.dateStr}" class="cal-day-btn flex flex-col items-center py-2 px-1 rounded-xl transition-all cursor-pointer ${
+        <button type="button" data-date="${c.dateStr}" class="cal-day-btn h-9 sm:h-10 rounded-xl flex flex-col items-center justify-center transition-all cursor-pointer ${
           isSelected
             ? 'bg-primary text-white shadow-md font-bold scale-105 ring-2 ring-primary/40'
-            : 'bg-surface-container-lowest text-on-surface shadow-sm hover:border-primary/40 hover:bg-surface-container-low'
+            : (hasEvents
+                ? 'bg-surface-container-lowest text-on-surface font-semibold shadow-sm hover:border-primary/40 hover:bg-surface-container'
+                : 'text-on-surface hover:bg-surface-container-low')
         }">
-          <span class="text-[10px] ${isSelected ? 'text-white/90' : 'text-on-surface-variant'}">${dayName}</span>
-          <span class="font-headline text-xs font-bold mt-0.5">${d.dayNum}</span>
-          <span class="w-1.5 h-1.5 rounded-full mt-1 ${hasEvents ? (isSelected ? 'bg-white' : 'bg-tertiary') : 'bg-transparent'}"></span>
+          <span class="font-headline text-xs sm:text-sm leading-none">${c.dayNum}</span>
+          ${hasEvents
+            ? `<span class="w-1.5 h-1.5 rounded-full mt-1 ${isSelected ? 'bg-white' : 'bg-tertiary'}"></span>`
+            : '<span class="w-1.5 h-1.5 mt-1 bg-transparent"></span>'}
         </button>
       `;
     }).join('');
@@ -962,7 +969,7 @@
         } else {
           State.selectedCalendarDate = dateStr;
         }
-        renderCalendarStrip();
+        renderMonthlyCalendar();
         renderHomeView();
       });
     });
@@ -972,7 +979,7 @@
   // 8. RENDER PAPARAN HOME (TAKWIN GURU)
   // ==========================================================================
   function renderHomeView() {
-    renderCalendarStrip();
+    renderMonthlyCalendar();
 
     const container = document.getElementById('events-card-list');
     if (!container) return;
@@ -1781,19 +1788,38 @@
       });
     });
 
-    const btnPrevWeek = document.getElementById('btn-prev-week');
-    if (btnPrevWeek) {
-      btnPrevWeek.addEventListener('click', () => {
-        State.calendarOffsetWeeks--;
-        renderCalendarStrip();
+    const btnPrevCal = document.getElementById('btn-prev-cal');
+    if (btnPrevCal) {
+      btnPrevCal.addEventListener('click', () => {
+        State.calendarMonth--;
+        if (State.calendarMonth < 0) {
+          State.calendarMonth = 11;
+          State.calendarYear--;
+        }
+        renderMonthlyCalendar();
       });
     }
 
-    const btnNextWeek = document.getElementById('btn-next-week');
-    if (btnNextWeek) {
-      btnNextWeek.addEventListener('click', () => {
-        State.calendarOffsetWeeks++;
-        renderCalendarStrip();
+    const btnNextCal = document.getElementById('btn-next-cal');
+    if (btnNextCal) {
+      btnNextCal.addEventListener('click', () => {
+        State.calendarMonth++;
+        if (State.calendarMonth > 11) {
+          State.calendarMonth = 0;
+          State.calendarYear++;
+        }
+        renderMonthlyCalendar();
+      });
+    }
+
+    const btnTodayCal = document.getElementById('btn-today-cal');
+    if (btnTodayCal) {
+      btnTodayCal.addEventListener('click', () => {
+        State.calendarYear = 2026;
+        State.calendarMonth = 2; // Mac 2026
+        State.selectedCalendarDate = null;
+        renderMonthlyCalendar();
+        renderHomeView();
       });
     }
 
@@ -1801,7 +1827,7 @@
     if (btnClearDateFilter) {
       btnClearDateFilter.addEventListener('click', () => {
         State.selectedCalendarDate = null;
-        renderCalendarStrip();
+        renderMonthlyCalendar();
         renderHomeView();
       });
     }
