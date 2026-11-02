@@ -536,6 +536,50 @@
     if (tabEmail) tabEmail.click();
   }
 
+  async function registerPlatformBiometric(user) {
+    if (!window.PublicKeyCredential) return false;
+    try {
+      if (PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable) {
+        const available = await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable();
+        if (!available) return false;
+      }
+
+      const challenge = new Uint8Array(32);
+      window.crypto.getRandomValues(challenge);
+      const userId = new TextEncoder().encode((user && user.email) || 'ceu_user');
+
+      const cred = await navigator.credentials.create({
+        publicKey: {
+          challenge: challenge,
+          rp: { name: "Portal CEU UPK Brunei" },
+          user: {
+            id: userId,
+            name: (user && user.email) || 'guru@moe.edu.bn',
+            displayName: (user && user.name) || 'Guru Pendidikan Kerjaya'
+          },
+          pubKeyCredParams: [
+            { alg: -7, type: "public-key" },  // ES256
+            { alg: -257, type: "public-key" } // RS256
+          ],
+          authenticatorSelection: {
+            authenticatorAttachment: "platform", // Cap jari / Face ID terbina dalam telefon
+            userVerification: "required"
+          },
+          timeout: 60000
+        }
+      });
+
+      if (cred && cred.rawId) {
+        const idBase64 = btoa(String.fromCharCode(...new Uint8Array(cred.rawId)));
+        localStorage.setItem('ceu_webauthn_cred_id', idBase64);
+        return true;
+      }
+    } catch (e) {
+      console.warn('Pendaftaran biometrik WebAuthn telefon:', e);
+    }
+    return false;
+  }
+
   async function triggerBiometricLogin() {
     const storedBioToken = localStorage.getItem('ceu_bio_token');
     const storedBioUser = localStorage.getItem('ceu_bio_user');
@@ -563,15 +607,33 @@
       try {
         const challenge = new Uint8Array(32);
         window.crypto.getRandomValues(challenge);
+        const storedCredId = localStorage.getItem('ceu_webauthn_cred_id');
 
-        // Minta pengesahan biometrik perkakasan daripada sistem operasi
-        const assertion = await navigator.credentials.get({
-          publicKey: {
-            challenge: challenge,
-            timeout: 60000,
-            userVerification: 'preferred'
+        let assertion = null;
+        if (storedCredId) {
+          const rawId = Uint8Array.from(atob(storedCredId), c => c.charCodeAt(0));
+          assertion = await navigator.credentials.get({
+            publicKey: {
+              challenge: challenge,
+              allowCredentials: [{
+                id: rawId,
+                type: 'public-key',
+                transports: ['internal']
+              }],
+              timeout: 60000,
+              userVerification: 'required'
+            }
+          });
+        } else {
+          // Jika belum pernah create passkey, jalankan pendaftaran biometrik peranti
+          let userObj = {};
+          try { userObj = JSON.parse(storedBioUser); } catch(e) {}
+          const registered = await registerPlatformBiometric(userObj);
+          if (registered) {
+            executeBiometricSuccess(storedBioToken);
+            return;
           }
-        });
+        }
 
         if (assertion) {
           executeBiometricSuccess(storedBioToken);
@@ -586,7 +648,7 @@
       }
     }
 
-    // Fallback jika pelayar tidak menyokong perkakasan WebAuthn
+    // Fallback jika peranti/pelayar tidak menyokong perkakasan WebAuthn
     executeBiometricSuccess(storedBioToken);
   }
 
@@ -1467,6 +1529,7 @@
       btnSwitchUser.addEventListener('click', () => {
         localStorage.removeItem('ceu_bio_token');
         localStorage.removeItem('ceu_bio_user');
+        localStorage.removeItem('ceu_webauthn_cred_id');
         updateBiometricUI();
         showToast(State.lang === 'en' ? 'Biometric cleared. Please log in with OTP.' : 'Pendaftaran biometrik dipadamkan. Sila log masuk dengan OTP.', 'info');
       });
