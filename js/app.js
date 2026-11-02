@@ -71,8 +71,8 @@
       updateRsvpBtn: 'Kemas Kini RSVP',
       viewDetailsBtn: 'Lihat Butiran',
       onlineMeeting: 'Sertai Google Meet',
-      calendarTitle: 'Bulan Mac 2026',
-      calendarWeek: 'Bulan Mac 2026',
+      calendarTitle: 'Bulan Ini',
+      calendarWeek: 'Bulan Ini',
       currentMonth: 'Bulan Ini',
       resetFilter: 'Tunjuk Semua',
       noEventsFound: 'Semua program telah dijawab atau tiada program aktif buat masa ini.',
@@ -226,8 +226,8 @@
       updateRsvpBtn: 'Update RSVP',
       viewDetailsBtn: 'View Details',
       onlineMeeting: 'Join Google Meet',
-      calendarTitle: 'Month: March 2026',
-      calendarWeek: 'Month: March 2026',
+      calendarTitle: 'This Month',
+      calendarWeek: 'This Month',
       currentMonth: 'This Month',
       resetFilter: 'Show All',
       noEventsFound: 'All events have been responded to or no active events at this time.',
@@ -349,8 +349,8 @@
     activeMemoCategory: 'Semua',
     activeDistrictFilter: 'Semua',
     selectedCalendarDate: null,
-    calendarYear: 2026,
-    calendarMonth: 2
+    calendarYear: new Date().getFullYear(),
+    calendarMonth: new Date().getMonth()
   };
 
   // ==========================================================================
@@ -917,13 +917,16 @@
 
     if (!container) return;
 
-    const year = State.calendarYear || 2026;
-    const month = (State.calendarMonth !== undefined) ? State.calendarMonth : 2;
+    const now = new Date();
+    const year = State.calendarYear !== undefined ? State.calendarYear : now.getFullYear();
+    const month = (State.calendarMonth !== undefined) ? State.calendarMonth : now.getMonth();
     const monthName = (MONTH_NAMES[State.lang] || MONTH_NAMES.bm)[month];
 
     if (monthLabel) {
       monthLabel.textContent = `${State.lang === 'en' ? 'Month: ' : 'Bulan '}${monthName} ${year}`;
     }
+
+    const todayDateStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
 
     const cells = getMonthCalendarCells(year, month);
     container.innerHTML = cells.map(c => {
@@ -932,20 +935,28 @@
       }
 
       const isSelected = State.selectedCalendarDate === c.dateStr;
+      const isToday = c.dateStr === todayDateStr;
       const hasEvents = (State.events || []).some(e => e.event_date === c.dateStr);
 
+      let dayClasses = 'cal-day-btn h-9 sm:h-10 rounded-xl flex flex-col items-center justify-center transition-all cursor-pointer relative ';
+      if (isSelected) {
+        dayClasses += 'bg-primary text-white shadow-md font-bold scale-105 ring-2 ring-primary/40';
+      } else if (isToday) {
+        dayClasses += 'bg-primary/10 text-primary font-bold border-2 border-primary/50 hover:bg-primary/20';
+      } else if (hasEvents) {
+        dayClasses += 'bg-surface-container-lowest text-on-surface font-semibold shadow-sm hover:border-primary/40 hover:bg-surface-container';
+      } else {
+        dayClasses += 'text-on-surface hover:bg-surface-container-low';
+      }
+
       return `
-        <button type="button" data-date="${c.dateStr}" class="cal-day-btn h-9 sm:h-10 rounded-xl flex flex-col items-center justify-center transition-all cursor-pointer ${
-          isSelected
-            ? 'bg-primary text-white shadow-md font-bold scale-105 ring-2 ring-primary/40'
-            : (hasEvents
-                ? 'bg-surface-container-lowest text-on-surface font-semibold shadow-sm hover:border-primary/40 hover:bg-surface-container'
-                : 'text-on-surface hover:bg-surface-container-low')
-        }">
+        <button type="button" data-date="${c.dateStr}" class="${dayClasses}" title="${isToday ? (State.lang === 'en' ? 'Today' : 'Hari Ini') : ''}">
           <span class="font-headline text-xs sm:text-sm leading-none">${c.dayNum}</span>
           ${hasEvents
             ? `<span class="w-1.5 h-1.5 rounded-full mt-1 ${isSelected ? 'bg-white' : 'bg-tertiary'}"></span>`
-            : '<span class="w-1.5 h-1.5 mt-1 bg-transparent"></span>'}
+            : (isToday
+                ? `<span class="w-1 h-1 rounded-full mt-1 bg-primary"></span>`
+                : '<span class="w-1.5 h-1.5 mt-1 bg-transparent"></span>')}
         </button>
       `;
     }).join('');
@@ -1885,8 +1896,9 @@
     const btnTodayCal = document.getElementById('btn-today-cal');
     if (btnTodayCal) {
       btnTodayCal.addEventListener('click', () => {
-        State.calendarYear = 2026;
-        State.calendarMonth = 2; // Mac 2026
+        const today = new Date();
+        State.calendarYear = today.getFullYear();
+        State.calendarMonth = today.getMonth();
         State.selectedCalendarDate = null;
         renderMonthlyCalendar();
         renderHomeView();

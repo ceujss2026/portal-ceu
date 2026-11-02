@@ -5,8 +5,8 @@
  * ============================================================================
  */
 
-window.MOCK_DATA = {
-  users: [
+window.MOCK_DATA = (function () {
+  const users = [
     {
       email: 'pegawai.upk@moe.bn',
       name: 'Hj Mohammad Faizal bin Hj Kamis',
@@ -87,19 +87,34 @@ window.MOCK_DATA = {
       biometricEnabled: true,
       status: 'Active'
     }
-  ],
+  ];
 
-  events: [
+  const _now = new Date();
+  const _curY = _now.getFullYear();
+  const _curM = _now.getMonth() + 1;
+  const _pad = n => String(n).padStart(2, '0');
+  
+  const curMonthStr = `${_curY}-${_pad(_curM)}`;
+  
+  let nextM = _curM + 1;
+  let nextY = _curY;
+  if (nextM > 12) {
+    nextM = 1;
+    nextY += 1;
+  }
+  const nextMonthStr = `${nextY}-${_pad(nextM)}`;
+
+  const events = [
     {
       event_id: 'EVT-2026-001',
       title_bm: 'Mesyuarat Penyelarasan Kaunselor Kerjaya Bil. 1/2026',
       title_en: 'Career Guidance Counselors Coordination Meeting No. 1/2026',
-      event_date: '2026-03-15',
+      event_date: `${curMonthStr}-15`,
       start_time: '08:30 PAGI',
       end_time: '11:30 PAGI',
       venue: 'Dewan Utama Kementerian Pendidikan, Berakas',
       meeting_link: '',
-      rsvp_deadline: '2026-03-12T23:59:00',
+      rsvp_deadline: `${curMonthStr}-12T23:59:00`,
       attachment_drive_url: 'https://moe.gov.bn/circulars/agenda_bil1_2026.pdf',
       status: 'Published',
       created_by: 'pegawai.upk@moe.bn',
@@ -109,12 +124,12 @@ window.MOCK_DATA = {
       event_id: 'EVT-2026-002',
       title_bm: 'Bengkel Pentaksiran Profil Kerjaya Pelajar Tingkatan 5',
       title_en: 'Form 5 Students Career Profiling Assessment Workshop',
-      event_date: '2026-03-22',
+      event_date: `${curMonthStr}-22`,
       start_time: '09:00 PAGI',
       end_time: '12:00 TGH HARI',
       venue: 'Dalam Talian (Google Meet)',
       meeting_link: 'https://meet.google.com/upk-ceu-2026',
-      rsvp_deadline: '2026-03-20T17:00:00',
+      rsvp_deadline: `${curMonthStr}-20T17:00:00`,
       attachment_drive_url: '',
       status: 'Published',
       created_by: 'pegawai.upk@moe.bn',
@@ -124,20 +139,38 @@ window.MOCK_DATA = {
       event_id: 'EVT-2026-003',
       title_bm: 'Pameran Pendidikan Tinggi & Kerjaya Kluster Belait 2026',
       title_en: 'Belait Cluster Higher Education & Career Fair 2026',
-      event_date: '2026-04-05',
+      event_date: `${nextMonthStr}-05`,
       start_time: '08:00 PAGI',
       end_time: '04:30 PETANG',
       venue: 'Pusat Insani, Seria, Belait',
       meeting_link: '',
-      rsvp_deadline: '2026-03-30T16:00:00',
+      rsvp_deadline: `${nextMonthStr}-01T16:00:00`,
       attachment_drive_url: '',
       status: 'Published',
       created_by: 'pegawai.upk@moe.bn',
       summary: 'Penyelarasan gerai pameran institusi pendidikan tinggi (UBD, UTB, UNISSA, PB, IBTE) untuk pelajar Daerah Belait.'
     }
-  ],
+  ];
 
-  rsvps: [
+  if (curMonthStr !== '2026-03') {
+    events.push({
+      event_id: 'EVT-2026-004',
+      title_bm: 'Seminar Hala Tuju Lepasan Menengah Q1 2026',
+      title_en: 'Secondary School Leavers Pathways Seminar Q1 2026',
+      event_date: '2026-03-15',
+      start_time: '08:30 PAGI',
+      end_time: '12:30 TGH HARI',
+      venue: 'Dewan Bankuet JSS, Bandar Seri Begawan',
+      meeting_link: '',
+      rsvp_deadline: '2026-03-10T23:59:00',
+      attachment_drive_url: '',
+      status: 'Published',
+      created_by: 'pegawai.upk@moe.bn',
+      summary: 'Pendedahan laluan kerjaya pasca '
+    });
+  }
+
+  const rsvps = [
     {
       rsvp_id: 'RSVP-EVT-001-ahmad_bakar',
       event_id: 'EVT-2026-001',
@@ -146,7 +179,7 @@ window.MOCK_DATA = {
       rep_name: '',
       rep_phone: '',
       absence_reason: '',
-      submitted_at: '2026-03-10T09:15:00Z'
+      submitted_at: `${curMonthStr}-10T09:15:00Z`
     },
     {
       rsvp_id: 'RSVP-EVT-001-fatimah_hasan',
@@ -156,7 +189,7 @@ window.MOCK_DATA = {
       rep_name: 'Cikgu Hjh Siti Mariam binti Abdullah',
       rep_phone: '+673 8112233',
       absence_reason: '',
-      submitted_at: '2026-03-10T14:30:00Z'
+      submitted_at: `${curMonthStr}-10T14:30:00Z`
     },
     {
       rsvp_id: 'RSVP-EVT-001-zaki_kassim',
@@ -166,7 +199,7 @@ window.MOCK_DATA = {
       rep_name: '',
       rep_phone: '',
       absence_reason: 'Menghadiri Kursus Kepimpinan Sekolah anjuran BPPK',
-      submitted_at: '2026-03-11T08:05:00Z'
+      submitted_at: `${curMonthStr}-11T08:05:00Z`
     },
     {
       rsvp_id: 'RSVP-EVT-001-noraini_yusof',
@@ -176,11 +209,11 @@ window.MOCK_DATA = {
       rep_name: '',
       rep_phone: '',
       absence_reason: '',
-      submitted_at: '2026-03-11T10:45:00Z'
+      submitted_at: `${curMonthStr}-11T10:45:00Z`
     }
-  ],
+  ];
 
-  memos: [
+  const memos = [
     {
       doc_id: 'MEMO-2026-01',
       title_bm: 'Pekeliling UPK Bil 02/2026: Garis Panduan Pameran Kerjaya Sekolah Menengah dan Maktab 2026',
@@ -221,15 +254,15 @@ window.MOCK_DATA = {
       size: '640 KB',
       file_view_url: 'https://drive.google.com/viewerng/viewer?embedded=true&url=https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf'
     }
-  ],
+  ];
 
-  notifications: [
+  const notifications = [
     {
       notif_id: 'NOTIF-001',
       title_bm: 'Peringatan Mesra: Tarikh Akhir RSVP Mesyuarat Bil. 1/2026',
       title_en: 'Friendly Reminder: RSVP Deadline for Meeting No. 1/2026',
-      content_bm: 'Sila lengkapkan pengesahan kehadiran anda sebelum 12 Mac 2026 jam 11:59 malam. Tindakan anda amat dihargai.',
-      content_en: 'Please complete your attendance RSVP before 12 March 2026 at 11:59 PM. Your cooperation is greatly appreciated.',
+      content_bm: 'Sila lengkapkan pengesahan kehadiran anda sebelum tarikh tutup. Tindakan anda amat dihargai.',
+      content_en: 'Please complete your attendance RSVP before the closing deadline. Your cooperation is greatly appreciated.',
       type: 'Urgent',
       sent_at: '2 jam yang lalu',
       is_read: false
@@ -238,8 +271,8 @@ window.MOCK_DATA = {
       notif_id: 'NOTIF-002',
       title_bm: 'Dokumen Baharu Dimuat Naik: Takwim Program Kerjaya Suku Tahun Kedua',
       title_en: 'New Document Uploaded: Q2 Career Guidance Program Calendar',
-      content_bm: 'Takwim program bagi bulan April hingga Jun 2026 kini sedia dimuat turun di bahagian Arkib Dokumen.',
-      content_en: 'The program calendar for April to June 2026 is now available for download in the Document Archive.',
+      content_bm: 'Takwim program bagi bulan hadapan kini sedia dimuat turun di bahagian Arkib Dokumen.',
+      content_en: 'The upcoming program calendar is now available for download in the Document Archive.',
       type: 'General',
       sent_at: 'Semalam',
       is_read: true
@@ -254,5 +287,13 @@ window.MOCK_DATA = {
       sent_at: '3 hari yang lalu',
       is_read: true
     }
-  ]
-};
+  ];
+
+  return {
+    users,
+    events,
+    rsvps,
+    memos,
+    notifications
+  };
+})();
