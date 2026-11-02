@@ -46,6 +46,13 @@
       bioNotEnrolledDesc: 'Sila log masuk menggunakan e-mel rasmi dan kod OTP terlebih dahulu untuk mengaktifkan biometrik pada peranti ini.',
       bioSwitchAccount: 'Tukar Akaun / Log Masuk Emel Lain',
       bioLoginOtpFirstBtn: 'Log Masuk dengan E-mel OTP',
+      welcomeAuth: 'Selamat Datang ke Portal CEU',
+      welcomeAuthSub: 'Sila masukkan Emel Rasmi Kementerian untuk menerima Kod Laluan Sekali (OTP) atau daftar masuk pantas menggunakan biometrik.',
+      securityTwoFactor: 'Pengesahan Taraf Keselamatan Dua-Faktor Peranti',
+      teeEnclaveActive: 'TEE ENCLAVE AKTIF',
+      orSeparator: 'Atau Akses Demonstrasi',
+      forgotEmail: 'Lupa Emel?',
+      registerNewTeacher: 'Daftar Guru Baharu',
       activeStatus: 'Aktif',
       sessionVerified: 'Sesi Disahkan (30 Hari)',
       district: 'Daerah',
@@ -201,6 +208,13 @@
       bioNotEnrolledDesc: 'Please log in using your official email and OTP first to activate biometrics on this device.',
       bioSwitchAccount: 'Switch Account / Use Different Email',
       bioLoginOtpFirstBtn: 'Log In with Email OTP',
+      welcomeAuth: 'Welcome to Portal CEU',
+      welcomeAuthSub: 'Please enter your official Ministry email to receive a One-Time Password (OTP) or sign in quickly using biometrics.',
+      securityTwoFactor: 'Device Two-Factor Security Verification',
+      teeEnclaveActive: 'TEE ENCLAVE ACTIVE',
+      orSeparator: 'Or Demo Access',
+      forgotEmail: 'Forgot Email?',
+      registerNewTeacher: 'Register New Teacher',
       activeStatus: 'Active',
       sessionVerified: 'Verified Session (30 Days)',
       district: 'District',
@@ -959,14 +973,32 @@
     localStorage.setItem('ceu_lang', lang);
 
     document.querySelectorAll('.lang-btn-bm').forEach(b => {
-      b.classList.toggle('bg-tertiary', lang === 'bm');
-      b.classList.toggle('text-white', lang === 'bm');
-      b.classList.toggle('text-white/70', lang !== 'bm');
+      const isAuthSwitch = b.closest('#lang-switch');
+      if (isAuthSwitch) {
+        b.classList.toggle('bg-surface-container-lowest', lang === 'bm');
+        b.classList.toggle('text-primary', lang === 'bm');
+        b.classList.toggle('font-bold', lang === 'bm');
+        b.classList.toggle('text-surface-container-low', lang !== 'bm');
+        b.classList.toggle('opacity-80', lang !== 'bm');
+      } else {
+        b.classList.toggle('bg-tertiary', lang === 'bm');
+        b.classList.toggle('text-white', lang === 'bm');
+        b.classList.toggle('text-white/70', lang !== 'bm');
+      }
     });
     document.querySelectorAll('.lang-btn-en').forEach(b => {
-      b.classList.toggle('bg-tertiary', lang === 'en');
-      b.classList.toggle('text-white', lang === 'en');
-      b.classList.toggle('text-white/70', lang !== 'en');
+      const isAuthSwitch = b.closest('#lang-switch');
+      if (isAuthSwitch) {
+        b.classList.toggle('bg-surface-container-lowest', lang === 'en');
+        b.classList.toggle('text-primary', lang === 'en');
+        b.classList.toggle('font-bold', lang === 'en');
+        b.classList.toggle('text-surface-container-low', lang !== 'en');
+        b.classList.toggle('opacity-80', lang !== 'en');
+      } else {
+        b.classList.toggle('bg-tertiary', lang === 'en');
+        b.classList.toggle('text-white', lang === 'en');
+        b.classList.toggle('text-white/70', lang !== 'en');
+      }
     });
 
     // Terapkan semua teks statik & placeholder
@@ -1001,8 +1033,20 @@
     const isAuth = viewName === 'auth';
     const bottomNav = document.getElementById('app-bottom-nav');
     const appHeader = document.getElementById('app-header');
+    const mainContainer = document.getElementById('main-container');
     if (bottomNav) bottomNav.style.display = isAuth ? 'none' : 'flex';
     if (appHeader) appHeader.style.display = isAuth ? 'none' : 'flex';
+    if (mainContainer) {
+      if (isAuth) {
+        mainContainer.classList.remove('pb-24', 'max-w-5xl');
+        mainContainer.classList.add('p-0', 'max-w-none');
+        document.body.classList.add('bg-[#004c6b]');
+      } else {
+        mainContainer.classList.add('pb-24', 'max-w-5xl');
+        mainContainer.classList.remove('p-0', 'max-w-none');
+        document.body.classList.remove('bg-[#004c6b]');
+      }
+    }
 
     document.querySelectorAll('.nav-tab-btn').forEach(btn => {
       const tab = btn.dataset.tab;
@@ -1230,7 +1274,7 @@
     const countUrgentEl = document.getElementById('metric-count-urgent');
     const publishedEvents = (State.events || []).filter(e => (e.status || 'Published').toLowerCase() !== 'draft');
     const totalEventsCount = publishedEvents.length;
-    const urgentCount = Math.max(0, totalEventsCount - myAnsweredIds.length);
+    const urgentCount = publishedEvents.filter(e => !myAnsweredIds.includes(e.event_id)).length;
     if (countMonthEl) countMonthEl.textContent = totalEventsCount;
     if (countAttendedEl) countAttendedEl.textContent = myAttendedIds.length;
     if (countUrgentEl) countUrgentEl.textContent = urgentCount;
@@ -2151,6 +2195,7 @@
       document.getElementById('step-otp-input').classList.remove('hidden');
       document.getElementById('otp-sent-email-label').textContent = email;
       startOtpCountdown();
+      setTimeout(() => document.getElementById('otp-box-1')?.focus(), 150);
     } else {
       showToast((res && res.message) || 'Gagal menghantar kod OTP.', 'error');
     }
@@ -2171,7 +2216,7 @@
       }
       const m = String(Math.floor(seconds / 60)).padStart(2, '0');
       const s = String(seconds % 60).padStart(2, '0');
-      if (timerEl) timerEl.textContent = `${m}:${s}`;
+      if (timerEl) timerEl.textContent = `Masa: ${m}:${s}`;
     }, 1000);
   }
 
@@ -2212,6 +2257,31 @@
     localStorage.removeItem('ceu_user');
     setView('auth');
     showToast(State.lang === 'en' ? 'You have successfully logged out.' : 'Anda telah berjaya log keluar.', 'info');
+  }
+
+  async function quickLogin(userKey) {
+    let email = 'ahmad.bakar@moe.bn';
+    if (userKey === 'noraini') email = 'noraini.hashim@moe.bn';
+    else if (userKey === 'admin') email = 'hajah.rohani@moe.bn';
+
+    const emailInput = document.getElementById('auth-email-input');
+    if (emailInput) emailInput.value = email;
+
+    showToast((State.lang === 'en' ? 'Quick logging in as ' : 'Log masuk pantas sebagai ') + email + '...', 'info');
+    const res = await api('verifyOtp', { email: email, otp: '123456', device: navigator.userAgent });
+    if (res && res.success) {
+      State.token = res.token;
+      State.currentUser = res.user;
+      localStorage.setItem('ceu_tok', res.token);
+      localStorage.setItem('ceu_user', JSON.stringify(res.user));
+      localStorage.setItem('ceu_bio_token', res.token);
+      localStorage.setItem('ceu_bio_user', JSON.stringify(res.user));
+      updateBiometricUI();
+      showToast((State.lang === 'en' ? 'Welcome ' : 'Selamat datang ') + res.user.name, 'success');
+      loadAppBoot();
+    } else {
+      showToast(State.lang === 'en' ? 'Quick login failed.' : 'Gagal log masuk pantas.', 'error');
+    }
   }
 
   // ==========================================================================
@@ -2731,19 +2801,19 @@
 
     if (tabEmail && tabBio && viewEmail && viewBio) {
       tabEmail.addEventListener('click', () => {
-        tabEmail.classList.add('bg-surface-container-lowest', 'text-primary', 'shadow-sm');
-        tabEmail.classList.remove('text-on-surface-variant');
-        tabBio.classList.remove('bg-surface-container-lowest', 'text-primary', 'shadow-sm');
-        tabBio.classList.add('text-on-surface-variant');
+        tabEmail.classList.add('bg-primary', 'text-white', 'shadow-sm', 'font-semibold');
+        tabEmail.classList.remove('text-on-surface-variant', 'font-medium');
+        tabBio.classList.remove('bg-primary', 'text-white', 'shadow-sm', 'font-semibold');
+        tabBio.classList.add('text-on-surface-variant', 'font-medium');
         viewEmail.classList.remove('hidden');
         viewBio.classList.add('hidden');
       });
 
       tabBio.addEventListener('click', () => {
-        tabBio.classList.add('bg-surface-container-lowest', 'text-primary', 'shadow-sm');
-        tabBio.classList.remove('text-on-surface-variant');
-        tabEmail.classList.remove('bg-surface-container-lowest', 'text-primary', 'shadow-sm');
-        tabEmail.classList.add('text-on-surface-variant');
+        tabBio.classList.add('bg-primary', 'text-white', 'shadow-sm', 'font-semibold');
+        tabBio.classList.remove('text-on-surface-variant', 'font-medium');
+        tabEmail.classList.remove('bg-primary', 'text-white', 'shadow-sm', 'font-semibold');
+        tabEmail.classList.add('text-on-surface-variant', 'font-medium');
         viewBio.classList.remove('hidden');
         viewEmail.classList.add('hidden');
       });
@@ -2751,7 +2821,14 @@
 
     const bioTriggerBtn = document.getElementById('bio-trigger-btn');
     if (bioTriggerBtn) {
-      bioTriggerBtn.addEventListener('click', triggerBiometricLogin);
+      bioTriggerBtn.addEventListener('click', () => {
+        const ring = document.getElementById('bio-ring');
+        if (ring) {
+          ring.classList.add('scale-125', 'opacity-100');
+          setTimeout(() => ring.classList.remove('scale-125', 'opacity-100'), 1000);
+        }
+        triggerBiometricLogin();
+      });
     }
 
     const btnSwitchUser = document.getElementById('btn-bio-switch-user');
@@ -2990,6 +3067,7 @@
     setView: setView,
     setLanguage: setLanguage,
     logout: logout,
+    quickLogin: quickLogin,
     showToast: showToast
   };
 
