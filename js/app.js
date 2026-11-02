@@ -62,7 +62,7 @@
       navHome: 'Utama',
       navRsvp: 'RSVP',
       navArchive: 'Arkib',
-      navNotif: 'Hebahan',
+      navNotif: 'Notifikasi',
       navAdmin: 'Pentadbir',
       navProfile: 'Profil',
 
@@ -224,7 +224,7 @@
       navHome: 'Home',
       navRsvp: 'RSVP',
       navArchive: 'Archive',
-      navNotif: 'Notices',
+      navNotif: 'Notifications',
       navAdmin: 'Admin',
       navProfile: 'Profile',
 
@@ -1048,18 +1048,7 @@
       }
     }
 
-    document.querySelectorAll('.nav-tab-btn').forEach(btn => {
-      const tab = btn.dataset.tab;
-      const isActive = (tab === viewName) ||
-        (tab === 'admin' && viewName.startsWith('admin-'));
-      if (isActive) {
-        btn.classList.add('text-primary', 'border-t-2', 'border-tertiary');
-        btn.classList.remove('text-on-surface-variant');
-      } else {
-        btn.classList.remove('text-primary', 'border-t-2', 'border-tertiary');
-        btn.classList.add('text-on-surface-variant');
-      }
-    });
+    updateNavActiveTabs();
 
     if (viewName === 'auth') updateBiometricUI();
     if (viewName === 'home') renderHomeView();
@@ -1070,6 +1059,42 @@
     if (viewName === 'admin-rsvp') renderAdminRsvpTableView();
 
     window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function updateNavActiveTabs() {
+    document.querySelectorAll('.nav-tab-btn').forEach(btn => {
+      const tab = btn.dataset.tab;
+      let isActive = false;
+      if (tab === 'home') {
+        isActive = (State.currentView === 'home' && State.activeEventFilter !== 'urgent') || State.currentView === 'admin-dashboard';
+      } else if (tab === 'rsvp') {
+        isActive = State.currentView === 'admin-rsvp' || (State.currentView === 'home' && State.activeEventFilter === 'urgent');
+      } else if (tab === 'archive') {
+        isActive = State.currentView === 'archive';
+      } else if (tab === 'notif') {
+        isActive = State.currentView === 'notif';
+      } else if (tab === 'profile') {
+        isActive = State.currentView === 'profile';
+      }
+
+      if (isActive) {
+        btn.classList.add('text-primary', 'border-tertiary');
+        btn.classList.remove('text-on-surface-variant', 'border-transparent');
+        const span = btn.querySelector('span[data-i18n]');
+        if (span) {
+          span.classList.add('font-semibold');
+          span.classList.remove('font-normal');
+        }
+      } else {
+        btn.classList.remove('text-primary', 'border-tertiary');
+        btn.classList.add('text-on-surface-variant', 'border-transparent');
+        const span = btn.querySelector('span[data-i18n]');
+        if (span) {
+          span.classList.remove('font-semibold');
+          span.classList.add('font-normal');
+        }
+      }
+    });
   }
 
   // ==========================================================================
@@ -1090,12 +1115,8 @@
         districtEl.textContent = (State.lang === 'en' ? 'District: ' : 'Daerah: ') + State.currentUser.district;
       }
 
-      const adminNavBtn = document.getElementById('nav-btn-admin');
-      if (adminNavBtn) {
-        adminNavBtn.style.display = (State.currentUser.role === 'Admin') ? 'flex' : 'none';
-      }
-
       applyTranslations();
+      updateNavActiveTabs();
       updateNotifBadge();
       renderMonthlyCalendar();
       setView(State.currentUser.role === 'Admin' ? 'admin-dashboard' : 'home');
@@ -1245,6 +1266,7 @@
   function setEventFilter(filterName) {
     State.activeEventFilter = filterName;
     State.selectedCalendarDate = null; // Buka kunci tarikh kalendar jika pengguna menukar penapis utama
+    updateNavActiveTabs();
 
     // Selaraskan gaya pil penapis
     document.querySelectorAll('.event-filter-pill').forEach(pill => {
@@ -2872,8 +2894,25 @@
     document.querySelectorAll('.nav-tab-btn').forEach(btn => {
       btn.addEventListener('click', () => {
         const tab = btn.dataset.tab;
-        if (tab === 'admin') setView('admin-dashboard');
-        else setView(tab);
+        if (tab === 'rsvp') {
+          if (State.currentUser && State.currentUser.role === 'Admin') {
+            setView('admin-rsvp');
+          } else {
+            setView('home');
+            setEventFilter('urgent');
+          }
+        } else if (tab === 'home') {
+          if (State.currentUser && State.currentUser.role === 'Admin') {
+            setView('admin-dashboard');
+          } else {
+            setView('home');
+            setEventFilter('all');
+          }
+        } else if (tab === 'admin') {
+          setView('admin-dashboard');
+        } else {
+          setView(tab);
+        }
       });
     });
 

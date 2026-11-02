@@ -1679,43 +1679,48 @@
   </div>
 
   <!-- ========================================================================
-       FIXED BOTTOM NAVIGATION (5 TABS)
+       FIXED BOTTOM NAVIGATION (5 TABS - EXACT STITCH CIVIC DESIGN)
        ======================================================================== -->
-  <nav id="app-bottom-nav" class="fixed bottom-0 w-full z-50 pb-safe bg-surface-container-lowest/95 backdrop-blur-xl border-t border-outline-variant/30 shadow-[0_-2px_12px_rgba(0,0,0,0.06)]" style="display: none;">
-    <div class="flex justify-around items-center h-16 px-2 sm:px-8 max-w-2xl mx-auto">
-      <button type="button" data-tab="home" class="nav-tab-btn relative flex flex-col items-center justify-center flex-1 py-1 px-1 rounded-xl transition-all min-h-[48px] text-primary border-t-2 border-tertiary">
-        <span class="material-symbols-outlined text-[22px]">home</span>
-        <span data-i18n="navHome" class="text-[10px] sm:text-xs font-semibold mt-0.5 tracking-tight truncate">Utama</span>
+  <nav id="app-bottom-nav" class="fixed bottom-0 left-0 right-0 w-full z-40 pb-safe bg-surface-container-lowest border-t border-outline-variant/30 shadow-[0_-2px_10px_rgba(0,0,0,0.05)] select-none" style="display: none;">
+    <div class="flex justify-around items-stretch h-16 max-w-lg mx-auto">
+      <!-- 1. Utama -->
+      <button type="button" data-tab="home" class="nav-tab-btn flex-1 flex flex-col items-center justify-center pt-1.5 pb-1 border-t-[3px] border-tertiary text-primary transition-all cursor-pointer">
+        <span class="material-symbols-outlined text-[24px]">home</span>
+        <span data-i18n="navHome" class="text-[11px] font-semibold mt-0.5 tracking-tight truncate">Utama</span>
       </button>
 
-      <button type="button" data-tab="archive" class="nav-tab-btn relative flex flex-col items-center justify-center flex-1 py-1 px-1 rounded-xl text-on-surface-variant hover:text-primary transition-all min-h-[48px]">
-        <span class="material-symbols-outlined text-[22px]">inventory_2</span>
-        <span data-i18n="navArchive" class="text-[10px] sm:text-xs font-semibold mt-0.5 tracking-tight truncate">Arkib</span>
+      <!-- 2. RSVP -->
+      <button type="button" data-tab="rsvp" class="nav-tab-btn flex-1 flex flex-col items-center justify-center pt-1.5 pb-1 border-t-[3px] border-transparent text-on-surface-variant hover:text-primary transition-all cursor-pointer">
+        <span class="material-symbols-outlined text-[24px]">event_available</span>
+        <span data-i18n="navRsvp" class="text-[11px] font-normal mt-0.5 tracking-tight truncate">RSVP</span>
       </button>
 
-      <button type="button" data-tab="notif" class="nav-tab-btn relative flex flex-col items-center justify-center flex-1 py-1 px-1 rounded-xl text-on-surface-variant hover:text-primary transition-all min-h-[48px]">
+      <!-- 3. Arkib -->
+      <button type="button" data-tab="archive" class="nav-tab-btn flex-1 flex flex-col items-center justify-center pt-1.5 pb-1 border-t-[3px] border-transparent text-on-surface-variant hover:text-primary transition-all cursor-pointer">
+        <span class="material-symbols-outlined text-[24px]">inventory_2</span>
+        <span data-i18n="navArchive" class="text-[11px] font-normal mt-0.5 tracking-tight truncate">Arkib</span>
+      </button>
+
+      <!-- 4. Notifikasi -->
+      <button type="button" data-tab="notif" class="nav-tab-btn flex-1 flex flex-col items-center justify-center pt-1.5 pb-1 border-t-[3px] border-transparent text-on-surface-variant hover:text-primary transition-all cursor-pointer">
         <div class="relative flex items-center justify-center">
-          <span class="material-symbols-outlined text-[22px]">notifications_active</span>
-          <span id="bottom-notif-badge" class="hidden absolute -top-1 -right-1 w-2 h-2 bg-error rounded-full animate-pulse"></span>
+          <span class="material-symbols-outlined text-[24px]">notifications</span>
+          <span id="bottom-notif-badge" class="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-[#B91C1C]"></span>
         </div>
-        <span data-i18n="navNotif" class="text-[10px] sm:text-xs font-semibold mt-0.5 tracking-tight truncate">Hebahan</span>
+        <span data-i18n="navNotif" class="text-[11px] font-normal mt-0.5 tracking-tight truncate">Notifikasi</span>
       </button>
 
-      <button id="nav-btn-admin" type="button" data-tab="admin" class="nav-tab-btn relative flex flex-col items-center justify-center flex-1 py-1 px-1 rounded-xl text-on-surface-variant hover:text-primary transition-all min-h-[48px]" style="display: none;">
-        <span class="material-symbols-outlined text-[22px]">admin_panel_settings</span>
-        <span data-i18n="navAdmin" class="text-[10px] sm:text-xs font-semibold mt-0.5 tracking-tight truncate">Pentadbir</span>
-      </button>
-
-      <button type="button" data-tab="profile" class="nav-tab-btn relative flex flex-col items-center justify-center flex-1 py-1 px-1 rounded-xl text-on-surface-variant hover:text-primary transition-all min-h-[48px]">
-        <span class="material-symbols-outlined text-[22px]">manage_accounts</span>
-        <span data-i18n="navProfile" class="text-[10px] sm:text-xs font-semibold mt-0.5 tracking-tight truncate">Profil</span>
+      <!-- 5. Profil -->
+      <button type="button" data-tab="profile" class="nav-tab-btn flex-1 flex flex-col items-center justify-center pt-1.5 pb-1 border-t-[3px] border-transparent text-on-surface-variant hover:text-primary transition-all cursor-pointer">
+        <span class="material-symbols-outlined text-[24px]">manage_accounts</span>
+        <span data-i18n="navProfile" class="text-[11px] font-normal mt-0.5 tracking-tight truncate">Profil</span>
       </button>
     </div>
   </nav>
 
   <!-- Application Logic Scripts -->
-  <script src="js/config.js?v=1.1.5"></script>
-  <script src="js/data-mock.js?v=1.1.5"></script>
-  <script src="js/app.js?v=1.1.5"></script>
+  <script src="js/config.js?v=1.1.6"></script>
+  <script src="js/data-mock.js?v=1.1.6"></script>
+  <script src="js/app.js?v=1.1.6"></script>
 </body>
 </html>
