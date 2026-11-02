@@ -16,29 +16,36 @@
   'use strict';
 
   // ==========================================================================
-  // 1. KAMUS DWI-BAHASA (BRUNEI MALAY STANDARD & ENGLISH)
+  // 1. KAMUS DWI-BAHASA LENGKAP (BRUNEI MALAY STANDARD & ENGLISH)
   // ==========================================================================
   const I18N = {
     bm: {
       appName: 'PORTAL CEU',
+      deptBadge: 'UPK JSS',
       deptName: 'Unit Pendidikan Kerjaya, Jabatan Sekolah-Sekolah',
-      ministry: 'Kementerian Pendidikan Negara Brunei Darussalam',
+      ministry: 'Kementerian Pendidikan Brunei Darussalam',
+      ministryHeader: 'KEMENTERIAN PENDIDIKAN NEGARA BRUNEI DARUSSALAM',
+      deptHeader: 'JABATAN SEKOLAH-SEKOLAH • UNIT PENDIDIKAN KERJAYA',
       welcome: 'Selamat Datang',
       emailLogin: 'Log Masuk Emel',
       biometricFast: 'Biometrik Pantas',
       officialEmailLabel: 'E-mel Rasmi Pegawai / Kerajaan',
       emailPlaceholder: 'nama.guru@moe.bn',
-      emailDomainNotice: 'Hanya domain .moe.bn, .gov.bn, atau .edu.bn dibenarkan.',
-      sendOtpBtn: 'Hantar Kod OTP',
+      emailDomainNotice: 'Hanya domain <strong>.moe.bn</strong>, <strong>.gov.bn</strong>, atau <strong>.edu.bn</strong> dibenarkan.',
+      sendOtpBtn: 'Hantar Kod OTP Keselamatan',
       verifyOtpTitle: 'Masukkan Kod OTP 6-Digit',
       verifyOtpDesc: 'Kod pengesahan telah dihantar ke emel anda.',
-      verifyBtn: 'Sahkan & Masuk',
+      verifyBtn: 'Sahkan & Masuk Portal',
       resendOtp: 'Hantar Semula Kod',
-      bioPromptLabel: 'Sentuh sensor cap jari atau imbas wajah untuk akses pantas',
-      bioUseOtpInstead: 'Guna Log Masuk Emel OTP',
+      changeEmailBtn: 'Tukar Emel',
+      timeRemaining: 'Baki masa:',
+      bioPromptLabel: 'Sentuh sensor cap jari atau Face ID untuk akses pantas',
+      bioSubtitle: 'Token sesi disulitkan oleh perkakasan peranti (Keystore).',
+      bioUseOtpInstead: 'Guna Log Masuk Kod OTP Emel',
       activeStatus: 'Aktif',
       sessionVerified: 'Sesi Disahkan (30 Hari)',
       district: 'Daerah',
+      officialNoticeFooter: 'Sistem Rasmi Kerajaan Brunei Darussalam • Versi 1.0.4',
       
       // Navigasi Bawah
       navHome: 'Utama',
@@ -51,29 +58,52 @@
       // Home
       programMonth: 'Program Bulan Ini',
       attendedDone: 'Selesai Dihadiri',
-      waitingAction: 'Menunggu Tindakan',
+      waitingAction: 'Perlu Tindakan',
       allPrograms: 'Semua Program',
       urgentRsvp: 'Perlu RSVP',
       upcomingEvents: 'Akan Datang',
       deadline: 'Tarikh Tutup RSVP',
       respondRsvpBtn: 'Sahkan Kehadiran (RSVP)',
+      updateRsvpBtn: 'Kemas Kini RSVP',
       viewDetailsBtn: 'Lihat Butiran',
       onlineMeeting: 'Sertai Google Meet',
+      calendarTitle: 'Takwim Mac 2026',
+      calendarWeek: 'Minggu Ke-2',
+      noEventsFound: 'Semua program telah dijawab atau tiada program aktif buat masa ini.',
+      
+      // Status Badges
+      badgeAttending: 'HADIR DISAHKAN',
+      badgeRep: 'MEWAKILKAN',
+      badgeAbsent: 'TIDAK HADIR',
+      badgePending: '⚠️ PERLU TINDAKAN RSVP',
+
+      // Days of week
+      dayMon: 'Isn',
+      dayTue: 'Sel',
+      dayWed: 'Rab',
+      dayThu: 'Kha',
+      dayFri: 'Jum',
+      daySat: 'Sab',
+      daySun: 'Aha',
       
       // RSVP Modal
       rsvpModalTitle: 'Pengesahan Kehadiran Rasmi',
-      rsvpOptionAttend: 'Saya akan hadir sepenuhnya (Hadir)',
-      rsvpOptionRep: 'Mewakilkan pegawai lain bagi pihak sekolah',
-      rsvpOptionAbsent: 'Tidak dapat hadir (Memohon pelepasan)',
-      repNameLabel: 'Nama Penuh Pegawai Pengganti',
-      repPhoneLabel: 'Nombor Telefon Bimbit Wakil',
-      absenceReasonLabel: 'Sebab Ketidakhadiran Rasmi (Wajib)',
-      confirmDeclaration: 'Saya mengesahkan bahawa maklumat jawapan ini adalah benar dan rasmi.',
+      rsvpOptionAttendTitle: 'Saya akan hadir sepenuhnya (Hadir)',
+      rsvpOptionAttendDesc: 'Mengesahkan kehadiran rasmi bagi pihak sekolah.',
+      rsvpOptionRepTitle: 'Mewakilkan pegawai lain bagi pihak sekolah',
+      rsvpOptionRepDesc: 'Namakan guru pengganti yang menghadiri mesyuarat.',
+      rsvpOptionAbsentTitle: 'Tidak dapat hadir (Memohon pelepasan)',
+      rsvpOptionAbsentDesc: 'Wajib sertakan alasan rasmi bagi rekod JSS.',
+      repNamePlaceholder: 'Nama Penuh Pegawai Pengganti',
+      repPhonePlaceholder: 'Nombor Telefon Wakil (+673)',
+      absenceReasonPlaceholder: 'Nyatakan sebab ketidakhadiran rasmi...',
+      confirmDeclaration: 'Saya mengesahkan maklumat jawapan RSVP ini adalah benar dan rasmi.',
       submitRsvpBtn: 'Hantar Pengesahan RSVP',
 
       // Arkib
       archiveTitle: 'Arkib Dokumen & Memo Rasmi',
-      searchArchivePlaceholder: 'Cari tajuk memo, minit, atau takwim...',
+      archiveSubtitle: 'Pustaka pekeliling, minit mesyuarat, dan takwim tahunan UPK.',
+      searchArchivePlaceholder: 'Cari tajuk memo, minit, atau nombor rujukan...',
       catAll: 'Semua',
       catCirculars: 'Pekeliling',
       catMinutes: 'Minit Mesyuarat',
@@ -81,42 +111,92 @@
       catGuidelines: 'Garis Panduan',
       previewDocBtn: 'Pratinjau',
       downloadBtn: 'Muat Turun',
+      noDocsFound: 'Tiada dokumen dijumpai untuk carian ini.',
 
-      // Admin
+      // Notifikasi
+      notifTitle: 'Pusat Makluman & Hebahan',
+      notifSubtitle: 'Pemberitahuan rasmi dan notifikasi tolak terkini.',
+      markAllReadBtn: 'Tanda Dibaca',
+      noNotifsFound: 'Tiada pemberitahuan baharu.',
+
+      // Profil & Tetapan
+      profileTitle: 'Profil & Tetapan Akaun',
+      profileSecurityHeader: 'Keselamatan & Log Masuk',
+      profileBioLabel: 'Log Masuk Biometrik (Cap Jari / Face ID)',
+      profileBioDesc: 'Buka aplikasi pantas tanpa menunggu OTP setiap kali.',
+      profileDeviceLabel: 'Peranti Berdaftar',
+      profileDeviceDesc: 'Sesi sah sehingga 30 hari dalam Android Keystore.',
+      profileVerifiedBadge: 'Disahkan',
+      profilePrefHeader: 'Pilihan Antaramuka',
+      profileLangLabel: 'Bahasa Aplikasi / Language',
+      profileLangDesc: 'Tukar antara Bahasa Melayu dan Bahasa Inggeris.',
+      profileAboutLabel: 'Tentang Portal CEU',
+      logoutBtn: 'Log Keluar Sesi',
+
+      // Admin Dashboard & Table
       adminDashboard: 'Papan Pemuka Pentadbir UPK',
-      totalTeachersKpi: 'Jumlah Guru Kerjaya',
+      adminDashboardSubtitle: 'Analisis kehadiran 4 daerah dan pengurusan rasmi.',
+      adminTableViewBtn: 'Semakan Jadual',
+      totalTeachersKpi: 'Jumlah Guru',
       rsvpRateKpi: 'Kadar Respons RSVP',
       attendingKpi: 'Hadir Disahkan',
-      repAbsentKpi: 'Wakil / Tidak Hadir',
-      overallRsvpDonut: 'Pecahan Respons Keseluruhan Acara Semasa',
-      districtBarChart: 'Prestasi Kehadiran Mengikut 4 Daerah',
-      createNewEventBtn: '+ Terbit Program Baharu',
-      generatePdfBtn: 'Jana Laporan PDF Rasmi',
+      repAbsentKpi: 'Wakil / Tak Hadir',
+      overallRsvpDonut: 'Pecahan Status RSVP Acara Semasa',
+      districtBarChart: 'Kehadiran Mengikut 4 Daerah',
+      createNewEventBtn: '+ Terbitkan Program Baharu',
+      generatePdfBtn: 'Jana Laporan PDF Rasmi Ber-QR',
       attendanceTableTitle: 'Semakan Terperinci Kehadiran RSVP',
-      exportPdfDocTitle: 'LAPORAN RASMI KEHADIRAN DAN KETIDAKHADIRAN PROGRAM KERJAYA'
+      exportPdfBtn: 'Eksport PDF',
+      backToDashboardBtn: 'Kembali ke Dashboard',
+      adminCreateEventTitle: 'Terbitkan Program & Acara Baharu',
+      adminCreateEventSubtitle: 'Maklumat acara akan disiarkan serta-merta ke peranti guru.',
+      adminPublishBtn: 'Terbitkan & Hantar Notifikasi Pukal FCM',
+
+      // Dokumen PDF
+      exportPdfDocTitle: 'LAPORAN RASMI KEHADIRAN DAN KETIDAKHADIRAN PROGRAM KERJAYA',
+      pdfPreviewTitle: 'Pratonton Dokumen Rasmi UPK',
+      pdfPrintBtn: 'Cetak / Simpan PDF',
+      pdfRefLabel: 'No. Rujukan Laporan:',
+      pdfGeneratedAtLabel: 'Tarikh & Masa Dijana:',
+      pdfEventTitleLabel: 'Nama Acara:',
+      pdfVenueLabel: 'Lokasi:',
+      pdfTotalInvited: 'Jumlah Dijemput',
+      pdfAttending: 'Hadir',
+      pdfRep: 'Wakil',
+      pdfAbsent: 'Tak Hadir',
+      pdfDistrictBreakdown: 'Pecahan Kehadiran 4 Daerah:',
+      pdfHeadUnit: 'Ketua Unit Pendidikan Kerjaya',
+      pdfDeptBrunei: 'Jabatan Sekolah-Sekolah Brunei'
     },
     en: {
       appName: 'PORTAL CEU',
+      deptBadge: 'UPK JSS',
       deptName: 'Career Education Unit, Department of Schools',
       ministry: 'Ministry of Education, Brunei Darussalam',
+      ministryHeader: 'MINISTRY OF EDUCATION BRUNEI DARUSSALAM',
+      deptHeader: 'DEPARTMENT OF SCHOOLS • CAREER EDUCATION UNIT',
       welcome: 'Welcome',
       emailLogin: 'Email Login',
       biometricFast: 'Fast Biometrics',
       officialEmailLabel: 'Official Government / MOE Email',
       emailPlaceholder: 'teacher.name@moe.bn',
-      emailDomainNotice: 'Only .moe.bn, .gov.bn, or .edu.bn domains are permitted.',
-      sendOtpBtn: 'Send OTP Code',
+      emailDomainNotice: 'Only <strong>.moe.bn</strong>, <strong>.gov.bn</strong>, or <strong>.edu.bn</strong> domains are permitted.',
+      sendOtpBtn: 'Send Security OTP Code',
       verifyOtpTitle: 'Enter 6-Digit OTP Code',
       verifyOtpDesc: 'A security verification code has been dispatched to your email.',
-      verifyBtn: 'Verify & Proceed',
+      verifyBtn: 'Verify & Enter Portal',
       resendOtp: 'Resend Code',
-      bioPromptLabel: 'Touch fingerprint sensor or scan Face ID for instant access',
+      changeEmailBtn: 'Change Email',
+      timeRemaining: 'Time remaining:',
+      bioPromptLabel: 'Touch fingerprint sensor or use Face ID for instant access',
+      bioSubtitle: 'Session token is encrypted by device hardware (Keystore).',
       bioUseOtpInstead: 'Use Email OTP Login',
       activeStatus: 'Active',
       sessionVerified: 'Verified Session (30 Days)',
       district: 'District',
+      officialNoticeFooter: 'Official Government System of Brunei Darussalam • Version 1.0.4',
       
-      // Bottom Nav
+      // Navigasi Bawah
       navHome: 'Home',
       navRsvp: 'RSVP',
       navArchive: 'Archive',
@@ -133,23 +213,46 @@
       upcomingEvents: 'Upcoming',
       deadline: 'RSVP Deadline',
       respondRsvpBtn: 'Confirm RSVP',
+      updateRsvpBtn: 'Update RSVP',
       viewDetailsBtn: 'View Details',
       onlineMeeting: 'Join Google Meet',
+      calendarTitle: 'March 2026 Calendar',
+      calendarWeek: 'Week 2',
+      noEventsFound: 'All events have been responded to or no active events at this time.',
+
+      // Status Badges
+      badgeAttending: 'CONFIRMED ATTENDING',
+      badgeRep: 'REPRESENTATIVE',
+      badgeAbsent: 'NOT ATTENDING',
+      badgePending: '⚠️ PENDING RSVP ACTION',
+
+      // Days of week
+      dayMon: 'Mon',
+      dayTue: 'Tue',
+      dayWed: 'Wed',
+      dayThu: 'Thu',
+      dayFri: 'Fri',
+      daySat: 'Sat',
+      daySun: 'Sun',
       
       // RSVP Modal
       rsvpModalTitle: 'Official Attendance Confirmation',
-      rsvpOptionAttend: 'I will be attending in person (Attending)',
-      rsvpOptionRep: 'Designate official representative on behalf of school',
-      rsvpOptionAbsent: 'Unable to attend (Request official release)',
-      repNameLabel: 'Representative Full Name',
-      repPhoneLabel: 'Representative Mobile Number',
-      absenceReasonLabel: 'Official Absence Justification (Required)',
-      confirmDeclaration: 'I hereby certify that the information provided is accurate and official.',
+      rsvpOptionAttendTitle: 'I will be attending in person (Attending)',
+      rsvpOptionAttendDesc: 'Confirming official attendance on behalf of the school.',
+      rsvpOptionRepTitle: 'Designate another officer on behalf of school',
+      rsvpOptionRepDesc: 'Name the substitute teacher who will attend the meeting.',
+      rsvpOptionAbsentTitle: 'Unable to attend (Request official release)',
+      rsvpOptionAbsentDesc: 'Official justification is mandatory for department records.',
+      repNamePlaceholder: 'Representative Full Name',
+      repPhonePlaceholder: 'Representative Mobile Number (+673)',
+      absenceReasonPlaceholder: 'State official reason for absence...',
+      confirmDeclaration: 'I hereby certify that this RSVP response is true and official.',
       submitRsvpBtn: 'Submit Official RSVP',
 
-      // Archive
+      // Arkib
       archiveTitle: 'Official Document & Memo Repository',
-      searchArchivePlaceholder: 'Search circular title, minutes, or calendar...',
+      archiveSubtitle: 'Library of official circulars, minutes, and CEU annual calendar.',
+      searchArchivePlaceholder: 'Search circular title, minutes, or reference number...',
       catAll: 'All',
       catCirculars: 'Circulars',
       catMinutes: 'Meeting Minutes',
@@ -157,19 +260,62 @@
       catGuidelines: 'Guidelines',
       previewDocBtn: 'Preview',
       downloadBtn: 'Download',
+      noDocsFound: 'No documents found matching this search.',
 
-      // Admin
+      // Notifikasi
+      notifTitle: 'Announcement & Notice Center',
+      notifSubtitle: 'Official notices and latest push notifications.',
+      markAllReadBtn: 'Mark as Read',
+      noNotifsFound: 'No new notifications.',
+
+      // Profil & Tetapan
+      profileTitle: 'Profile & Account Settings',
+      profileSecurityHeader: 'Security & Authentication',
+      profileBioLabel: 'Biometric Login (Fingerprint / Face ID)',
+      profileBioDesc: 'Instant app unlock without waiting for OTP every time.',
+      profileDeviceLabel: 'Registered Device',
+      profileDeviceDesc: 'Session valid for 30 days in Android Keystore.',
+      profileVerifiedBadge: 'Verified',
+      profilePrefHeader: 'Interface Preferences',
+      profileLangLabel: 'App Language / Language',
+      profileLangDesc: 'Switch between Brunei Malay and English.',
+      profileAboutLabel: 'About Portal CEU',
+      logoutBtn: 'Log Out Session',
+
+      // Admin Dashboard & Table
       adminDashboard: 'CEU Administrator Dashboard',
-      totalTeachersKpi: 'Registered Counselors',
+      adminDashboardSubtitle: '4-district attendance analytics and official administration.',
+      adminTableViewBtn: 'Table View',
+      totalTeachersKpi: 'Total Counselors',
       rsvpRateKpi: 'RSVP Response Rate',
       attendingKpi: 'Confirmed Attending',
-      repAbsentKpi: 'Representative / Absent',
+      repAbsentKpi: 'Rep / Absent',
       overallRsvpDonut: 'Current Event Overall Response Breakdown',
       districtBarChart: 'Attendance Performance by 4 Districts',
       createNewEventBtn: '+ Create New Event',
       generatePdfBtn: 'Generate Official PDF Report',
       attendanceTableTitle: 'Detailed RSVP Attendance Tracking',
-      exportPdfDocTitle: 'OFFICIAL CAREER GUIDANCE PROGRAM ATTENDANCE REPORT'
+      exportPdfBtn: 'Export PDF',
+      backToDashboardBtn: 'Back to Dashboard',
+      adminCreateEventTitle: 'Publish New Program & Event',
+      adminCreateEventSubtitle: 'Event information will be broadcasted instantly to teacher devices.',
+      adminPublishBtn: 'Publish & Broadcast via FCM Push',
+
+      // Dokumen PDF
+      exportPdfDocTitle: 'OFFICIAL CAREER GUIDANCE PROGRAM ATTENDANCE REPORT',
+      pdfPreviewTitle: 'Official CEU Document Preview',
+      pdfPrintBtn: 'Print / Save PDF',
+      pdfRefLabel: 'Report Reference No.:',
+      pdfGeneratedAtLabel: 'Generated Date & Time:',
+      pdfEventTitleLabel: 'Event Name:',
+      pdfVenueLabel: 'Venue:',
+      pdfTotalInvited: 'Total Invited',
+      pdfAttending: 'Attending',
+      pdfRep: 'Representative',
+      pdfAbsent: 'Absent',
+      pdfDistrictBreakdown: '4-District Attendance Breakdown:',
+      pdfHeadUnit: 'Head of Career Education Unit',
+      pdfDeptBrunei: 'Department of Schools, Brunei'
     }
   };
 
@@ -180,7 +326,7 @@
     lang: localStorage.getItem('ceu_lang') || 'bm',
     token: localStorage.getItem('ceu_tok') || '',
     currentUser: null,
-    currentView: 'auth', // auth | home | archive | notif | profile | admin-dashboard | admin-rsvp | admin-events
+    currentView: 'auth',
     events: [],
     rsvps: [],
     memos: [],
@@ -201,12 +347,10 @@
   async function api(action, payload, forceLive) {
     const isMock = !window.APP_CONFIG.GAS_URL;
 
-    // Modus Mock Data Tempatan (Offline / Preview Segera)
     if (isMock) {
       return handleMockApi(action, payload);
     }
 
-    // Deduplikasi Permintaan Bacaan (In-Flight Sharing)
     const isRead = /^(get|boot|verifyQr)/i.test(action);
     if (!isRead) {
       _writeEpoch++;
@@ -226,7 +370,7 @@
     try {
       const res = await fetch(window.APP_CONFIG.GAS_URL, {
         method: 'POST',
-        headers: { 'Content-Type': 'text/plain;charset=utf-8' }, // Wajib text/plain anti-CORS
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
         body: JSON.stringify({
           action: action,
           data: payload || {},
@@ -245,7 +389,6 @@
     }
   }
 
-  // Pengendali Simulasi Mock Data
   function handleMockApi(action, payload) {
     return new Promise(resolve => {
       setTimeout(() => {
@@ -268,7 +411,7 @@
             user: target
           });
         } else if (action === 'biometricLogin') {
-          const u = mock.users[1]; // Cikgu Ahmad
+          const u = mock.users[1];
           resolve({
             success: true,
             token: 'mock_bio_token_' + Date.now(),
@@ -336,7 +479,7 @@
         } else {
           resolve({ success: true, message: 'Operasi simulasi selesai.' });
         }
-      }, 250);
+      }, 200);
     });
   }
 
@@ -346,7 +489,6 @@
   async function triggerBiometricLogin() {
     showToast(I18N[State.lang].bioPromptLabel, 'info');
 
-    // 1. Semak Jambatan Native Android APK (CEUAndroid WebView Bridge)
     if (window.CEUAndroid && typeof window.CEUAndroid.promptBiometric === 'function') {
       try {
         window.CEUAndroid.promptBiometric();
@@ -356,12 +498,10 @@
       }
     }
 
-    // 2. Semak WebAuthn / Kredensial Biometrik Pelayar
     if (window.PublicKeyCredential && PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable) {
       try {
         const available = await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable();
         if (available) {
-          // Simulasi buka kunci biometrik tempatan
           executeBiometricSuccess(State.token || 'mock_bio_token');
           return;
         }
@@ -370,11 +510,9 @@
       }
     }
 
-    // 3. Fallback pantas
     executeBiometricSuccess(State.token || 'mock_bio_token');
   }
 
-  // Callback dari Android Native Bridge
   window.onBiometricSuccess = function (token) {
     executeBiometricSuccess(token);
   };
@@ -398,7 +536,74 @@
   }
 
   // ==========================================================================
-  // 5. NAVIGASI, ROUTING & UI RENDER
+  // 5. ENJIN TERJEMAHAN DINAMIK (DYNAMIC I18N ENGINE)
+  // ==========================================================================
+  function applyTranslations() {
+    const dict = I18N[State.lang] || I18N.bm;
+
+    // 1. Teks Elemen HTML
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+      const key = el.getAttribute('data-i18n');
+      if (dict[key] !== undefined) {
+        el.innerHTML = dict[key];
+      }
+    });
+
+    // 2. Placeholder Input
+    document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+      const key = el.getAttribute('data-i18n-placeholder');
+      if (dict[key] !== undefined) {
+        el.placeholder = dict[key];
+      }
+    });
+
+    // 3. Title / Tooltips
+    document.querySelectorAll('[data-i18n-title]').forEach(el => {
+      const key = el.getAttribute('data-i18n-title');
+      if (dict[key] !== undefined) {
+        el.title = dict[key];
+      }
+    });
+
+    // 4. Kemas kini status daerah header jika user sedia ada
+    if (State.currentUser) {
+      const districtEl = document.getElementById('header-district-badge');
+      if (districtEl) {
+        districtEl.textContent = (State.lang === 'en' ? 'District: ' : 'Daerah: ') + State.currentUser.district;
+      }
+    }
+  }
+
+  function setLanguage(lang) {
+    State.lang = lang;
+    localStorage.setItem('ceu_lang', lang);
+
+    document.querySelectorAll('.lang-btn-bm').forEach(b => {
+      b.classList.toggle('bg-tertiary', lang === 'bm');
+      b.classList.toggle('text-white', lang === 'bm');
+      b.classList.toggle('text-white/70', lang !== 'bm');
+    });
+    document.querySelectorAll('.lang-btn-en').forEach(b => {
+      b.classList.toggle('bg-tertiary', lang === 'en');
+      b.classList.toggle('text-white', lang === 'en');
+      b.classList.toggle('text-white/70', lang !== 'en');
+    });
+
+    // Terapkan semua teks statik & placeholder
+    applyTranslations();
+
+    // Re-render paparan aktif
+    if (State.currentView === 'home') renderHomeView();
+    if (State.currentView === 'archive') renderArchiveView();
+    if (State.currentView === 'notif') renderNotifView();
+    if (State.currentView === 'admin-dashboard') renderAdminDashboardView();
+    if (State.currentView === 'profile') renderProfileView();
+
+    showToast(lang === 'en' ? 'Language switched to English' : 'Bahasa ditukar ke Bahasa Melayu', 'info');
+  }
+
+  // ==========================================================================
+  // 6. NAVIGASI, ROUTING & UI RENDER
   // ==========================================================================
   function setView(viewName) {
     State.currentView = viewName;
@@ -413,14 +618,12 @@
       target.classList.add('view-visible');
     }
 
-    // Urus Paparan Header & Bottom Nav
     const isAuth = viewName === 'auth';
     const bottomNav = document.getElementById('app-bottom-nav');
     const appHeader = document.getElementById('app-header');
     if (bottomNav) bottomNav.style.display = isAuth ? 'none' : 'flex';
     if (appHeader) appHeader.style.display = isAuth ? 'none' : 'flex';
 
-    // Kemas kini tab aktif pada bottom nav
     document.querySelectorAll('.nav-tab-btn').forEach(btn => {
       const tab = btn.dataset.tab;
       const isActive = (tab === viewName) ||
@@ -438,7 +641,6 @@
       }
     });
 
-    // Panggil pemuat data khusus paparan
     if (viewName === 'home') renderHomeView();
     if (viewName === 'archive') renderArchiveView();
     if (viewName === 'notif') renderNotifView();
@@ -450,7 +652,7 @@
   }
 
   // ==========================================================================
-  // 6. PEMUATAN DATA UTAMA (BOOT)
+  // 7. PEMUATAN DATA UTAMA (BOOT)
   // ==========================================================================
   async function loadAppBoot() {
     const res = await api('boot', {});
@@ -460,19 +662,19 @@
       State.rsvps = res.data.rsvp || [];
       State.notifications = res.data.notifications || [];
 
-      // Kemas kini profil pengguna pada header
       const nameEl = document.getElementById('header-user-name');
       const districtEl = document.getElementById('header-district-badge');
       if (nameEl) nameEl.textContent = State.currentUser.name;
-      if (districtEl) districtEl.textContent = 'Daerah: ' + State.currentUser.district;
+      if (districtEl) {
+        districtEl.textContent = (State.lang === 'en' ? 'District: ' : 'Daerah: ') + State.currentUser.district;
+      }
 
-      // Paparkan butang Admin jika peranan Admin
       const adminNavBtn = document.getElementById('nav-btn-admin');
       if (adminNavBtn) {
         adminNavBtn.style.display = (State.currentUser.role === 'Admin') ? 'flex' : 'none';
       }
 
-      // Lalukan ke laman utama
+      applyTranslations();
       setView(State.currentUser.role === 'Admin' ? 'admin-dashboard' : 'home');
     } else {
       setView('auth');
@@ -480,7 +682,7 @@
   }
 
   // ==========================================================================
-  // 7. RENDER PAPARAN HOME (TAKWIN GURU)
+  // 8. RENDER PAPARAN HOME (TAKWIN GURU)
   // ==========================================================================
   function renderHomeView() {
     const container = document.getElementById('events-card-list');
@@ -488,7 +690,6 @@
 
     let filtered = State.events;
     if (State.activeEventFilter === 'urgent') {
-      // Belum dijawab
       const answeredIds = State.rsvps.map(r => r.event_id);
       filtered = State.events.filter(e => !answeredIds.includes(e.event_id));
     }
@@ -497,7 +698,7 @@
       container.innerHTML = `
         <div class="bg-surface-container-low rounded-2xl p-8 text-center text-on-surface-variant my-4">
           <span class="material-symbols-outlined text-[48px] text-primary/40 mb-2">event_available</span>
-          <p class="font-label-lg">${I18N[State.lang].catAll} program telah dijawab atau tiada program aktif.</p>
+          <p class="font-headline text-xs font-semibold">${I18N[State.lang].noEventsFound}</p>
         </div>
       `;
       return;
@@ -507,32 +708,33 @@
       const userRsvp = State.rsvps.find(r => r.event_id === ev.event_id);
       let statusBadge = '';
       if (userRsvp) {
-        if (userRsvp.response_status.toLowerCase().includes('hadir') && !userRsvp.response_status.toLowerCase().includes('tidak')) {
-          statusBadge = `<span class="bg-[#DCFCE7] text-[#15803D] border border-[#86EFAC] px-2.5 py-0.5 rounded-full font-label-sm text-label-sm font-semibold">HADIR DISAHKAN</span>`;
-        } else if (userRsvp.response_status.toLowerCase().includes('wakil')) {
-          statusBadge = `<span class="bg-[#FEF3C7] text-[#B45309] border border-[#FCD34D] px-2.5 py-0.5 rounded-full font-label-sm text-label-sm font-semibold">MEWAKILKAN</span>`;
+        const st = (userRsvp.response_status || '').toLowerCase();
+        if (st.includes('hadir') && !st.includes('tidak')) {
+          statusBadge = `<span class="bg-[#DCFCE7] text-[#15803D] border border-[#86EFAC] px-2.5 py-0.5 rounded-full font-headline text-[10px] font-bold">${I18N[State.lang].badgeAttending}</span>`;
+        } else if (st.includes('wakil')) {
+          statusBadge = `<span class="bg-[#FEF3C7] text-[#B45309] border border-[#FCD34D] px-2.5 py-0.5 rounded-full font-headline text-[10px] font-bold">${I18N[State.lang].badgeRep}</span>`;
         } else {
-          statusBadge = `<span class="bg-[#FEE2E2] text-[#B91C1C] border border-[#FCA5A5] px-2.5 py-0.5 rounded-full font-label-sm text-label-sm font-semibold">TIDAK HADIR</span>`;
+          statusBadge = `<span class="bg-[#FEE2E2] text-[#B91C1C] border border-[#FCA5A5] px-2.5 py-0.5 rounded-full font-headline text-[10px] font-bold">${I18N[State.lang].badgeAbsent}</span>`;
         }
       } else {
-        statusBadge = `<span class="bg-[#FEF3C7] text-[#B45309] border border-[#FCD34D] px-2.5 py-0.5 rounded-full font-label-sm text-label-sm font-semibold animate-pulse">⚠️ PERLU TINDAKAN RSVP</span>`;
+        statusBadge = `<span class="bg-[#FEF3C7] text-[#B45309] border border-[#FCD34D] px-2.5 py-0.5 rounded-full font-headline text-[10px] font-bold animate-pulse">${I18N[State.lang].badgePending}</span>`;
       }
 
-      const title = State.lang === 'en' && ev.title_en ? ev.title_en : ev.title_bm;
+      const title = (State.lang === 'en' && ev.title_en) ? ev.title_en : ev.title_bm;
       return `
         <div class="bg-surface-container-lowest rounded-2xl p-4 shadow-sm border border-outline-variant/40 hover:border-primary/40 transition-all flex flex-col gap-3">
           <div class="flex items-center justify-between gap-2">
             ${statusBadge}
-            <span class="font-label-sm text-on-surface-variant text-label-sm flex items-center gap-1">
+            <span class="font-headline text-on-surface-variant text-[11px] font-semibold flex items-center gap-1">
               <span class="material-symbols-outlined text-[15px] text-primary">calendar_month</span>
               ${ev.event_date}
             </span>
           </div>
           <div>
-            <h3 class="font-headline-sm text-headline-sm text-on-surface font-semibold leading-snug">${title}</h3>
-            <p class="font-body-sm text-body-sm text-on-surface-variant mt-1">${ev.summary || ''}</p>
+            <h3 class="font-headline text-sm text-on-surface font-bold leading-snug">${title}</h3>
+            <p class="font-body text-xs text-on-surface-variant mt-1">${ev.summary || ''}</p>
           </div>
-          <div class="flex flex-col gap-1.5 pt-1 border-t border-outline-variant/30 text-on-surface-variant font-body-sm text-body-sm">
+          <div class="flex flex-col gap-1.5 pt-1 border-t border-outline-variant/30 text-on-surface-variant font-body text-xs">
             <div class="flex items-center gap-2">
               <span class="material-symbols-outlined text-[16px] text-primary shrink-0">schedule</span>
               <span>${ev.start_time} - ${ev.end_time}</span>
@@ -542,19 +744,19 @@
               <span class="truncate">${ev.venue || 'Dalam Talian'}</span>
             </div>
             ${ev.rsvp_deadline ? `
-              <div class="flex items-center gap-2 text-error font-medium text-label-sm">
+              <div class="flex items-center gap-2 text-error font-semibold text-[11px]">
                 <span class="material-symbols-outlined text-[16px] shrink-0">alarm</span>
                 <span>${I18N[State.lang].deadline}: ${ev.rsvp_deadline.replace('T', ' ')}</span>
               </div>
             ` : ''}
           </div>
           <div class="flex items-center gap-2 pt-1">
-            <button class="btn-open-rsvp flex-1 h-10 rounded-xl bg-primary text-on-primary font-label-md text-label-md font-semibold flex items-center justify-center gap-1.5 active:scale-95 transition-transform" data-id="${ev.event_id}">
+            <button class="btn-open-rsvp flex-1 h-10 rounded-xl bg-primary text-white font-headline text-xs font-bold flex items-center justify-center gap-1.5 active:scale-95 transition-transform" data-id="${ev.event_id}">
               <span class="material-symbols-outlined text-[18px]">how_to_reg</span>
-              <span>${userRsvp ? 'Kemas Kini RSVP' : I18N[State.lang].respondRsvpBtn}</span>
+              <span>${userRsvp ? I18N[State.lang].updateRsvpBtn : I18N[State.lang].respondRsvpBtn}</span>
             </button>
             ${ev.meeting_link ? `
-              <a href="${ev.meeting_link}" target="_blank" class="h-10 px-3.5 rounded-xl bg-secondary-container text-on-secondary-container font-label-md text-label-md flex items-center justify-center gap-1 shrink-0">
+              <a href="${ev.meeting_link}" target="_blank" class="h-10 px-3.5 rounded-xl bg-secondary-container text-on-secondary-container font-headline text-xs font-bold flex items-center justify-center gap-1 shrink-0">
                 <span class="material-symbols-outlined text-[18px]">videocam</span>
                 <span>Meet</span>
               </a>
@@ -564,17 +766,15 @@
       `;
     }).join('');
 
-    // Bind RSVP buttons
     container.querySelectorAll('.btn-open-rsvp').forEach(btn => {
       btn.addEventListener('click', () => {
-        const evId = btn.dataset.id;
-        openRsvpModal(evId);
+        openRsvpModal(btn.dataset.id);
       });
     });
   }
 
   // ==========================================================================
-  // 8. MODAL RSVP PINTAR (BOTTOM SHEET ACCORDION)
+  // 9. MODAL RSVP PINTAR
   // ==========================================================================
   function openRsvpModal(eventId) {
     const ev = State.events.find(e => e.event_id === eventId) || State.events[0];
@@ -584,10 +784,9 @@
     const modal = document.getElementById('modal-rsvp-sheet');
     const titleEl = document.getElementById('rsvp-event-title');
     const metaEl = document.getElementById('rsvp-event-meta');
-    if (titleEl) titleEl.textContent = State.lang === 'en' && ev.title_en ? ev.title_en : ev.title_bm;
+    if (titleEl) titleEl.textContent = (State.lang === 'en' && ev.title_en) ? ev.title_en : ev.title_bm;
     if (metaEl) metaEl.textContent = `${ev.event_date} • ${ev.start_time} • ${ev.venue}`;
 
-    // Reset Form
     const userRsvp = State.rsvps.find(r => r.event_id === eventId);
     const radioAttend = document.getElementById('radio-attend');
     const radioRep = document.getElementById('radio-rep');
@@ -649,11 +848,11 @@
     const absenceReason = document.getElementById('input-absence-reason').value.trim();
 
     if (status === 'Mewakilkan' && !repName) {
-      showToast('Sila masukkan nama penuh pegawai pengganti.', 'warning');
+      showToast(State.lang === 'en' ? 'Please enter representative full name.' : 'Sila masukkan nama penuh pegawai pengganti.', 'warning');
       return;
     }
     if (status === 'Tidak Hadir' && !absenceReason) {
-      showToast('Sila nyatakan sebab rasmi ketidakhadiran.', 'warning');
+      showToast(State.lang === 'en' ? 'Please state official reason for absence.' : 'Sila nyatakan sebab rasmi ketidakhadiran.', 'warning');
       return;
     }
 
@@ -665,11 +864,10 @@
       absenceReason: absenceReason
     };
 
-    showToast('Menghantar status RSVP...', 'info');
+    showToast(State.lang === 'en' ? 'Submitting RSVP response...' : 'Menghantar status RSVP...', 'info');
     const res = await api('submitRsvp', payload);
     if (res && res.success) {
-      showToast('RSVP berjaya dihantar: ' + status, 'success');
-      // Update local state
+      showToast(State.lang === 'en' ? 'RSVP submitted successfully: ' + status : 'RSVP berjaya dihantar: ' + status, 'success');
       const existingIdx = State.rsvps.findIndex(r => r.event_id === ev.event_id);
       const newEntry = {
         event_id: ev.event_id,
@@ -689,7 +887,7 @@
   }
 
   // ==========================================================================
-  // 9. RENDER ARKIB DOKUMEN & PEMAPAR PDF
+  // 10. RENDER ARKIB DOKUMEN & PEMAPAR PDF
   // ==========================================================================
   async function renderArchiveView() {
     const container = document.getElementById('archive-doc-list');
@@ -721,34 +919,34 @@
       container.innerHTML = `
         <div class="bg-surface-container-low rounded-2xl p-8 text-center text-on-surface-variant my-4">
           <span class="material-symbols-outlined text-[48px] text-primary/40 mb-2">find_in_page</span>
-          <p class="font-label-lg">Tiada dokumen dijumpai untuk carian ini.</p>
+          <p class="font-headline text-xs font-semibold">${I18N[State.lang].noDocsFound}</p>
         </div>
       `;
       return;
     }
 
     container.innerHTML = filtered.map(d => {
-      const title = State.lang === 'en' && d.title_en ? d.title_en : d.title_bm;
+      const title = (State.lang === 'en' && d.title_en) ? d.title_en : d.title_bm;
       return `
         <div class="bg-surface-container-lowest rounded-2xl p-4 shadow-sm border border-outline-variant/40 flex flex-col gap-2.5">
           <div class="flex items-start justify-between gap-3">
-            <div class="w-10 h-10 rounded-xl bg-[#FEE2E2] text-[#B91C1C] flex items-center justify-center shrink-0 font-bold font-label-md">
+            <div class="w-10 h-10 rounded-xl bg-[#FEE2E2] text-[#B91C1C] flex items-center justify-center shrink-0 font-bold font-headline text-xs">
               PDF
             </div>
             <div class="flex-1 min-w-0">
-              <span class="bg-surface-container-high text-on-surface-variant font-label-sm text-label-sm px-2 py-0.5 rounded-full font-medium">
+              <span class="bg-surface-container-high text-on-surface-variant font-headline text-[10px] px-2 py-0.5 rounded-full font-bold">
                 ${d.category}
               </span>
-              <h4 class="font-label-lg text-label-lg font-semibold text-on-surface mt-1 leading-snug">${title}</h4>
-              <p class="font-body-sm text-body-sm text-on-surface-variant mt-0.5">${d.ref_no || ''} • ${d.publish_date} • ${d.size || 'PDF'}</p>
+              <h4 class="font-headline text-xs font-bold text-on-surface mt-1 leading-snug">${title}</h4>
+              <p class="font-body text-[11px] text-on-surface-variant mt-0.5">${d.ref_no || ''} • ${d.publish_date} • ${d.size || 'PDF'}</p>
             </div>
           </div>
           <div class="flex items-center gap-2 pt-2 border-t border-outline-variant/30">
-            <button class="btn-preview-pdf flex-1 h-9 rounded-xl bg-surface-container text-primary font-label-md text-label-md flex items-center justify-center gap-1 active:scale-95 transition-transform" data-url="${d.file_view_url}">
+            <button class="btn-preview-pdf flex-1 h-9 rounded-xl bg-surface-container text-primary font-headline text-xs font-bold flex items-center justify-center gap-1 active:scale-95 transition-transform" data-url="${d.file_view_url}">
               <span class="material-symbols-outlined text-[18px]">visibility</span>
               <span>${I18N[State.lang].previewDocBtn}</span>
             </button>
-            <a href="${d.file_view_url}" target="_blank" download class="flex-1 h-9 rounded-xl bg-primary text-on-primary font-label-md text-label-md flex items-center justify-center gap-1 active:scale-95 transition-transform">
+            <a href="${d.file_view_url}" target="_blank" download class="flex-1 h-9 rounded-xl bg-primary text-white font-headline text-xs font-bold flex items-center justify-center gap-1 active:scale-95 transition-transform">
               <span class="material-symbols-outlined text-[18px]">download</span>
               <span>${I18N[State.lang].downloadBtn}</span>
             </a>
@@ -774,7 +972,7 @@
   }
 
   // ==========================================================================
-  // 10. RENDER NOTIFIKASI
+  // 11. RENDER NOTIFIKASI
   // ==========================================================================
   function renderNotifView() {
     const container = document.getElementById('notif-list-container');
@@ -784,7 +982,7 @@
       container.innerHTML = `
         <div class="bg-surface-container-low rounded-2xl p-8 text-center text-on-surface-variant my-4">
           <span class="material-symbols-outlined text-[48px] text-primary/40 mb-2">notifications_off</span>
-          <p class="font-label-lg">Tiada pemberitahuan baharu.</p>
+          <p class="font-headline text-xs font-semibold">${I18N[State.lang].noNotifsFound}</p>
         </div>
       `;
       return;
@@ -792,20 +990,20 @@
 
     container.innerHTML = State.notifications.map(n => {
       const isUrgent = n.type === 'Urgent';
-      const title = State.lang === 'en' && n.title_en ? n.title_en : n.title_bm;
-      const content = State.lang === 'en' && n.content_en ? n.content_en : n.content_bm;
+      const title = (State.lang === 'en' && n.title_en) ? n.title_en : n.title_bm;
+      const content = (State.lang === 'en' && n.content_en) ? n.content_en : n.content_bm;
       return `
         <div class="bg-surface-container-lowest rounded-2xl p-4 shadow-sm border ${isUrgent ? 'border-primary/40 bg-[#F0F9FF]' : 'border-outline-variant/40'} flex items-start gap-3">
-          <div class="w-10 h-10 rounded-full ${isUrgent ? 'bg-tertiary text-on-tertiary' : 'bg-surface-container-high text-primary'} flex items-center justify-center shrink-0">
+          <div class="w-10 h-10 rounded-full ${isUrgent ? 'bg-tertiary text-white' : 'bg-surface-container-high text-primary'} flex items-center justify-center shrink-0">
             <span class="material-symbols-outlined text-[20px]">${isUrgent ? 'campaign' : 'mark_chat_unread'}</span>
           </div>
           <div class="flex-1 min-w-0">
             <div class="flex items-center justify-between gap-1">
-              <span class="font-label-sm text-label-sm font-semibold text-primary truncate">${n.sent_at}</span>
+              <span class="font-headline text-[10px] font-bold text-primary truncate">${n.sent_at}</span>
               ${!n.is_read ? `<span class="w-2 h-2 rounded-full bg-error shrink-0"></span>` : ''}
             </div>
-            <h4 class="font-label-lg text-label-lg font-bold text-on-surface mt-0.5">${title}</h4>
-            <p class="font-body-sm text-body-sm text-on-surface-variant mt-1 leading-relaxed">${content}</p>
+            <h4 class="font-headline text-xs font-bold text-on-surface mt-0.5">${title}</h4>
+            <p class="font-body text-xs text-on-surface-variant mt-1 leading-relaxed">${content}</p>
           </div>
         </div>
       `;
@@ -813,7 +1011,7 @@
   }
 
   // ==========================================================================
-  // 11. RENDER PROFIL & TETAPAN PENGGUNA
+  // 12. RENDER PROFIL & TETAPAN PENGGUNA
   // ==========================================================================
   function renderProfileView() {
     const u = State.currentUser;
@@ -826,14 +1024,20 @@
     const bioToggle = document.getElementById('toggle-bio-setting');
 
     if (nameEl) nameEl.textContent = u.name;
-    if (roleEl) roleEl.textContent = u.role === 'Admin' ? 'Pegawai Pentadbir UPK' : 'Guru Pendidikan Kerjaya';
+    if (roleEl) {
+      if (u.role === 'Admin') {
+        roleEl.textContent = State.lang === 'en' ? 'CEU Administrative Officer' : 'Pegawai Pentadbir UPK';
+      } else {
+        roleEl.textContent = State.lang === 'en' ? 'Career Guidance Counselor' : 'Guru Pendidikan Kerjaya';
+      }
+    }
     if (emailEl) emailEl.textContent = u.email;
     if (schoolEl) schoolEl.textContent = `${u.school} (${u.district})`;
     if (bioToggle) bioToggle.checked = !!u.biometricEnabled;
   }
 
   // ==========================================================================
-  // 12. RENDER ADMIN DASHBOARD (KPI, DONUT CHART & DISTRICT STACKED BAR)
+  // 13. RENDER ADMIN DASHBOARD (KPI, DONUT & DISTRICT BARS)
   // ==========================================================================
   async function renderAdminDashboardView() {
     let data = State.adminData;
@@ -846,17 +1050,13 @@
     }
     if (!data) return;
 
-    // Update KPIs
     const kpi = data.kpi || {};
     document.getElementById('kpi-total-teachers').textContent = kpi.totalTeachers || 0;
     document.getElementById('kpi-rsvp-rate').textContent = (kpi.rsvpRate || 0) + '%';
     document.getElementById('kpi-attending').textContent = kpi.attending || 0;
     document.getElementById('kpi-rep-absent').textContent = `${kpi.representative || 0} / ${kpi.absent || 0}`;
 
-    // Render Donut Chart SVG
     renderDonutChart(data.donutData || []);
-
-    // Render District Stacked Bar
     renderDistrictBarChart(data.districtBreakdown || {});
   }
 
@@ -889,13 +1089,12 @@
 
     svg.innerHTML = `
       ${paths}
-      <!-- Donut Hole -->
       <circle cx="${cx}" cy="${cy}" r="36" fill="#ffffff" />
       <text x="${cx}" y="${cy - 2}" text-anchor="middle" font-size="14" font-weight="700" fill="#0F172A">
         ${State.adminData?.kpi?.rsvpRate || 0}%
       </text>
       <text x="${cx}" y="${cy + 12}" text-anchor="middle" font-size="9" font-weight="500" fill="#64748B">
-        Dijawab
+        ${State.lang === 'en' ? 'Responded' : 'Dijawab'}
       </text>
     `;
   }
@@ -911,11 +1110,14 @@
       const wakilPct = Math.round((d.wakil / total) * 100);
       const tidakPct = Math.round((d.tidakHadir / total) * 100);
 
+      const schoolLabel = State.lang === 'en' ? 'Schools' : 'Sekolah';
+      const attendLabel = State.lang === 'en' ? 'Attending' : 'Hadir';
+
       return `
         <div class="flex flex-col gap-1">
-          <div class="flex items-center justify-between text-label-sm font-label-sm">
-            <span class="font-bold text-on-surface">${dName} (${d.total} Sekolah)</span>
-            <span class="text-primary font-semibold">${d.hadir} Hadir • ${hadirPct}%</span>
+          <div class="flex items-center justify-between text-[11px] font-headline font-bold">
+            <span class="text-on-surface">${dName} (${d.total} ${schoolLabel})</span>
+            <span class="text-primary">${d.hadir} ${attendLabel} • ${hadirPct}%</span>
           </div>
           <div class="w-full h-3 bg-surface-container rounded-full overflow-hidden flex">
             <div style="width: ${hadirPct}%" class="bg-[#10B981] h-full" title="Hadir: ${d.hadir}"></div>
@@ -930,17 +1132,17 @@
   }
 
   // ==========================================================================
-  // 13. JADUAL RSVP PENTADBIR & PENJANAAN PDF
+  // 14. JADUAL RSVP PENTADBIR & PENJANAAN PDF
   // ==========================================================================
   async function renderAdminRsvpTableView() {
     const tableBody = document.getElementById('admin-rsvp-table-body');
     if (!tableBody) return;
 
-    tableBody.innerHTML = `<tr><td colspan="7" class="p-6 text-center text-on-surface-variant font-label-md">Memuatkan data kehadiran seluruh daerah...</td></tr>`;
+    tableBody.innerHTML = `<tr><td colspan="7" class="p-6 text-center text-on-surface-variant font-headline text-xs">${State.lang === 'en' ? 'Loading attendance data across 4 districts...' : 'Memuatkan data kehadiran seluruh daerah...'}</td></tr>`;
 
     const res = await api('getAdminRsvpTable', {});
     if (!res || !res.success || !res.data) {
-      tableBody.innerHTML = `<tr><td colspan="7" class="p-6 text-center text-error">Gagal memuatkan data.</td></tr>`;
+      tableBody.innerHTML = `<tr><td colspan="7" class="p-6 text-center text-error font-headline text-xs">${State.lang === 'en' ? 'Failed to load attendance records.' : 'Gagal memuatkan data.'}</td></tr>`;
       return;
     }
 
@@ -948,26 +1150,26 @@
     tableBody.innerHTML = rows.map((r, i) => {
       let badge = '';
       if (r.status.includes('Hadir') && !r.status.includes('Tidak')) {
-        badge = `<span class="bg-[#DCFCE7] text-[#15803D] px-2 py-0.5 rounded-full font-label-sm font-semibold">HADIR</span>`;
+        badge = `<span class="bg-[#DCFCE7] text-[#15803D] px-2 py-0.5 rounded-full font-headline text-[10px] font-bold">${State.lang === 'en' ? 'ATTENDING' : 'HADIR'}</span>`;
       } else if (r.status.includes('Wakil')) {
-        badge = `<span class="bg-[#FEF3C7] text-[#B45309] px-2 py-0.5 rounded-full font-label-sm font-semibold">WAKIL: ${r.repName || '-'}</span>`;
+        badge = `<span class="bg-[#FEF3C7] text-[#B45309] px-2 py-0.5 rounded-full font-headline text-[10px] font-bold">${State.lang === 'en' ? 'REP: ' : 'WAKIL: '} ${r.repName || '-'}</span>`;
       } else if (r.status.includes('Tidak')) {
-        badge = `<span class="bg-[#FEE2E2] text-[#B91C1C] px-2 py-0.5 rounded-full font-label-sm font-semibold">TAK HADIR</span>`;
+        badge = `<span class="bg-[#FEE2E2] text-[#B91C1C] px-2 py-0.5 rounded-full font-headline text-[10px] font-bold">${State.lang === 'en' ? 'ABSENT' : 'TAK HADIR'}</span>`;
       } else {
-        badge = `<span class="bg-[#F1F5F9] text-[#475569] px-2 py-0.5 rounded-full font-label-sm font-semibold">BELUM JAWAB</span>`;
+        badge = `<span class="bg-[#F1F5F9] text-[#475569] px-2 py-0.5 rounded-full font-headline text-[10px] font-bold">${State.lang === 'en' ? 'PENDING' : 'BELUM JAWAB'}</span>`;
       }
 
       return `
         <tr class="border-b border-outline-variant/30 hover:bg-surface-container-low transition-colors">
-          <td class="p-3 text-center font-label-sm text-on-surface-variant">${i + 1}</td>
-          <td class="p-3 font-label-md font-semibold text-on-surface">${r.name}<br><span class="font-body-sm font-normal text-on-surface-variant">${r.email}</span></td>
-          <td class="p-3 font-body-sm text-on-surface">${r.school}</td>
-          <td class="p-3 font-label-sm text-primary font-medium">${r.district}</td>
+          <td class="p-3 text-center font-headline text-xs text-on-surface-variant">${i + 1}</td>
+          <td class="p-3 font-headline text-xs font-bold text-on-surface">${r.name}<br><span class="font-body text-[11px] font-normal text-on-surface-variant">${r.email}</span></td>
+          <td class="p-3 font-body text-xs text-on-surface">${r.school}</td>
+          <td class="p-3 font-headline text-xs text-primary font-bold">${r.district}</td>
           <td class="p-3">${badge}</td>
-          <td class="p-3 font-body-sm text-on-surface-variant">${r.absenceReason || r.repName || '-'}</td>
+          <td class="p-3 font-body text-xs text-on-surface-variant">${r.absenceReason || r.repName || '-'}</td>
           <td class="p-3 text-center">
-            <button class="px-2.5 py-1 rounded-lg bg-surface-container text-primary font-label-sm hover:bg-primary hover:text-on-primary transition-colors btn-reminder" data-email="${r.email}">
-              Peringatan
+            <button class="px-2.5 py-1 rounded-lg bg-surface-container text-primary font-headline text-xs font-bold hover:bg-primary hover:text-white transition-colors btn-reminder" data-email="${r.email}">
+              ${State.lang === 'en' ? 'Remind' : 'Peringatan'}
             </button>
           </td>
         </tr>
@@ -976,17 +1178,17 @@
 
     tableBody.querySelectorAll('.btn-reminder').forEach(btn => {
       btn.addEventListener('click', () => {
-        showToast('Peringatan notifikasi dihantar ke ' + btn.dataset.email, 'success');
+        showToast(State.lang === 'en' ? 'Notification reminder sent to ' + btn.dataset.email : 'Peringatan notifikasi dihantar ke ' + btn.dataset.email, 'success');
       });
     });
   }
 
   // Penjanaan Dokumen Laporan Rasmi PDF A4 Ber-QR HMAC
   async function openOfficialPdfReportModal() {
-    showToast('Menjana laporan rasmi...', 'info');
+    showToast(State.lang === 'en' ? 'Generating official report...' : 'Menjana laporan rasmi...', 'info');
     const res = await api('generateAttendancePdf', {});
     if (!res || !res.success || !res.report) {
-      showToast('Gagal menjana laporan.', 'error');
+      showToast(State.lang === 'en' ? 'Failed to generate report.' : 'Gagal menjana laporan.', 'error');
       return;
     }
 
@@ -994,19 +1196,17 @@
     const modal = document.getElementById('modal-pdf-report');
     if (!modal) return;
 
-    // Isi Metadata
     document.getElementById('pdf-report-id').textContent = report.reportId;
     document.getElementById('pdf-generated-at').textContent = new Date(report.generatedAt).toLocaleString();
-    document.getElementById('pdf-event-title').textContent = report.event ? report.event.title_bm : 'Program Kerjaya UPK';
-    document.getElementById('pdf-event-venue').textContent = report.event ? report.event.venue : 'Kementerian Pendidikan';
+    const evTitle = (report.event) ? ((State.lang === 'en' && report.event.title_en) ? report.event.title_en : report.event.title_bm) : 'Career Guidance Program';
+    document.getElementById('pdf-event-title').textContent = evTitle;
+    document.getElementById('pdf-event-venue').textContent = report.event ? report.event.venue : 'Ministry of Education';
 
-    // Summary Box
     document.getElementById('pdf-total-invited').textContent = report.summary.totalTeachers;
     document.getElementById('pdf-total-attending').textContent = report.summary.attending;
     document.getElementById('pdf-total-rep').textContent = report.summary.representative;
     document.getElementById('pdf-total-absent').textContent = report.summary.absent;
 
-    // QR Verification & HMAC Signature
     document.getElementById('pdf-hmac-sig').textContent = report.hmacSignature;
     const qrImg = document.getElementById('pdf-qr-img');
     if (qrImg) {
@@ -1022,14 +1222,14 @@
   }
 
   // ==========================================================================
-  // 14. PENGURUSAN SESI & LOG MASUK
+  // 15. PENGURUSAN SESI & LOG MASUK
   // ==========================================================================
   async function handleSendOtpClick() {
     const emailInput = document.getElementById('auth-email-input');
     const email = (emailInput?.value || '').trim();
 
     if (!email) {
-      showToast('Sila masukkan alamat emel rasmi anda.', 'warning');
+      showToast(State.lang === 'en' ? 'Please enter your official email address.' : 'Sila masukkan alamat emel rasmi anda.', 'warning');
       return;
     }
     const isDomainValid = window.APP_CONFIG.OFFICIAL_DOMAINS.some(d => email.toLowerCase().endsWith(d));
@@ -1038,7 +1238,7 @@
       return;
     }
 
-    showToast('Menghantar kod OTP ke ' + email + '...', 'info');
+    showToast((State.lang === 'en' ? 'Sending OTP to ' : 'Menghantar kod OTP ke ') + email + '...', 'info');
     const res = await api('sendOtp', { email: email });
     if (res && res.success) {
       showToast(res.message, 'success');
@@ -1053,7 +1253,7 @@
 
   let otpTimerInterval = null;
   function startOtpCountdown() {
-    let seconds = 600; // 10 minit
+    let seconds = 600;
     const timerEl = document.getElementById('otp-timer-display');
     if (otpTimerInterval) clearInterval(otpTimerInterval);
 
@@ -1061,7 +1261,7 @@
       seconds--;
       if (seconds <= 0) {
         clearInterval(otpTimerInterval);
-        if (timerEl) timerEl.textContent = '00:00 (Tamat Tempoh)';
+        if (timerEl) timerEl.textContent = '00:00 (Expired)';
         return;
       }
       const m = String(Math.floor(seconds / 60)).padStart(2, '0');
@@ -1072,16 +1272,15 @@
 
   async function handleVerifyOtpClick() {
     const email = document.getElementById('auth-email-input').value.trim();
-    // Ambil digit dari 6 input kotak OTP
     let otp = '';
     document.querySelectorAll('.otp-digit-input').forEach(inp => otp += inp.value.trim());
 
     if (otp.length < 6) {
-      showToast('Sila lengkapkan kesemua 6-digit kod OTP.', 'warning');
+      showToast(State.lang === 'en' ? 'Please complete all 6 OTP digits.' : 'Sila lengkapkan kesemua 6-digit kod OTP.', 'warning');
       return;
     }
 
-    showToast('Mengesahkan kod OTP...', 'info');
+    showToast(State.lang === 'en' ? 'Verifying OTP code...' : 'Mengesahkan kod OTP...', 'info');
     const res = await api('verifyOtp', { email: email, otp: otp, device: navigator.userAgent });
     if (res && res.success) {
       State.token = res.token;
@@ -1089,7 +1288,7 @@
       localStorage.setItem('ceu_tok', res.token);
       localStorage.setItem('ceu_user', JSON.stringify(res.user));
 
-      showToast('Log masuk berjaya! Selamat datang ' + res.user.name, 'success');
+      showToast((State.lang === 'en' ? 'Login successful! Welcome ' : 'Log masuk berjaya! Selamat datang ') + res.user.name, 'success');
       loadAppBoot();
     } else {
       showToast((res && res.message) || 'Kod OTP tidak sah.', 'error');
@@ -1102,32 +1301,7 @@
     localStorage.removeItem('ceu_tok');
     localStorage.removeItem('ceu_user');
     setView('auth');
-    showToast('Anda telah berjaya log keluar.', 'info');
-  }
-
-  // ==========================================================================
-  // 15. TOGOL BAHASA (BM / EN)
-  // ==========================================================================
-  function setLanguage(lang) {
-    State.lang = lang;
-    localStorage.setItem('ceu_lang', lang);
-
-    document.querySelectorAll('.lang-btn-bm').forEach(b => {
-      b.classList.toggle('bg-tertiary', lang === 'bm');
-      b.classList.toggle('text-on-tertiary', lang === 'bm');
-      b.classList.toggle('text-on-primary/70', lang !== 'bm');
-    });
-    document.querySelectorAll('.lang-btn-en').forEach(b => {
-      b.classList.toggle('bg-tertiary', lang === 'en');
-      b.classList.toggle('text-on-tertiary', lang === 'en');
-      b.classList.toggle('text-on-primary/70', lang !== 'en');
-    });
-
-    // Re-render paparan aktif
-    if (State.currentView === 'home') renderHomeView();
-    if (State.currentView === 'archive') renderArchiveView();
-    if (State.currentView === 'notif') renderNotifView();
-    if (State.currentView === 'admin-dashboard') renderAdminDashboardView();
+    showToast(State.lang === 'en' ? 'You have successfully logged out.' : 'Anda telah berjaya log keluar.', 'info');
   }
 
   // ==========================================================================
@@ -1163,11 +1337,9 @@
   // 17. PEMASANGAN EVENT LISTENERS (INIT)
   // ==========================================================================
   function initEvents() {
-    // Language buttons
     document.querySelectorAll('.lang-btn-bm').forEach(b => b.addEventListener('click', () => setLanguage('bm')));
     document.querySelectorAll('.lang-btn-en').forEach(b => b.addEventListener('click', () => setLanguage('en')));
 
-    // Auth Segmented Switcher
     const tabEmail = document.getElementById('tab-btn-email');
     const tabBio = document.getElementById('tab-btn-biometric');
     const viewEmail = document.getElementById('view-email');
@@ -1193,23 +1365,20 @@
       });
     }
 
-    // Biometric Trigger Button
     const bioTriggerBtn = document.getElementById('bio-trigger-btn');
     if (bioTriggerBtn) {
       bioTriggerBtn.addEventListener('click', triggerBiometricLogin);
     }
 
-    // OTP Flow
     const btnSendOtp = document.getElementById('btn-send-otp');
     if (btnSendOtp) btnSendOtp.addEventListener('click', handleSendOtpClick);
 
     const btnVerifyOtp = document.getElementById('btn-verify-otp');
     if (btnVerifyOtp) btnVerifyOtp.addEventListener('click', handleVerifyOtpClick);
 
-    // OTP Box auto-focus progression
     const otpBoxes = document.querySelectorAll('.otp-digit-input');
     otpBoxes.forEach((box, i) => {
-      box.addEventListener('input', e => {
+      box.addEventListener('input', () => {
         if (box.value.length === 1 && i < otpBoxes.length - 1) {
           otpBoxes[i + 1].focus();
         }
@@ -1221,7 +1390,6 @@
       });
     });
 
-    // Bottom Navigation
     document.querySelectorAll('.nav-tab-btn').forEach(btn => {
       btn.addEventListener('click', () => {
         const tab = btn.dataset.tab;
@@ -1230,7 +1398,6 @@
       });
     });
 
-    // RSVP Modal Radio Choices
     const radioRep = document.getElementById('radio-rep');
     const radioAbsent = document.getElementById('radio-absent');
     const radioAttend = document.getElementById('radio-attend');
@@ -1251,21 +1418,19 @@
     const btnSubmitRsvp = document.getElementById('btn-submit-rsvp-form');
     if (btnSubmitRsvp) btnSubmitRsvp.addEventListener('click', handleRsvpSubmit);
 
-    // Event Filters (Home)
     document.querySelectorAll('.event-filter-pill').forEach(pill => {
       pill.addEventListener('click', () => {
         document.querySelectorAll('.event-filter-pill').forEach(p => {
-          p.classList.remove('bg-primary', 'text-on-primary');
+          p.classList.remove('bg-primary', 'text-white');
           p.classList.add('bg-surface-container', 'text-on-surface-variant');
         });
-        pill.classList.add('bg-primary', 'text-on-primary');
+        pill.classList.add('bg-primary', 'text-white');
         pill.classList.remove('bg-surface-container', 'text-on-surface-variant');
         State.activeEventFilter = pill.dataset.filter;
         renderHomeView();
       });
     });
 
-    // Archive Search & Categories
     const archiveSearch = document.getElementById('archive-search-input');
     if (archiveSearch) {
       archiveSearch.addEventListener('input', () => renderArchiveView());
@@ -1274,17 +1439,16 @@
     document.querySelectorAll('.archive-category-pill').forEach(pill => {
       pill.addEventListener('click', () => {
         document.querySelectorAll('.archive-category-pill').forEach(p => {
-          p.classList.remove('bg-primary', 'text-on-primary');
+          p.classList.remove('bg-primary', 'text-white');
           p.classList.add('bg-surface-container', 'text-on-surface-variant');
         });
-        pill.classList.add('bg-primary', 'text-on-primary');
+        pill.classList.add('bg-primary', 'text-white');
         pill.classList.remove('bg-surface-container', 'text-on-surface-variant');
         State.activeMemoCategory = pill.dataset.cat;
         renderArchiveView();
       });
     });
 
-    // Close PDF viewer modal
     const btnClosePdf = document.getElementById('btn-close-pdf-viewer');
     if (btnClosePdf) {
       btnClosePdf.addEventListener('click', () => {
@@ -1292,7 +1456,6 @@
       });
     }
 
-    // Admin PDF Generator triggers
     const btnGenPdf = document.getElementById('btn-admin-generate-pdf');
     if (btnGenPdf) btnGenPdf.addEventListener('click', openOfficialPdfReportModal);
 
@@ -1302,7 +1465,6 @@
     const btnPrintPdf = document.getElementById('btn-print-pdf-report');
     if (btnPrintPdf) btnPrintPdf.addEventListener('click', () => window.print());
 
-    // Admin Nav Tabs
     const btnAdminRsvpTab = document.getElementById('btn-admin-view-rsvp');
     if (btnAdminRsvpTab) btnAdminRsvpTab.addEventListener('click', () => setView('admin-rsvp'));
 
@@ -1312,7 +1474,6 @@
     const btnAdminCreateEvent = document.getElementById('btn-admin-create-event');
     if (btnAdminCreateEvent) btnAdminCreateEvent.addEventListener('click', () => setView('admin-events'));
 
-    // Admin Event Form Submit
     const formCreateEvent = document.getElementById('form-create-event');
     if (formCreateEvent) {
       formCreateEvent.addEventListener('submit', async e => {
@@ -1326,7 +1487,7 @@
         const meetLink = document.getElementById('event-meet-link').value.trim();
         const deadline = document.getElementById('event-deadline-input').value;
 
-        showToast('Menerbitkan acara & menyiarkan notifikasi FCM...', 'info');
+        showToast(State.lang === 'en' ? 'Publishing event & broadcasting push notification...' : 'Menerbitkan acara & menyiarkan notifikasi FCM...', 'info');
         const res = await api('saveEvent', {
           titleBm: titleBm,
           titleEn: titleEn,
@@ -1340,7 +1501,6 @@
 
         if (res && res.success) {
           showToast(res.message, 'success');
-          // Refresh events and return to dashboard
           State.adminData = null;
           await loadAppBoot();
           setView('admin-dashboard');
@@ -1350,7 +1510,6 @@
       });
     }
 
-    // Profile Actions
     const btnLogout = document.getElementById('btn-logout');
     if (btnLogout) btnLogout.addEventListener('click', logout);
 
@@ -1372,9 +1531,9 @@
   // ==========================================================================
   window.addEventListener('DOMContentLoaded', () => {
     initEvents();
+    // Terapkan bahasa yang disimpan (atau default bm)
     setLanguage(State.lang);
 
-    // Semak Token Sedia Ada
     if (State.token) {
       const savedUser = localStorage.getItem('ceu_user');
       if (savedUser) {
@@ -1386,11 +1545,11 @@
     }
   });
 
-  // Ekspot Global untuk debugging
   window.CEU_APP = {
     State: State,
     api: api,
     setView: setView,
+    setLanguage: setLanguage,
     logout: logout,
     showToast: showToast
   };
