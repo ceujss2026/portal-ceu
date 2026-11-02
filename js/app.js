@@ -794,15 +794,11 @@
       const isActive = (tab === viewName) ||
         (tab === 'admin' && viewName.startsWith('admin-'));
       if (isActive) {
-        btn.classList.add('text-primary');
+        btn.classList.add('text-primary', 'border-t-2', 'border-tertiary');
         btn.classList.remove('text-on-surface-variant');
-        const icon = btn.querySelector('.material-symbols-outlined');
-        if (icon) icon.classList.add('fill-1');
       } else {
-        btn.classList.remove('text-primary');
+        btn.classList.remove('text-primary', 'border-t-2', 'border-tertiary');
         btn.classList.add('text-on-surface-variant');
-        const icon = btn.querySelector('.material-symbols-outlined');
-        if (icon) icon.classList.remove('fill-1');
       }
     });
 
@@ -872,58 +868,66 @@
 
     container.innerHTML = filtered.map(ev => {
       const userRsvp = State.rsvps.find(r => r.event_id === ev.event_id);
+      const isPending = !userRsvp;
       let statusBadge = '';
       if (userRsvp) {
         const st = (userRsvp.response_status || '').toLowerCase();
         if (st.includes('hadir') && !st.includes('tidak')) {
-          statusBadge = `<span class="bg-[#DCFCE7] text-[#15803D] border border-[#86EFAC] px-2.5 py-0.5 rounded-full font-headline text-[10px] font-bold">${I18N[State.lang].badgeAttending}</span>`;
+          statusBadge = `<span class="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-secondary-container text-on-secondary-container font-label-md text-label-md font-bold"><span class="material-symbols-outlined text-base">verified</span>${I18N[State.lang].badgeAttending}</span>`;
         } else if (st.includes('wakil')) {
-          statusBadge = `<span class="bg-[#FEF3C7] text-[#B45309] border border-[#FCD34D] px-2.5 py-0.5 rounded-full font-headline text-[10px] font-bold">${I18N[State.lang].badgeRep}</span>`;
+          statusBadge = `<span class="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-surface-container text-on-surface-variant font-label-md text-label-md font-medium"><span class="material-symbols-outlined text-base text-tertiary">swap_horiz</span>${I18N[State.lang].badgeRep}</span>`;
         } else {
-          statusBadge = `<span class="bg-[#FEE2E2] text-[#B91C1C] border border-[#FCA5A5] px-2.5 py-0.5 rounded-full font-headline text-[10px] font-bold">${I18N[State.lang].badgeAbsent}</span>`;
+          statusBadge = `<span class="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-error-container text-on-error-container font-label-md text-label-md font-bold">${I18N[State.lang].badgeAbsent}</span>`;
         }
       } else {
-        statusBadge = `<span class="bg-[#FEF3C7] text-[#B45309] border border-[#FCD34D] px-2.5 py-0.5 rounded-full font-headline text-[10px] font-bold animate-pulse">${I18N[State.lang].badgePending}</span>`;
+        statusBadge = `<span class="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-tertiary-fixed text-on-tertiary-fixed font-label-md text-label-md font-bold shadow-sm"><span class="material-symbols-outlined text-base">priority_high</span>${I18N[State.lang].badgePending}</span>`;
       }
 
       const title = (State.lang === 'en' && ev.title_en) ? ev.title_en : ev.title_bm;
       return `
-        <div class="bg-surface-container-lowest rounded-2xl p-4 shadow-sm border border-outline-variant/40 hover:border-primary/40 transition-all flex flex-col gap-3">
-          <div class="flex items-center justify-between gap-2">
+        <div class="bg-surface-container-lowest rounded-xl shadow-md p-space-md relative overflow-hidden transition-all border border-outline-variant/30 flex flex-col gap-space-sm mb-space-sm">
+          <div class="absolute top-0 left-0 right-0 h-1 ${isPending ? 'bg-tertiary' : 'bg-secondary'}"></div>
+          <div class="flex items-start justify-between gap-space-xs pt-1">
             ${statusBadge}
-            <span class="font-headline text-on-surface-variant text-[11px] font-semibold flex items-center gap-1">
-              <span class="material-symbols-outlined text-[15px] text-primary">calendar_month</span>
+            <span class="font-label-sm text-label-sm text-on-surface-variant font-medium flex items-center gap-1">
+              <span class="material-symbols-outlined text-sm text-primary">event</span>
               ${ev.event_date}
             </span>
           </div>
           <div>
-            <h3 class="font-headline text-sm text-on-surface font-bold leading-snug">${title}</h3>
-            <p class="font-body text-xs text-on-surface-variant mt-1">${ev.summary || ''}</p>
+            <h2 class="font-headline-sm text-headline-sm font-bold text-on-surface leading-snug">${title}</h2>
+            <span class="font-label-sm text-label-sm text-secondary font-medium mt-0.5 block">${ev.summary || 'Jabatan Sekolah-Sekolah • UPK/2026'}</span>
           </div>
-          <div class="flex flex-col gap-1.5 pt-1 border-t border-outline-variant/30 text-on-surface-variant font-body text-xs">
+          <div class="bg-surface-container-low rounded-lg p-space-xs flex flex-col gap-1.5 text-on-surface">
             <div class="flex items-center gap-2">
-              <span class="material-symbols-outlined text-[16px] text-primary shrink-0">schedule</span>
-              <span>${ev.start_time} - ${ev.end_time}</span>
+              <span class="material-symbols-outlined text-primary text-base shrink-0">schedule</span>
+              <span class="font-body-sm text-body-sm font-semibold">${ev.start_time} - ${ev.end_time}</span>
             </div>
-            <div class="flex items-center gap-2">
-              <span class="material-symbols-outlined text-[16px] text-primary shrink-0">pin_drop</span>
-              <span class="truncate">${ev.venue || 'Dalam Talian'}</span>
+            <div class="flex items-center gap-2 text-on-surface-variant">
+              <span class="material-symbols-outlined text-secondary text-base shrink-0">location_on</span>
+              <span class="font-body-sm text-body-sm truncate">${ev.venue || 'Dalam Talian'}</span>
             </div>
-            ${ev.rsvp_deadline ? `
-              <div class="flex items-center gap-2 text-error font-semibold text-[11px]">
-                <span class="material-symbols-outlined text-[16px] shrink-0">alarm</span>
-                <span>${I18N[State.lang].deadline}: ${ev.rsvp_deadline.replace('T', ' ')}</span>
+          </div>
+          ${ev.rsvp_deadline && isPending ? `
+            <div class="bg-error-container text-on-error-container p-space-xs rounded-lg flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <span class="material-symbols-outlined text-error text-lg shrink-0">hourglass_top</span>
+                <div class="flex flex-col">
+                  <span class="font-label-sm text-label-sm font-bold">${I18N[State.lang].deadline}: ${ev.rsvp_deadline.replace('T', ' ')}</span>
+                  <span class="font-body-sm text-body-sm opacity-90">${State.lang === 'en' ? 'Action required immediately' : 'Tindakan segera diperlukan'}</span>
+                </div>
               </div>
-            ` : ''}
-          </div>
-          <div class="flex items-center gap-2 pt-1">
-            <button class="btn-open-rsvp flex-1 h-10 rounded-xl bg-primary text-white font-headline text-xs font-bold flex items-center justify-center gap-1.5 active:scale-95 transition-transform" data-id="${ev.event_id}">
-              <span class="material-symbols-outlined text-[18px]">how_to_reg</span>
+              <span class="material-symbols-outlined text-error text-lg">alarm</span>
+            </div>
+          ` : ''}
+          <div class="flex flex-col sm:flex-row gap-2 pt-1">
+            <button class="btn-open-rsvp w-full flex-1 bg-primary text-on-primary py-2.5 px-4 rounded-lg font-label-lg text-label-lg font-semibold flex items-center justify-center gap-2 shadow-sm hover:opacity-95 active:scale-[0.98] transition-transform min-h-[44px]" data-id="${ev.event_id}">
+              <span class="material-symbols-outlined text-lg">check_circle</span>
               <span>${userRsvp ? I18N[State.lang].updateRsvpBtn : I18N[State.lang].respondRsvpBtn}</span>
             </button>
             ${ev.meeting_link ? `
-              <a href="${ev.meeting_link}" target="_blank" class="h-10 px-3.5 rounded-xl bg-secondary-container text-on-secondary-container font-headline text-xs font-bold flex items-center justify-center gap-1 shrink-0">
-                <span class="material-symbols-outlined text-[18px]">videocam</span>
+              <a href="${ev.meeting_link}" target="_blank" class="w-full sm:w-auto bg-surface-container-low text-primary py-2.5 px-4 rounded-lg font-label-lg text-label-lg font-semibold flex items-center justify-center gap-1.5 hover:bg-surface-container transition-colors min-h-[44px]">
+                <span class="material-symbols-outlined text-lg">videocam</span>
                 <span>Meet</span>
               </a>
             ` : ''}
