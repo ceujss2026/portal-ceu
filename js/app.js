@@ -59,7 +59,7 @@
       officialNoticeFooter: 'Sistem Rasmi Kerajaan Brunei Darussalam • Versi 1.0.4',
       
       // Navigasi Bawah
-      navHome: 'Laman',
+      navHome: 'Utama',
       navTakwim: 'Takwim',
       navRsvp: 'RSVP',
       navArchive: 'Arkib',
@@ -835,7 +835,7 @@
     if (!storedBioToken || !storedBioUser) {
       showToast(State.lang === 'en' ? 'Scanning biometrics...' : 'Mengimbas cap jari / biometrik...', 'info');
       const emailInput = document.getElementById('email') || document.getElementById('auth-email-input');
-      const email = (emailInput?.value || 'cikgu.sarah@moe.edu.bn').trim();
+      const email = (emailInput?.value || 'noraini.yusof@moe.bn').trim();
       setTimeout(async () => {
         const res = await api('biometricLogin', { email: email });
         if (res && res.success) {
@@ -1084,66 +1084,81 @@
   }
 
   function updateNavActiveTabs() {
+    const nav = document.getElementById('app-bottom-nav');
+    if (!nav) return;
+
+    if (!State.currentUser || State.currentView === 'auth') {
+      nav.style.display = 'none';
+      return;
+    }
+    nav.style.display = 'block';
+
     const isUrgent = State.currentView === 'home' && State.activeEventFilter === 'urgent';
-    const isAll = State.currentView === 'home' && State.activeEventFilter === 'all';
     const isAdmin = State.currentUser && State.currentUser.role === 'Admin';
 
-    // Update 5th button label/icon for admin
+    // Update 5th button label/icon
     const profileIcon = document.getElementById('nav-profile-icon');
     const profileLabel = document.getElementById('nav-profile-label');
     const btnProfile = document.getElementById('nav-btn-profile');
     if (profileIcon && profileLabel && btnProfile) {
-      if (isAdmin) {
-        profileIcon.className = 'fa-solid fa-sliders text-base';
-        profileLabel.textContent = 'Admin';
-        btnProfile.dataset.tab = 'admin';
-      } else {
-        profileIcon.className = 'fa-solid fa-user-shield text-base';
-        profileLabel.textContent = State.lang === 'en' ? 'Profile' : 'Profil';
-        btnProfile.dataset.tab = 'profile';
-      }
+      profileIcon.className = 'fa-solid fa-user-gear text-xl mb-1';
+      profileLabel.textContent = State.lang === 'en' ? 'Profile' : 'Profil';
+      btnProfile.dataset.tab = 'profile';
     }
 
     document.querySelectorAll('.nav-tab-btn').forEach(btn => {
       const tab = btn.dataset.tab;
       let isActive = false;
       if (tab === 'home') {
-        isActive = (State.currentView === 'home' && !isUrgent) || (State.currentView === 'admin-dashboard' && !isAdmin);
-      } else if (tab === 'takwim') {
-        isActive = State.currentView === 'home' && isAll;
+        isActive = (State.currentView === 'home' && !isUrgent) || (State.currentView === 'admin-dashboard');
       } else if (tab === 'rsvp') {
-        isActive = State.currentView === 'admin-rsvp' || isUrgent;
+        isActive = State.currentView === 'admin-rsvp' || (State.currentView === 'home' && isUrgent);
       } else if (tab === 'archive') {
         isActive = State.currentView === 'archive';
+      } else if (tab === 'notif') {
+        isActive = State.currentView === 'notif';
       } else if (tab === 'profile') {
-        isActive = State.currentView === 'profile';
-      } else if (tab === 'admin') {
-        isActive = State.currentView === 'admin-dashboard';
+        isActive = State.currentView === 'profile' || State.currentView === 'admin-users';
       }
 
+      const indicator = btn.querySelector('.nav-indicator');
+      const icon = btn.querySelector('i');
+      const span = btn.querySelector('span:not(#bottom-notif-dot)');
+
       if (isActive) {
-        btn.className = 'nav-tab-btn flex flex-col items-center justify-center py-1.5 px-3 rounded-xl bg-brand-primary text-white shadow-md transition-all duration-200 cursor-pointer';
-        const span = btn.querySelector('span:not(.animate-ping):not(.relative)');
+        if (indicator) indicator.classList.remove('hidden');
+        btn.classList.add('text-brand-primary');
+        btn.classList.remove('text-slate-700');
+        if (icon) {
+          icon.classList.add('text-brand-primary');
+          icon.classList.remove('text-slate-700');
+        }
         if (span) {
-          span.classList.add('font-bold');
-          span.classList.remove('font-semibold');
+          span.classList.add('font-semibold', 'text-brand-primary');
+          span.classList.remove('font-medium', 'text-slate-700');
         }
       } else {
-        btn.className = 'nav-tab-btn relative flex flex-col items-center justify-center py-1.5 px-3 rounded-xl text-slate-600 hover:text-brand-primary hover:bg-sky-50 transition-all duration-200 cursor-pointer';
-        const span = btn.querySelector('span:not(.animate-ping):not(.relative)');
+        if (indicator) indicator.classList.add('hidden');
+        btn.classList.remove('text-brand-primary');
+        btn.classList.add('text-slate-700');
+        if (icon) {
+          icon.classList.remove('text-brand-primary');
+          icon.classList.add('text-slate-700');
+        }
         if (span) {
-          span.classList.remove('font-bold');
-          span.classList.add('font-semibold');
+          span.classList.remove('font-semibold', 'text-brand-primary');
+          span.classList.add('font-medium', 'text-slate-700');
         }
       }
     });
 
-    // Update RSVP badge visibility
-    const rsvpBadge = document.getElementById('bottom-rsvp-badge');
-    if (rsvpBadge) {
-      const myEmail = State.currentUser && State.currentUser.email;
-      const unrespondedCount = (State.events || []).filter(e => e.status === 'Published' && !(State.rsvps || []).some(r => r.event_id === e.event_id && r.user_email === myEmail)).length;
-      rsvpBadge.style.display = unrespondedCount > 0 ? 'flex' : 'none';
+    // Update notif dot badge
+    const notifDot = document.getElementById('bottom-notif-dot');
+    if (notifDot) {
+      let readIds = [];
+      try { readIds = JSON.parse(localStorage.getItem('ceu_read_notifs') || '[]'); } catch(e) {}
+      const unreadCount = (State.notifications || []).filter(a => !readIds.includes(a.notif_id)).length;
+      notifDot.style.display = unreadCount > 0 ? 'inline-block' : 'none';
     }
   }
 
@@ -2262,29 +2277,36 @@
     const btnText = document.getElementById('otp-btn-text');
     const submitBtn = document.getElementById('otp-submit-btn');
     if (btnText && submitBtn) {
-      btnText.textContent = 'Menghantar Kod OTP...';
+      btnText.textContent = State.lang === 'en' ? 'Sending OTP Code...' : 'Menghantar Kod OTP...';
       submitBtn.classList.add('opacity-80', 'pointer-events-none');
     }
 
-    showToast((State.lang === 'en' ? 'Sending OTP to ' : 'Menghantar kod OTP ke ') + email + '...', 'info');
+    // Only one single notification
     const res = await api('sendOtp', { email: email });
     if (res && res.success) {
       if (btnText && submitBtn) {
-        btnText.textContent = 'Kod OTP Berjaya Dihantar ✓';
+        btnText.textContent = State.lang === 'en' ? 'OTP Sent ✓' : 'Kod OTP Berjaya Dihantar ✓';
         setTimeout(() => {
-          btnText.textContent = 'Hantar Kod OTP ke Emel Rasmi';
+          btnText.textContent = State.lang === 'en' ? 'Send OTP to Official Email' : 'Hantar Kod OTP ke Emel Rasmi';
           submitBtn.classList.remove('opacity-80', 'pointer-events-none');
         }, 2500);
       }
-      showToast(res.message, 'success');
+      showToast(res.message || (State.lang === 'en' ? 'OTP code sent (Demo Mode: 123456)' : 'Kod OTP berjaya dihantar (Mod Demo: 123456)'), 'success');
+      
+      // Auto-fill demo OTP digits for smooth testing
+      const demoOtp = '123456';
+      document.querySelectorAll('.otp-digit-input').forEach((inp, idx) => {
+        inp.value = demoOtp[idx] || '';
+      });
+
       startOtpCountdown();
       setTimeout(() => document.getElementById('otp-box-1')?.focus(), 150);
     } else {
       if (btnText && submitBtn) {
-        btnText.textContent = 'Hantar Kod OTP ke Emel Rasmi';
+        btnText.textContent = State.lang === 'en' ? 'Send OTP to Official Email' : 'Hantar Kod OTP ke Emel Rasmi';
         submitBtn.classList.remove('opacity-80', 'pointer-events-none');
       }
-      showToast((res && res.message) || 'Gagal menghantar kod OTP.', 'error');
+      showToast((res && res.message) || (State.lang === 'en' ? 'Failed to send OTP code.' : 'Gagal menghantar kod OTP.'), 'error');
     }
   }
 
@@ -2294,30 +2316,46 @@
     const timerEl = document.getElementById('otp-timer-display');
     if (otpTimerInterval) clearInterval(otpTimerInterval);
 
+    function updateDisplay(sec) {
+      if (!timerEl) return;
+      const m = String(Math.floor(sec / 60)).padStart(2, '0');
+      const s = String(sec % 60).padStart(2, '0');
+      const prefix = State.lang === 'en' ? 'Time: ' : 'Masa: ';
+      timerEl.textContent = `${prefix}${m}:${s}`;
+    }
+
+    updateDisplay(seconds);
+
     otpTimerInterval = setInterval(() => {
       seconds--;
       if (seconds <= 0) {
         clearInterval(otpTimerInterval);
-        if (timerEl) timerEl.textContent = '00:00 (Tamat)';
+        if (timerEl) timerEl.textContent = State.lang === 'en' ? '00:00 (Expired)' : '00:00 (Tamat)';
         return;
       }
-      const m = String(Math.floor(seconds / 60)).padStart(2, '0');
-      const s = String(seconds % 60).padStart(2, '0');
-      if (timerEl) timerEl.textContent = `Masa: ${m}:${s}`;
+      updateDisplay(seconds);
     }, 1000);
   }
 
   async function handleVerifyOtpClick() {
     const emailInput = document.getElementById('email') || document.getElementById('auth-email-input');
-    const email = (emailInput?.value || 'cikgu.sarah@moe.edu.bn').trim();
-    let otp = '';
-    document.querySelectorAll('.otp-digit-input').forEach(inp => otp += (inp.value || inp.placeholder || '').trim());
-
-    if (!otp || otp.length < 6) {
-      otp = '482000';
+    let email = (emailInput?.value || '').trim();
+    if (!email) {
+      email = 'noraini.yusof@moe.bn';
+      if (emailInput) emailInput.value = email;
     }
 
-    showToast(State.lang === 'en' ? 'Verifying OTP code...' : 'Mengesahkan kod OTP...', 'info');
+    let otp = '';
+    document.querySelectorAll('.otp-digit-input').forEach(inp => otp += (inp.value || '').trim());
+
+    if (!otp || otp.length < 6) {
+      otp = '123456';
+      const demoOtp = '123456';
+      document.querySelectorAll('.otp-digit-input').forEach((inp, idx) => {
+        inp.value = demoOtp[idx] || '';
+      });
+    }
+
     const res = await api('verifyOtp', { email: email, otp: otp, device: navigator.userAgent });
     if (res && res.success) {
       State.token = res.token;
@@ -2325,7 +2363,6 @@
       localStorage.setItem('ceu_tok', res.token);
       localStorage.setItem('ceu_user', JSON.stringify(res.user));
 
-      // Simpan kelayakan untuk log masuk pantas biometrik pada pelancaran berikutnya
       localStorage.setItem('ceu_bio_token', res.token);
       localStorage.setItem('ceu_bio_user', JSON.stringify(res.user));
       updateBiometricUI();
@@ -2333,7 +2370,7 @@
       showToast((State.lang === 'en' ? 'Login successful! Welcome ' : 'Log masuk berjaya! Selamat datang ') + res.user.name, 'success');
       loadAppBoot();
     } else {
-      showToast((res && res.message) || 'Kod OTP tidak sah.', 'error');
+      showToast((res && res.message) || (State.lang === 'en' ? 'Invalid OTP code.' : 'Kod OTP tidak sah.'), 'error');
     }
   }
 
@@ -2969,15 +3006,6 @@
             setView('home');
             setEventFilter('urgent');
           }
-        } else if (tab === 'takwim') {
-          if (State.currentUser && State.currentUser.role === 'Admin') {
-            setView('admin-dashboard');
-          } else {
-            setView('home');
-            setEventFilter('all');
-            const cal = document.getElementById('calendar-grid') || document.getElementById('view-home');
-            if (cal) cal.scrollIntoView({ behavior: 'smooth' });
-          }
         } else if (tab === 'home') {
           if (State.currentUser && State.currentUser.role === 'Admin') {
             setView('admin-dashboard');
@@ -2985,8 +3013,12 @@
             setView('home');
             setEventFilter('all');
           }
-        } else if (tab === 'admin') {
-          setView('admin-dashboard');
+        } else if (tab === 'archive') {
+          setView('archive');
+        } else if (tab === 'notif') {
+          setView('notif');
+        } else if (tab === 'profile') {
+          setView('profile');
         } else {
           setView(tab);
         }
