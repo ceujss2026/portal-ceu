@@ -981,42 +981,83 @@
   function renderHomeView() {
     renderMonthlyCalendar();
 
-    const container = document.getElementById('events-card-list');
-    if (!container) return;
+    const myEmail = (State.currentUser && State.currentUser.email) ? State.currentUser.email.toLowerCase() : '';
+    const myRsvps = (State.rsvps || []).filter(r => r.user_email && r.user_email.toLowerCase() === myEmail);
+    const myAnsweredIds = myRsvps.map(r => r.event_id);
+    const myAttendedIds = myRsvps
+      .filter(r => (r.response_status || '').toLowerCase().includes('hadir') && !(r.response_status || '').toLowerCase().includes('tidak'))
+      .map(r => r.event_id);
 
-    let filtered = State.events;
+    // Kemas kini nombor pada kad metrik pantas secara dinamik
+    const countMonthEl = document.getElementById('metric-count-month');
+    const countAttendedEl = document.getElementById('metric-count-attended');
+    const countUrgentEl = document.getElementById('metric-count-urgent');
+    const totalEventsCount = (State.events || []).length;
+    const urgentCount = Math.max(0, totalEventsCount - myAnsweredIds.length);
+    if (countMonthEl) countMonthEl.textContent = totalEventsCount;
+    if (countAttendedEl) countAttendedEl.textContent = myAttendedIds.length;
+    if (countUrgentEl) countUrgentEl.textContent = urgentCount;
+
+    let filtered = State.events || [];
     if (State.activeEventFilter === 'urgent') {
-      const answeredIds = State.rsvps.map(r => r.event_id);
-      filtered = filtered.filter(e => !answeredIds.includes(e.event_id));
+      filtered = filtered.filter(e => !myAnsweredIds.includes(e.event_id));
+    } else if (State.activeEventFilter === 'attended') {
+      filtered = filtered.filter(e => myAttendedIds.includes(e.event_id));
     }
+
     if (State.selectedCalendarDate) {
       filtered = filtered.filter(e => e.event_date === State.selectedCalendarDate);
     }
 
+    const container = document.getElementById('events-card-list');
+    if (!container) return;
+
     if (!filtered.length) {
+      const isDateFiltered = !!State.selectedCalendarDate;
+      const isUrgentFiltered = State.activeEventFilter === 'urgent';
+      const isAttendedFiltered = State.activeEventFilter === 'attended';
+
+      let msg = I18N[State.lang].noEventsFound;
+      if (isDateFiltered) {
+        msg = State.lang === 'en'
+          ? `No events scheduled on ${State.selectedCalendarDate}.`
+          : `Tiada program dijadualkan pada ${State.selectedCalendarDate}.`;
+      } else if (isUrgentFiltered) {
+        msg = State.lang === 'en'
+          ? `All events have been responded to! Great job.`
+          : `Alhamdulillah, semua tindakan RSVP telah selesai dijawab!`;
+      } else if (isAttendedFiltered) {
+        msg = State.lang === 'en'
+          ? `No attended events recorded yet.`
+          : `Belum ada rekod program yang disahkan hadir.`;
+      }
+
       container.innerHTML = `
-        <div class="bg-surface-container-low rounded-2xl p-8 text-center text-on-surface-variant my-4">
-          <span class="material-symbols-outlined text-[48px] text-primary/40 mb-2">event_busy</span>
-          <p class="font-headline text-xs font-semibold">${
-            State.selectedCalendarDate
-              ? (State.lang === 'en' ? 'No events scheduled on ' + State.selectedCalendarDate : 'Tiada program dijadualkan pada ' + State.selectedCalendarDate)
-              : I18N[State.lang].noEventsFound
-          }</p>
-          ${State.selectedCalendarDate ? `
-            <button id="btn-reset-cal-filter" type="button" class="mt-4 px-4 py-2 bg-primary text-white rounded-xl text-xs font-bold shadow-sm cursor-pointer">
-              ${State.lang === 'en' ? 'Show All Programs' : 'Tunjuk Semua Program'}
-            </button>
-          ` : ''}
+        <div class="bg-surface-container-low rounded-2xl p-8 text-center text-on-surface-variant my-4 border border-outline-variant/30 flex flex-col items-center">
+          <div class="w-16 h-16 rounded-full bg-surface-container flex items-center justify-center text-primary mb-3 shadow-inner">
+            <span class="material-symbols-outlined text-[36px]">${isUrgentFiltered ? 'task_alt' : 'event_busy'}</span>
+          </div>
+          <p class="font-headline text-xs font-semibold max-w-[300px] leading-relaxed">${msg}</p>
+          <button id="btn-show-all-events-empty" type="button" class="mt-4 px-4 py-2 bg-primary text-white rounded-xl text-xs font-bold shadow-md hover:bg-primary-dark active:scale-95 transition-all flex items-center gap-1.5 cursor-pointer">
+            <span class="material-symbols-outlined text-sm">visibility</span>
+            <span>${State.lang === 'en' ? 'Show All Events' : 'Tunjuk Semua Program'}</span>
+          </button>
         </div>
       `;
-      const btnReset = document.getElementById('btn-reset-cal-filter');
-      if (btnReset) {
-        btnReset.addEventListener('click', () => {
-          State.selectedCalendarDate = null;
-          renderCalendarStrip();
-          renderHomeView();
+
+      document.getElementById('btn-show-all-events-empty')?.addEventListener('click', () => {
+        State.selectedCalendarDate = null;
+        State.activeEventFilter = 'all';
+        document.querySelectorAll('.event-filter-pill').forEach(p => {
+          const isAll = p.dataset.filter === 'all';
+          p.classList.toggle('bg-primary', isAll);
+          p.classList.toggle('text-white', isAll);
+          p.classList.toggle('bg-surface-container', !isAll);
+          p.classList.toggle('text-on-surface-variant', !isAll);
         });
-      }
+        renderMonthlyCalendar();
+        renderHomeView();
+      });
       return;
     }
 
@@ -1829,6 +1870,32 @@
         State.selectedCalendarDate = null;
         renderMonthlyCalendar();
         renderHomeView();
+      });
+    }
+
+    const metricAll = document.getElementById('metric-btn-all');
+    if (metricAll) {
+      metricAll.addEventListener('click', () => {
+        document.querySelector('.event-filter-pill[data-filter="all"]')?.click();
+      });
+    }
+
+    const metricAttended = document.getElementById('metric-btn-attended');
+    if (metricAttended) {
+      metricAttended.addEventListener('click', () => {
+        State.activeEventFilter = 'attended';
+        document.querySelectorAll('.event-filter-pill').forEach(p => {
+          p.classList.remove('bg-primary', 'text-white');
+          p.classList.add('bg-surface-container', 'text-on-surface-variant');
+        });
+        renderHomeView();
+      });
+    }
+
+    const metricUrgent = document.getElementById('metric-btn-urgent');
+    if (metricUrgent) {
+      metricUrgent.addEventListener('click', () => {
+        document.querySelector('.event-filter-pill[data-filter="urgent"]')?.click();
       });
     }
 
