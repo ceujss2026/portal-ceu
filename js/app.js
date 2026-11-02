@@ -491,6 +491,51 @@
             submittedAt: '2026-03-11 09:30'
           }));
           resolve({ success: true, data: rows });
+        } else if (action === 'saveEvent') {
+          const newEvt = {
+            event_id: 'EVT-' + Date.now(),
+            title_bm: payload.titleBm,
+            title_en: payload.titleEn || payload.titleBm,
+            event_date: payload.eventDate,
+            start_time: payload.startTime,
+            end_time: payload.endTime,
+            venue: payload.venue,
+            meeting_link: payload.meetingLink || '',
+            rsvp_deadline: payload.rsvpDeadline,
+            status: payload.isDraft ? 'Draft' : 'Published',
+            created_by: (State.currentUser && State.currentUser.email) ? State.currentUser.email : 'pegawai.upk@moe.bn',
+            target_districts: payload.targetDistricts || ['Semua'],
+            target_roles: payload.targetRoles || ['Guru Kaunselor Kerjaya'],
+            target_count: payload.targetCount || 42
+          };
+          if (!mock.events) mock.events = [];
+          mock.events.unshift(newEvt);
+
+          // Masukkan hebahan ke notifikasi jika FCM diaktifkan
+          if (!payload.isDraft && payload.channels && payload.channels.fcm) {
+            const newNotif = {
+              notif_id: 'NOTIF-' + Date.now(),
+              title_bm: 'Hebahan Program Baharu: ' + payload.titleBm,
+              title_en: 'New Event Notice: ' + (payload.titleEn || payload.titleBm),
+              content_bm: `Program dijadualkan pada ${payload.eventDate} di ${payload.venue}. Tarikh tutup RSVP: ${(payload.rsvpDeadline || '').replace('T', ' ')}. Sasaran: ${payload.targetCount || 42} guru.`,
+              content_en: `Scheduled on ${payload.eventDate} at ${payload.venue}. RSVP Deadline: ${(payload.rsvpDeadline || '').replace('T', ' ')}. Target: ${payload.targetCount || 42} teachers.`,
+              type: 'Urgent',
+              sent_at: 'Baru sahaja',
+              is_read: false
+            };
+            if (!mock.notifications) mock.notifications = [];
+            mock.notifications.unshift(newNotif);
+            State.notifications = mock.notifications;
+            updateNotifBadge();
+          }
+
+          resolve({
+            success: true,
+            message: payload.isDraft
+              ? 'Draf acara berjaya disimpan.'
+              : `Acara berjaya diterbitkan & disiarkan kepada ${payload.targetCount || 42} orang guru!`,
+            data: newEvt
+          });
         } else {
           resolve({ success: true, message: 'Operasi simulasi selesai.' });
         }
@@ -1761,6 +1806,277 @@
   }
 
   // ==========================================================================
+  // 16B. PENGAWAL MODUL BINA & TERBITKAN ACARA RASMI (STITCH INTEGRATION)
+  // ==========================================================================
+  function initAdminCreateEvent() {
+    const inputTitleBm = document.getElementById('event-title-bm');
+    const inputTitleEn = document.getElementById('event-title-en');
+    const inputDate = document.getElementById('event-date-input');
+    const inputStartTime = document.getElementById('event-start-time');
+    const inputEndTime = document.getElementById('event-end-time');
+    const inputVenue = document.getElementById('event-venue-input');
+    const inputMeetLink = document.getElementById('event-meet-link');
+    const inputDeadline = document.getElementById('event-deadline-input');
+    const inputDriveUrl = document.getElementById('event-drive-url');
+
+    const previewTitle = document.getElementById('preview-title');
+    const previewDate = document.getElementById('preview-date');
+    const previewTime = document.getElementById('preview-time');
+    const previewVenue = document.getElementById('preview-venue');
+    const previewDeadline = document.getElementById('preview-deadline');
+    const rsvpDeadlineText = document.getElementById('rsvp-deadline-text');
+
+    // 1. Live preview bindings
+    if (inputTitleBm && previewTitle) {
+      inputTitleBm.addEventListener('input', e => {
+        previewTitle.textContent = e.target.value.trim() || 'Tajuk Acara Rasmi';
+      });
+    }
+
+    if (inputDate && previewDate) {
+      inputDate.addEventListener('change', e => {
+        const val = e.target.value;
+        if (!val) return;
+        const [y, m, d] = val.split('-');
+        const monthNames = ['Jan', 'Feb', 'Mac', 'Apr', 'Mei', 'Jun', 'Jul', 'Ogo', 'Sep', 'Okt', 'Nov', 'Dis'];
+        previewDate.textContent = `${parseInt(d, 10)} ${monthNames[parseInt(m, 10) - 1] || m} ${y}`;
+      });
+    }
+
+    if (inputStartTime && previewTime) {
+      inputStartTime.addEventListener('change', e => {
+        previewTime.textContent = e.target.value ? (e.target.value + ' PAGI') : '08:30 PAGI';
+      });
+    }
+
+    if (inputVenue && previewVenue) {
+      inputVenue.addEventListener('input', e => {
+        previewVenue.textContent = e.target.value.trim() || 'Lokasi Acara';
+      });
+    }
+
+    if (inputDeadline && previewDeadline) {
+      inputDeadline.addEventListener('change', e => {
+        const val = e.target.value;
+        if (!val) return;
+        const [dPart, tPart] = val.split('T');
+        if (dPart) {
+          const [y, m, d] = dPart.split('-');
+          const monthNames = ['Jan', 'Feb', 'Mac', 'Apr', 'Mei', 'Jun', 'Jul', 'Ogo', 'Sep', 'Okt', 'Nov', 'Dis'];
+          const str = `${parseInt(d, 10)} ${monthNames[parseInt(m, 10) - 1] || m} ${y}`;
+          previewDeadline.textContent = `RSVP sebelum ${parseInt(d, 10)} ${monthNames[parseInt(m, 10) - 1] || m}`;
+          if (rsvpDeadlineText) rsvpDeadlineText.textContent = `${str}, ${tPart || '17:00'} (Waktu Brunei)`;
+        }
+      });
+    }
+
+    // 2. Format selector (Bersemuka / Hibrid / Dalam Talian Penuh)
+    const formatRadios = document.querySelectorAll('input[name="event_format"]');
+    const containerMeet = document.getElementById('container-meet-link');
+    const formatLabels = {
+      'Bersemuka': document.getElementById('format-label-bersemuka'),
+      'Hibrid': document.getElementById('format-label-hibrid'),
+      'Dalam Talian Penuh': document.getElementById('format-label-online')
+    };
+
+    formatRadios.forEach(radio => {
+      radio.addEventListener('change', () => {
+        const selected = radio.value;
+        if (containerMeet) {
+          containerMeet.classList.toggle('hidden', selected === 'Bersemuka');
+        }
+        Object.keys(formatLabels).forEach(key => {
+          const el = formatLabels[key];
+          if (!el) return;
+          const isCurrent = key === selected;
+          el.classList.toggle('bg-secondary-fixed/50', isCurrent);
+          el.classList.toggle('border-primary/30', isCurrent);
+          el.classList.toggle('bg-surface-container-low', !isCurrent);
+          el.classList.toggle('border-transparent', !isCurrent);
+        });
+      });
+    });
+
+    // 3. District & Target recipients calculation (WHO THE ALERT WILL GO TO)
+    const checkAllDistricts = document.getElementById('check-all-districts');
+    const btnToggleAll = document.getElementById('btn-toggle-all-districts');
+    const districtChecks = document.querySelectorAll('.district-check');
+    const targetSchoolBadge = document.getElementById('target-school-count-badge');
+    const fcmTargetCount = document.getElementById('fcm-target-count');
+
+    function calculateTargetRecipients() {
+      let totalSchools = 0;
+      let checkedDistricts = [];
+      districtChecks.forEach(ch => {
+        if (ch.checked) {
+          totalSchools += parseInt(ch.dataset.count, 10) || 0;
+          checkedDistricts.push(ch.dataset.district);
+        }
+      });
+
+      if (targetSchoolBadge) targetSchoolBadge.textContent = `${totalSchools} Sekolah`;
+      if (fcmTargetCount) fcmTargetCount.textContent = totalSchools;
+
+      if (checkAllDistricts) {
+        checkAllDistricts.checked = (checkedDistricts.length === districtChecks.length);
+      }
+      if (btnToggleAll) {
+        btnToggleAll.textContent = (checkedDistricts.length === 0) ? 'Pilih Semua' : 'Nyahpilih Semua';
+      }
+
+      return { totalSchools, checkedDistricts };
+    }
+
+    if (checkAllDistricts) {
+      checkAllDistricts.addEventListener('change', () => {
+        const isChecked = checkAllDistricts.checked;
+        districtChecks.forEach(ch => { ch.checked = isChecked; });
+        calculateTargetRecipients();
+      });
+    }
+
+    if (btnToggleAll) {
+      btnToggleAll.addEventListener('click', () => {
+        const anyChecked = Array.from(districtChecks).some(c => c.checked);
+        const newState = !anyChecked;
+        districtChecks.forEach(ch => { ch.checked = newState; });
+        if (checkAllDistricts) checkAllDistricts.checked = newState;
+        calculateTargetRecipients();
+      });
+    }
+
+    districtChecks.forEach(ch => {
+      ch.addEventListener('change', calculateTargetRecipients);
+    });
+
+    // 4. Save Draft Button
+    const btnSaveDraft = document.getElementById('btn-save-draft');
+    if (btnSaveDraft) {
+      btnSaveDraft.addEventListener('click', async () => {
+        const titleBm = inputTitleBm ? inputTitleBm.value.trim() : 'Draf Acara Baharu';
+        const titleEn = inputTitleEn ? inputTitleEn.value.trim() : '';
+        const date = inputDate ? inputDate.value : '';
+        const startTime = inputStartTime ? inputStartTime.value : '08:30';
+        const endTime = inputEndTime ? inputEndTime.value : '12:00';
+        const venue = inputVenue ? inputVenue.value.trim() : '';
+        const deadline = inputDeadline ? inputDeadline.value : '';
+        const { totalSchools, checkedDistricts } = calculateTargetRecipients();
+
+        showToast(State.lang === 'en' ? 'Saving event draft...' : 'Menyimpan draf acara...', 'info');
+        const res = await api('saveEvent', {
+          isDraft: true,
+          titleBm,
+          titleEn,
+          eventDate: date,
+          startTime,
+          endTime,
+          venue,
+          rsvpDeadline: deadline,
+          targetDistricts: checkedDistricts,
+          targetCount: totalSchools
+        });
+
+        if (res && res.success) {
+          showToast(res.message, 'success');
+          await loadAppBoot();
+          setView('admin-dashboard');
+        }
+      });
+    }
+
+    // 5. Publish & Broadcast FCM Form Submit
+    const formCreateEvent = document.getElementById('form-create-event');
+    const btnBroadcast = document.getElementById('btn-broadcast');
+
+    if (formCreateEvent) {
+      formCreateEvent.addEventListener('submit', async e => {
+        e.preventDefault();
+        const titleBm = inputTitleBm ? inputTitleBm.value.trim() : '';
+        const titleEn = inputTitleEn ? inputTitleEn.value.trim() : '';
+        const date = inputDate ? inputDate.value : '';
+        const startTime = inputStartTime ? inputStartTime.value : '';
+        const endTime = inputEndTime ? inputEndTime.value : '';
+        const venue = inputVenue ? inputVenue.value.trim() : '';
+        const meetLink = inputMeetLink ? inputMeetLink.value.trim() : '';
+        const deadline = inputDeadline ? inputDeadline.value : '';
+        const driveUrl = inputDriveUrl ? inputDriveUrl.value.trim() : '';
+
+        const channelFcm = document.getElementById('channel-fcm') ? document.getElementById('channel-fcm').checked : true;
+        const channelEmail = document.getElementById('channel-email') ? document.getElementById('channel-email').checked : true;
+        const channelBanner = document.getElementById('channel-banner') ? document.getElementById('channel-banner').checked : true;
+
+        const roleCounselors = document.getElementById('role-counselors') ? document.getElementById('role-counselors').checked : true;
+        const rolePrincipals = document.getElementById('role-principals') ? document.getElementById('role-principals').checked : true;
+        const roleOfficers = document.getElementById('role-officers') ? document.getElementById('role-officers').checked : false;
+
+        const { totalSchools, checkedDistricts } = calculateTargetRecipients();
+
+        const rolesList = [];
+        if (roleCounselors) rolesList.push('Guru Kaunselor');
+        if (rolePrincipals) rolesList.push('Pengetua');
+        if (roleOfficers) rolesList.push('Penyelaras UPK');
+
+        if (!titleBm || !date) {
+          showToast('Sila isikan maklumat tajuk dan tarikh acara.', 'error');
+          return;
+        }
+
+        if (btnBroadcast) {
+          btnBroadcast.disabled = true;
+          btnBroadcast.innerHTML = `<span class="material-symbols-outlined text-[18px] animate-spin">progress_activity</span><span>Menghantar FCM...</span>`;
+        }
+
+        const res = await api('saveEvent', {
+          isDraft: false,
+          titleBm,
+          titleEn,
+          eventDate: date,
+          startTime: startTime + ' PAGI',
+          endTime: endTime + ' TGH HARI',
+          venue,
+          meetingLink: meetLink,
+          rsvpDeadline: deadline,
+          driveUrl,
+          targetDistricts: checkedDistricts,
+          targetRoles: rolesList,
+          targetCount: totalSchools,
+          channels: {
+            fcm: channelFcm,
+            email: channelEmail,
+            banner: channelBanner
+          }
+        });
+
+        if (res && res.success) {
+          if (btnBroadcast) {
+            btnBroadcast.innerHTML = `<span class="material-symbols-outlined text-[18px]">check_circle</span><span>Berjaya Disiarkan!</span>`;
+            btnBroadcast.classList.remove('bg-primary');
+            btnBroadcast.classList.add('bg-secondary');
+          }
+          showToast(res.message, 'success');
+          State.adminData = null;
+          await loadAppBoot();
+          setTimeout(() => {
+            setView('admin-dashboard');
+            if (btnBroadcast) {
+              btnBroadcast.innerHTML = `<span class="material-symbols-outlined text-[18px]">send</span><span>Terbit &amp; Siar FCM</span>`;
+              btnBroadcast.classList.add('bg-primary');
+              btnBroadcast.classList.remove('bg-secondary');
+              btnBroadcast.disabled = false;
+            }
+          }, 1200);
+        } else {
+          showToast((res && res.message) || 'Gagal menerbitkan acara.', 'error');
+          if (btnBroadcast) {
+            btnBroadcast.disabled = false;
+            btnBroadcast.innerHTML = `<span class="material-symbols-outlined text-[18px]">send</span><span>Terbit &amp; Siar FCM</span>`;
+          }
+        }
+      });
+    }
+  }
+
+  // ==========================================================================
   // 17. PEMASANGAN EVENT LISTENERS (INIT)
   // ==========================================================================
   function initEvents() {
@@ -1974,38 +2290,7 @@
 
     const formCreateEvent = document.getElementById('form-create-event');
     if (formCreateEvent) {
-      formCreateEvent.addEventListener('submit', async e => {
-        e.preventDefault();
-        const titleBm = document.getElementById('event-title-bm').value.trim();
-        const titleEn = document.getElementById('event-title-en').value.trim();
-        const date = document.getElementById('event-date-input').value;
-        const startTime = document.getElementById('event-start-time').value;
-        const endTime = document.getElementById('event-end-time').value;
-        const venue = document.getElementById('event-venue-input').value.trim();
-        const meetLink = document.getElementById('event-meet-link').value.trim();
-        const deadline = document.getElementById('event-deadline-input').value;
-
-        showToast(State.lang === 'en' ? 'Publishing event & broadcasting push notification...' : 'Menerbitkan acara & menyiarkan notifikasi FCM...', 'info');
-        const res = await api('saveEvent', {
-          titleBm: titleBm,
-          titleEn: titleEn,
-          eventDate: date,
-          startTime: startTime,
-          endTime: endTime,
-          venue: venue,
-          meetingLink: meetLink,
-          rsvpDeadline: deadline
-        });
-
-        if (res && res.success) {
-          showToast(res.message, 'success');
-          State.adminData = null;
-          await loadAppBoot();
-          setView('admin-dashboard');
-        } else {
-          showToast((res && res.message) || 'Gagal menerbitkan acara.', 'error');
-        }
-      });
+      initAdminCreateEvent();
     }
 
     const btnLogout = document.getElementById('btn-logout');
