@@ -597,7 +597,7 @@
             created_by: (State.currentUser && State.currentUser.email) ? State.currentUser.email : 'pegawai.upk@moe.bn',
             target_districts: payload.targetDistricts || ['Semua'],
             target_roles: payload.targetRoles || ['Guru Pendidikan Kerjaya'],
-            target_count: payload.targetCount || 42
+            target_count: payload.targetCount || 37
           };
           if (!mock.events) mock.events = [];
           mock.events.unshift(newEvt);
@@ -608,8 +608,8 @@
               notif_id: 'NOTIF-' + Date.now(),
               title_bm: 'Hebahan Program Baharu: ' + payload.titleBm,
               title_en: 'New Event Notice: ' + (payload.titleEn || payload.titleBm),
-              content_bm: `Program dijadualkan pada ${payload.eventDate} di ${payload.venue}. Tarikh tutup RSVP: ${(payload.rsvpDeadline || '').replace('T', ' ')}. Sasaran: ${payload.targetCount || 42} guru.`,
-              content_en: `Scheduled on ${payload.eventDate} at ${payload.venue}. RSVP Deadline: ${(payload.rsvpDeadline || '').replace('T', ' ')}. Target: ${payload.targetCount || 42} teachers.`,
+              content_bm: `Program dijadualkan pada ${payload.eventDate} di ${payload.venue}. Tarikh tutup RSVP: ${(payload.rsvpDeadline || '').replace('T', ' ')}. Sasaran: ${payload.targetCount || 37} guru.`,
+              content_en: `Scheduled on ${payload.eventDate} at ${payload.venue}. RSVP Deadline: ${(payload.rsvpDeadline || '').replace('T', ' ')}. Target: ${payload.targetCount || 37} teachers.`,
               type: 'Urgent',
               sent_at: 'Baru sahaja',
               is_read: false
@@ -624,7 +624,7 @@
             success: true,
             message: payload.isDraft
               ? 'Draf acara berjaya disimpan (belum diterbitkan kepada guru).'
-              : `Acara berjaya diterbitkan & disiarkan kepada ${payload.targetCount || 42} orang guru!`,
+              : `Acara berjaya diterbitkan & disiarkan kepada ${payload.targetCount || 37} orang guru!`,
             data: newEvt
           });
         } else if (action === 'generateAttendancePdf') {
@@ -1880,7 +1880,7 @@
             </div>
             <h4 class="font-headline text-xs sm:text-sm font-bold text-on-surface truncate">${ev.title_bm}</h4>
             <p class="text-[11px] text-on-surface-variant truncate mt-0.5">
-              📍 ${ev.venue || 'Dalam Talian'} • Sasaran: ${ev.target_count || 42} pegawai
+              📍 ${ev.venue || 'Dalam Talian'} • Sasaran: ${ev.target_count || 37} pegawai
             </p>
           </div>
 
@@ -2304,10 +2304,13 @@
       });
     }
 
-    // 4. Lokasi Boleh Dicari & Cip Pantas
-    if (inputVenue && previewVenue) {
+    // 4. Lokasi Boleh Dicari / Bebas Input & Cip Pantas
+    const previewVenueName = document.getElementById('preview-venue-name');
+    if (inputVenue) {
       inputVenue.addEventListener('input', e => {
-        previewVenue.textContent = e.target.value.trim() || 'Lokasi Acara';
+        const val = e.target.value.trim();
+        if (previewVenue) previewVenue.textContent = val || 'Lokasi Acara';
+        if (previewVenueName) previewVenueName.textContent = val || 'Lokasi pilihan bebas';
       });
     }
 
@@ -2316,6 +2319,7 @@
         inputVenue.value = '';
         inputVenue.focus();
         if (previewVenue) previewVenue.textContent = 'Lokasi Acara';
+        if (previewVenueName) previewVenueName.textContent = 'Lokasi belum ditetapkan';
       });
     }
 
@@ -2325,6 +2329,7 @@
         if (inputVenue && v) {
           inputVenue.value = v;
           if (previewVenue) previewVenue.textContent = v;
+          if (previewVenueName) previewVenueName.textContent = v;
         }
       });
     });

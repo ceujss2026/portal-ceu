@@ -598,7 +598,7 @@
       <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 mb-4">
         <div class="bg-surface-container-lowest p-3 rounded-2xl shadow-sm border border-outline-variant/30">
           <span data-i18n="totalTeachersKpi" class="font-body text-[11px] text-on-surface-variant block">Jumlah Guru</span>
-          <span id="kpi-total-teachers" class="font-headline text-2xl font-black text-primary block mt-0.5">42</span>
+          <span id="kpi-total-teachers" class="font-headline text-2xl font-black text-primary block mt-0.5">37</span>
           <span class="font-body text-[10px] text-primary/80 mt-1 block">4 Daerah Brunei</span>
         </div>
         <div class="bg-surface-container-lowest p-3 rounded-2xl shadow-sm border border-outline-variant/30">
@@ -939,55 +939,63 @@
             </div>
           </div>
 
-          <!-- Lokasi Acara Input (Boleh Dicari / Searchable) -->
+          <!-- Lokasi Acara Input (Bebas Masuk Mana-mana Lokasi) -->
           <div class="space-y-1.5">
             <div class="flex items-center justify-between">
               <label class="block font-label-md text-xs font-semibold text-on-surface">
-                Lokasi Acara / Bilik Persidangan <span class="text-error">*</span>
+                Lokasi Acara / Tempat Pelaksanaan <span class="text-error">*</span>
               </label>
-              <span class="text-[10px] text-primary font-medium flex items-center gap-0.5">
-                <span class="material-symbols-outlined text-[12px]">search</span>
-                Boleh Cari / Pilih Senarai
+              <span class="text-[10px] text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full font-bold flex items-center gap-0.5">
+                <span class="material-symbols-outlined text-[12px]">edit_location_alt</span>
+                Bebas Masuk Mana-mana Lokasi
               </span>
             </div>
+            <p class="text-[11px] text-on-surface-variant">Boleh masukkan sebarang lokasi pilihan — hotel, pusat persidangan, dewan, bilik mesyuarat, dalam talian, atau luar pejabat.</p>
             
             <div class="relative">
               <div class="p-2.5 rounded-lg bg-surface-container-low border border-outline-variant/40 flex items-center gap-2">
                 <span class="material-symbols-outlined text-tertiary text-[20px] shrink-0">location_on</span>
-                <input id="event-venue-input" list="location-suggestions" required type="text" value="Dewan Persidangan Utama, Bahagian Pembangunan Kurikulum (BPK), Lapangan Terbang Lama Berakas" placeholder="Taip atau cari lokasi dewan / sekolah..." class="w-full bg-transparent font-label-md text-xs font-semibold text-on-surface outline-none focus:ring-0"/>
+                <input id="event-venue-input" list="location-suggestions" required type="text" placeholder="Taip sebarang nama lokasi atau premis acara (cth: The Rizqun Hotel, ICC Berakas, Bilik Mesyuarat...)..." class="w-full bg-transparent font-label-md text-xs font-semibold text-on-surface outline-none focus:ring-0"/>
                 <button id="btn-clear-venue" type="button" class="w-5 h-5 rounded-full hover:bg-surface-container flex items-center justify-center text-on-surface-variant text-xs cursor-pointer" title="Padam lokasi">
                   <span class="material-symbols-outlined text-[14px]">close</span>
                 </button>
               </div>
 
-              <!-- Datalist Cadangan Lokasi Rasmi MOE -->
+              <!-- Datalist Cadangan Lokasi Fleksibel (Hotel, Pusat Konvensyen, Kementerian & Sekolah) -->
               <datalist id="location-suggestions">
-                <option value="Dewan Persidangan Utama, Bahagian Pembangunan Kurikulum (BPK), Lapangan Terbang Lama Berakas"></option>
-                <option value="Dewan Utama Kementerian Pendidikan, Lapangan Terbang Lama Berakas"></option>
+                <option value="Pusat Persidangan Antarabangsa (ICC), Berakas"></option>
+                <option value="The Rizqun International Hotel, Gadong"></option>
+                <option value="The Empire Brunei, Jerudong"></option>
+                <option value="Dewan Persidangan Utama, BPK, Lapangan Terbang Lama Berakas"></option>
+                <option value="Dewan Utama Kementerian Pendidikan, Berakas"></option>
                 <option value="Dewan Bankuet Jabatan Sekolah-Sekolah (JSS), Bandar Seri Begawan"></option>
+                <option value="Bilik Mesyuarat Unit Pendidikan Kerjaya (UPK), JSS"></option>
                 <option value="Pusat Insani, Seria, Daerah Belait"></option>
-                <option value="Dewan Sekolah Menengah Sayyidina Ali, Kuala Belait"></option>
                 <option value="Dewan Maktab Duli Pengiran Muda Al-Muhtadee Billah, Gadong"></option>
+                <option value="Dewan Sekolah Menengah Sayyidina Ali, Kuala Belait"></option>
                 <option value="Dewan Pusat Tingkatan Enam Tutong"></option>
                 <option value="Dewan Sekolah Menengah Sultan Hassan, Bangar, Temburong"></option>
                 <option value="Dalam Talian (Google Meet Rasmi UPK)"></option>
-                <option value="Dalam Talian (Cisco Webex MOE)"></option>
+                <option value="Dalam Talian (Cisco Webex / Zoom MOE)"></option>
               </datalist>
             </div>
 
-            <!-- Cip Pilihan Pantas Lokasi Rasmi -->
+            <!-- Cip Pilihan Pantas Pelbagai Kategori Lokasi -->
             <div class="flex flex-wrap gap-1.5 pt-0.5">
+              <button type="button" class="venue-quick-chip px-2 py-1 rounded-md bg-surface-container hover:bg-surface-container-high text-[10px] font-semibold text-on-surface-variant transition-colors cursor-pointer" data-venue="Pusat Persidangan Antarabangsa (ICC), Berakas">
+                🏨 ICC Berakas
+              </button>
+              <button type="button" class="venue-quick-chip px-2 py-1 rounded-md bg-surface-container hover:bg-surface-container-high text-[10px] font-semibold text-on-surface-variant transition-colors cursor-pointer" data-venue="The Rizqun International Hotel, Gadong">
+                🏨 Hotel Rizqun
+              </button>
               <button type="button" class="venue-quick-chip px-2 py-1 rounded-md bg-surface-container hover:bg-surface-container-high text-[10px] font-semibold text-on-surface-variant transition-colors cursor-pointer" data-venue="Dewan Persidangan Utama, BPK, Berakas">
-                📍 BPK Berakas
+                🏛️ BPK Berakas
               </button>
               <button type="button" class="venue-quick-chip px-2 py-1 rounded-md bg-surface-container hover:bg-surface-container-high text-[10px] font-semibold text-on-surface-variant transition-colors cursor-pointer" data-venue="Dewan Utama Kementerian Pendidikan, Berakas">
-                📍 Dewan MOE
+                🏛️ Dewan MOE
               </button>
               <button type="button" class="venue-quick-chip px-2 py-1 rounded-md bg-surface-container hover:bg-surface-container-high text-[10px] font-semibold text-on-surface-variant transition-colors cursor-pointer" data-venue="Pusat Insani, Seria, Belait">
                 📍 Pusat Insani Belait
-              </button>
-              <button type="button" class="venue-quick-chip px-2 py-1 rounded-md bg-surface-container hover:bg-surface-container-high text-[10px] font-semibold text-on-surface-variant transition-colors cursor-pointer" data-venue="Dewan Pusat Tingkatan Enam Tutong">
-                📍 PTE Tutong
               </button>
               <button type="button" class="venue-quick-chip px-2 py-1 rounded-md bg-surface-container hover:bg-surface-container-high text-[10px] font-semibold text-on-surface-variant transition-colors cursor-pointer" data-venue="Dalam Talian (Google Meet Rasmi UPK)">
                 💻 Google Meet
@@ -995,16 +1003,24 @@
             </div>
           </div>
 
-          <!-- Visual Map Snapshot -->
-          <div class="w-full h-32 rounded-lg bg-cover bg-center overflow-hidden relative shadow-inner border border-outline-variant/30" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDTJGx_v_otwVvSlZSGcI1v4jN-I-7jGeY9ivv8BZ6VvGcaqMLj9nKgSMRGEd_qqwUD3Y5PF_6zW53_ffSDowu7mqbJvCgGZp-NQvilaSIlAkSxIAICM9etpDqaRmuAHI2lYrgBLzTYkbYmgRX3Wa3VKFTz-4nbNerfZKdDZsqD5rM-ZzhPwmePy6-tZ_W0CgpXxKC0brYRI_HA_BE7B8bPmqSp-74vl9DecD_rmF8')">
-            <div class="absolute inset-0 bg-primary/20 backdrop-blur-[0.5px]"></div>
-            <div class="absolute bottom-2 left-2 right-2 bg-surface-container-lowest/90 backdrop-blur-md p-2 rounded flex items-center justify-between text-[11px] font-semibold text-on-surface shadow-sm">
-              <span class="flex items-center gap-1 truncate">
-                <span class="material-symbols-outlined text-primary text-[16px]">pin_drop</span>
-                BPK Kampus Utama, BB3510
+          <!-- Kad Pratonton Lokasi Terpilih (Responsif & Dinamik) -->
+          <div class="w-full p-3 rounded-xl bg-surface-container-low border border-outline-variant/30 flex items-center justify-between gap-2 shadow-sm">
+            <div class="flex items-center gap-2.5 min-w-0">
+              <span class="w-8 h-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center shrink-0">
+                <span class="material-symbols-outlined text-[18px]">location_on</span>
               </span>
-              <span class="text-primary uppercase tracking-wider shrink-0 text-[10px] font-bold">Peta Disahkan</span>
+              <div class="min-w-0">
+                <span id="preview-venue-name" class="block font-headline text-xs font-bold text-on-surface truncate">
+                  Pusat Persidangan Antarabangsa (ICC), Berakas
+                </span>
+                <span class="text-[10px] text-on-surface-variant block truncate">
+                  Lokasi bebas — tertera rasmi pada hebahan &amp; surat panggilan
+                </span>
+              </div>
             </div>
+            <span class="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-bold shrink-0 border border-emerald-300">
+              Lokasi Bebas
+            </span>
           </div>
         </section>
 
@@ -1019,7 +1035,7 @@
               <span class="w-6 h-6 rounded-full bg-secondary-fixed text-on-secondary-fixed flex items-center justify-center font-label-sm text-xs font-bold">3</span>
               <h2 class="font-headline text-base font-bold text-on-surface">Sasaran Penerima &amp; RSVP</h2>
             </div>
-            <span id="target-school-count-badge" class="px-2.5 py-0.5 rounded-full bg-secondary-fixed text-on-secondary-fixed-variant font-label-sm text-xs font-bold">42 Pegawai</span>
+            <span id="target-school-count-badge" class="px-2.5 py-0.5 rounded-full bg-secondary-fixed text-on-secondary-fixed-variant font-label-sm text-xs font-bold">37 Pegawai</span>
           </div>
 
           <!-- Mod Pemilihan Sasaran: Kumpulan/Daerah ATAU Individu Pegawai -->
@@ -1057,43 +1073,43 @@
                   <input id="check-all-districts" type="checkbox" checked class="w-4 h-4 text-primary accent-primary rounded cursor-pointer"/>
                   <span class="font-label-md text-xs font-bold text-on-surface">Semua 4 Daerah (Seluruh Negara)</span>
                 </div>
-                <span class="text-xs px-2 py-0.5 rounded-full bg-primary text-white font-bold">42 Sekolah</span>
+                <span class="text-xs px-2 py-0.5 rounded-full bg-primary text-white font-bold">37 Sekolah</span>
               </label>
 
-              <!-- District Options Grid -->
+              <!-- District Options Grid (37 Sekolah Seluruh Negara) -->
               <div class="grid grid-cols-2 gap-2 pt-0.5">
                 
-                <!-- Brunei-Muara -->
+                <!-- Brunei-Muara: 22 -->
                 <label class="flex items-center justify-between p-2.5 rounded-lg bg-surface-container-low border border-outline-variant/30 cursor-pointer hover:bg-surface-container">
                   <div class="flex items-center gap-2 min-w-0">
-                    <input type="checkbox" class="district-check accent-primary" data-district="Brunei-Muara" data-count="25" checked/>
+                    <input type="checkbox" class="district-check accent-primary" data-district="Brunei-Muara" data-count="22" checked/>
                     <span class="w-2 h-2 rounded-full bg-primary shrink-0"></span>
                     <span class="text-xs text-on-surface font-semibold truncate">Brunei-Muara</span>
                   </div>
-                  <span class="text-xs px-2 py-0.5 rounded bg-surface-container text-on-surface-variant font-bold">25</span>
+                  <span class="text-xs px-2 py-0.5 rounded bg-surface-container text-on-surface-variant font-bold">22</span>
                 </label>
 
-                <!-- Belait -->
+                <!-- Belait: 7 -->
                 <label class="flex items-center justify-between p-2.5 rounded-lg bg-surface-container-low border border-outline-variant/30 cursor-pointer hover:bg-surface-container">
                   <div class="flex items-center gap-2 min-w-0">
-                    <input type="checkbox" class="district-check accent-primary" data-district="Belait" data-count="8" checked/>
+                    <input type="checkbox" class="district-check accent-primary" data-district="Belait" data-count="7" checked/>
                     <span class="w-2 h-2 rounded-full bg-primary shrink-0"></span>
                     <span class="text-xs text-on-surface font-semibold truncate">Belait</span>
-                  </div>
-                  <span class="text-xs px-2 py-0.5 rounded bg-surface-container text-on-surface-variant font-bold">8</span>
-                </label>
-
-                <!-- Tutong -->
-                <label class="flex items-center justify-between p-2.5 rounded-lg bg-surface-container-low border border-outline-variant/30 cursor-pointer hover:bg-surface-container">
-                  <div class="flex items-center gap-2 min-w-0">
-                    <input type="checkbox" class="district-check accent-primary" data-district="Tutong" data-count="7" checked/>
-                    <span class="w-2 h-2 rounded-full bg-primary shrink-0"></span>
-                    <span class="text-xs text-on-surface font-semibold truncate">Tutong</span>
                   </div>
                   <span class="text-xs px-2 py-0.5 rounded bg-surface-container text-on-surface-variant font-bold">7</span>
                 </label>
 
-                <!-- Temburong -->
+                <!-- Tutong: 6 -->
+                <label class="flex items-center justify-between p-2.5 rounded-lg bg-surface-container-low border border-outline-variant/30 cursor-pointer hover:bg-surface-container">
+                  <div class="flex items-center gap-2 min-w-0">
+                    <input type="checkbox" class="district-check accent-primary" data-district="Tutong" data-count="6" checked/>
+                    <span class="w-2 h-2 rounded-full bg-primary shrink-0"></span>
+                    <span class="text-xs text-on-surface font-semibold truncate">Tutong</span>
+                  </div>
+                  <span class="text-xs px-2 py-0.5 rounded bg-surface-container text-on-surface-variant font-bold">6</span>
+                </label>
+
+                <!-- Temburong: 2 -->
                 <label class="flex items-center justify-between p-2.5 rounded-lg bg-surface-container-low border border-outline-variant/30 cursor-pointer hover:bg-surface-container">
                   <div class="flex items-center gap-2 min-w-0">
                     <input type="checkbox" class="district-check accent-primary" data-district="Temburong" data-count="2" checked/>
@@ -1279,7 +1295,7 @@
                     <p class="font-label-md text-xs font-semibold text-on-surface">Notifikasi Tolak FCM (Android)</p>
                   </div>
                   <p class="text-[11px] text-on-surface-variant mt-0.5">
-                    Dihantar serta-merta ke peranti mudah alih <span id="fcm-target-count" class="font-bold text-primary">42</span> orang Guru Pendidikan Kerjaya berdaftar.
+                    Dihantar serta-merta ke peranti mudah alih <span id="fcm-target-count" class="font-bold text-primary">37</span> orang Guru Pendidikan Kerjaya berdaftar.
                   </p>
                 </div>
               </div>
@@ -1603,8 +1619,8 @@
   </nav>
 
   <!-- Application Logic Scripts -->
-  <script src="js/config.js?v=1.1.2"></script>
-  <script src="js/data-mock.js?v=1.1.2"></script>
-  <script src="js/app.js?v=1.1.2"></script>
+  <script src="js/config.js?v=1.1.3"></script>
+  <script src="js/data-mock.js?v=1.1.3"></script>
+  <script src="js/app.js?v=1.1.3"></script>
 </body>
 </html>

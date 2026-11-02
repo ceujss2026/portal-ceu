@@ -18,7 +18,7 @@ window.MOCK_DATA = (function () {
       biometricEnabled: true,
       status: 'Active'
     },
-    // --- 25 SEKOLAH MENENGAH & MAKTAB DAERAH BRUNEI-MUARA ---
+    // --- 22 SEKOLAH MENENGAH & MAKTAB DAERAH BRUNEI-MUARA ---
     {
       email: 'noraini.yusof@moe.bn',
       name: 'Cikgu Dayang Noraini binti Yusof',
@@ -261,41 +261,8 @@ window.MOCK_DATA = (function () {
       biometricEnabled: false,
       status: 'Active'
     },
-    {
-      email: 'nurhazirah.jumat@moe.bn',
-      name: 'Cikgu Dk Nurhazirah binti Pg Hj Jumat',
-      role: 'Guru',
-      roleGroup: 'Guru Pendidikan Kerjaya',
-      district: 'Brunei-Muara',
-      school: 'SM PIHM Serasa, Muara',
-      phone: '+673 8944455',
-      biometricEnabled: true,
-      status: 'Active'
-    },
-    {
-      email: 'nurulain.salleh@moe.bn',
-      name: 'Cikgu Dayangku Nurul Ain binti Pg Salleh',
-      role: 'Guru',
-      roleGroup: 'Guru Pendidikan Kerjaya',
-      district: 'Brunei-Muara',
-      school: 'Sekolah Menengah Kasat',
-      phone: '+673 8955566',
-      biometricEnabled: true,
-      status: 'Active'
-    },
-    {
-      email: 'asmah.ahmad@moe.bn',
-      name: 'Cikgu Dayang Hjh Asmah binti Hj Ahmad',
-      role: 'Guru',
-      roleGroup: 'Guru Pendidikan Kerjaya',
-      district: 'Brunei-Muara',
-      school: 'Sekolah Menengah PAP Masna',
-      phone: '+673 8966677',
-      biometricEnabled: true,
-      status: 'Active'
-    },
 
-    // --- 8 SEKOLAH MENENGAH DAERAH BELAIT ---
+    // --- 7 SEKOLAH MENENGAH DAERAH BELAIT ---
     {
       email: 'ahmad.bakar@moe.bn',
       name: 'Cikgu Ahmad bin Hj Bakar',
@@ -327,6 +294,17 @@ window.MOCK_DATA = (function () {
       school: 'Sekolah Menengah Anthony Abell',
       phone: '+673 8311122',
       biometricEnabled: true,
+      status: 'Active'
+    },
+    {
+      email: 'pjnhab.belait@moe.bn',
+      name: 'Cikgu Awang Mohd Hairi bin Hj Talip',
+      role: 'Guru',
+      roleGroup: 'Guru Pendidikan Kerjaya',
+      district: 'Belait',
+      school: 'Sekolah Menengah PAP Hjh Masna (Kluster Belait)',
+      phone: '+673 8312345',
+      biometricEnabled: false,
       status: 'Active'
     },
     {
@@ -362,30 +340,8 @@ window.MOCK_DATA = (function () {
       biometricEnabled: true,
       status: 'Active'
     },
-    {
-      email: 'johnathan.lee@moe.bn',
-      name: 'Cikgu Johnathan Lee',
-      role: 'Guru',
-      roleGroup: 'Guru Pendidikan Kerjaya',
-      district: 'Belait',
-      school: 'Sekolah Menengah St. James Kuala Belait',
-      phone: '+673 8355566',
-      biometricEnabled: true,
-      status: 'Active'
-    },
-    {
-      email: 'grace.lim@moe.bn',
-      name: 'Cikgu Grace Lim',
-      role: 'Guru',
-      roleGroup: 'Guru Pendidikan Kerjaya',
-      district: 'Belait',
-      school: 'Sekolah Menengah St. John Kuala Belait',
-      phone: '+673 8366677',
-      biometricEnabled: false,
-      status: 'Active'
-    },
 
-    // --- 7 SEKOLAH MENENGAH DAERAH TUTONG ---
+    // --- 6 SEKOLAH MENENGAH DAERAH TUTONG ---
     {
       email: 'fatimah.hasan@moe.bn',
       name: 'Cikgu Fatimah binti Hasan',
@@ -449,17 +405,6 @@ window.MOCK_DATA = (function () {
       district: 'Tutong',
       school: 'Sekolah Menengah Mahad Islam Brunei',
       phone: '+673 8255566',
-      biometricEnabled: true,
-      status: 'Active'
-    },
-    {
-      email: 'jennifer.chen@moe.bn',
-      name: 'Cikgu Jennifer Chen',
-      role: 'Guru',
-      roleGroup: 'Guru Pendidikan Kerjaya',
-      district: 'Tutong',
-      school: 'Sekolah Menengah Chung Hwa Kiudang Tutong',
-      phone: '+673 8266677',
       biometricEnabled: true,
       status: 'Active'
     },
@@ -640,8 +585,8 @@ window.MOCK_DATA = (function () {
 
   // Senarai RSVP sebenar (dikira secara automatik untuk KPI, Donut & Analisis Daerah)
   const rsvps = [
-    // EVT-2026-001: 30 Hadir, 4 Mewakilkan, 3 Tidak Hadir, 5 Belum Jawab (Total 42 Guru)
-    // Brunei-Muara: 17 Hadir, 2 Wakil, 2 Tidak Hadir, 4 Belum Jawab (Total 25)
+    // EVT-2026-001: 27 Hadir, 4 Mewakilkan, 2 Tidak Hadir, 4 Belum Jawab (Total 37 Guru Seluruh Negara)
+    // Brunei-Muara: 17 Hadir, 2 Wakil, 2 Tidak Hadir, 1 Belum Jawab (Total 22 Sekolah)
     { rsvp_id: 'RSVP-01', event_id: 'EVT-2026-001', user_email: 'noraini.yusof@moe.bn', response_status: 'Hadir', rep_name: '', rep_phone: '', absence_reason: '', submitted_at: `${curMonthStr}-10T08:30:00Z` },
     { rsvp_id: 'RSVP-02', event_id: 'EVT-2026-001', user_email: 'sufian.salleh@moe.bn', response_status: 'Hadir', rep_name: '', rep_phone: '', absence_reason: '', submitted_at: `${curMonthStr}-10T08:45:00Z` },
     { rsvp_id: 'RSVP-03', event_id: 'EVT-2026-001', user_email: 'amirul.damit@moe.bn', response_status: 'Hadir', rep_name: '', rep_phone: '', absence_reason: '', submitted_at: `${curMonthStr}-10T09:00:00Z` },
@@ -664,32 +609,28 @@ window.MOCK_DATA = (function () {
     { rsvp_id: 'RSVP-20', event_id: 'EVT-2026-001', user_email: 'najib.tengah@moe.bn', response_status: 'Tidak Hadir', rep_name: '', rep_phone: '', absence_reason: 'Tugas Rasmi Kejohanan Sukan Sekolah Kebangsaan di Tutong', submitted_at: `${curMonthStr}-10T16:00:00Z` },
     { rsvp_id: 'RSVP-21', event_id: 'EVT-2026-001', user_email: 'noorbaizura.ali@moe.bn', response_status: 'Tidak Hadir', rep_name: '', rep_phone: '', absence_reason: 'Menghadiri Peperiksaan Akhir Cambridge A-Level Invigilation', submitted_at: `${curMonthStr}-10T16:15:00Z` },
 
-    // Belait: 6 Hadir, 1 Wakil, 0 Tidak Hadir, 1 Belum Jawab (Total 8)
+    // Belait: 5 Hadir, 1 Wakil, 0 Tidak Hadir, 1 Belum Jawab (Total 7 Sekolah)
     { rsvp_id: 'RSVP-22', event_id: 'EVT-2026-001', user_email: 'ahmad.bakar@moe.bn', response_status: 'Hadir', rep_name: '', rep_phone: '', absence_reason: '', submitted_at: `${curMonthStr}-11T08:15:00Z` },
     { rsvp_id: 'RSVP-23', event_id: 'EVT-2026-001', user_email: 'ramlee.ali@moe.bn', response_status: 'Hadir', rep_name: '', rep_phone: '', absence_reason: '', submitted_at: `${curMonthStr}-11T08:30:00Z` },
     { rsvp_id: 'RSVP-24', event_id: 'EVT-2026-001', user_email: 'norazimah.kassim@moe.bn', response_status: 'Hadir', rep_name: '', rep_phone: '', absence_reason: '', submitted_at: `${curMonthStr}-11T08:45:00Z` },
     { rsvp_id: 'RSVP-25', event_id: 'EVT-2026-001', user_email: 'vincent.tan@moe.bn', response_status: 'Hadir', rep_name: '', rep_phone: '', absence_reason: '', submitted_at: `${curMonthStr}-11T09:00:00Z` },
     { rsvp_id: 'RSVP-26', event_id: 'EVT-2026-001', user_email: 'lily.wong@moe.bn', response_status: 'Hadir', rep_name: '', rep_phone: '', absence_reason: '', submitted_at: `${curMonthStr}-11T09:15:00Z` },
-    { rsvp_id: 'RSVP-27', event_id: 'EVT-2026-001', user_email: 'maryann.gomez@moe.bn', response_status: 'Hadir', rep_name: '', rep_phone: '', absence_reason: '', submitted_at: `${curMonthStr}-11T09:30:00Z` },
-    { rsvp_id: 'RSVP-28', event_id: 'EVT-2026-001', user_email: 'johnathan.lee@moe.bn', response_status: 'Mewakilkan', rep_name: 'Cikgu Dayang Wong Siew Lan', rep_phone: '+673 8387654', absence_reason: '', submitted_at: `${curMonthStr}-11T09:45:00Z` },
+    { rsvp_id: 'RSVP-27', event_id: 'EVT-2026-001', user_email: 'maryann.gomez@moe.bn', response_status: 'Mewakilkan', rep_name: 'Cikgu Dayang Wong Siew Lan', rep_phone: '+673 8387654', absence_reason: '', submitted_at: `${curMonthStr}-11T09:30:00Z` },
 
-    // Tutong: 5 Hadir, 1 Wakil, 1 Tidak Hadir, 0 Belum Jawab (Total 7)
-    { rsvp_id: 'RSVP-29', event_id: 'EVT-2026-001', user_email: 'fatimah.hasan@moe.bn', response_status: 'Hadir', rep_name: '', rep_phone: '', absence_reason: '', submitted_at: `${curMonthStr}-11T10:00:00Z` },
-    { rsvp_id: 'RSVP-30', event_id: 'EVT-2026-001', user_email: 'khalid.omar@moe.bn', response_status: 'Hadir', rep_name: '', rep_phone: '', absence_reason: '', submitted_at: `${curMonthStr}-11T10:15:00Z` },
-    { rsvp_id: 'RSVP-31', event_id: 'EVT-2026-001', user_email: 'maznah.omar@moe.bn', response_status: 'Hadir', rep_name: '', rep_phone: '', absence_reason: '', submitted_at: `${curMonthStr}-11T10:30:00Z` },
-    { rsvp_id: 'RSVP-32', event_id: 'EVT-2026-001', user_email: 'syamsul.matusin@moe.bn', response_status: 'Hadir', rep_name: '', rep_phone: '', absence_reason: '', submitted_at: `${curMonthStr}-11T10:45:00Z` },
-    { rsvp_id: 'RSVP-33', event_id: 'EVT-2026-001', user_email: 'norlaila.hamdan@moe.bn', response_status: 'Hadir', rep_name: '', rep_phone: '', absence_reason: '', submitted_at: `${curMonthStr}-11T11:00:00Z` },
-    { rsvp_id: 'RSVP-34', event_id: 'EVT-2026-001', user_email: 'shahril.zaini@moe.bn', response_status: 'Mewakilkan', rep_name: 'Ustaz Hj Kamal bin Hj Ariffin', rep_phone: '+673 8276543', absence_reason: '', submitted_at: `${curMonthStr}-11T11:15:00Z` },
-    { rsvp_id: 'RSVP-35', event_id: 'EVT-2026-001', user_email: 'jennifer.chen@moe.bn', response_status: 'Tidak Hadir', rep_name: '', rep_phone: '', absence_reason: 'Cuti Rawatan Perubatan (MC) Hospital Pengiran Muda Mahkota Al-Muhtadee Billah', submitted_at: `${curMonthStr}-11T11:30:00Z` },
+    // Tutong: 4 Hadir, 1 Wakil, 0 Tidak Hadir, 1 Belum Jawab (Total 6 Sekolah)
+    { rsvp_id: 'RSVP-28', event_id: 'EVT-2026-001', user_email: 'fatimah.hasan@moe.bn', response_status: 'Hadir', rep_name: '', rep_phone: '', absence_reason: '', submitted_at: `${curMonthStr}-11T10:00:00Z` },
+    { rsvp_id: 'RSVP-29', event_id: 'EVT-2026-001', user_email: 'khalid.omar@moe.bn', response_status: 'Hadir', rep_name: '', rep_phone: '', absence_reason: '', submitted_at: `${curMonthStr}-11T10:15:00Z` },
+    { rsvp_id: 'RSVP-30', event_id: 'EVT-2026-001', user_email: 'maznah.omar@moe.bn', response_status: 'Hadir', rep_name: '', rep_phone: '', absence_reason: '', submitted_at: `${curMonthStr}-11T10:30:00Z` },
+    { rsvp_id: 'RSVP-31', event_id: 'EVT-2026-001', user_email: 'syamsul.matusin@moe.bn', response_status: 'Hadir', rep_name: '', rep_phone: '', absence_reason: '', submitted_at: `${curMonthStr}-11T10:45:00Z` },
+    { rsvp_id: 'RSVP-32', event_id: 'EVT-2026-001', user_email: 'shahril.zaini@moe.bn', response_status: 'Mewakilkan', rep_name: 'Ustaz Hj Kamal bin Hj Ariffin', rep_phone: '+673 8276543', absence_reason: '', submitted_at: `${curMonthStr}-11T11:15:00Z` },
 
-    // Temburong: 2 Hadir, 0 Wakil, 0 Tidak Hadir, 0 Belum Jawab (Total 2)
-    { rsvp_id: 'RSVP-36', event_id: 'EVT-2026-001', user_email: 'zaki.kassim@moe.bn', response_status: 'Hadir', rep_name: '', rep_phone: '', absence_reason: '', submitted_at: `${curMonthStr}-11T13:00:00Z` },
-    { rsvp_id: 'RSVP-37', event_id: 'EVT-2026-001', user_email: 'christina.ting@moe.bn', response_status: 'Hadir', rep_name: '', rep_phone: '', absence_reason: '', submitted_at: `${curMonthStr}-11T13:15:00Z` },
+    // Temburong: 1 Hadir, 0 Wakil, 0 Tidak Hadir, 1 Belum Jawab (Total 2 Sekolah)
+    { rsvp_id: 'RSVP-33', event_id: 'EVT-2026-001', user_email: 'zaki.kassim@moe.bn', response_status: 'Hadir', rep_name: '', rep_phone: '', absence_reason: '', submitted_at: `${curMonthStr}-11T13:00:00Z` },
 
     // EVT-2026-002: Contoh jawapan berbeza untuk bengkel dalam talian
-    { rsvp_id: 'RSVP-38', event_id: 'EVT-2026-002', user_email: 'ahmad.bakar@moe.bn', response_status: 'Hadir', rep_name: '', rep_phone: '', absence_reason: '', submitted_at: `${curMonthStr}-12T09:00:00Z` },
-    { rsvp_id: 'RSVP-39', event_id: 'EVT-2026-002', user_email: 'noraini.yusof@moe.bn', response_status: 'Hadir', rep_name: '', rep_phone: '', absence_reason: '', submitted_at: `${curMonthStr}-12T09:15:00Z` },
-    { rsvp_id: 'RSVP-40', event_id: 'EVT-2026-002', user_email: 'fatimah.hasan@moe.bn', response_status: 'Mewakilkan', rep_name: 'Cikgu Dayangku Maznah', rep_phone: '+673 8222233', absence_reason: '', submitted_at: `${curMonthStr}-12T09:30:00Z` }
+    { rsvp_id: 'RSVP-34', event_id: 'EVT-2026-002', user_email: 'ahmad.bakar@moe.bn', response_status: 'Hadir', rep_name: '', rep_phone: '', absence_reason: '', submitted_at: `${curMonthStr}-12T09:00:00Z` },
+    { rsvp_id: 'RSVP-35', event_id: 'EVT-2026-002', user_email: 'noraini.yusof@moe.bn', response_status: 'Hadir', rep_name: '', rep_phone: '', absence_reason: '', submitted_at: `${curMonthStr}-12T09:15:00Z` },
+    { rsvp_id: 'RSVP-36', event_id: 'EVT-2026-002', user_email: 'fatimah.hasan@moe.bn', response_status: 'Mewakilkan', rep_name: 'Cikgu Dayangku Maznah', rep_phone: '+673 8222233', absence_reason: '', submitted_at: `${curMonthStr}-12T09:30:00Z` }
   ];
 
   const memos = [
