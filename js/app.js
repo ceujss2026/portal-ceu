@@ -978,6 +978,22 @@
   // ==========================================================================
   // 8. RENDER PAPARAN HOME (TAKWIN GURU)
   // ==========================================================================
+  function setEventFilter(filterName) {
+    State.activeEventFilter = filterName;
+    State.selectedCalendarDate = null; // Buka kunci tarikh kalendar jika pengguna menukar penapis utama
+
+    // Selaraskan gaya pil penapis
+    document.querySelectorAll('.event-filter-pill').forEach(pill => {
+      const isMatch = pill.dataset.filter === filterName;
+      pill.classList.toggle('bg-primary', isMatch);
+      pill.classList.toggle('text-white', isMatch);
+      pill.classList.toggle('bg-surface-container', !isMatch);
+      pill.classList.toggle('text-on-surface-variant', !isMatch);
+    });
+
+    renderHomeView();
+  }
+
   function renderHomeView() {
     renderMonthlyCalendar();
 
@@ -997,6 +1013,26 @@
     if (countMonthEl) countMonthEl.textContent = totalEventsCount;
     if (countAttendedEl) countAttendedEl.textContent = myAttendedIds.length;
     if (countUrgentEl) countUrgentEl.textContent = urgentCount;
+
+    // Selaraskan cincin aktif pada kad metrik di atas
+    const btnAll = document.getElementById('metric-btn-all');
+    const btnAttended = document.getElementById('metric-btn-attended');
+    const btnUrgent = document.getElementById('metric-btn-urgent');
+    if (btnAll) {
+      btnAll.classList.toggle('ring-2', State.activeEventFilter === 'all');
+      btnAll.classList.toggle('ring-primary', State.activeEventFilter === 'all');
+      btnAll.classList.toggle('shadow-md', State.activeEventFilter === 'all');
+    }
+    if (btnAttended) {
+      btnAttended.classList.toggle('ring-2', State.activeEventFilter === 'attended');
+      btnAttended.classList.toggle('ring-secondary', State.activeEventFilter === 'attended');
+      btnAttended.classList.toggle('shadow-md', State.activeEventFilter === 'attended');
+    }
+    if (btnUrgent) {
+      btnUrgent.classList.toggle('ring-2', State.activeEventFilter === 'urgent');
+      btnUrgent.classList.toggle('ring-[#B45309]', State.activeEventFilter === 'urgent');
+      btnUrgent.classList.toggle('shadow-md', State.activeEventFilter === 'urgent');
+    }
 
     let filtered = State.events || [];
     if (State.activeEventFilter === 'urgent') {
@@ -1818,14 +1854,7 @@
 
     document.querySelectorAll('.event-filter-pill').forEach(pill => {
       pill.addEventListener('click', () => {
-        document.querySelectorAll('.event-filter-pill').forEach(p => {
-          p.classList.remove('bg-primary', 'text-white');
-          p.classList.add('bg-surface-container', 'text-on-surface-variant');
-        });
-        pill.classList.add('bg-primary', 'text-white');
-        pill.classList.remove('bg-surface-container', 'text-on-surface-variant');
-        State.activeEventFilter = pill.dataset.filter;
-        renderHomeView();
+        setEventFilter(pill.dataset.filter);
       });
     });
 
@@ -1875,28 +1904,17 @@
 
     const metricAll = document.getElementById('metric-btn-all');
     if (metricAll) {
-      metricAll.addEventListener('click', () => {
-        document.querySelector('.event-filter-pill[data-filter="all"]')?.click();
-      });
+      metricAll.addEventListener('click', () => setEventFilter('all'));
     }
 
     const metricAttended = document.getElementById('metric-btn-attended');
     if (metricAttended) {
-      metricAttended.addEventListener('click', () => {
-        State.activeEventFilter = 'attended';
-        document.querySelectorAll('.event-filter-pill').forEach(p => {
-          p.classList.remove('bg-primary', 'text-white');
-          p.classList.add('bg-surface-container', 'text-on-surface-variant');
-        });
-        renderHomeView();
-      });
+      metricAttended.addEventListener('click', () => setEventFilter('attended'));
     }
 
     const metricUrgent = document.getElementById('metric-btn-urgent');
     if (metricUrgent) {
-      metricUrgent.addEventListener('click', () => {
-        document.querySelector('.event-filter-pill[data-filter="urgent"]')?.click();
-      });
+      metricUrgent.addEventListener('click', () => setEventFilter('urgent'));
     }
 
     const archiveSearch = document.getElementById('archive-search-input');
