@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+
+<html lang="ms"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/><meta content="mobile_tab" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{width:100vw;margin:0;padding:0;}body{overscroll-behavior:none;}.pb-safe{padding-bottom:env(safe-area-inset-bottom,0px);}.pt-safe{padding-top:env(safe-area-inset-top,0px);}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { colors: { "on-secondary-container": "#1e5f81", "tertiary": "#745800", "background": "#faf8ff", "surface-dim": "#d2d9f4", "primary-container": "#037cae", "surface": "#faf8ff", "on-tertiary-fixed-variant": "#5a4300", "on-surface-variant": "#3f484f", "error-container": "#ffdad6", "secondary-fixed": "#c6e7ff", "on-tertiary-fixed": "#251a00", "surface-container-lowest": "#ffffff", "surface-container-high": "#e2e7ff", "on-background": "#131b2e", "surface-tint": "#00658e", "tertiary-fixed": "#ffdf9a", "secondary-container": "#9fd9ff", "surface-container-low": "#f2f3ff", "on-primary": "#ffffff", "on-surface": "#131b2e", "on-primary-fixed": "#001e2e", "on-secondary": "#ffffff", "tertiary-fixed-dim": "#efc04b", "primary": "#00628b", "on-primary-fixed-variant": "#004c6c", "outline": "#6f7880", "on-error": "#ffffff", "secondary": "#246486", "inverse-primary": "#85cfff", "on-primary-container": "#fcfcff", "on-tertiary": "#ffffff", "inverse-surface": "#283044", "secondary-fixed-dim": "#94cdf4", "tertiary-container": "#936f00", "error": "#ba1a1a", "primary-fixed": "#c7e7ff", "surface-container-highest": "#dae2fd", "inverse-on-surface": "#eef0ff", "outline-variant": "#bfc8d0", "surface-container": "#eaedff", "on-secondary-fixed-variant": "#004c6b", "surface-variant": "#dae2fd", "primary-fixed-dim": "#85cfff", "on-tertiary-container": "#fffbff", "on-secondary-fixed": "#001e2d", "surface-bright": "#faf8ff", "on-error-container": "#93000a" }, borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" }, spacing: { "space-2xs": "0.25rem", "space-sm": "0.75rem", "margin-desktop": "3rem", "space-lg": "1.5rem", "gutter": "1rem", "margin": "1rem", "space-xs": "0.5rem", "space-xl": "2rem", "space-md": "1rem", "gutter-desktop": "1.5rem", "space-2xl": "3rem", "margin-tablet": "2rem" }, fontFamily: { "headline-xl": ["Plus Jakarta Sans"], "body-lg": ["Inter"], "headline-xl-mobile": ["Plus Jakarta Sans"], "body-md": ["Inter"], "headline-lg-mobile": ["Plus Jakarta Sans"], "headline-sm": ["Plus Jakarta Sans"], "body-sm": ["Inter"], "headline-md": ["Plus Jakarta Sans"], "label-lg": ["Inter"], "label-sm": ["Inter"], "label-md": ["Inter"], "headline-lg": ["Plus Jakarta Sans"] }, fontSize: { "headline-xl": ["36px", { lineHeight: "44px", fontWeight: "700" }], "body-lg": ["16px", { lineHeight: "24px", fontWeight: "400" }], "headline-xl-mobile": ["28px", { lineHeight: "36px", fontWeight: "700" }], "body-md": ["14px", { lineHeight: "20px", fontWeight: "400" }], "headline-lg-mobile": ["24px", { lineHeight: "32px", fontWeight: "600" }], "headline-sm": ["18px", { lineHeight: "24px", fontWeight: "600" }], "body-sm": ["12px", { lineHeight: "16px", fontWeight: "400" }], "headline-md": ["22px", { lineHeight: "28px", fontWeight: "600" }], "label-lg": ["14px", { lineHeight: "20px", fontWeight: "600" }], "label-sm": ["11px", { lineHeight: "14px", fontWeight: "500" }], "label-md": ["12px", { lineHeight: "16px", fontWeight: "600" }], "headline-lg": ["30px", { lineHeight: "38px", fontWeight: "600" }] } } } }</script><style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head><body class="bg-surface font-body-md text-body-md text-on-surface flex flex-col min-h-screen"><header class="fixed top-0 w-full z-50 pt-safe bg-on-secondary-fixed shadow-[0_4px_12px_rgba(0,30,45,0.15)]"><div class="h-16 px-gutter flex items-center justify-between gap-space-sm"><div class="flex items-center gap-space-sm min-w-0"><div class="w-10 h-10 rounded-full bg-primary-fixed flex items-center justify-center shrink-0 shadow-[0_2px_4px_rgba(0,0,0,0.1)]"><span class="material-symbols-outlined text-primary text-[22px]">shield</span></div><div class="flex flex-col min-w-0"><div class="flex items-center gap-space-xs"><span class="font-headline-sm text-headline-sm text-surface-container-lowest font-bold truncate tracking-tight">Portal CEU</span><span class="font-label-sm text-label-sm px-space-xs py-0.5 rounded-full bg-secondary-fixed text-on-secondary-fixed-variant uppercase font-semibold shrink-0">JPPN</span></div><span class="font-label-sm text-label-sm text-secondary-fixed-dim truncate">Pentadbir Sistem</span></div></div><div class="flex items-center gap-space-xs shrink-0"><button aria-label="Notifikasi Pentadbir" class="w-11 h-11 flex items-center justify-center rounded-full text-surface-container-lowest hover:bg-surface-container-lowest/10 relative transition-colors"><span class="material-symbols-outlined text-[24px]">notifications</span><span class="absolute top-2.5 right-2.5 w-2 h-2 rounded-full bg-tertiary-fixed"></span></button><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center shrink-0"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></div></header><main class="flex flex-col relative w-full pt-16 pb-24 bg-surface min-h-screen"><div class="flex flex-col w-full pb-32">
+<div class="px-gutter pt-space-md pb-space-sm">
+<div class="flex items-center justify-between gap-space-xs mb-space-2xs">
+<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-secondary-fixed text-on-secondary-fixed-variant font-label-sm text-label-sm font-semibold tracking-wide">
+<span class="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
+        Sesi Pentadbir UPK
+      </span>
+<span class="font-label-sm text-label-sm text-tertiary flex items-center gap-1 bg-tertiary-fixed/40 px-2.5 py-0.5 rounded-full font-medium">
+<span class="material-symbols-outlined text-[14px]">verified</span>
+        MOE v2.4
+      </span>
+</div>
+<h1 class="font-headline-lg-mobile text-headline-lg-mobile text-on-surface font-bold tracking-tight">
+      Bina &amp; Terbitkan Acara Rasmi
+    </h1>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-0.5">
+      Unit Pendidikan Kerjaya, Jabatan Sekolah-Sekolah
+    </p>
+</div>
+<div class="px-gutter mb-space-md">
+<div class="bg-surface-container-lowest p-space-sm rounded-xl shadow-sm">
+<div class="flex items-center justify-between mb-2">
+<span class="font-label-md text-label-md text-on-surface font-semibold flex items-center gap-1.5">
+<span class="material-symbols-outlined text-primary text-[18px]">steppers</span>
+          Kemajuan Penerbitan
+        </span>
+<span class="font-label-sm text-label-sm text-primary font-bold">Langkah 4 / 4 Siap</span>
+</div>
+<div class="grid grid-cols-4 gap-1.5 mb-2">
+<div class="h-2 rounded-full bg-primary transition-all"></div>
+<div class="h-2 rounded-full bg-primary transition-all"></div>
+<div class="h-2 rounded-full bg-primary transition-all"></div>
+<div class="h-2 rounded-full bg-primary-container animate-pulse"></div>
+</div>
+<div class="flex items-center justify-between text-[11px] text-on-surface-variant font-medium px-0.5">
+<span class="text-primary font-semibold">1. Asas</span>
+<span class="text-primary font-semibold">2. Lokasi</span>
+<span class="text-primary font-semibold">3. Sasaran</span>
+<span class="text-primary font-bold">4. Hebahan</span>
+</div>
+</div>
+</div>
+<div class="px-gutter space-y-space-md">
+<section class="bg-surface-container-lowest rounded-xl p-space-md shadow-sm space-y-space-sm relative overflow-hidden">
+<div class="absolute left-0 top-0 bottom-0 w-1.5 bg-primary"></div>
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="w-6 h-6 rounded-full bg-secondary-fixed text-on-secondary-fixed flex items-center justify-center font-label-sm text-label-sm font-bold">1</span>
+<h2 class="font-headline-sm text-headline-sm text-on-surface font-semibold">Maklumat Asas Acara</h2>
+</div>
+<span class="material-symbols-outlined text-primary text-[20px]">check_circle</span>
+</div>
+<div class="space-y-1.5">
+<label class="block font-label-md text-label-md text-on-surface font-semibold">
+          Tajuk Acara (Bahasa Melayu) <span class="text-error">*</span>
+</label>
+<div class="relative">
+<input class="w-full h-11 px-3.5 rounded-lg bg-surface-container-low text-on-surface font-body-md text-body-md focus:bg-surface-container-lowest focus:outline-none focus:ring-2 focus:ring-primary/40 transition-all font-medium" id="input-title-bm" type="text" value="Mesyuarat Penyelarasan Kaunselor Kerjaya Bil. 2/2026"/>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Sesuai untuk paparan rasmi di kalendar aktiviti sekolah.</p>
+</div>
+<div class="space-y-1.5">
+<label class="block font-label-md text-label-md text-on-surface font-semibold">
+          Tajuk Acara (Terjemahan Bahasa Inggeris)
+        </label>
+<div class="relative">
+<input class="w-full h-11 px-3.5 rounded-lg bg-surface-container-low text-on-surface font-body-md text-body-md focus:bg-surface-container-lowest focus:outline-none focus:ring-2 focus:ring-primary/40 transition-all text-on-surface-variant" id="input-title-en" type="text" value="Career Counselors Coordination Meeting No. 2/2026"/>
+</div>
+</div>
+<div class="space-y-1.5">
+<label class="block font-label-md text-label-md text-on-surface font-semibold">
+          Kategori Acara
+        </label>
+<div class="relative">
+<select class="w-full h-11 px-3.5 pr-10 rounded-lg bg-surface-container-low text-on-surface font-body-md text-body-md appearance-none font-medium focus:outline-none focus:ring-2 focus:ring-primary/40">
+<option selected="">Mesyuarat Penyelarasan Rasmi</option>
+<option>Bengkel Latihan Profesional</option>
+<option>Taklimat Halatuju Kerjaya</option>
+<option>Sesi Dialog Bersama Industri</option>
+</select>
+<span class="material-symbols-outlined absolute right-3 top-2.5 text-on-surface-variant pointer-events-none text-[22px]">keyboard_arrow_down</span>
+</div>
+</div>
+<div class="space-y-2 pt-1">
+<label class="block font-label-md text-label-md text-on-surface font-semibold">
+          Format Pelaksanaan <span class="text-error">*</span>
+</label>
+<div class="grid grid-cols-1 gap-2">
+<label class="flex items-center gap-3 p-3 rounded-lg bg-secondary-fixed/50 cursor-pointer transition-colors">
+<input checked="" class="w-4 h-4 text-primary accent-primary" name="format" type="radio"/>
+<div class="flex items-center gap-2 flex-1 min-w-0">
+<span class="material-symbols-outlined text-primary text-[20px]">groups</span>
+<div class="min-w-0">
+<p class="font-label-md text-label-md text-on-surface font-semibold">Bersemuka</p>
+<p class="font-body-sm text-body-sm text-on-surface-variant truncate">Fizikal Dewan BPK, Gadong</p>
+</div>
+</div>
+<span class="px-2 py-0.5 rounded-full bg-primary text-on-primary font-label-sm text-label-sm shrink-0">Aktif</span>
+</label>
+<label class="flex items-center gap-3 p-3 rounded-lg bg-surface-container-low opacity-75 cursor-pointer">
+<input class="w-4 h-4 text-primary accent-primary" name="format" type="radio"/>
+<div class="flex items-center gap-2 flex-1 min-w-0">
+<span class="material-symbols-outlined text-on-surface-variant text-[20px]">devices</span>
+<div class="min-w-0">
+<p class="font-label-md text-label-md text-on-surface font-medium">Hibrid</p>
+<p class="font-body-sm text-body-sm text-on-surface-variant truncate">Google Meet Berintegrasi</p>
+</div>
+</div>
+</label>
+<label class="flex items-center gap-3 p-3 rounded-lg bg-surface-container-low opacity-75 cursor-pointer">
+<input class="w-4 h-4 text-primary accent-primary" name="format" type="radio"/>
+<div class="flex items-center gap-2 flex-1 min-w-0">
+<span class="material-symbols-outlined text-on-surface-variant text-[20px]">videocam</span>
+<div class="min-w-0">
+<p class="font-label-md text-label-md text-on-surface font-medium">Dalam Talian Penuh</p>
+<p class="font-body-sm text-body-sm text-on-surface-variant truncate">Siaran Webex Rasmi</p>
+</div>
+</div>
+</label>
+</div>
+</div>
+</section>
+<section class="bg-surface-container-lowest rounded-xl p-space-md shadow-sm space-y-space-sm relative overflow-hidden">
+<div class="absolute left-0 top-0 bottom-0 w-1.5 bg-tertiary"></div>
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="w-6 h-6 rounded-full bg-tertiary-fixed text-on-tertiary-fixed flex items-center justify-center font-label-sm text-label-sm font-bold">2</span>
+<h2 class="font-headline-sm text-headline-sm text-on-surface font-semibold">Tarikh &amp; Lokasi</h2>
+</div>
+<span class="material-symbols-outlined text-primary text-[20px]">schedule</span>
+</div>
+<div class="grid grid-cols-2 gap-space-xs">
+<div class="space-y-1">
+<label class="block font-label-sm text-label-sm text-on-surface font-semibold">Tarikh Pelaksanaan</label>
+<div class="flex items-center gap-2 h-11 px-3 rounded-lg bg-surface-container-low text-on-surface font-label-md text-label-md font-semibold">
+<span class="material-symbols-outlined text-primary text-[18px]">calendar_today</span>
+<span>23 Apr 2026</span>
+</div>
+</div>
+<div class="space-y-1">
+<label class="block font-label-sm text-label-sm text-on-surface font-semibold">Waktu Sesi</label>
+<div class="flex items-center gap-2 h-11 px-3 rounded-lg bg-surface-container-low text-on-surface font-label-md text-label-md font-semibold">
+<span class="material-symbols-outlined text-primary text-[18px]">alarm</span>
+<span class="truncate">08:30 - 12:00</span>
+</div>
+</div>
+</div>
+<div class="space-y-1.5">
+<label class="block font-label-md text-label-md text-on-surface font-semibold">
+          Lokasi Acara / Bilik Persidangan
+        </label>
+<div class="p-3 rounded-lg bg-surface-container-low flex items-start gap-2.5">
+<span class="material-symbols-outlined text-tertiary text-[22px] shrink-0 mt-0.5">location_on</span>
+<div class="min-w-0 flex-1">
+<p class="font-label-md text-label-md text-on-surface font-semibold">Dewan Persidangan Utama</p>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Bahagian Pembangunan Kurikulum (BPK), Kementerian Pendidikan, Lapangan Terbang Lama Berakas</p>
+</div>
+</div>
+</div>
+<div class="w-full h-32 rounded-lg bg-cover bg-center overflow-hidden relative shadow-inner" data-location="Brunei Curriculum Development Department" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDTJGx_v_otwVvSlZSGcI1v4jN-I-7jGeY9ivv8BZ6VvGcaqMLj9nKgSMRGEd_qqwUD3Y5PF_6zW53_ffSDowu7mqbJvCgGZp-NQvilaSIlAkSxIAICM9etpDqaRmuAHI2lYrgBLzTYkbYmgRX3Wa3VKFTz-4nbNerfZKdDZsqD5rM-ZzhPwmePy6-tZ_W0CgpXxKC0brYRI_HA_BE7B8bPmqSp-74vl9DecD_rmF8')">
+<div class="absolute inset-0 bg-primary/20 backdrop-blur-[1px]"></div>
+<div class="absolute bottom-2 left-2 right-2 bg-surface-container-lowest/90 backdrop-blur-md p-2 rounded flex items-center justify-between text-[11px] font-semibold text-on-surface shadow-sm">
+<span class="flex items-center gap-1 truncate">
+<span class="material-symbols-outlined text-primary text-[16px]">pin_drop</span>
+            BPK Kampus Utama, BB3510
+          </span>
+<span class="text-primary uppercase tracking-wider shrink-0 text-[10px]">Peta Disahkan</span>
+</div>
+</div>
+</section>
+<section class="bg-surface-container-lowest rounded-xl p-space-md shadow-sm space-y-space-sm relative overflow-hidden">
+<div class="absolute left-0 top-0 bottom-0 w-1.5 bg-primary"></div>
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="w-6 h-6 rounded-full bg-secondary-fixed text-on-secondary-fixed flex items-center justify-center font-label-sm text-label-sm font-bold">3</span>
+<h2 class="font-headline-sm text-headline-sm text-on-surface font-semibold">Sasaran Daerah &amp; RSVP</h2>
+</div>
+<span class="px-2 py-0.5 rounded-full bg-secondary-fixed text-on-secondary-fixed-variant font-label-sm text-label-sm font-semibold">42 Sekolah</span>
+</div>
+<div class="space-y-2">
+<div class="flex items-center justify-between">
+<span class="font-label-md text-label-md text-on-surface font-semibold">Pilihan Sasaran Daerah</span>
+<button class="font-label-sm text-label-sm text-primary font-bold hover:underline" type="button">Nyahpilih Semua</button>
+</div>
+<div class="p-2.5 rounded-lg bg-primary/10 flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-[20px]">check_box</span>
+<span class="font-label-md text-label-md text-on-surface font-bold">Semua 4 Daerah (Seluruh Negara)</span>
+</div>
+<span class="font-label-sm text-label-sm px-2 py-0.5 rounded-full bg-primary text-on-primary font-bold">42 Sekolah</span>
+</div>
+<div class="grid grid-cols-2 gap-2 pt-1">
+<div class="flex items-center justify-between p-2.5 rounded-lg bg-surface-container-low">
+<div class="flex items-center gap-2 min-w-0">
+<span class="w-2.5 h-2.5 rounded-full bg-primary shrink-0"></span>
+<span class="font-label-sm text-label-sm text-on-surface font-semibold truncate">Brunei-Muara</span>
+</div>
+<span class="font-label-sm text-label-sm px-2 py-0.5 rounded bg-surface-container text-on-surface-variant font-bold">25</span>
+</div>
+<div class="flex items-center justify-between p-2.5 rounded-lg bg-surface-container-low">
+<div class="flex items-center gap-2 min-w-0">
+<span class="w-2.5 h-2.5 rounded-full bg-primary shrink-0"></span>
+<span class="font-label-sm text-label-sm text-on-surface font-semibold truncate">Belait</span>
+</div>
+<span class="font-label-sm text-label-sm px-2 py-0.5 rounded bg-surface-container text-on-surface-variant font-bold">8</span>
+</div>
+<div class="flex items-center justify-between p-2.5 rounded-lg bg-surface-container-low">
+<div class="flex items-center gap-2 min-w-0">
+<span class="w-2.5 h-2.5 rounded-full bg-primary shrink-0"></span>
+<span class="font-label-sm text-label-sm text-on-surface font-semibold truncate">Tutong</span>
+</div>
+<span class="font-label-sm text-label-sm px-2 py-0.5 rounded bg-surface-container text-on-surface-variant font-bold">7</span>
+</div>
+<div class="flex items-center justify-between p-2.5 rounded-lg bg-surface-container-low">
+<div class="flex items-center gap-2 min-w-0">
+<span class="w-2.5 h-2.5 rounded-full bg-primary shrink-0"></span>
+<span class="font-label-sm text-label-sm text-on-surface font-semibold truncate">Temburong</span>
+</div>
+<span class="font-label-sm text-label-sm px-2 py-0.5 rounded bg-surface-container text-on-surface-variant font-bold">2</span>
+</div>
+</div>
+</div>
+<div class="p-3 rounded-lg bg-surface-container space-y-2.5">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-[20px]">event_busy</span>
+<div>
+<p class="font-label-md text-label-md text-on-surface font-semibold">Tarikh Tutup RSVP</p>
+<p class="font-body-sm text-body-sm text-on-surface-variant">20 April 2026, 17:00 (Waktu Brunei)</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-primary text-[20px]">edit_calendar</span>
+</div>
+<div class="pt-2 flex items-center justify-between">
+<div class="min-w-0 pr-2">
+<p class="font-label-md text-label-md text-on-surface font-semibold leading-tight">Wajibkan Alasan Ketidakhadiran</p>
+<p class="font-body-sm text-body-sm text-on-surface-variant text-[11px]">Memerlukan pengesahan Pengetua jika wakil dihantar</p>
+</div>
+<label class="relative inline-flex items-center cursor-pointer shrink-0">
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-11 h-6 bg-surface-dim peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-surface-container-lowest after:border-surface-dim after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+</label>
+</div>
+</div>
+</section>
+<section class="bg-surface-container-lowest rounded-xl p-space-md shadow-sm space-y-space-sm relative overflow-hidden">
+<div class="absolute left-0 top-0 bottom-0 w-1.5 bg-primary-container"></div>
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="w-6 h-6 rounded-full bg-secondary-fixed text-on-secondary-fixed flex items-center justify-center font-label-sm text-label-sm font-bold">4</span>
+<h2 class="font-headline-sm text-headline-sm text-on-surface font-semibold">Lampiran &amp; Hebahan FCM</h2>
+</div>
+<span class="material-symbols-outlined text-primary text-[20px]">cloud_sync</span>
+</div>
+<div class="space-y-1.5">
+<span class="block font-label-md text-label-md text-on-surface font-semibold">Lampiran Fail Rasmi</span>
+<div class="p-3 rounded-lg bg-surface-container-low flex items-center justify-between gap-2">
+<div class="flex items-center gap-3 min-w-0">
+<div class="w-10 h-10 rounded-lg bg-error-container text-error flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[24px]">picture_as_pdf</span>
+</div>
+<div class="min-w-0">
+<p class="font-label-md text-label-md text-on-surface font-semibold truncate">Surat_Panggilan_Bil2_2026.pdf</p>
+<p class="font-body-sm text-body-sm text-on-surface-variant flex items-center gap-1">
+<span>1.4 MB</span>
+<span>•</span>
+<span class="text-primary font-medium">Google Drive Sync</span>
+</p>
+</div>
+</div>
+<span class="inline-flex items-center px-2 py-0.5 rounded-full bg-secondary-fixed text-on-secondary-fixed-variant font-label-sm text-label-sm font-semibold shrink-0">
+            Bersedia
+          </span>
+</div>
+</div>
+<div class="space-y-2 pt-1">
+<label class="block font-label-md text-label-md text-on-surface font-semibold">
+          Saluran Hebahan Serentak
+        </label>
+<div class="space-y-2">
+<div class="p-3 rounded-lg bg-surface-container-low flex items-start gap-3">
+<input checked="" class="mt-1 w-4 h-4 text-primary accent-primary rounded" type="checkbox"/>
+<div class="min-w-0 flex-1">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-primary text-[18px]">notifications_active</span>
+<p class="font-label-md text-label-md text-on-surface font-semibold">Notifikasi Tolak FCM (Android)</p>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-0.5">Dihantar serta-merta ke peranti mudah alih 42 orang Guru Kaunselor berdaftar.</p>
+</div>
+</div>
+<div class="p-3 rounded-lg bg-surface-container-low flex items-start gap-3">
+<input checked="" class="mt-1 w-4 h-4 text-primary accent-primary rounded" type="checkbox"/>
+<div class="min-w-0 flex-1">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-primary text-[18px]">mail</span>
+<p class="font-label-md text-label-md text-on-surface font-semibold">Emel Rasmi Kerajaan (.moe.bn MailApp)</p>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-0.5">Penghantaran jemputan kalendar .ics automatik ke peti masuk sekolah.</p>
+</div>
+</div>
+<div class="p-3 rounded-lg bg-surface-container-low flex items-start gap-3">
+<input checked="" class="mt-1 w-4 h-4 text-primary accent-primary rounded" type="checkbox"/>
+<div class="min-w-0 flex-1">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-primary text-[18px]">view_carousel</span>
+<p class="font-label-md text-label-md text-on-surface font-semibold">Banner Siaran Automatik Laman Utama Guru</p>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-0.5">Dipaparkan pada kedudukan tertinggi papan kenyataan portal CEU selama 7 hari.</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section class="bg-surface-container-lowest rounded-xl p-space-md shadow-sm space-y-space-sm">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-[22px]">smartphone</span>
+<h2 class="font-headline-sm text-headline-sm text-on-surface font-semibold">Pratonton Langsung Guru</h2>
+</div>
+<span class="font-label-sm text-label-sm text-primary font-bold uppercase tracking-wide">FCM Card View</span>
+</div>
+<div class="p-3.5 rounded-xl bg-surface-container-high relative overflow-hidden shadow-inner">
+<div class="flex items-center gap-2 mb-2">
+<div class="w-6 h-6 rounded-full bg-primary flex items-center justify-center">
+<span class="material-symbols-outlined text-on-primary text-[14px]">school</span>
+</div>
+<span class="font-label-sm text-label-sm font-bold text-on-surface">Portal Kaunselor MOE</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant ml-auto text-[11px]">Baru sahaja</span>
+</div>
+<div class="bg-surface-container-lowest p-3 rounded-lg shadow-sm space-y-2">
+<div class="flex items-start justify-between gap-2">
+<div>
+<span class="px-2 py-0.5 rounded bg-tertiary-fixed text-on-tertiary-fixed font-label-sm text-label-sm font-bold uppercase text-[10px]">Wajib Hadir</span>
+<h3 class="font-headline-sm text-headline-sm text-on-surface font-bold mt-1 line-clamp-2 leading-snug" id="preview-title">
+                Mesyuarat Penyelarasan Kaunselor Kerjaya Bil. 2/2026
+              </h3>
+</div>
+</div>
+<div class="flex items-center gap-3 text-on-surface-variant text-[12px] font-medium pt-1">
+<span class="flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px] text-primary">calendar_month</span>
+              23 Apr 2026
+            </span>
+<span class="flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px] text-primary">schedule</span>
+              08:30 PAGI
+            </span>
+</div>
+<div class="flex items-center justify-between pt-2">
+<span class="font-label-sm text-label-sm text-error font-semibold">RSVP sebelum 20 Apr</span>
+<span class="font-label-sm text-label-sm text-primary font-bold flex items-center">
+              Buka RSVP
+              <span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+</span>
+</div>
+</div>
+</div>
+</section>
+<div class="p-space-sm rounded-xl bg-secondary-fixed/30 flex items-start gap-2.5">
+<span class="material-symbols-outlined text-secondary text-[22px] shrink-0 mt-0.5">info</span>
+<p class="font-body-sm text-body-sm text-on-surface-variant">
+        Penerbitan ini akan ditandatangani secara digital menggunakan Kunci Pentadbir UPK JPPN. Sila semak ketepatan maklumat sebelum mengesahkan siaran awam.
+      </p>
+</div>
+</div>
+<div class="fixed bottom-16 left-0 right-0 z-40 bg-surface-container-lowest/95 backdrop-blur-md px-gutter py-2.5 shadow-[0_-4px_16px_rgba(0,0,0,0.08)]">
+<div class="max-w-md mx-auto flex items-center gap-space-sm">
+<button class="flex-1 h-11 px-3 rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface font-label-md text-label-md font-semibold flex items-center justify-center gap-1.5 transition-colors" type="button">
+<span class="material-symbols-outlined text-[18px]">save</span>
+<span>Simpan Draf</span>
+</button>
+<button class="flex-[1.5] h-11 px-4 rounded-lg bg-primary hover:bg-primary-container text-on-primary font-label-md text-label-md font-bold flex items-center justify-center gap-2 shadow-md transition-all active:scale-[0.98]" id="btn-broadcast" type="button">
+<span class="material-symbols-outlined text-[20px]">send</span>
+<span>Terbit &amp; Siar FCM</span>
+</button>
+</div>
+</div>
+</div>
+<script>
+  (function() {
+    const inputTitle = document.getElementById('input-title-bm');
+    const previewTitle = document.getElementById('preview-title');
+    const btnBroadcast = document.getElementById('btn-broadcast');
+
+    if (inputTitle && previewTitle) {
+      inputTitle.addEventListener('input', function(e) {
+        previewTitle.textContent = e.target.value.trim() || 'Tajuk Acara Rasmi';
+      });
+    }
+
+    if (btnBroadcast) {
+      btnBroadcast.addEventListener('click', function() {
+        const originalContent = btnBroadcast.innerHTML;
+        btnBroadcast.innerHTML = '<span class="material-symbols-outlined text-[20px] animate-spin">progress_activity</span><span>Menghantar FCM...</span>';
+        btnBroadcast.disabled = true;
+
+        setTimeout(function() {
+          btnBroadcast.innerHTML = '<span class="material-symbols-outlined text-[20px]">check_circle</span><span>Berjaya Disiarkan!</span>';
+          btnBroadcast.classList.remove('bg-primary');
+          btnBroadcast.classList.add('bg-secondary');
+
+          setTimeout(function() {
+            btnBroadcast.innerHTML = originalContent;
+            btnBroadcast.classList.add('bg-primary');
+            btnBroadcast.classList.remove('bg-secondary');
+            btnBroadcast.disabled = false;
+          }, 3000);
+        }, 1200);
+      });
+    }
+  })();
+</script></main><nav class="fixed bottom-0 w-full z-50 pb-safe bg-surface-container-lowest/95 backdrop-blur-xl shadow-[0_-2px_12px_rgba(19,27,46,0.06)]" data-active-classes="text-primary font-bold"><div class="flex items-center justify-around h-16 px-space-xs"><a class="flex flex-col items-center justify-center min-w-[64px] min-h-[44px] py-1 text-on-surface-variant hover:text-primary transition-colors" data-path="dashboard-ringkasan" href="#"><span class="material-symbols-outlined text-[22px]">space_dashboard</span><span class="font-label-sm text-label-sm mt-0.5">Ringkasan</span></a><a class="flex flex-col items-center justify-center min-w-[64px] min-h-[44px] py-1 text-on-surface-variant hover:text-primary transition-colors" data-path="semakan-rsvp" href="#"><span class="material-symbols-outlined text-[22px]">how_to_reg</span><span class="font-label-sm text-label-sm mt-0.5">Semakan RSVP</span></a><a aria-current="page" class="flex flex-col items-center justify-center min-w-[64px] min-h-[44px] py-1 transition-colors text-primary font-bold" data-path="terbit-acara" href="#"><span class="material-symbols-outlined text-[22px]">calendar_add_on</span><span class="font-label-sm text-label-sm mt-0.5">Terbit Acara</span></a><a class="flex flex-col items-center justify-center min-w-[64px] min-h-[44px] py-1 text-on-surface-variant hover:text-primary transition-colors" data-path="tetapan-log" href="#"><span class="material-symbols-outlined text-[22px]">admin_panel_settings</span><span class="font-label-sm text-label-sm mt-0.5">Tetapan</span></a></div></nav></body></html>
