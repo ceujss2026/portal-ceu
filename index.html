@@ -11,6 +11,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin=""/>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap" rel="stylesheet"/>
+  <!-- Font Awesome 6 Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
 
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -65,7 +67,23 @@
             "on-error": "#ffffff",
             "error-container": "#ffdad6",
             "on-error-container": "#93000a",
-            "soft-border": "#89C4F4"
+            "soft-border": "#89C4F4",
+            "brand-primary": "#1883b5",
+            "brand-navy": "#0e5677",
+            "brand-gold": "#c59a27",
+            "brand-gold-light": "#e5b94c",
+            "brand-border": "#89c4f4",
+            "brand-surface": "#faf8ff",
+            "brand-dark": "#072e42",
+            brand: {
+              primary: '#1883b5',
+              navy: '#0e5677',
+              gold: '#c59a27',
+              'gold-light': '#e5b94c',
+              border: '#89c4f4',
+              surface: '#faf8ff',
+              dark: '#072e42'
+            }
           },
           borderRadius: {
             "DEFAULT": "0.25rem",
@@ -234,21 +252,35 @@
 
             <!-- 2. Main Nexgen Gloss Card -->
             <div class="w-full rounded-[28px] bg-surface-container-lowest shadow-2xl p-6 text-on-surface">
-              <!-- NEXGEN Segmented Capsule Navigation -->
-              <div class="flex items-center justify-between rounded-full bg-surface-container-low p-1 mb-6">
-                <button class="inline-flex items-center gap-1.5 rounded-full bg-primary px-3 py-1.5 font-label-sm text-label-sm font-semibold text-on-primary shadow-sm" type="button">
-                  <span class="material-symbols-outlined text-[16px]">home</span>
+              <!-- 2. NEXGEN Segmented Capsule Navigation (Variasi 3) -->
+              <header class="w-full bg-white rounded-2xl p-2.5 shadow-md border border-slate-200/80 flex items-center justify-between mb-6">
+                <!-- Kiri: Butang Tab Laman -->
+                <button class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-brand-primary text-white text-xs font-bold rounded-xl shadow-sm hover:bg-brand-navy transition cursor-pointer" type="button">
+                  <i class="fa-solid fa-house text-xs"></i>
                   <span>Laman</span>
                 </button>
-                <div class="inline-flex items-center gap-1.5 px-2 py-1">
-                  <span class="font-label-sm text-label-sm font-bold text-primary tracking-wide">PORTAL CEU</span>
-                  <span class="rounded-full bg-tertiary-fixed px-1.5 py-0.5 font-label-sm text-[10px] font-bold text-on-tertiary-fixed">UPK</span>
+
+                <!-- Tengah: Logo & Jenama Ringkas -->
+                <div class="flex items-center gap-2">
+                  <div class="w-6 h-6 rounded-full bg-brand-navy text-brand-gold flex items-center justify-center text-[10px] font-extrabold border border-brand-gold/60">
+                    <i class="fa-solid fa-graduation-cap"></i>
+                  </div>
+                  <div class="flex flex-col text-left">
+                    <span class="text-xs font-black tracking-wide text-brand-navy leading-none">PORTAL CEU</span>
+                    <span class="text-[9px] font-bold text-brand-gold uppercase tracking-wider mt-0.5">UPK Brunei</span>
+                  </div>
                 </div>
-                <button class="inline-flex items-center gap-1 rounded-full px-3 py-1.5 font-label-sm text-label-sm font-medium text-on-surface-variant hover:text-primary transition-colors cursor-pointer" type="button" onclick="window.CEU_APP?.showToast('Sila hubungi Meja Bantuan UPK JSS di +673 2381234 atau emel upk.jss@moe.gov.bn', 'info')">
-                  <span class="material-symbols-outlined text-[16px]">help</span>
-                  <span>Bantuan</span>
-                </button>
-              </div>
+
+                <!-- Kanan: Pautan Bantuan & BM/EN Toggle -->
+                <div class="flex items-center gap-1.5">
+                  <button class="lang-btn-bm px-2 py-1 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-lg text-[10px] font-bold transition cursor-pointer" title="Tukar Bahasa" type="button">
+                    BM
+                  </button>
+                  <button class="w-7 h-7 flex items-center justify-center rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 transition cursor-pointer" title="Bantuan" type="button" onclick="window.CEU_APP?.showToast('Sila hubungi Meja Bantuan UPK JSS di +673 2381234 atau emel upk.jss@moe.gov.bn', 'info')">
+                    <i class="fa-solid fa-circle-question text-xs"></i>
+                  </button>
+                </div>
+              </header>
 
               <!-- Card Internal Welcoming Header -->
               <div class="mb-6">
@@ -1618,48 +1650,49 @@
   </div>
 
   <!-- ========================================================================
-       FIXED BOTTOM NAVIGATION (5 TABS - EXACT STITCH CIVIC DESIGN)
+       BAR NAVIGASI PORTAL CEU (VARIASI 1: MOBILE BOTTOM TAB BAR - LIGHT GLASS THEME)
        ======================================================================== -->
-  <nav id="app-bottom-nav" class="fixed bottom-0 left-0 right-0 w-full z-40 pb-safe bg-surface-container-lowest border-t border-outline-variant/30 shadow-[0_-2px_10px_rgba(0,0,0,0.05)] select-none" style="display: none;">
-    <div class="flex justify-around items-stretch h-16 max-w-lg mx-auto">
-      <!-- 1. Utama -->
-      <button type="button" data-tab="home" class="nav-tab-btn flex-1 flex flex-col items-center justify-center pt-1.5 pb-1 border-t-[3px] border-tertiary text-primary transition-all cursor-pointer">
-        <span class="material-symbols-outlined text-[24px]">home</span>
-        <span data-i18n="navHome" class="text-[11px] font-semibold mt-0.5 tracking-tight truncate">Utama</span>
+  <nav id="app-bottom-nav" aria-label="Navigasi Utama Mudah Alih" class="fixed bottom-3 inset-x-0 z-40 px-3 pointer-events-none select-none pb-safe" style="display: none;">
+    <div class="pointer-events-auto w-full max-w-sm mx-auto glass-nav rounded-2xl p-1.5 flex items-center justify-around shadow-xl">
+      <!-- Item 1: Laman / Utama (Aktif) -->
+      <button type="button" data-tab="home" class="nav-tab-btn flex flex-col items-center justify-center py-1.5 px-3 rounded-xl bg-brand-primary text-white shadow-md transition-all duration-200 cursor-pointer">
+        <i class="fa-solid fa-house text-base"></i>
+        <span class="text-[11px] font-bold mt-0.5 tracking-tight" data-i18n="navHome">Laman</span>
       </button>
 
-      <!-- 2. RSVP -->
-      <button type="button" data-tab="rsvp" class="nav-tab-btn flex-1 flex flex-col items-center justify-center pt-1.5 pb-1 border-t-[3px] border-transparent text-on-surface-variant hover:text-primary transition-all cursor-pointer">
-        <span class="material-symbols-outlined text-[24px]">event_available</span>
-        <span data-i18n="navRsvp" class="text-[11px] font-normal mt-0.5 tracking-tight truncate">RSVP</span>
+      <!-- Item 2: Takwim -->
+      <button type="button" data-tab="takwim" class="nav-tab-btn flex flex-col items-center justify-center py-1.5 px-3 rounded-xl text-slate-600 hover:text-brand-primary hover:bg-sky-50 transition-all duration-200 cursor-pointer">
+        <i class="fa-solid fa-calendar-days text-base"></i>
+        <span class="text-[11px] font-semibold mt-0.5" data-i18n="navTakwim">Takwim</span>
       </button>
 
-      <!-- 3. Arkib -->
-      <button type="button" data-tab="archive" class="nav-tab-btn flex-1 flex flex-col items-center justify-center pt-1.5 pb-1 border-t-[3px] border-transparent text-on-surface-variant hover:text-primary transition-all cursor-pointer">
-        <span class="material-symbols-outlined text-[24px]">inventory_2</span>
-        <span data-i18n="navArchive" class="text-[11px] font-normal mt-0.5 tracking-tight truncate">Arkib</span>
+      <!-- Item 3: RSVP (Berlencana / Badge) -->
+      <button type="button" data-tab="rsvp" class="nav-tab-btn relative flex flex-col items-center justify-center py-1.5 px-3 rounded-xl text-slate-600 hover:text-brand-primary hover:bg-sky-50 transition-all duration-200 cursor-pointer">
+        <span id="bottom-rsvp-badge" class="absolute top-1 right-2 flex h-2 w-2">
+          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-gold opacity-75"></span>
+          <span class="relative inline-flex rounded-full h-2 w-2 bg-brand-gold"></span>
+        </span>
+        <i class="fa-solid fa-square-check text-base"></i>
+        <span class="text-[11px] font-semibold mt-0.5" data-i18n="navRsvp">RSVP</span>
       </button>
 
-      <!-- 4. Notifikasi -->
-      <button type="button" data-tab="notif" class="nav-tab-btn flex-1 flex flex-col items-center justify-center pt-1.5 pb-1 border-t-[3px] border-transparent text-on-surface-variant hover:text-primary transition-all cursor-pointer">
-        <div class="relative flex items-center justify-center">
-          <span class="material-symbols-outlined text-[24px]">notifications</span>
-          <span id="bottom-notif-badge" class="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-[#B91C1C]"></span>
-        </div>
-        <span data-i18n="navNotif" class="text-[11px] font-normal mt-0.5 tracking-tight truncate">Notifikasi</span>
+      <!-- Item 4: Arkib -->
+      <button type="button" data-tab="archive" class="nav-tab-btn flex flex-col items-center justify-center py-1.5 px-3 rounded-xl text-slate-600 hover:text-brand-primary hover:bg-sky-50 transition-all duration-200 cursor-pointer">
+        <i class="fa-solid fa-folder-open text-base"></i>
+        <span class="text-[11px] font-semibold mt-0.5" data-i18n="navArchive">Arkib</span>
       </button>
 
-      <!-- 5. Profil -->
-      <button type="button" data-tab="profile" class="nav-tab-btn flex-1 flex flex-col items-center justify-center pt-1.5 pb-1 border-t-[3px] border-transparent text-on-surface-variant hover:text-primary transition-all cursor-pointer">
-        <span class="material-symbols-outlined text-[24px]">manage_accounts</span>
-        <span data-i18n="navProfile" class="text-[11px] font-normal mt-0.5 tracking-tight truncate">Profil</span>
+      <!-- Item 5: Profil / Admin -->
+      <button type="button" data-tab="profile" id="nav-btn-profile" class="nav-tab-btn flex flex-col items-center justify-center py-1.5 px-3 rounded-xl text-slate-600 hover:text-brand-primary hover:bg-sky-50 transition-all duration-200 cursor-pointer">
+        <i id="nav-profile-icon" class="fa-solid fa-user-shield text-base"></i>
+        <span id="nav-profile-label" class="text-[11px] font-semibold mt-0.5" data-i18n="navProfile">Profil</span>
       </button>
     </div>
   </nav>
 
   <!-- Application Logic Scripts -->
-  <script src="js/config.js?v=1.1.7"></script>
-  <script src="js/data-mock.js?v=1.1.7"></script>
-  <script src="js/app.js?v=1.1.7"></script>
+  <script src="js/config.js?v=1.1.8"></script>
+  <script src="js/data-mock.js?v=1.1.8"></script>
+  <script src="js/app.js?v=1.1.8"></script>
 </body>
 </html>

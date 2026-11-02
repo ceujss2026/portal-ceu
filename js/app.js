@@ -59,11 +59,12 @@
       officialNoticeFooter: 'Sistem Rasmi Kerajaan Brunei Darussalam • Versi 1.0.4',
       
       // Navigasi Bawah
-      navHome: 'Utama',
+      navHome: 'Laman',
+      navTakwim: 'Takwim',
       navRsvp: 'RSVP',
       navArchive: 'Arkib',
       navNotif: 'Notifikasi',
-      navAdmin: 'Pentadbir',
+      navAdmin: 'Admin',
       navProfile: 'Profil',
 
       // Home
@@ -222,6 +223,7 @@
       
       // Navigasi Bawah
       navHome: 'Home',
+      navTakwim: 'Calendar',
       navRsvp: 'RSVP',
       navArchive: 'Archive',
       navNotif: 'Notifications',
@@ -1082,39 +1084,67 @@
   }
 
   function updateNavActiveTabs() {
+    const isUrgent = State.currentView === 'home' && State.activeEventFilter === 'urgent';
+    const isAll = State.currentView === 'home' && State.activeEventFilter === 'all';
+    const isAdmin = State.currentUser && State.currentUser.role === 'Admin';
+
+    // Update 5th button label/icon for admin
+    const profileIcon = document.getElementById('nav-profile-icon');
+    const profileLabel = document.getElementById('nav-profile-label');
+    const btnProfile = document.getElementById('nav-btn-profile');
+    if (profileIcon && profileLabel && btnProfile) {
+      if (isAdmin) {
+        profileIcon.className = 'fa-solid fa-sliders text-base';
+        profileLabel.textContent = 'Admin';
+        btnProfile.dataset.tab = 'admin';
+      } else {
+        profileIcon.className = 'fa-solid fa-user-shield text-base';
+        profileLabel.textContent = State.lang === 'en' ? 'Profile' : 'Profil';
+        btnProfile.dataset.tab = 'profile';
+      }
+    }
+
     document.querySelectorAll('.nav-tab-btn').forEach(btn => {
       const tab = btn.dataset.tab;
       let isActive = false;
       if (tab === 'home') {
-        isActive = (State.currentView === 'home' && State.activeEventFilter !== 'urgent') || State.currentView === 'admin-dashboard';
+        isActive = (State.currentView === 'home' && !isUrgent) || (State.currentView === 'admin-dashboard' && !isAdmin);
+      } else if (tab === 'takwim') {
+        isActive = State.currentView === 'home' && isAll;
       } else if (tab === 'rsvp') {
-        isActive = State.currentView === 'admin-rsvp' || (State.currentView === 'home' && State.activeEventFilter === 'urgent');
+        isActive = State.currentView === 'admin-rsvp' || isUrgent;
       } else if (tab === 'archive') {
         isActive = State.currentView === 'archive';
-      } else if (tab === 'notif') {
-        isActive = State.currentView === 'notif';
       } else if (tab === 'profile') {
         isActive = State.currentView === 'profile';
+      } else if (tab === 'admin') {
+        isActive = State.currentView === 'admin-dashboard';
       }
 
       if (isActive) {
-        btn.classList.add('text-primary', 'border-tertiary');
-        btn.classList.remove('text-on-surface-variant', 'border-transparent');
-        const span = btn.querySelector('span[data-i18n]');
+        btn.className = 'nav-tab-btn flex flex-col items-center justify-center py-1.5 px-3 rounded-xl bg-brand-primary text-white shadow-md transition-all duration-200 cursor-pointer';
+        const span = btn.querySelector('span:not(.animate-ping):not(.relative)');
         if (span) {
-          span.classList.add('font-semibold');
-          span.classList.remove('font-normal');
+          span.classList.add('font-bold');
+          span.classList.remove('font-semibold');
         }
       } else {
-        btn.classList.remove('text-primary', 'border-tertiary');
-        btn.classList.add('text-on-surface-variant', 'border-transparent');
-        const span = btn.querySelector('span[data-i18n]');
+        btn.className = 'nav-tab-btn relative flex flex-col items-center justify-center py-1.5 px-3 rounded-xl text-slate-600 hover:text-brand-primary hover:bg-sky-50 transition-all duration-200 cursor-pointer';
+        const span = btn.querySelector('span:not(.animate-ping):not(.relative)');
         if (span) {
-          span.classList.remove('font-semibold');
-          span.classList.add('font-normal');
+          span.classList.remove('font-bold');
+          span.classList.add('font-semibold');
         }
       }
     });
+
+    // Update RSVP badge visibility
+    const rsvpBadge = document.getElementById('bottom-rsvp-badge');
+    if (rsvpBadge) {
+      const myEmail = State.currentUser && State.currentUser.email;
+      const unrespondedCount = (State.events || []).filter(e => e.status === 'Published' && !(State.rsvps || []).some(r => r.event_id === e.event_id && r.user_email === myEmail)).length;
+      rsvpBadge.style.display = unrespondedCount > 0 ? 'flex' : 'none';
+    }
   }
 
   // ==========================================================================
@@ -2938,6 +2968,15 @@
           } else {
             setView('home');
             setEventFilter('urgent');
+          }
+        } else if (tab === 'takwim') {
+          if (State.currentUser && State.currentUser.role === 'Admin') {
+            setView('admin-dashboard');
+          } else {
+            setView('home');
+            setEventFilter('all');
+            const cal = document.getElementById('calendar-grid') || document.getElementById('view-home');
+            if (cal) cal.scrollIntoView({ behavior: 'smooth' });
           }
         } else if (tab === 'home') {
           if (State.currentUser && State.currentUser.role === 'Admin') {
