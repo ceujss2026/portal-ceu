@@ -42,6 +42,10 @@
       bioPromptLabel: 'Sentuh sensor cap jari atau Face ID untuk akses pantas',
       bioSubtitle: 'Token sesi disulitkan oleh perkakasan peranti (Keystore).',
       bioUseOtpInstead: 'Guna Log Masuk Kod OTP Emel',
+      bioNotEnrolledTitle: 'Belum Ada Pendaftaran Biometrik',
+      bioNotEnrolledDesc: 'Sila log masuk menggunakan e-mel rasmi dan kod OTP terlebih dahulu untuk mengaktifkan biometrik pada peranti ini.',
+      bioSwitchAccount: 'Tukar Akaun / Log Masuk Emel Lain',
+      bioLoginOtpFirstBtn: 'Log Masuk dengan E-mel OTP',
       activeStatus: 'Aktif',
       sessionVerified: 'Sesi Disahkan (30 Hari)',
       district: 'Daerah',
@@ -191,6 +195,10 @@
       bioPromptLabel: 'Touch fingerprint sensor or use Face ID for instant access',
       bioSubtitle: 'Session token is encrypted by device hardware (Keystore).',
       bioUseOtpInstead: 'Use Email OTP Login',
+      bioNotEnrolledTitle: 'No Biometrics Enrolled',
+      bioNotEnrolledDesc: 'Please log in using your official email and OTP first to activate biometrics on this device.',
+      bioSwitchAccount: 'Switch Account / Use Different Email',
+      bioLoginOtpFirstBtn: 'Log In with Email OTP',
       activeStatus: 'Active',
       sessionVerified: 'Verified Session (30 Days)',
       district: 'District',
@@ -486,35 +494,105 @@
   // ==========================================================================
   // 4. BIOMETRIK & KESELAMATAN PERANTI (gas-rahasia-script-properties)
   // ==========================================================================
+  function updateBiometricUI() {
+    const rawBioUser = localStorage.getItem('ceu_bio_user');
+    const enrolledBox = document.getElementById('bio-enrolled-state');
+    const notEnrolledBox = document.getElementById('bio-not-enrolled-state');
+    const tabEmail = document.getElementById('tab-btn-email');
+    const tabBio = document.getElementById('tab-btn-biometric');
+
+    if (rawBioUser) {
+      try {
+        const u = JSON.parse(rawBioUser);
+        const nameParts = (u.name || 'Guru').trim().split(/\s+/);
+        const initials = nameParts.length > 1
+          ? (nameParts[0][0] + nameParts[nameParts.length - 1][0]).toUpperCase()
+          : (nameParts[0].slice(0, 2)).toUpperCase();
+
+        const initialsEl = document.getElementById('bio-user-initials');
+        const nameEl = document.getElementById('bio-user-name');
+        const schoolEl = document.getElementById('bio-user-school');
+
+        if (initialsEl) initialsEl.textContent = initials;
+        if (nameEl) nameEl.textContent = u.name || 'Pegawai / Guru';
+        if (schoolEl) schoolEl.textContent = `${u.school || ''} (${u.district || ''})`;
+
+        if (enrolledBox) enrolledBox.classList.remove('hidden');
+        if (notEnrolledBox) notEnrolledBox.classList.add('hidden');
+
+        // Buka tab biometrik jika peranti ini sudah berdaftar
+        if (tabBio) tabBio.click();
+        return;
+      } catch (e) {
+        console.warn('Gagal membaca profil biometrik tempatan:', e);
+      }
+    }
+
+    // Jika belum ada pendaftaran biometrik pada peranti ini
+    if (enrolledBox) enrolledBox.classList.add('hidden');
+    if (notEnrolledBox) notEnrolledBox.classList.remove('hidden');
+
+    // Utamakan tab Emel OTP untuk pengguna baharu
+    if (tabEmail) tabEmail.click();
+  }
+
   async function triggerBiometricLogin() {
+    const storedBioToken = localStorage.getItem('ceu_bio_token');
+    const storedBioUser = localStorage.getItem('ceu_bio_user');
+
+    if (!storedBioToken || !storedBioUser) {
+      showToast(State.lang === 'en' ? 'Please log in with official email OTP first.' : 'Sila log masuk menggunakan emel rasmi dan kod OTP terlebih dahulu.', 'warning');
+      document.getElementById('tab-btn-email')?.click();
+      return;
+    }
+
     showToast(I18N[State.lang].bioPromptLabel, 'info');
 
+    // 1. Android APK Native Bridge (CEUAndroid WebView Bridge)
     if (window.CEUAndroid && typeof window.CEUAndroid.promptBiometric === 'function') {
       try {
         window.CEUAndroid.promptBiometric();
         return;
       } catch (e) {
-        console.warn('Native bridge error, falling back:', e);
+        console.warn('Native bridge error, falling back to WebAuthn:', e);
       }
     }
 
-    if (window.PublicKeyCredential && PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable) {
+    // 2. Real Browser WebAuthn (Touch ID / Face ID / Windows Hello / Android Biometrics)
+    if (window.PublicKeyCredential) {
       try {
-        const available = await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable();
-        if (available) {
-          executeBiometricSuccess(State.token || 'mock_bio_token');
+        const challenge = new Uint8Array(32);
+        window.crypto.getRandomValues(challenge);
+
+        // Minta pengesahan biometrik perkakasan daripada sistem operasi
+        const assertion = await navigator.credentials.get({
+          publicKey: {
+            challenge: challenge,
+            timeout: 60000,
+            userVerification: 'preferred'
+          }
+        });
+
+        if (assertion) {
+          executeBiometricSuccess(storedBioToken);
           return;
         }
       } catch (err) {
-        console.warn('WebAuthn unavailable:', err);
+        if (err.name === 'NotAllowedError') {
+          showToast(State.lang === 'en' ? 'Biometric scan was cancelled.' : 'Imbasan biometrik dibatalkan.', 'warning');
+          return;
+        }
+        console.warn('WebAuthn prompt fallback:', err);
       }
     }
 
-    executeBiometricSuccess(State.token || 'mock_bio_token');
+    // Fallback jika pelayar tidak menyokong perkakasan WebAuthn
+    executeBiometricSuccess(storedBioToken);
   }
 
   window.onBiometricSuccess = function (token) {
-    executeBiometricSuccess(token);
+    const storedBioToken = token || localStorage.getItem('ceu_bio_token');
+    executeBiometricSuccess(storedBioToken);
   };
 
   window.onBiometricFailed = function (errMsg) {
@@ -522,16 +600,24 @@
   };
 
   async function executeBiometricSuccess(tokenToVerify) {
+    showToast(State.lang === 'en' ? 'Biometric verified. Authenticating...' : 'Biometrik disahkan. Menyemak sesi...', 'info');
     const res = await api('biometricLogin', { token: tokenToVerify });
     if (res && res.success) {
       State.token = res.token;
       State.currentUser = res.user;
       localStorage.setItem('ceu_tok', res.token);
       localStorage.setItem('ceu_user', JSON.stringify(res.user));
+      // Kemas kini token biometrik yang disegarkan
+      localStorage.setItem('ceu_bio_token', res.token);
+      localStorage.setItem('ceu_bio_user', JSON.stringify(res.user));
+
       showToast(I18N[State.lang].activeStatus + ': ' + res.user.name, 'success');
       loadAppBoot();
     } else {
-      showToast((res && res.message) || 'Biometrik gagal. Sila gunakan OTP.', 'error');
+      showToast((res && res.message) || (State.lang === 'en' ? 'Biometric session expired. Please log in with OTP.' : 'Sesi biometrik telah luput. Sila log masuk semula dengan OTP.'), 'error');
+      // Jika token lama sudah tidak sah di server, padamkan token lama
+      localStorage.removeItem('ceu_bio_token');
+      updateBiometricUI();
     }
   }
 
@@ -641,6 +727,7 @@
       }
     });
 
+    if (viewName === 'auth') updateBiometricUI();
     if (viewName === 'home') renderHomeView();
     if (viewName === 'archive') renderArchiveView();
     if (viewName === 'notif') renderNotifView();
@@ -1288,6 +1375,11 @@
       localStorage.setItem('ceu_tok', res.token);
       localStorage.setItem('ceu_user', JSON.stringify(res.user));
 
+      // Simpan kelayakan untuk log masuk pantas biometrik pada pelancaran berikutnya
+      localStorage.setItem('ceu_bio_token', res.token);
+      localStorage.setItem('ceu_bio_user', JSON.stringify(res.user));
+      updateBiometricUI();
+
       showToast((State.lang === 'en' ? 'Login successful! Welcome ' : 'Log masuk berjaya! Selamat datang ') + res.user.name, 'success');
       loadAppBoot();
     } else {
@@ -1368,6 +1460,23 @@
     const bioTriggerBtn = document.getElementById('bio-trigger-btn');
     if (bioTriggerBtn) {
       bioTriggerBtn.addEventListener('click', triggerBiometricLogin);
+    }
+
+    const btnSwitchUser = document.getElementById('btn-bio-switch-user');
+    if (btnSwitchUser) {
+      btnSwitchUser.addEventListener('click', () => {
+        localStorage.removeItem('ceu_bio_token');
+        localStorage.removeItem('ceu_bio_user');
+        updateBiometricUI();
+        showToast(State.lang === 'en' ? 'Biometric cleared. Please log in with OTP.' : 'Pendaftaran biometrik dipadamkan. Sila log masuk dengan OTP.', 'info');
+      });
+    }
+
+    const btnSwitchToEmail = document.getElementById('btn-switch-to-email-tab');
+    if (btnSwitchToEmail) {
+      btnSwitchToEmail.addEventListener('click', () => {
+        document.getElementById('tab-btn-email')?.click();
+      });
     }
 
     const btnSendOtp = document.getElementById('btn-send-otp');
@@ -1533,6 +1642,7 @@
     initEvents();
     // Terapkan bahasa yang disimpan (atau default bm)
     setLanguage(State.lang);
+    updateBiometricUI();
 
     if (State.token) {
       const savedUser = localStorage.getItem('ceu_user');
