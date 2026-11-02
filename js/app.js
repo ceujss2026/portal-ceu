@@ -505,7 +505,7 @@
             status: payload.isDraft ? 'Draft' : 'Published',
             created_by: (State.currentUser && State.currentUser.email) ? State.currentUser.email : 'pegawai.upk@moe.bn',
             target_districts: payload.targetDistricts || ['Semua'],
-            target_roles: payload.targetRoles || ['Guru Kaunselor Kerjaya'],
+            target_roles: payload.targetRoles || ['Guru Pendidikan Kerjaya'],
             target_count: payload.targetCount || 42
           };
           if (!mock.events) mock.events = [];
@@ -1810,11 +1810,16 @@
   // ==========================================================================
   function initAdminCreateEvent() {
     const inputTitleBm = document.getElementById('event-title-bm');
-    const inputTitleEn = document.getElementById('event-title-en');
+    const selectCategory = document.getElementById('event-category');
+    const containerCategoryCustom = document.getElementById('container-category-custom');
+    const inputCategoryCustom = document.getElementById('event-category-custom');
+
     const inputDate = document.getElementById('event-date-input');
     const inputStartTime = document.getElementById('event-start-time');
     const inputEndTime = document.getElementById('event-end-time');
     const inputVenue = document.getElementById('event-venue-input');
+    const btnClearVenue = document.getElementById('btn-clear-venue');
+    const venueQuickChips = document.querySelectorAll('.venue-quick-chip');
     const inputMeetLink = document.getElementById('event-meet-link');
     const inputDeadline = document.getElementById('event-deadline-input');
     const inputDriveUrl = document.getElementById('event-drive-url');
@@ -1826,13 +1831,25 @@
     const previewDeadline = document.getElementById('preview-deadline');
     const rsvpDeadlineText = document.getElementById('rsvp-deadline-text');
 
-    // 1. Live preview bindings
+    // 1. Tajuk Acara (Bahasa Melayu Sahaja) & Pratonton
     if (inputTitleBm && previewTitle) {
       inputTitleBm.addEventListener('input', e => {
         previewTitle.textContent = e.target.value.trim() || 'Tajuk Acara Rasmi';
       });
     }
 
+    // 2. Kategori Acara (Mesyuarat, Taklimat, Program, Lawatan, Lain-lain)
+    if (selectCategory) {
+      selectCategory.addEventListener('change', () => {
+        const isLainLain = selectCategory.value === 'Lain-lain';
+        if (containerCategoryCustom) {
+          containerCategoryCustom.classList.toggle('hidden', !isLainLain);
+          if (isLainLain && inputCategoryCustom) inputCategoryCustom.focus();
+        }
+      });
+    }
+
+    // 3. Tarikh & Waktu
     if (inputDate && previewDate) {
       inputDate.addEventListener('change', e => {
         const val = e.target.value;
@@ -1849,12 +1866,32 @@
       });
     }
 
+    // 4. Lokasi Boleh Dicari & Cip Pantas
     if (inputVenue && previewVenue) {
       inputVenue.addEventListener('input', e => {
         previewVenue.textContent = e.target.value.trim() || 'Lokasi Acara';
       });
     }
 
+    if (btnClearVenue && inputVenue) {
+      btnClearVenue.addEventListener('click', () => {
+        inputVenue.value = '';
+        inputVenue.focus();
+        if (previewVenue) previewVenue.textContent = 'Lokasi Acara';
+      });
+    }
+
+    venueQuickChips.forEach(chip => {
+      chip.addEventListener('click', () => {
+        const v = chip.dataset.venue;
+        if (inputVenue && v) {
+          inputVenue.value = v;
+          if (previewVenue) previewVenue.textContent = v;
+        }
+      });
+    });
+
+    // 5. Tarikh Tutup RSVP
     if (inputDeadline && previewDeadline) {
       inputDeadline.addEventListener('change', e => {
         const val = e.target.value;
@@ -1870,7 +1907,7 @@
       });
     }
 
-    // 2. Format selector (Bersemuka / Hibrid / Dalam Talian Penuh)
+    // 6. Format Pelaksanaan (Bersemuka / Hibrid / Dalam Talian Penuh)
     const formatRadios = document.querySelectorAll('input[name="event_format"]');
     const containerMeet = document.getElementById('container-meet-link');
     const formatLabels = {
@@ -1897,34 +1934,179 @@
       });
     });
 
-    // 3. District & Target recipients calculation (WHO THE ALERT WILL GO TO)
+    // 7. Mod Sasaran: Kumpulan/Daerah ATAU Individu Pegawai
+    let currentTargetMode = 'group'; // 'group' | 'individual'
+    const btnModeGroup = document.getElementById('btn-target-mode-group');
+    const btnModeIndividual = document.getElementById('btn-target-mode-individual');
+    const containerTargetGroup = document.getElementById('container-target-group');
+    const containerTargetIndividual = document.getElementById('container-target-individual');
+
+    function setTargetMode(mode) {
+      currentTargetMode = mode;
+      const isGrp = mode === 'group';
+
+      if (btnModeGroup) {
+        btnModeGroup.classList.toggle('bg-primary', isGrp);
+        btnModeGroup.classList.toggle('text-white', isGrp);
+        btnModeGroup.classList.toggle('text-on-surface-variant', !isGrp);
+      }
+      if (btnModeIndividual) {
+        btnModeIndividual.classList.toggle('bg-primary', !isGrp);
+        btnModeIndividual.classList.toggle('text-white', !isGrp);
+        btnModeIndividual.classList.toggle('text-on-surface-variant', isGrp);
+      }
+
+      if (containerTargetGroup) containerTargetGroup.classList.toggle('hidden', !isGrp);
+      if (containerTargetIndividual) containerTargetIndividual.classList.toggle('hidden', isGrp);
+
+      calculateTargetRecipients();
+    }
+
+    if (btnModeGroup) btnModeGroup.addEventListener('click', () => setTargetMode('group'));
+    if (btnModeIndividual) btnModeIndividual.addEventListener('click', () => setTargetMode('individual'));
+
+    // 8. Sasaran Mengikut Daerah (Mod Kumpulan)
     const checkAllDistricts = document.getElementById('check-all-districts');
     const btnToggleAll = document.getElementById('btn-toggle-all-districts');
     const districtChecks = document.querySelectorAll('.district-check');
     const targetSchoolBadge = document.getElementById('target-school-count-badge');
     const fcmTargetCount = document.getElementById('fcm-target-count');
 
-    function calculateTargetRecipients() {
-      let totalSchools = 0;
-      let checkedDistricts = [];
-      districtChecks.forEach(ch => {
-        if (ch.checked) {
-          totalSchools += parseInt(ch.dataset.count, 10) || 0;
-          checkedDistricts.push(ch.dataset.district);
-        }
+    // 4 Kumpulan Penerima Sahaja
+    const roleCounselors = document.getElementById('role-counselors'); // Guru Pendidikan Kerjaya
+    const rolePrincipals = document.getElementById('role-principals'); // Pengetua
+    const roleDeputyPrincipals = document.getElementById('role-deputy-principals'); // Timbalan Pengetua
+    const roleSuperintendents = document.getElementById('role-superintendents'); // Superintenden 1 hingga 3
+    const roleChecks = document.querySelectorAll('.role-recipient-check');
+
+    // 9. Senarai Individu Pegawai (Mod Individu)
+    const listIndividualOfficers = document.getElementById('list-individual-officers');
+    const searchIndividualInput = document.getElementById('search-individual-input');
+    const individualSelectedBadge = document.getElementById('individual-selected-badge');
+    const btnSelectAllIndividuals = document.getElementById('btn-select-all-filtered-individuals');
+    const btnClearAllIndividuals = document.getElementById('btn-clear-all-individuals');
+
+    function renderIndividualOfficers(filterText = '') {
+      if (!listIndividualOfficers) return;
+      const allUsers = (window.MOCK_DATA && window.MOCK_DATA.users) || [];
+      const query = filterText.toLowerCase().trim();
+
+      const filtered = allUsers.filter(u => {
+        if (!query) return true;
+        const str = `${u.name || ''} ${u.school || ''} ${u.district || ''} ${u.roleGroup || u.role || ''}`.toLowerCase();
+        return str.includes(query);
       });
 
-      if (targetSchoolBadge) targetSchoolBadge.textContent = `${totalSchools} Sekolah`;
-      if (fcmTargetCount) fcmTargetCount.textContent = totalSchools;
-
-      if (checkAllDistricts) {
-        checkAllDistricts.checked = (checkedDistricts.length === districtChecks.length);
+      if (!filtered.length) {
+        listIndividualOfficers.innerHTML = `
+          <div class="p-4 text-center text-xs text-on-surface-variant font-medium">
+            Tiada pegawai dijumpai untuk carian "${filterText}".
+          </div>
+        `;
+        return;
       }
-      if (btnToggleAll) {
-        btnToggleAll.textContent = (checkedDistricts.length === 0) ? 'Pilih Semua' : 'Nyahpilih Semua';
+
+      listIndividualOfficers.innerHTML = filtered.map((u, idx) => {
+        const id = 'ind-user-' + idx;
+        const initial = (u.name || 'G').charAt(0);
+        const groupLabel = u.roleGroup || (u.role === 'Admin' ? 'Pegawai UPK' : 'Guru Pendidikan Kerjaya');
+        
+        return `
+          <label class="flex items-center gap-2.5 p-2 rounded-lg hover:bg-surface-container cursor-pointer transition-colors">
+            <input type="checkbox" class="individual-officer-check accent-primary w-4 h-4 shrink-0" data-email="${u.email}" data-name="${u.name}" data-district="${u.district || 'Brunei-Muara'}" data-role="${groupLabel}"/>
+            <div class="w-7 h-7 rounded-full bg-primary/10 text-primary flex items-center justify-center text-xs font-bold shrink-0">
+              ${initial}
+            </div>
+            <div class="min-w-0 flex-1">
+              <p class="text-xs font-bold text-on-surface truncate">${u.name}</p>
+              <p class="text-[10px] text-on-surface-variant truncate">${groupLabel} • ${u.school || u.district}</p>
+            </div>
+            <span class="text-[10px] px-1.5 py-0.5 rounded bg-surface-container-high text-on-surface-variant font-semibold shrink-0">
+              ${u.district || 'Daerah'}
+            </span>
+          </label>
+        `;
+      }).join('');
+
+      listIndividualOfficers.querySelectorAll('.individual-officer-check').forEach(ck => {
+        ck.addEventListener('change', calculateTargetRecipients);
+      });
+    }
+
+    renderIndividualOfficers();
+
+    if (searchIndividualInput) {
+      searchIndividualInput.addEventListener('input', e => {
+        renderIndividualOfficers(e.target.value);
+      });
+    }
+
+    if (btnSelectAllIndividuals) {
+      btnSelectAllIndividuals.addEventListener('click', () => {
+        if (!listIndividualOfficers) return;
+        listIndividualOfficers.querySelectorAll('.individual-officer-check').forEach(ck => {
+          ck.checked = true;
+        });
+        calculateTargetRecipients();
+      });
+    }
+
+    if (btnClearAllIndividuals) {
+      btnClearAllIndividuals.addEventListener('click', () => {
+        if (!listIndividualOfficers) return;
+        listIndividualOfficers.querySelectorAll('.individual-officer-check').forEach(ck => {
+          ck.checked = false;
+        });
+        calculateTargetRecipients();
+      });
+    }
+
+    // 10. Kiraan Jumlah Sasaran (Mengikut Mod)
+    function calculateTargetRecipients() {
+      let finalCount = 0;
+      let targetSummary = '';
+
+      if (currentTargetMode === 'group') {
+        let totalSchools = 0;
+        let checkedDistricts = [];
+        districtChecks.forEach(ch => {
+          if (ch.checked) {
+            totalSchools += parseInt(ch.dataset.count, 10) || 0;
+            checkedDistricts.push(ch.dataset.district);
+          }
+        });
+
+        // Kiraan peranan terpilih
+        let roleCount = 0;
+        if (roleCounselors && roleCounselors.checked) roleCount += totalSchools;
+        if (rolePrincipals && rolePrincipals.checked) roleCount += totalSchools;
+        if (roleDeputyPrincipals && roleDeputyPrincipals.checked) roleCount += totalSchools;
+        if (roleSuperintendents && roleSuperintendents.checked) roleCount += 3; // Superintenden 1 hingga 3
+
+        finalCount = roleCount || totalSchools;
+        targetSummary = `${totalSchools} Sekolah (${finalCount} Pegawai)`;
+
+        if (checkAllDistricts) {
+          checkAllDistricts.checked = (checkedDistricts.length === districtChecks.length);
+        }
+        if (btnToggleAll) {
+          btnToggleAll.textContent = (checkedDistricts.length === 0) ? 'Pilih Semua' : 'Nyahpilih Semua';
+        }
+      } else {
+        // Mod Individu
+        const checkedInds = document.querySelectorAll('.individual-officer-check:checked');
+        finalCount = checkedInds.length;
+        targetSummary = `${finalCount} Pegawai Dipilih`;
+
+        if (individualSelectedBadge) {
+          individualSelectedBadge.textContent = `${finalCount} Dipilih`;
+        }
       }
 
-      return { totalSchools, checkedDistricts };
+      if (targetSchoolBadge) targetSchoolBadge.textContent = targetSummary;
+      if (fcmTargetCount) fcmTargetCount.textContent = finalCount;
+
+      return { finalCount, currentTargetMode };
     }
 
     if (checkAllDistricts) {
@@ -1945,35 +2127,38 @@
       });
     }
 
-    districtChecks.forEach(ch => {
-      ch.addEventListener('change', calculateTargetRecipients);
-    });
+    districtChecks.forEach(ch => ch.addEventListener('change', calculateTargetRecipients));
+    roleChecks.forEach(ch => ch.addEventListener('change', calculateTargetRecipients));
 
-    // 4. Save Draft Button
+    // 11. Simpan Draf Acara
     const btnSaveDraft = document.getElementById('btn-save-draft');
     if (btnSaveDraft) {
       btnSaveDraft.addEventListener('click', async () => {
         const titleBm = inputTitleBm ? inputTitleBm.value.trim() : 'Draf Acara Baharu';
-        const titleEn = inputTitleEn ? inputTitleEn.value.trim() : '';
+        let category = selectCategory ? selectCategory.value : 'Mesyuarat';
+        if (category === 'Lain-lain' && inputCategoryCustom && inputCategoryCustom.value.trim()) {
+          category = inputCategoryCustom.value.trim();
+        }
+
         const date = inputDate ? inputDate.value : '';
         const startTime = inputStartTime ? inputStartTime.value : '08:30';
         const endTime = inputEndTime ? inputEndTime.value : '12:00';
         const venue = inputVenue ? inputVenue.value.trim() : '';
         const deadline = inputDeadline ? inputDeadline.value : '';
-        const { totalSchools, checkedDistricts } = calculateTargetRecipients();
+        const { finalCount } = calculateTargetRecipients();
 
         showToast(State.lang === 'en' ? 'Saving event draft...' : 'Menyimpan draf acara...', 'info');
         const res = await api('saveEvent', {
           isDraft: true,
           titleBm,
-          titleEn,
+          titleEn: titleBm,
+          category,
           eventDate: date,
           startTime,
           endTime,
           venue,
           rsvpDeadline: deadline,
-          targetDistricts: checkedDistricts,
-          targetCount: totalSchools
+          targetCount: finalCount
         });
 
         if (res && res.success) {
@@ -1984,7 +2169,7 @@
       });
     }
 
-    // 5. Publish & Broadcast FCM Form Submit
+    // 12. Terbit & Siar FCM Form Submit
     const formCreateEvent = document.getElementById('form-create-event');
     const btnBroadcast = document.getElementById('btn-broadcast');
 
@@ -1992,7 +2177,12 @@
       formCreateEvent.addEventListener('submit', async e => {
         e.preventDefault();
         const titleBm = inputTitleBm ? inputTitleBm.value.trim() : '';
-        const titleEn = inputTitleEn ? inputTitleEn.value.trim() : '';
+        
+        let category = selectCategory ? selectCategory.value : 'Mesyuarat';
+        if (category === 'Lain-lain' && inputCategoryCustom && inputCategoryCustom.value.trim()) {
+          category = inputCategoryCustom.value.trim();
+        }
+
         const date = inputDate ? inputDate.value : '';
         const startTime = inputStartTime ? inputStartTime.value : '';
         const endTime = inputEndTime ? inputEndTime.value : '';
@@ -2005,16 +2195,22 @@
         const channelEmail = document.getElementById('channel-email') ? document.getElementById('channel-email').checked : true;
         const channelBanner = document.getElementById('channel-banner') ? document.getElementById('channel-banner').checked : true;
 
-        const roleCounselors = document.getElementById('role-counselors') ? document.getElementById('role-counselors').checked : true;
-        const rolePrincipals = document.getElementById('role-principals') ? document.getElementById('role-principals').checked : true;
-        const roleOfficers = document.getElementById('role-officers') ? document.getElementById('role-officers').checked : false;
+        const { finalCount, currentTargetMode } = calculateTargetRecipients();
 
-        const { totalSchools, checkedDistricts } = calculateTargetRecipients();
+        // Kumpulkan senarai sasaran rasmi
+        let targetRolesList = [];
+        let individualEmails = [];
 
-        const rolesList = [];
-        if (roleCounselors) rolesList.push('Guru Kaunselor');
-        if (rolePrincipals) rolesList.push('Pengetua');
-        if (roleOfficers) rolesList.push('Penyelaras UPK');
+        if (currentTargetMode === 'group') {
+          if (roleCounselors && roleCounselors.checked) targetRolesList.push('Guru Pendidikan Kerjaya');
+          if (rolePrincipals && rolePrincipals.checked) targetRolesList.push('Pengetua');
+          if (roleDeputyPrincipals && roleDeputyPrincipals.checked) targetRolesList.push('Timbalan Pengetua');
+          if (roleSuperintendents && roleSuperintendents.checked) targetRolesList.push('Superintenden 1 hingga 3');
+        } else {
+          document.querySelectorAll('.individual-officer-check:checked').forEach(ck => {
+            individualEmails.push(ck.dataset.email);
+          });
+        }
 
         if (!titleBm || !date) {
           showToast('Sila isikan maklumat tajuk dan tarikh acara.', 'error');
@@ -2029,7 +2225,8 @@
         const res = await api('saveEvent', {
           isDraft: false,
           titleBm,
-          titleEn,
+          titleEn: titleBm,
+          category,
           eventDate: date,
           startTime: startTime + ' PAGI',
           endTime: endTime + ' TGH HARI',
@@ -2037,9 +2234,10 @@
           meetingLink: meetLink,
           rsvpDeadline: deadline,
           driveUrl,
-          targetDistricts: checkedDistricts,
-          targetRoles: rolesList,
-          targetCount: totalSchools,
+          targetMode: currentTargetMode,
+          targetRoles: targetRolesList,
+          individualEmails,
+          targetCount: finalCount,
           channels: {
             fcm: channelFcm,
             email: channelEmail,

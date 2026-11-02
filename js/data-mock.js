@@ -11,6 +11,7 @@ window.MOCK_DATA = (function () {
       email: 'pegawai.upk@moe.bn',
       name: 'Hj Mohammad Faizal bin Hj Kamis',
       role: 'Admin',
+      roleGroup: 'Pegawai UPK',
       district: 'Brunei-Muara',
       school: 'Unit Pendidikan Kerjaya, Jabatan Sekolah-Sekolah',
       phone: '+673 2381234',
@@ -21,6 +22,7 @@ window.MOCK_DATA = (function () {
       email: 'ahmad.bakar@moe.bn',
       name: 'Cikgu Ahmad bin Hj Bakar',
       role: 'Guru',
+      roleGroup: 'Guru Pendidikan Kerjaya',
       district: 'Belait',
       school: 'Sekolah Menengah Sayyidina Ali',
       phone: '+673 8765432',
@@ -31,6 +33,7 @@ window.MOCK_DATA = (function () {
       email: 'noraini.yusof@moe.bn',
       name: 'Cikgu Dayang Noraini binti Yusof',
       role: 'Guru',
+      roleGroup: 'Guru Pendidikan Kerjaya',
       district: 'Brunei-Muara',
       school: 'Maktab Duli Pengiran Muda Al-Muhtadee Billah',
       phone: '+673 8981234',
@@ -41,6 +44,7 @@ window.MOCK_DATA = (function () {
       email: 'fatimah.hasan@moe.bn',
       name: 'Cikgu Fatimah binti Hasan',
       role: 'Guru',
+      roleGroup: 'Guru Pendidikan Kerjaya',
       district: 'Tutong',
       school: 'Sekolah Menengah Muda Hashim',
       phone: '+673 8213456',
@@ -51,6 +55,7 @@ window.MOCK_DATA = (function () {
       email: 'zaki.kassim@moe.bn',
       name: 'Cikgu Mohd Zaki bin Kassim',
       role: 'Guru',
+      roleGroup: 'Guru Pendidikan Kerjaya',
       district: 'Temburong',
       school: 'Sekolah Menengah Sultan Hassan',
       phone: '+673 8654321',
@@ -61,6 +66,7 @@ window.MOCK_DATA = (function () {
       email: 'hjh.siti@moe.bn',
       name: 'Cikgu Hjh Siti Mariam binti Abdullah',
       role: 'Guru',
+      roleGroup: 'Guru Pendidikan Kerjaya',
       district: 'Brunei-Muara',
       school: 'Sekolah Menengah Menglait',
       phone: '+673 8112233',
@@ -71,6 +77,7 @@ window.MOCK_DATA = (function () {
       email: 'ramlee.ali@moe.bn',
       name: 'Cikgu Hj Ramlee bin Ali',
       role: 'Guru',
+      roleGroup: 'Guru Pendidikan Kerjaya',
       district: 'Belait',
       school: 'Sekolah Menengah Perdana Wazir',
       phone: '+673 8334455',
@@ -81,9 +88,76 @@ window.MOCK_DATA = (function () {
       email: 'khalid.omar@moe.bn',
       name: 'Cikgu Khalid bin Omar',
       role: 'Guru',
+      roleGroup: 'Guru Pendidikan Kerjaya',
       district: 'Tutong',
       school: 'Sekolah Menengah Tanjong Maya',
       phone: '+673 8556677',
+      biometricEnabled: true,
+      status: 'Active'
+    },
+    {
+      email: 'pengetua.smsa@moe.bn',
+      name: 'Cikgu Hj Awang bin Daud',
+      role: 'Pengetua',
+      roleGroup: 'Pengetua',
+      district: 'Belait',
+      school: 'Sekolah Menengah Sayyidina Ali',
+      phone: '+673 8345678',
+      biometricEnabled: false,
+      status: 'Active'
+    },
+    {
+      email: 'pengetua.md@moe.bn',
+      name: 'Cikgu Dayang Hjh Zaiton binti Hj Ali',
+      role: 'Pengetua',
+      roleGroup: 'Pengetua',
+      district: 'Brunei-Muara',
+      school: 'Maktab Duli Pengiran Muda Al-Muhtadee Billah',
+      phone: '+673 8712345',
+      biometricEnabled: true,
+      status: 'Active'
+    },
+    {
+      email: 'tpengetua.smmh@moe.bn',
+      name: 'Cikgu Dk Hjh Mariam binti Pg Othman',
+      role: 'Timbalan Pengetua',
+      roleGroup: 'Timbalan Pengetua',
+      district: 'Tutong',
+      school: 'Sekolah Menengah Muda Hashim',
+      phone: '+673 8299881',
+      biometricEnabled: false,
+      status: 'Active'
+    },
+    {
+      email: 'superintenden1.jss@moe.bn',
+      name: 'Awang Hj Rosli bin Hj Ibrahim',
+      role: 'Superintenden',
+      roleGroup: 'Superintenden 1 hingga 3',
+      district: 'Brunei-Muara',
+      school: 'Kluster 1, Jabatan Sekolah-Sekolah',
+      phone: '+673 2389901',
+      biometricEnabled: true,
+      status: 'Active'
+    },
+    {
+      email: 'superintenden2.jss@moe.bn',
+      name: 'Dayang Hjh Norlila binti Hj Mohd',
+      role: 'Superintenden',
+      roleGroup: 'Superintenden 1 hingga 3',
+      district: 'Tutong',
+      school: 'Kluster 2, Jabatan Sekolah-Sekolah',
+      phone: '+673 2389902',
+      biometricEnabled: false,
+      status: 'Active'
+    },
+    {
+      email: 'superintenden3.jss@moe.bn',
+      name: 'Awang Mohd Suffian bin Hj Amit',
+      role: 'Superintenden',
+      roleGroup: 'Superintenden 1 hingga 3',
+      district: 'Belait',
+      school: 'Kluster 3, Jabatan Sekolah-Sekolah',
+      phone: '+673 2389903',
       biometricEnabled: true,
       status: 'Active'
     }
@@ -107,8 +181,8 @@ window.MOCK_DATA = (function () {
   const events = [
     {
       event_id: 'EVT-2026-001',
-      title_bm: 'Mesyuarat Penyelarasan Kaunselor Kerjaya Bil. 1/2026',
-      title_en: 'Career Guidance Counselors Coordination Meeting No. 1/2026',
+      title_bm: 'Mesyuarat Penyelarasan Guru Pendidikan Kerjaya Bil. 1/2026',
+      title_en: 'Career Education Teachers Coordination Meeting No. 1/2026',
       event_date: `${curMonthStr}-15`,
       start_time: '08:30 PAGI',
       end_time: '11:30 PAGI',
@@ -118,7 +192,7 @@ window.MOCK_DATA = (function () {
       attachment_drive_url: 'https://moe.gov.bn/circulars/agenda_bil1_2026.pdf',
       status: 'Published',
       created_by: 'pegawai.upk@moe.bn',
-      summary: 'Perbincangan hala tuju aktiviti bimbingan kerjaya, takwim pameran kerjaya kebangsaan, dan taklimat biasiswa kerajaan.'
+      summary: 'Perbincangan hala tuju aktiviti pendidikan kerjaya, takwim pameran kerjaya kebangsaan, dan taklimat biasiswa kerajaan.'
     },
     {
       event_id: 'EVT-2026-002',
@@ -133,7 +207,7 @@ window.MOCK_DATA = (function () {
       attachment_drive_url: '',
       status: 'Published',
       created_by: 'pegawai.upk@moe.bn',
-      summary: 'Latihan teknikal penggunaan sistem psikometrik kerjaya dalam talian bagi semua guru kaunselor sekolah menengah.'
+      summary: 'Latihan teknikal penggunaan sistem psikometrik kerjaya dalam talian bagi semua Guru Pendidikan Kerjaya sekolah menengah.'
     },
     {
       event_id: 'EVT-2026-003',
