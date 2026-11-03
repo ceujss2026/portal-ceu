@@ -648,7 +648,7 @@ window.MOCK_DATA = (function () {
     {
       doc_id: 'MEMO-2026-02',
       title_bm: 'Minit Mesyuarat Agung Tahunan Guru Bimbingan Kerjaya Sesi 2025',
-      title_en: 'Minutes of the Annual General Meeting of Career Guidance Counselors 2025',
+      title_en: 'Minutes of the Annual General Meeting of Career Education Teachers 2025',
       category: 'Minit Mesyuarat',
       ref_no: 'MOE/JSS/UPK/MIN/2025/08',
       publish_date: '2026-01-15',
@@ -703,7 +703,7 @@ window.MOCK_DATA = (function () {
       title_bm: 'Makluman: Pendaftaran Ujian Profil Minat Kerjaya Pelajar Dibuka',
       title_en: 'Notice: Registration for Students Career Interest Profiling Open',
       content_bm: 'Guru-guru boleh mula mendaftarkan kuota pelajar sekolah masing-masing melalui pautan portal.',
-      content_en: 'Counselors may now register student quotas for their respective schools via the portal link.',
+      content_en: 'Career education teachers may now register student quotas for their respective schools via the portal link.',
       type: 'General',
       sent_at: '3 hari yang lalu',
       is_read: true

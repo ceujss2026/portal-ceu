@@ -90,7 +90,7 @@
       badgeAttending: 'HADIR DISAHKAN',
       badgeRep: 'MEWAKILKAN',
       badgeAbsent: 'TIDAK HADIR',
-      badgePending: '⚠️ PERLU TINDAKAN RSVP',
+      badgePending: 'PERLU TINDAKAN RSVP',
 
       // Days of week
       dayMon: 'Isn',
@@ -123,6 +123,14 @@
       catCirculars: 'Pekeliling',
       catMinutes: 'Minit Mesyuarat',
       catCalendar: 'Kalendar Tahunan',
+      venueMapsHint: 'Tekan untuk semak atau pandu arah di Google Maps',
+      btnOpenMaps: 'Buka di Google Maps',
+      targetRoleCareerTeachers: 'Guru Pendidikan Kerjaya',
+      targetRolePrincipals: 'Pengetua',
+      targetRoleDeputyPrincipals: 'Timbalan Pengetua',
+      targetRoleSuperintendents: 'Superintenden (Kluster 1 - 3)',
+      badgeMainTarget: 'Sasaran Utama',
+
       // Mod Kalendar & Tajuk
       calModeWeekly: 'Mingguan',
       calModeMonthly: 'Bulanan',
@@ -225,6 +233,7 @@
       calModeWeekly: 'Mingguan',
       calModeMonthly: 'Bulanan',
       currentWeek: 'Minggu Ini',
+      teacherGreeting: 'Selamat Datang • Guru Pendidikan Kerjaya',
       counselorGreeting: 'Selamat Datang • Guru Pendidikan Kerjaya',
       cannotAttendTitle: 'Ada Kekangan Kehadiran?',
       cannotAttendSub: 'Lantik pegawai pengganti bagi pihak sekolah Awda',
@@ -328,7 +337,7 @@
       badgeAttending: 'CONFIRMED ATTENDING',
       badgeRep: 'REPRESENTATIVE',
       badgeAbsent: 'NOT ATTENDING',
-      badgePending: '⚠️ PENDING RSVP ACTION',
+      badgePending: 'PENDING RSVP ACTION',
 
       // Days of week
       dayMon: 'Mon',
@@ -361,6 +370,14 @@
       catCirculars: 'Circulars',
       catMinutes: 'Meeting Minutes',
       catCalendar: 'Annual Calendar',
+      venueMapsHint: 'Click to view or navigate via Google Maps',
+      btnOpenMaps: 'Open in Google Maps',
+      targetRoleCareerTeachers: 'Career Education Teachers',
+      targetRolePrincipals: 'Principals',
+      targetRoleDeputyPrincipals: 'Deputy Principals',
+      targetRoleSuperintendents: 'Superintendents (Cluster 1 - 3)',
+      badgeMainTarget: 'Primary Target',
+
       // Calendar Mode & Headings
       calModeWeekly: 'Weekly',
       calModeMonthly: 'Monthly',
@@ -428,7 +445,7 @@
       adminDashboard: 'CEU Administrator Dashboard',
       adminDashboardSubtitle: '4-district attendance analytics and official administration.',
       adminTableViewBtn: 'Table View',
-      totalTeachersKpi: 'Total Counselors',
+      totalTeachersKpi: 'Total Career Teachers',
       rsvpRateKpi: 'RSVP Response Rate',
       attendingKpi: 'Confirmed Attending',
       repAbsentKpi: 'Rep / Absent',
@@ -463,7 +480,8 @@
       calModeWeekly: 'Weekly',
       calModeMonthly: 'Monthly',
       currentWeek: 'This Week',
-      counselorGreeting: 'Welcome • Career Guidance Counselor',
+      teacherGreeting: 'Welcome • Career Education Teacher',
+      counselorGreeting: 'Welcome • Career Education Teacher',
       cannotAttendTitle: 'Unable to Attend?',
       cannotAttendSub: 'Appoint an official substitute on behalf of your school',
       appointRepBtn: 'Appoint',
@@ -631,14 +649,40 @@
             user: target
           });
         } else if (action === 'biometricLogin') {
-          const u = mock.users[1];
+          // Cari pengguna berdasarkan emel atau token sesi biometrik sebenar (jangan paksa mock.users[1])
+          let target = null;
+          if (payload.email) {
+            target = (mock.users || []).find(u => u.email.toLowerCase() === payload.email.toLowerCase());
+          }
+          if (!target && payload.token) {
+            try {
+              const savedBio = JSON.parse(localStorage.getItem('ceu_bio_user') || 'null');
+              if (savedBio) target = savedBio;
+            } catch (e) {}
+          }
+          if (!target && State.currentUser) target = State.currentUser;
+          if (!target) {
+            try {
+              const savedUser = JSON.parse(localStorage.getItem('ceu_user') || 'null');
+              if (savedUser) target = savedUser;
+            } catch (e) {}
+          }
+          if (!target) target = mock.users[0]; // Lalai kepada pengguna pertama (Ahmad Bakar / Guru aktif)
+
           resolve({
             success: true,
             token: 'mock_bio_token_' + Date.now(),
-            user: u
+            user: target
           });
         } else if (action === 'boot') {
-          const cu = State.currentUser || mock.users[1];
+          let cu = State.currentUser;
+          if (!cu) {
+            try {
+              const savedUser = JSON.parse(localStorage.getItem('ceu_user') || 'null');
+              if (savedUser) cu = savedUser;
+            } catch (e) {}
+          }
+          if (!cu) cu = mock.users[0];
           const visibleEvents = (mock.events || []).filter(e => isUserInvitedToEvent(e, cu));
           resolve({
             success: true,
@@ -1050,7 +1094,11 @@
     if (!storedBioToken || !storedBioUser) {
       showToast(State.lang === 'en' ? 'Scanning biometrics...' : 'Mengimbas cap jari / biometrik...', 'info');
       const emailInput = document.getElementById('email') || document.getElementById('auth-email-input');
-      const email = (emailInput?.value || 'noraini.yusof@moe.bn').trim();
+      const email = (emailInput?.value || '').trim();
+      if (!email && !storedBioUser) {
+        showToast(State.lang === 'en' ? 'Please enter your official email first.' : 'Sila masukkan e-mel rasmi Awda terlebih dahulu.', 'warning');
+        return;
+      }
       setTimeout(async () => {
         const res = await api('biometricLogin', { email: email });
         if (res && res.success) {
@@ -1371,8 +1419,18 @@
 
       const nameEl = document.getElementById('header-user-name');
       const districtEl = document.getElementById('header-district-badge');
-      if (nameEl) nameEl.textContent = State.currentUser.name;
-      if (districtEl) {
+      const homeGreetingName = document.getElementById('home-greeting-name');
+      const homeGreetingLabel = document.getElementById('home-greeting-label');
+
+      if (nameEl && State.currentUser) nameEl.textContent = State.currentUser.name;
+      if (homeGreetingName && State.currentUser) {
+        homeGreetingName.textContent = State.currentUser.name || State.currentUser.email;
+      }
+      if (homeGreetingLabel && State.currentUser) {
+        homeGreetingLabel.textContent = (State.lang === 'en' ? 'Welcome • ' : 'Selamat Datang • ') +
+          (State.currentUser.role === 'Admin' ? (State.lang === 'en' ? 'UPK JSS Admin' : 'Pentadbir UPK JSS') : (State.lang === 'en' ? 'Career Education Teacher' : 'Guru Pendidikan Kerjaya'));
+      }
+      if (districtEl && State.currentUser) {
         districtEl.textContent = (State.lang === 'en' ? 'District: ' : 'Daerah: ') + State.currentUser.district;
       }
 
@@ -1648,6 +1706,19 @@
   function renderHomeView() {
     renderMonthlyCalendar();
 
+    // Selaraskan nama dan jawatan pengguna pada pengepala utama (Elakkan nama salah/kekal Noraini)
+    if (State.currentUser) {
+      const homeGreetingName = document.getElementById('home-greeting-name');
+      const homeGreetingLabel = document.getElementById('home-greeting-label');
+      if (homeGreetingName) {
+        homeGreetingName.textContent = State.currentUser.name || State.currentUser.email;
+      }
+      if (homeGreetingLabel) {
+        homeGreetingLabel.textContent = (State.lang === 'en' ? 'Welcome • ' : 'Selamat Datang • ') +
+          (State.currentUser.role === 'Admin' ? (State.lang === 'en' ? 'UPK JSS Admin' : 'Pentadbir UPK JSS') : (State.lang === 'en' ? 'Career Education Teacher' : 'Guru Pendidikan Kerjaya'));
+      }
+    }
+
     const myEmail = (State.currentUser && State.currentUser.email) ? State.currentUser.email.toLowerCase() : '';
     const myRsvps = (State.rsvps || []).filter(r => r.user_email && r.user_email.toLowerCase() === myEmail);
     const myAnsweredIds = myRsvps.map(r => r.event_id);
@@ -1814,7 +1885,14 @@
               </div>
               <div class="flex flex-col min-w-0">
                 <span class="font-caption text-[10px] text-on-surface-variant">${I18N[State.lang].venueLabel}</span>
-                <span class="font-label-md font-semibold truncate">${ev.venue || I18N[State.lang].onlineVenue}</span>
+                ${ev.venue && !ev.venue.toLowerCase().includes('talian') && !ev.venue.toLowerCase().includes('online') && !ev.venue.toLowerCase().includes('meet') ? `
+                  <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(ev.venue)}" target="_blank" rel="noopener noreferrer" class="font-label-md font-semibold truncate text-primary hover:underline flex items-center gap-1 group/map" title="${State.lang === 'en' ? 'Open in Google Maps' : 'Buka di Google Maps'}">
+                    <span class="truncate">${ev.venue}</span>
+                    <span class="material-symbols-outlined text-[13px] opacity-70 group-hover/map:opacity-100 shrink-0">open_in_new</span>
+                  </a>
+                ` : `
+                  <span class="font-label-md font-semibold truncate">${ev.venue || I18N[State.lang].onlineVenue}</span>
+                `}
               </div>
             </div>
           </div>
@@ -2162,7 +2240,7 @@
       if (u.role === 'Admin') {
         roleEl.textContent = State.lang === 'en' ? 'CEU Administrative Officer' : 'Pegawai Pentadbir UPK';
       } else {
-        roleEl.textContent = State.lang === 'en' ? 'Career Guidance Counselor' : 'Guru Pendidikan Kerjaya';
+        roleEl.textContent = State.lang === 'en' ? 'Career Education Teacher' : 'Guru Pendidikan Kerjaya';
       }
     }
     if (emailEl) emailEl.textContent = u.email;
@@ -2356,7 +2434,7 @@
             </div>
             <h4 class="font-headline text-xs sm:text-sm font-bold text-on-surface truncate">${ev.title_bm}</h4>
             <p class="text-[11px] text-on-surface-variant truncate mt-0.5">
-              📍 ${ev.venue || 'Dalam Talian'} • Sasaran: ${ev.target_count || 37} pegawai
+              <span class="material-symbols-outlined text-[13px] align-middle">location_on</span> ${ev.venue || 'Dalam Talian'} • Sasaran: ${ev.target_count || 37} pegawai
             </p>
           </div>
 
@@ -2635,7 +2713,7 @@
     const res = await api('sendOtp', { email: email });
     if (res && res.success) {
       if (btnText && submitBtn) {
-        btnText.textContent = State.lang === 'en' ? 'OTP Sent ✓' : 'Kod OTP Berjaya Dihantar ✓';
+        btnText.textContent = State.lang === 'en' ? 'OTP Code Sent' : 'Kod OTP Berjaya Dihantar';
         setTimeout(() => {
           btnText.textContent = State.lang === 'en' ? 'Send OTP to Official Email' : 'Hantar Kod OTP ke Emel Rasmi';
           submitBtn.classList.remove('opacity-80', 'pointer-events-none');
@@ -2847,13 +2925,28 @@
       });
     }
 
-    // 4. Lokasi Boleh Dicari / Bebas Input & Cip Pantas
+    // 4. Integrasi Lokasi & Google Maps
     const previewVenueName = document.getElementById('preview-venue-name');
+    const btnSearchMaps = document.getElementById('btn-search-maps');
+
+    function updateVenueMaps(val) {
+      const v = (val || '').trim();
+      if (previewVenue) previewVenue.textContent = v || (State.lang === 'en' ? 'Event Venue' : 'Lokasi Acara');
+      if (previewVenueName) previewVenueName.textContent = v || (State.lang === 'en' ? 'Venue not set' : 'Lokasi belum ditetapkan');
+      if (btnSearchMaps) {
+        if (v && !v.toLowerCase().includes('talian') && !v.toLowerCase().includes('meet')) {
+          btnSearchMaps.href = 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(v);
+          btnSearchMaps.classList.remove('opacity-50', 'pointer-events-none');
+        } else {
+          btnSearchMaps.href = '#';
+          btnSearchMaps.classList.add('opacity-50', 'pointer-events-none');
+        }
+      }
+    }
+
     if (inputVenue) {
       inputVenue.addEventListener('input', e => {
-        const val = e.target.value.trim();
-        if (previewVenue) previewVenue.textContent = val || 'Lokasi Acara';
-        if (previewVenueName) previewVenueName.textContent = val || 'Lokasi pilihan bebas';
+        updateVenueMaps(e.target.value);
       });
     }
 
@@ -2861,8 +2954,7 @@
       btnClearVenue.addEventListener('click', () => {
         inputVenue.value = '';
         inputVenue.focus();
-        if (previewVenue) previewVenue.textContent = 'Lokasi Acara';
-        if (previewVenueName) previewVenueName.textContent = 'Lokasi belum ditetapkan';
+        updateVenueMaps('');
       });
     }
 
@@ -2871,8 +2963,7 @@
         const v = chip.dataset.venue;
         if (inputVenue && v) {
           inputVenue.value = v;
-          if (previewVenue) previewVenue.textContent = v;
-          if (previewVenueName) previewVenueName.textContent = v;
+          updateVenueMaps(v);
         }
       });
     });
@@ -2959,7 +3050,7 @@
     const fcmTargetCount = document.getElementById('fcm-target-count');
 
     // 4 Kumpulan Penerima Sahaja
-    const roleCounselors = document.getElementById('role-counselors'); // Guru Pendidikan Kerjaya
+    const roleCounselors = document.getElementById('role-career-teachers') || document.getElementById('role-counselors'); // Guru Pendidikan Kerjaya
     const rolePrincipals = document.getElementById('role-principals'); // Pengetua
     const roleDeputyPrincipals = document.getElementById('role-deputy-principals'); // Timbalan Pengetua
     const roleSuperintendents = document.getElementById('role-superintendents'); // Superintenden 1 hingga 3
