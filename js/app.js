@@ -1345,6 +1345,98 @@
   }
 
   // ==========================================================================
+  // 4B. PEMBANTU FORMAT MASA (TIME FORMATTING 12H / 24H)
+  // ==========================================================================
+  function formatTime12H(timeStr, lang = State.lang || 'bm') {
+    if (!timeStr) return '';
+    const clean = String(timeStr).trim();
+    if (!clean) return '';
+
+    // Tangkap jam, minit dan sebarang penunjuk masa yang sedia ada
+    const match = clean.match(/^(\d{1,2})[:.](\d{2})(?:\s*([A-Za-z\s]+))?$/i);
+    if (!match) return clean;
+
+    let h = parseInt(match[1], 10);
+    const m = match[2];
+    const periodStr = (match[3] || '').trim().toUpperCase();
+
+    // Tentukan sama ada PM atau AM
+    let isPM = false;
+    if (periodStr.includes('PM') || periodStr.includes('PETANG') || periodStr.includes('MALAM') || periodStr.includes('TGH') || periodStr.includes('TENGAH HARI')) {
+      isPM = true;
+    } else if (periodStr.includes('AM') || periodStr.includes('PAGI') || periodStr.includes('TENGAH MALAM')) {
+      isPM = false;
+    } else {
+      isPM = h >= 12;
+    }
+
+    // Tukar ke format 24 jam tulen untuk penentuan waktu
+    let h24 = h;
+    if (h < 12 && isPM) {
+      h24 = h + 12;
+    } else if (h === 12 && !isPM && (periodStr.includes('AM') || periodStr.includes('PAGI') || periodStr.includes('TENGAH MALAM'))) {
+      h24 = 0;
+    }
+
+    // Tukar ke format 12 jam (1-12)
+    let h12 = h24 % 12;
+    if (h12 === 0) h12 = 12;
+
+    // Tentukan fasa waktu Bahasa Melayu & Inggeris
+    let periodBm = 'PAGI';
+    let periodEn = 'AM';
+
+    if (h24 === 0) {
+      periodBm = 'TENGAH MALAM';
+      periodEn = 'AM';
+    } else if (h24 < 12) {
+      periodBm = 'PAGI';
+      periodEn = 'AM';
+    } else if (h24 === 12) {
+      periodBm = 'TENGAH HARI';
+      periodEn = 'PM';
+    } else if (h24 < 19) {
+      periodBm = 'PETANG';
+      periodEn = 'PM';
+    } else {
+      periodBm = 'MALAM';
+      periodEn = 'PM';
+    }
+
+    if (lang === 'en') {
+      return `${h12}:${m} ${periodEn}`;
+    }
+    return `${h12}:${m} ${periodBm}`;
+  }
+
+  function timeTo24H(timeStr) {
+    if (!timeStr) return '08:30';
+    const clean = String(timeStr).trim();
+    const match = clean.match(/^(\d{1,2})[:.](\d{2})(?:\s*([A-Za-z\s]+))?$/i);
+    if (!match) return '08:30';
+
+    let h = parseInt(match[1], 10);
+    const m = match[2];
+    const periodStr = (match[3] || '').trim().toUpperCase();
+
+    // Jika jam sudah > 12, ia sah format 24 jam
+    if (h > 12) {
+      return `${String(h).padStart(2, '0')}:${m}`;
+    }
+
+    const isPM = periodStr.includes('PM') || periodStr.includes('PETANG') || periodStr.includes('MALAM') || periodStr.includes('TGH') || periodStr.includes('TENGAH HARI');
+    const isAM = periodStr.includes('AM') || periodStr.includes('PAGI') || periodStr.includes('TENGAH MALAM');
+
+    if (isPM) {
+      if (h < 12) h += 12;
+    } else if (isAM) {
+      if (h === 12) h = 0;
+    }
+
+    return `${String(h).padStart(2, '0')}:${m}`;
+  }
+
+  // ==========================================================================
   // 5. ENJIN TERJEMAHAN DINAMIK (DYNAMIC I18N ENGINE)
   // ==========================================================================
   function applyTranslations() {
@@ -2030,7 +2122,7 @@
               </div>
               <div class="flex flex-col min-w-0">
                 <span class="font-caption text-[10px] text-on-surface-variant">${I18N[State.lang].timeLabel}</span>
-                <span class="font-label-md font-semibold truncate">${ev.start_time} - ${ev.end_time}</span>
+                <span class="font-label-md font-semibold truncate">${formatTime12H(ev.start_time)} - ${formatTime12H(ev.end_time)}</span>
               </div>
             </div>
             <div class="flex items-center gap-2">
@@ -2120,7 +2212,7 @@
     const titleEl = document.getElementById('rsvp-event-title');
     const metaEl = document.getElementById('rsvp-event-meta');
     if (titleEl) titleEl.textContent = (State.lang === 'en' && ev.title_en) ? ev.title_en : ev.title_bm;
-    if (metaEl) metaEl.textContent = `${ev.event_date} • ${ev.start_time} • ${ev.venue}`;
+    if (metaEl) metaEl.textContent = `${ev.event_date} • ${formatTime12H(ev.start_time)} • ${ev.venue}`;
 
     const userRsvp = State.rsvps.find(r => r.event_id === eventId);
     const radioAttend = document.getElementById('radio-attend');
@@ -2746,7 +2838,7 @@
               </span>
               <span class="text-[11px] text-on-surface-variant font-medium flex items-center gap-1">
                 <span class="material-symbols-outlined text-xs text-secondary">schedule</span>
-                ${ev.start_time || '08:30'}
+                ${formatTime12H(ev.start_time) || '08:30 PAGI'}
               </span>
             </div>
             <h4 class="font-headline text-xs sm:text-sm font-bold text-on-surface truncate">${ev.title_bm}</h4>
@@ -3405,12 +3497,10 @@
     if (inputDate) inputDate.value = ev.event_date || '';
 
     if (inputStart) {
-      const s = (ev.start_time || '08:30').replace(/[^0-9:]/g, '').trim();
-      inputStart.value = s || '08:30';
+      inputStart.value = timeTo24H(ev.start_time);
     }
     if (inputEnd) {
-      const e = (ev.end_time || '12:00').replace(/[^0-9:]/g, '').trim();
-      inputEnd.value = e || '12:00';
+      inputEnd.value = timeTo24H(ev.end_time);
     }
 
     if (inputVenue) inputVenue.value = ev.venue || '';
@@ -3428,7 +3518,7 @@
 
     if (previewTitle) previewTitle.textContent = ev.title_bm || 'Tajuk Acara Rasmi';
     if (previewDate) previewDate.textContent = ev.event_date || '-- / -- / ----';
-    if (previewTime) previewTime.textContent = ev.start_time || '--:--';
+    if (previewTime) previewTime.textContent = (ev.start_time && ev.end_time) ? `${formatTime12H(ev.start_time)} - ${formatTime12H(ev.end_time)}` : (formatTime12H(ev.start_time) || '--:--');
     if (previewVenue) previewVenue.textContent = ev.venue || 'Lokasi Acara';
     if (previewVenueName) previewVenueName.textContent = ev.venue || 'Lokasi belum ditetapkan';
     if (previewDeadline) previewDeadline.textContent = ev.rsvp_deadline ? `Tutup: ${ev.rsvp_deadline}` : 'Tarikh Tutup RSVP';
@@ -3592,10 +3682,26 @@
       });
     }
 
-    if (inputStartTime && previewTime) {
-      inputStartTime.addEventListener('change', e => {
-        previewTime.textContent = e.target.value ? (e.target.value + ' PAGI') : '08:30 PAGI';
-      });
+    function updatePreviewTime() {
+      const s = inputStartTime ? inputStartTime.value : '';
+      const e = inputEndTime ? inputEndTime.value : '';
+      if (!previewTime) return;
+      if (s && e) {
+        previewTime.textContent = `${formatTime12H(s)} - ${formatTime12H(e)}`;
+      } else if (s) {
+        previewTime.textContent = formatTime12H(s);
+      } else {
+        previewTime.textContent = '08:30 PAGI';
+      }
+    }
+
+    if (inputStartTime) {
+      inputStartTime.addEventListener('change', updatePreviewTime);
+      inputStartTime.addEventListener('input', updatePreviewTime);
+    }
+    if (inputEndTime) {
+      inputEndTime.addEventListener('change', updatePreviewTime);
+      inputEndTime.addEventListener('input', updatePreviewTime);
     }
 
     // 4. Integrasi Lokasi & Google Maps
@@ -3889,8 +3995,8 @@
           titleEn: titleBm || (isDraft ? 'Event Draft' : 'Official Event'),
           category,
           eventDate: date,
-          startTime: startTime + ' PAGI',
-          endTime: endTime + ' TGH HARI',
+          startTime: startTime ? formatTime12H(startTime) : '08:30 PAGI',
+          endTime: endTime ? formatTime12H(endTime) : '12:00 TENGAH HARI',
           venue,
           meetingLink: meetLink,
           rsvpDeadline: deadline,
