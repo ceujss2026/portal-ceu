@@ -123,6 +123,14 @@
       catCirculars: 'Pekeliling',
       catMinutes: 'Minit Mesyuarat',
       catCalendar: 'Kalendar Tahunan',
+      adminStep3Title: 'Pilih Guru Pendidikan Kerjaya',
+      chooseTeachersDesc: 'Pilih guru secara individu yang wajib hadir ke acara ini (Sekolah Menengah, Maktab & PTE):',
+      searchTeacherPlaceholder: 'Cari nama guru, sekolah, atau e-mel...',
+      filterDistrictTitle: 'Tapis Mengikut Daerah:',
+      filterAllDistricts: 'Semua Daerah (37)',
+      invitePrincipalsLabel: 'Jemput Pengetua Sekolah Terpilih (Pilihan)',
+      invitePrincipalsDesc: 'Hantar notifikasi makluman kepada Pengetua / Guru Besar bagi sekolah guru yang dipilih',
+
       // Stepper & Kemajuan Borang
       stepProgressTitle: 'Kemajuan Penerbitan',
       eventTitleLabel: 'Tajuk Acara',
@@ -408,6 +416,14 @@
       catCirculars: 'Circulars',
       catMinutes: 'Meeting Minutes',
       catCalendar: 'Annual Calendar',
+      adminStep3Title: 'Select Career Education Teachers',
+      chooseTeachersDesc: 'Choose individual teachers required to attend this event (Secondary Schools, Colleges & PTE):',
+      searchTeacherPlaceholder: 'Search teacher name, school, or email...',
+      filterDistrictTitle: 'Filter by District:',
+      filterAllDistricts: 'All Districts (37)',
+      invitePrincipalsLabel: 'Invite Principals of Selected Schools (Optional)',
+      invitePrincipalsDesc: 'Send notification alerts to Principals of the selected teachers schools',
+
       // Stepper & Form Progress
       stepProgressTitle: 'Publishing Progress',
       eventTitleLabel: 'Event Title',
@@ -2954,7 +2970,116 @@
   // ==========================================================================
   // 16B. PENGAWAL MODUL BINA & TERBITKAN ACARA RASMI (STITCH INTEGRATION)
   // ==========================================================================
+  const selectedOfficerEmails = new Set();
+  let officerSearchQuery = '';
+  let officerDistrictFilter = 'all';
+
+  function getOfficerUserList() {
+    if (State.users && State.users.length > 0) {
+      return State.users.filter(u => u.role !== 'Admin');
+    }
+    if (window.MOCK_DATA && window.MOCK_DATA.users) {
+      return window.MOCK_DATA.users.filter(u => u.role !== 'Admin');
+    }
+    return [];
+  }
+
+  function updateTargetBadges() {
+    const count = selectedOfficerEmails.size;
+    const isEn = State.lang === 'en';
+    const badge = document.getElementById('individual-selected-badge');
+    if (badge) {
+      badge.textContent = isEn ? `${count} Teachers Selected` : `${count} Guru Dipilih`;
+      badge.className = count > 0
+        ? 'px-2.5 py-0.5 rounded-full bg-primary text-white font-label-sm text-xs font-bold shadow-xs'
+        : 'px-2.5 py-0.5 rounded-full bg-surface-container text-on-surface-variant font-label-sm text-xs font-bold';
+    }
+
+    const fcmCount = document.getElementById('fcm-target-count');
+    if (fcmCount) {
+      fcmCount.textContent = count;
+    }
+
+    updateFormProgress();
+  }
+
+  function renderIndividualOfficers() {
+    const listContainer = document.getElementById('list-individual-officers');
+    if (!listContainer) return;
+    const allOfficers = getOfficerUserList();
+    const q = officerSearchQuery.toLowerCase().trim();
+
+    const filtered = allOfficers.filter(u => {
+      if (officerDistrictFilter !== 'all') {
+        const uDist = String(u.district || '').toLowerCase();
+        if (uDist !== officerDistrictFilter.toLowerCase()) return false;
+      }
+      if (!q) return true;
+      const str = `${u.name || ''} ${u.school || ''} ${u.district || ''} ${u.email || ''}`.toLowerCase();
+      return str.includes(q);
+    });
+
+    const indicator = document.getElementById('officer-count-indicator');
+    if (indicator) {
+      const isEn = State.lang === 'en';
+      indicator.textContent = isEn
+        ? `${filtered.length} found (${selectedOfficerEmails.size} of ${allOfficers.length} selected)`
+        : `${filtered.length} dijumpai (${selectedOfficerEmails.size} daripada ${allOfficers.length} dipilih)`;
+    }
+
+    if (!filtered.length) {
+      listContainer.innerHTML = `
+        <div class="p-6 text-center text-xs text-on-surface-variant font-medium">
+          <span class="material-symbols-outlined text-2xl text-on-surface-variant/60 block mb-1">person_search</span>
+          ${State.lang === 'en' ? 'No teachers found matching your search.' : 'Tiada guru dijumpai untuk carian atau daerah ini.'}
+        </div>
+      `;
+      return;
+    }
+
+    listContainer.innerHTML = filtered.map(u => {
+      const em = String(u.email || '').toLowerCase().trim();
+      const isChecked = selectedOfficerEmails.has(em);
+      const initial = (u.name || 'G').charAt(0);
+      const districtBadge = u.district || 'Brunei-Muara';
+      const schoolName = u.school || 'Sekolah Menengah';
+
+      return `
+        <label class="flex items-center gap-2.5 p-2 rounded-lg hover:bg-surface-container cursor-pointer transition-colors ${isChecked ? 'bg-primary/10 border border-primary/30 font-semibold' : ''}">
+          <input type="checkbox" class="individual-officer-check accent-primary w-4 h-4 shrink-0 cursor-pointer" data-email="${em}" ${isChecked ? 'checked' : ''}/>
+          <div class="w-7 h-7 rounded-full ${isChecked ? 'bg-primary text-white' : 'bg-primary/10 text-primary'} flex items-center justify-center text-xs font-bold shrink-0">
+            ${initial}
+          </div>
+          <div class="min-w-0 flex-1">
+            <p class="text-xs font-bold text-on-surface truncate">${u.name}</p>
+            <p class="text-[10px] text-on-surface-variant truncate">${schoolName}</p>
+            <p class="text-[9px] text-on-surface-variant/70 truncate font-mono">${em}</p>
+          </div>
+          <span class="text-[10px] px-2 py-0.5 rounded bg-surface-container-high text-on-surface-variant font-semibold shrink-0">
+            ${districtBadge}
+          </span>
+        </label>
+      `;
+    }).join('');
+
+    listContainer.querySelectorAll('.individual-officer-check').forEach(ck => {
+      ck.addEventListener('change', () => {
+        const em = ck.dataset.email;
+        if (ck.checked) {
+          selectedOfficerEmails.add(em);
+        } else {
+          selectedOfficerEmails.delete(em);
+        }
+        updateTargetBadges();
+        renderIndividualOfficers();
+      });
+    });
+  }
+
   function resetCreateEventForm() {
+    selectedOfficerEmails.clear();
+    renderIndividualOfficers();
+    updateTargetBadges();
     const inputTitle = document.getElementById('event-title-bm');
     const selectCat = document.getElementById('event-category');
     const inputDate = document.getElementById('event-date-input');
@@ -3216,154 +3341,29 @@
       });
     });
 
-    // 7. Mod Sasaran: Kumpulan/Daerah ATAU Individu Pegawai
-    let currentTargetMode = 'group'; // 'group' | 'individual'
-    const btnModeGroup = document.getElementById('btn-target-mode-group');
-    const btnModeIndividual = document.getElementById('btn-target-mode-individual');
-    const containerTargetGroup = document.getElementById('container-target-group');
-    const containerTargetIndividual = document.getElementById('container-target-individual');
-
-    function setTargetMode(mode) {
-      currentTargetMode = mode;
-      const isGrp = mode === 'group';
-
-      if (btnModeGroup) {
-        btnModeGroup.classList.toggle('bg-primary', isGrp);
-        btnModeGroup.classList.toggle('text-white', isGrp);
-        btnModeGroup.classList.toggle('text-on-surface-variant', !isGrp);
-      }
-      if (btnModeIndividual) {
-        btnModeIndividual.classList.toggle('bg-primary', !isGrp);
-        btnModeIndividual.classList.toggle('text-white', !isGrp);
-        btnModeIndividual.classList.toggle('text-on-surface-variant', isGrp);
-      }
-
-      if (containerTargetGroup) containerTargetGroup.classList.toggle('hidden', !isGrp);
-      if (containerTargetIndividual) containerTargetIndividual.classList.toggle('hidden', isGrp);
-
-      calculateTargetRecipients();
-    }
-
-    if (btnModeGroup) btnModeGroup.addEventListener('click', () => setTargetMode('group'));
-    if (btnModeIndividual) btnModeIndividual.addEventListener('click', () => setTargetMode('individual'));
-
-    // 8. Sasaran Mengikut Daerah (Mod Kumpulan)
-    const checkAllDistricts = document.getElementById('check-all-districts');
-    const btnToggleAll = document.getElementById('btn-toggle-all-districts');
-    const districtChecks = document.querySelectorAll('.district-check');
-    const targetSchoolBadge = document.getElementById('target-school-count-badge');
-    const fcmTargetCount = document.getElementById('fcm-target-count');
-
-    // 4 Kumpulan Penerima Sahaja
-    const roleCounselors = document.getElementById('role-career-teachers') || document.getElementById('role-counselors'); // Guru Pendidikan Kerjaya
-    const rolePrincipals = document.getElementById('role-principals'); // Pengetua
-    const roleDeputyPrincipals = document.getElementById('role-deputy-principals'); // Timbalan Pengetua
-    const roleSuperintendents = document.getElementById('role-superintendents'); // Superintenden 1 hingga 3
-    const roleChecks = document.querySelectorAll('.role-recipient-check');
-
-    // 9. Senarai Individu Pegawai (Mod Individu)
-    const listIndividualOfficers = document.getElementById('list-individual-officers');
+    // 7. Pengurusan Pemilihan Guru Pendidikan Kerjaya Secara Individu (Jemputan Acara)
     const searchIndividualInput = document.getElementById('search-individual-input');
-    const individualSelectedBadge = document.getElementById('individual-selected-badge');
     const btnSelectAllIndividuals = document.getElementById('btn-select-all-filtered-individuals');
     const btnClearAllIndividuals = document.getElementById('btn-clear-all-individuals');
 
-    const selectedOfficerEmails = new Set();
-    let officerSearchQuery = '';
-    let officerDistrictFilter = 'all';
-
-    // Muat senarai pengguna rasmi dari Google Sheets (tbl_users) jika Admin
-    if (State.currentUser && State.currentUser.role === 'Admin' && (!State.users || !State.users.length)) {
+    // Muat senarai pengguna rasmi dari Google Sheets (tbl_users) jika belum ada
+    if (!State.users || !State.users.length) {
       api('getUsers').then(res => {
         if (res && res.success && res.users && res.users.length) {
           State.users = res.users;
           renderIndividualOfficers();
+          updateTargetBadges();
         }
-      }).catch(err => console.warn('Gagal muat senarai pengguna:', err));
+      }).catch(err => console.warn('Gagal muat direktori pengguna:', err));
     }
 
-    function getOfficerUserList() {
-      // Keutamaan 1: Senarai dari Google Sheets (tbl_users)
-      if (State.users && State.users.length > 0) {
-        return State.users.filter(u => u.role !== 'Admin');
-      }
-      // Keutamaan 2: Sandaran simulasi MOCK_DATA
-      if (window.MOCK_DATA && window.MOCK_DATA.users) {
-        return window.MOCK_DATA.users.filter(u => u.role !== 'Admin');
-      }
-      return [];
-    }
-
-    function renderIndividualOfficers() {
-      if (!listIndividualOfficers) return;
-      const allOfficers = getOfficerUserList();
-      const q = officerSearchQuery.toLowerCase().trim();
-
-      const filtered = allOfficers.filter(u => {
-        if (officerDistrictFilter !== 'all') {
-          const uDist = String(u.district || '').toLowerCase();
-          if (uDist !== officerDistrictFilter.toLowerCase()) return false;
-        }
-        if (!q) return true;
-        const str = `${u.name || ''} ${u.school || ''} ${u.district || ''} ${u.email || ''}`.toLowerCase();
-        return str.includes(q);
-      });
-
-      const indicator = document.getElementById('officer-count-indicator');
-      if (indicator) {
-        indicator.textContent = `${filtered.length} dijumpai (${allOfficers.length} dalam direktori)`;
-      }
-
-      if (!filtered.length) {
-        listIndividualOfficers.innerHTML = `
-          <div class="p-6 text-center text-xs text-on-surface-variant font-medium">
-            <span class="material-symbols-outlined text-2xl text-on-surface-variant/60 block mb-1">person_search</span>
-            Tiada guru dijumpai untuk carian atau daerah ini.
-          </div>
-        `;
-        return;
-      }
-
-      listIndividualOfficers.innerHTML = filtered.map((u, idx) => {
-        const em = String(u.email || '').toLowerCase().trim();
-        const isChecked = selectedOfficerEmails.has(em);
-        const initial = (u.name || 'G').charAt(0);
-        const groupLabel = u.roleGroup || 'Guru Pendidikan Kerjaya';
-        const districtBadge = u.district || 'Brunei-Muara';
-        const schoolName = u.school || 'Sekolah Menengah';
-
-        return `
-          <label class="flex items-center gap-2.5 p-2 rounded-lg hover:bg-surface-container cursor-pointer transition-colors ${isChecked ? 'bg-primary/5 border border-primary/20' : ''}">
-            <input type="checkbox" class="individual-officer-check accent-primary w-4 h-4 shrink-0" data-email="${em}" ${isChecked ? 'checked' : ''}/>
-            <div class="w-7 h-7 rounded-full bg-primary/10 text-primary flex items-center justify-center text-xs font-bold shrink-0">
-              ${initial}
-            </div>
-            <div class="min-w-0 flex-1">
-              <p class="text-xs font-bold text-on-surface truncate">${u.name}</p>
-              <p class="text-[10px] text-on-surface-variant truncate">${schoolName}</p>
-              <p class="text-[9px] text-on-surface-variant/70 truncate font-mono">${em}</p>
-            </div>
-            <span class="text-[10px] px-1.5 py-0.5 rounded bg-surface-container-high text-on-surface-variant font-semibold shrink-0">
-              ${districtBadge}
-            </span>
-          </label>
-        `;
-      }).join('');
-
-      listIndividualOfficers.querySelectorAll('.individual-officer-check').forEach(ck => {
-        ck.addEventListener('change', () => {
-          const em = ck.dataset.email;
-          if (ck.checked) {
-            selectedOfficerEmails.add(em);
-          } else {
-            selectedOfficerEmails.delete(em);
-          }
-          calculateTargetRecipients();
-        });
+    // Carian Guru
+    if (searchIndividualInput) {
+      searchIndividualInput.addEventListener('input', e => {
+        officerSearchQuery = e.target.value;
+        renderIndividualOfficers();
       });
     }
-
-    renderIndividualOfficers();
 
     // Penapis Daerah Pantas
     document.querySelectorAll('.btn-ind-filter-district').forEach(btn => {
@@ -3382,13 +3382,7 @@
       });
     });
 
-    if (searchIndividualInput) {
-      searchIndividualInput.addEventListener('input', e => {
-        officerSearchQuery = e.target.value;
-        renderIndividualOfficers();
-      });
-    }
-
+    // Butang Pilih Semua Ditapis
     if (btnSelectAllIndividuals) {
       btnSelectAllIndividuals.addEventListener('click', () => {
         const allOfficers = getOfficerUserList();
@@ -3404,88 +3398,25 @@
         });
 
         filtered.forEach(u => {
-          if (u.email) selectedOfficerEmails.add(String(u.email).toLowerCase().trim());
+          const em = String(u.email || '').toLowerCase().trim();
+          if (em) selectedOfficerEmails.add(em);
         });
+        updateTargetBadges();
         renderIndividualOfficers();
-        calculateTargetRecipients();
       });
     }
 
+    // Butang Kosongkan Pilihan
     if (btnClearAllIndividuals) {
       btnClearAllIndividuals.addEventListener('click', () => {
         selectedOfficerEmails.clear();
+        updateTargetBadges();
         renderIndividualOfficers();
-        calculateTargetRecipients();
       });
     }
 
-    // 10. Kiraan Jumlah Sasaran (Mengikut Mod)
-    function calculateTargetRecipients() {
-      let finalCount = 0;
-      let targetSummary = '';
-
-      if (currentTargetMode === 'group') {
-        let totalSchools = 0;
-        let checkedDistricts = [];
-        districtChecks.forEach(ch => {
-          if (ch.checked) {
-            totalSchools += parseInt(ch.dataset.count, 10) || 0;
-            checkedDistricts.push(ch.dataset.district);
-          }
-        });
-
-        // Kiraan peranan terpilih
-        let roleCount = 0;
-        if (roleCounselors && roleCounselors.checked) roleCount += totalSchools;
-        if (rolePrincipals && rolePrincipals.checked) roleCount += totalSchools;
-        if (roleDeputyPrincipals && roleDeputyPrincipals.checked) roleCount += totalSchools;
-        if (roleSuperintendents && roleSuperintendents.checked) roleCount += 3; // Superintenden 1 hingga 3
-
-        finalCount = roleCount || totalSchools;
-        targetSummary = `${totalSchools} Sekolah (${finalCount} Pegawai)`;
-
-        if (checkAllDistricts) {
-          checkAllDistricts.checked = (checkedDistricts.length === districtChecks.length);
-        }
-        if (btnToggleAll) {
-          btnToggleAll.textContent = (checkedDistricts.length === 0) ? 'Pilih Semua' : 'Nyahpilih Semua';
-        }
-      } else {
-        // Mod Individu
-        finalCount = selectedOfficerEmails.size;
-        targetSummary = `${finalCount} Pegawai Dipilih`;
-
-        if (individualSelectedBadge) {
-          individualSelectedBadge.textContent = `${finalCount} Dipilih`;
-        }
-      }
-
-      if (targetSchoolBadge) targetSchoolBadge.textContent = targetSummary;
-      if (fcmTargetCount) fcmTargetCount.textContent = finalCount;
-
-      return { finalCount, currentTargetMode };
-    }
-
-    if (checkAllDistricts) {
-      checkAllDistricts.addEventListener('change', () => {
-        const isChecked = checkAllDistricts.checked;
-        districtChecks.forEach(ch => { ch.checked = isChecked; });
-        calculateTargetRecipients();
-      });
-    }
-
-    if (btnToggleAll) {
-      btnToggleAll.addEventListener('click', () => {
-        const anyChecked = Array.from(districtChecks).some(c => c.checked);
-        const newState = !anyChecked;
-        districtChecks.forEach(ch => { ch.checked = newState; });
-        if (checkAllDistricts) checkAllDistricts.checked = newState;
-        calculateTargetRecipients();
-      });
-    }
-
-    districtChecks.forEach(ch => ch.addEventListener('change', calculateTargetRecipients));
-    roleChecks.forEach(ch => ch.addEventListener('change', calculateTargetRecipients));
+    renderIndividualOfficers();
+    updateTargetBadges();
 
     // 11. Simpan Draf Acara
     const btnSaveDraft = document.getElementById('btn-save-draft');
@@ -3502,76 +3433,18 @@
         const endTime = inputEndTime ? inputEndTime.value : '12:00';
         const venue = inputVenue ? inputVenue.value.trim() : '';
         const deadline = inputDeadline ? inputDeadline.value : '';
-        const { finalCount, currentTargetMode } = calculateTargetRecipients();
-        const individualEmails = currentTargetMode === 'individual' ? Array.from(selectedOfficerEmails) : [];
-
-        showToast(State.lang === 'en' ? 'Saving event draft...' : 'Menyimpan draf acara...', 'info');
-        const res = await api('saveEvent', {
-          isDraft: true,
-          titleBm,
-          titleEn: titleBm,
-          category,
-          eventDate: date,
-          startTime,
-          endTime,
-          venue,
-          rsvpDeadline: deadline,
-          targetMode: currentTargetMode,
-          individualEmails: individualEmails,
-          targetCount: currentTargetMode === 'individual' ? selectedOfficerEmails.size : finalCount
-        });
-
-        if (res && res.success) {
-          showToast(res.message, 'success');
-          await loadAppBoot();
-          setView('admin-dashboard');
-        }
-      });
-    }
-
-    // 12. Terbit & Siar FCM Form Submit
-    const formCreateEvent = document.getElementById('form-create-event');
-    const btnBroadcast = document.getElementById('btn-broadcast');
-
-    if (formCreateEvent) {
-      formCreateEvent.addEventListener('submit', async e => {
-        e.preventDefault();
-        const titleBm = inputTitleBm ? inputTitleBm.value.trim() : '';
-        
-        let category = selectCategory ? selectCategory.value : 'Mesyuarat';
-        if (category === 'Lain-lain' && inputCategoryCustom && inputCategoryCustom.value.trim()) {
-          category = inputCategoryCustom.value.trim();
+        if (selectedOfficerEmails.size === 0) {
+          showToast(State.lang === 'en' ? 'Please select at least one Career Education Teacher to invite.' : 'Sila tandakan sekurang-kurangnya seorang Guru Pendidikan Kerjaya yang dijemput hadir.', 'warning');
+          return;
         }
 
-        const date = inputDate ? inputDate.value : '';
-        const startTime = inputStartTime ? inputStartTime.value : '';
-        const endTime = inputEndTime ? inputEndTime.value : '';
-        const venue = inputVenue ? inputVenue.value.trim() : '';
-        const meetLink = inputMeetLink ? inputMeetLink.value.trim() : '';
-        const deadline = inputDeadline ? inputDeadline.value : '';
-        const driveUrl = inputDriveUrl ? inputDriveUrl.value.trim() : '';
-
-        const channelFcm = document.getElementById('channel-fcm') ? document.getElementById('channel-fcm').checked : true;
-        const channelEmail = document.getElementById('channel-email') ? document.getElementById('channel-email').checked : true;
-        const channelBanner = document.getElementById('channel-banner') ? document.getElementById('channel-banner').checked : true;
-
-        const { finalCount, currentTargetMode } = calculateTargetRecipients();
-
-        // Kumpulkan senarai sasaran rasmi
-        let targetRolesList = [];
-        let individualEmails = [];
-
-        if (currentTargetMode === 'group') {
-          if (roleCounselors && roleCounselors.checked) targetRolesList.push('Guru Pendidikan Kerjaya');
-          if (rolePrincipals && rolePrincipals.checked) targetRolesList.push('Pengetua');
-          if (roleDeputyPrincipals && roleDeputyPrincipals.checked) targetRolesList.push('Timbalan Pengetua');
-          if (roleSuperintendents && roleSuperintendents.checked) targetRolesList.push('Superintenden 1 hingga 3');
-        } else {
-          if (selectedOfficerEmails.size === 0) {
-            showToast('Sila tandakan sekurang-kurangnya seorang Guru Pendidikan Kerjaya yang ingin dijemput.', 'warning');
-            return;
-          }
-          individualEmails = Array.from(selectedOfficerEmails);
+        const individualEmails = Array.from(selectedOfficerEmails);
+        const finalCount = individualEmails.length;
+        const currentTargetMode = 'individual';
+        const checkInvitePrincipals = document.getElementById('check-invite-principals');
+        const targetRolesList = ['Guru Pendidikan Kerjaya'];
+        if (checkInvitePrincipals && checkInvitePrincipals.checked) {
+          targetRolesList.push('Pengetua');
         }
 
         if (!titleBm || !date) {
