@@ -489,8 +489,8 @@
         } else if (action === 'getMemos') {
           resolve({ success: true, data: mock.memos });
         } else if (action === 'getAdminDashboard') {
-          // Kiraan 100% DINAMIK dari data sebenar mock.users & mock.rsvps
-          const teachers = (mock.users || []).filter(u => u.role !== 'Admin');
+          // Kiraan 100% DINAMIK dari data 37 buah sekolah mengikut 4 daerah rasmi
+          const teachers = (mock.users || []).filter(u => u.roleGroup === 'Guru Pendidikan Kerjaya' || u.role === 'Guru');
           const totalTeachers = teachers.length;
           const publishedEvents = (mock.events || []).filter(e => (e.status || 'Published').toLowerCase() !== 'draft');
           const requestedEventId = payload && payload.eventId;
@@ -563,8 +563,8 @@
             }
           });
         } else if (action === 'getAdminRsvpTable') {
-          // Senarai baris RSVP dinamik mengikut jawapan sebenar guru bagi acara yang dipilih
-          const teachers = (mock.users || []).filter(u => u.role !== 'Admin');
+          // Senarai baris RSVP dinamik mengikut jawapan 37 guru bagi 37 buah sekolah
+          const teachers = (mock.users || []).filter(u => u.roleGroup === 'Guru Pendidikan Kerjaya' || u.role === 'Guru');
           const publishedEvents = (mock.events || []).filter(e => (e.status || 'Published').toLowerCase() !== 'draft');
           const requestedEventId = payload && payload.eventId;
           const targetEvent = (requestedEventId && mock.events.find(e => e.event_id === requestedEventId))
@@ -645,7 +645,7 @@
           });
         } else if (action === 'generateAttendancePdf') {
           const targetEventId = payload && payload.eventId;
-          const teachers = (mock.users || []).filter(u => u.role !== 'Admin');
+          const teachers = (mock.users || []).filter(u => u.roleGroup === 'Guru Pendidikan Kerjaya' || u.role === 'Guru');
           const totalTeachers = teachers.length;
           const publishedEvents = (mock.events || []).filter(e => (e.status || 'Published').toLowerCase() !== 'draft');
           const activeEvent = (targetEventId && mock.events.find(e => e.event_id === targetEventId))
@@ -1101,7 +1101,7 @@
     const profileLabel = document.getElementById('nav-profile-label');
     const btnProfile = document.getElementById('nav-btn-profile');
     if (profileIcon && profileLabel && btnProfile) {
-      profileIcon.textContent = 'account_circle';
+      profileIcon.textContent = 'manage_accounts';
       profileLabel.textContent = State.lang === 'en' ? 'Profile' : 'Profil';
       btnProfile.dataset.tab = 'profile';
     }
@@ -1122,9 +1122,9 @@
       }
 
       if (isActive) {
-        btn.className = 'nav-tab-btn flex flex-col items-center justify-center min-w-[56px] h-12 px-2 transition-all text-secondary bg-secondary-container/20 rounded-full font-label-md cursor-pointer font-bold';
+        btn.className = 'nav-tab-btn flex flex-col items-center justify-center flex-1 h-full py-1 text-primary border-t-2 border-secondary font-bold cursor-pointer transition-all' + (tab === 'notif' ? ' relative' : '');
       } else {
-        btn.className = 'nav-tab-btn relative flex flex-col items-center justify-center min-w-[56px] h-12 px-2 text-on-surface-variant transition-all rounded-full hover:text-on-surface cursor-pointer font-medium';
+        btn.className = 'nav-tab-btn flex flex-col items-center justify-center flex-1 h-full py-1 text-on-surface-variant border-t-2 border-transparent hover:text-on-surface cursor-pointer font-medium transition-all' + (tab === 'notif' ? ' relative' : '');
       }
     });
 
