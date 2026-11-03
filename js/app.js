@@ -213,7 +213,7 @@
       welcomeAuthSub: 'Please enter your official Ministry email to receive a One-Time Password (OTP) or sign in quickly using biometrics.',
       securityTwoFactor: 'Device Two-Factor Security Verification',
       teeEnclaveActive: 'TEE ENCLAVE ACTIVE',
-      orSeparator: 'Or Demo Access',
+      orSeparator: 'Or',
       forgotEmail: 'Forgot Email?',
       registerNewTeacher: 'Register New Teacher',
       activeStatus: 'Active',
