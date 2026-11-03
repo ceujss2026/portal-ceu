@@ -352,7 +352,7 @@
   // ==========================================================================
   const State = {
     lang: localStorage.getItem('ceu_lang') || 'bm',
-    token: localStorage.getItem('ceu_tok') || '',
+    token: '',
     currentUser: null,
     currentView: 'auth',
     events: [],
@@ -3208,15 +3208,16 @@
     setLanguage(State.lang);
     updateBiometricUI();
 
-    if (State.token) {
-      const savedUser = localStorage.getItem('ceu_user');
-      if (savedUser) {
-        try { State.currentUser = JSON.parse(savedUser); } catch(e) {}
-      }
-      loadAppBoot();
-    } else {
-      setView('auth');
-    }
+    // Sentiasa pastikan pengguna bermula di skrin Log Masuk (view-auth)
+    // Pengguna mesti memasukkan emel + OTP atau mengimbas biometrik secara eksplisit
+    State.token = '';
+    State.currentUser = null;
+    localStorage.removeItem('ceu_tok');
+    localStorage.removeItem('ceu_user');
+    sessionStorage.removeItem('ceu_tok');
+    sessionStorage.removeItem('ceu_user');
+
+    setView('auth');
   });
 
   window.triggerOtpProcess = handleSendOtpClick;
