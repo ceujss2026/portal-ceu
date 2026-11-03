@@ -1007,7 +1007,8 @@ function handleGetUsers_(user) {
       sheetSource: 'tbl_pengetua'
     }));
 
-    return { success: true, users: [...teachers, ...leaders] };
+    const allUsers = [...teachers, ...leaders].filter(u => u.name && u.email);
+    return { success: true, users: allUsers };
   } catch (err) {
     return { success: false, message: 'Gagal memuat senarai pengguna: ' + err.toString() };
   }
