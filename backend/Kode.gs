@@ -486,6 +486,12 @@ function dispatchPost_(action, data, token) {
     case 'broadcastNotif':
       if (user.role !== 'Admin') return { success: false, message: 'Capaian ditolak.' };
       return handleBroadcastNotif_(user, data);
+    case 'deleteEvent':
+      if (user.role !== 'Admin') return { success: false, message: 'Capaian ditolak.' };
+      return handleDeleteEvent_(user, data.eventId);
+    case 'publishDraft':
+      if (user.role !== 'Admin') return { success: false, message: 'Capaian ditolak.' };
+      return handlePublishDraft_(user, data.eventId);
 
     default:
       return { success: false, message: 'Action [' + action + '] tidak dikenali.' };
@@ -1313,14 +1319,34 @@ function handleSaveEvent_(user, data) {
   };
 
   const newRow = headers.map(h => rowObj[h] !== undefined ? rowObj[h] : '');
-  sh.appendRow(newRow);
+  
+  // Semak jika eventId sudah wujud (kemas kini vs cipta baharu)
+  let existingRowIndex = -1;
+  if (data.eventId) {
+    const allData = sh.getDataRange().getValues();
+    const idIdx = headers.indexOf('event_id');
+    if (idIdx !== -1) {
+      for (let i = 1; i < allData.length; i++) {
+        if (String(allData[i][idIdx]).trim() === String(data.eventId).trim()) {
+          existingRowIndex = i + 1;
+          break;
+        }
+      }
+    }
+  }
+
+  if (existingRowIndex > 0) {
+    sh.getRange(existingRowIndex, 1, 1, newRow.length).setValues([newRow]);
+  } else {
+    sh.appendRow(newRow);
+  }
 
   bump('global');
   CacheX.remove('events_list');
   CacheX.remove('admin_dashboard');
 
-  // Hantar Hebahan automatik ke senarai notifikasi jika diterbitkan
-  if (!data.isDraft) {
+  // Hantar Hebahan automatik ke senarai notifikasi jika diterbitkan (hanya jika baru diterbitkan)
+  if (!data.isDraft && existingRowIndex <= 0) {
     try {
       const shNotif = getSheet_(CONFIG.SHEET_NAMES.notif);
       const targetSummary = (data.targetMode === 'individual')
@@ -1340,7 +1366,114 @@ function handleSaveEvent_(user, data) {
     } catch(e) {}
   }
 
-  return { success: true, message: 'Acara ' + eventId + ' berjaya diterbitkan.', eventId: eventId };
+  return { success: true, message: data.isDraft ? ('Draf acara ' + eventId + ' berjaya disimpan.') : ('Acara ' + eventId + ' berjaya diterbitkan.'), eventId: eventId };
+}
+
+// Padam Acara & Rekod RSVP Berkaitan
+function handleDeleteEvent_(user, eventId) {
+  if (!eventId) return { success: false, message: 'ID Acara diperlukan.' };
+  const sh = getSheet_(CONFIG.SHEET_NAMES.events);
+  const data = sh.getDataRange().getValues();
+  if (data.length <= 1) return { success: false, message: 'Tiada acara dijumpai.' };
+  
+  const headers = data[0].map(s => String(s).trim());
+  const idColIdx = headers.indexOf('event_id');
+  if (idColIdx === -1) return { success: false, message: 'Lajur event_id tidak ditemui.' };
+  
+  let rowIndex = -1;
+  for (let i = 1; i < data.length; i++) {
+    if (String(data[i][idColIdx]).trim() === String(eventId).trim()) {
+      rowIndex = i + 1;
+      break;
+    }
+  }
+  
+  if (rowIndex === -1) {
+    return { success: false, message: 'Acara dengan ID ' + eventId + ' tidak dijumpai.' };
+  }
+  
+  sh.deleteRow(rowIndex);
+  
+  // Padamkan rekod RSVP yang berkaitan dalam tbl_rsvp
+  try {
+    const shRsvp = getSheet_(CONFIG.SHEET_NAMES.rsvp);
+    const rsvpData = shRsvp.getDataRange().getValues();
+    if (rsvpData.length > 1) {
+      const rsvpHeaders = rsvpData[0].map(s => String(s).trim());
+      const rsvpEvCol = rsvpHeaders.indexOf('event_id');
+      if (rsvpEvCol !== -1) {
+        for (let j = rsvpData.length - 1; j >= 1; j--) {
+          if (String(rsvpData[j][rsvpEvCol]).trim() === String(eventId).trim()) {
+            shRsvp.deleteRow(j + 1);
+          }
+        }
+      }
+    }
+  } catch(e) {}
+  
+  bump('global');
+  CacheX.remove('events_list');
+  CacheX.remove('admin_dashboard');
+  
+  return { success: true, message: 'Acara berjaya dipadamkan sepenuhnya.' };
+}
+
+// Terbitkan Draf Acara
+function handlePublishDraft_(user, eventId) {
+  if (!eventId) return { success: false, message: 'ID Acara diperlukan.' };
+  const sh = getSheet_(CONFIG.SHEET_NAMES.events);
+  const data = sh.getDataRange().getValues();
+  if (data.length <= 1) return { success: false, message: 'Tiada acara dijumpai.' };
+  
+  const headers = data[0].map(s => String(s).trim());
+  const idColIdx = headers.indexOf('event_id');
+  const statusColIdx = headers.indexOf('status');
+  if (idColIdx === -1 || statusColIdx === -1) return { success: false, message: 'Lajur event_id atau status tidak ditemui.' };
+  
+  let rowIndex = -1;
+  let eventRow = null;
+  for (let i = 1; i < data.length; i++) {
+    if (String(data[i][idColIdx]).trim() === String(eventId).trim()) {
+      rowIndex = i + 1;
+      eventRow = data[i];
+      break;
+    }
+  }
+  
+  if (rowIndex === -1) return { success: false, message: 'Acara tidak dijumpai.' };
+  
+  sh.getRange(rowIndex, statusColIdx + 1).setValue('Published');
+  
+  // Hantar notifikasi kepada pengguna
+  try {
+    const shNotif = getSheet_(CONFIG.SHEET_NAMES.notif);
+    const titleBm = eventRow[headers.indexOf('title_bm')] || 'Program Rasmi';
+    const titleEn = eventRow[headers.indexOf('title_en')] || titleBm;
+    const deadline = eventRow[headers.indexOf('rsvp_deadline')] || '';
+    const targetModeIdx = headers.indexOf('target_mode');
+    const targetEmailsIdx = headers.indexOf('target_emails');
+    const targetSummary = (targetModeIdx !== -1 && eventRow[targetModeIdx] === 'individual' && targetEmailsIdx !== -1)
+      ? eventRow[targetEmailsIdx]
+      : 'Broadcast';
+      
+    shNotif.appendRow([
+      'NOTIF-' + Utilities.getUuid().slice(0, 8),
+      'Program Baharu: ' + titleBm,
+      'New Event: ' + titleEn,
+      'Sila buat pengesahan RSVP sebelum ' + (deadline || 'tarikh tutup'),
+      'Please submit your RSVP prior to ' + (deadline || 'deadline'),
+      'Urgent',
+      new Date().toISOString(),
+      user.email,
+      targetSummary
+    ]);
+  } catch(e) {}
+  
+  bump('global');
+  CacheX.remove('events_list');
+  CacheX.remove('admin_dashboard');
+  
+  return { success: true, message: 'Draf acara berjaya diterbitkan secara rasmi!' };
 }
 
 // Penjanaan Dokumen Laporan Rasmi PDF Ber-QR HMAC

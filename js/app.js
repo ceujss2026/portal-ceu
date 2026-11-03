@@ -978,8 +978,9 @@
             targetEvent: targetEvent
           });
         } else if (action === 'saveEvent') {
+          const eventId = payload.eventId || ('EVT-' + Date.now());
           const newEvt = {
-            event_id: 'EVT-' + Date.now(),
+            event_id: eventId,
             title_bm: payload.titleBm,
             title_en: payload.titleEn || payload.titleBm,
             event_date: payload.eventDate,
@@ -988,6 +989,7 @@
             venue: payload.venue,
             meeting_link: payload.meetingLink || '',
             rsvp_deadline: payload.rsvpDeadline,
+            attachment_drive_url: payload.driveUrl || '',
             status: payload.isDraft ? 'Draft' : 'Published',
             created_by: (State.currentUser && State.currentUser.email) ? State.currentUser.email : 'pegawai.upk@moe.bn',
             target_mode: payload.targetMode || 'group',
@@ -997,7 +999,12 @@
             target_count: payload.targetCount || (payload.individualEmails ? payload.individualEmails.length : 37)
           };
           if (!mock.events) mock.events = [];
-          mock.events.unshift(newEvt);
+          const existingIdx = mock.events.findIndex(e => String(e.event_id) === String(eventId));
+          if (existingIdx !== -1) {
+            mock.events[existingIdx] = Object.assign(mock.events[existingIdx], newEvt);
+          } else {
+            mock.events.unshift(newEvt);
+          }
 
           // Masukkan hebahan ke notifikasi jika FCM diaktifkan
           if (!payload.isDraft && payload.channels && payload.channels.fcm) {
@@ -1484,7 +1491,9 @@
     if (viewName === 'admin-rsvp') renderAdminRsvpTableView();
     if (viewName === 'admin-events') {
       applyTranslations();
-      resetCreateEventForm();
+      if (!editingEventId) {
+        resetCreateEventForm();
+      }
       updateFormProgress();
     }
 
@@ -2055,6 +2064,9 @@
               </a>
             ` : ''}
             ${(State.currentUser && State.currentUser.role === 'Admin') ? `
+              <button type="button" class="btn-edit-event w-12 h-12 rounded-full bg-surface-container-low text-primary hover:bg-primary hover:text-white flex items-center justify-center transition-all cursor-pointer" data-id="${ev.event_id}" title="Sunting Acara">
+                <span class="material-symbols-outlined text-[18px]">edit</span>
+              </button>
               <button type="button" class="btn-delete-event w-12 h-12 rounded-full bg-surface-container-low text-error hover:bg-error hover:text-white flex items-center justify-center transition-all cursor-pointer" data-id="${ev.event_id}" title="Padam Acara">
                 <span class="material-symbols-outlined text-[18px]">delete</span>
               </button>
@@ -2064,9 +2076,15 @@
       `;
     }).join('');
 
-        container.querySelectorAll('.btn-open-rsvp').forEach(btn => {
+    container.querySelectorAll('.btn-open-rsvp').forEach(btn => {
       btn.addEventListener('click', () => {
         openRsvpModal(btn.dataset.id);
+      });
+    });
+
+    container.querySelectorAll('.btn-edit-event').forEach(btn => {
+      btn.addEventListener('click', () => {
+        window.editEvent(btn.dataset.id);
       });
     });
 
@@ -2745,7 +2763,11 @@
                 <span>Terbitkan</span>
               </button>
             ` : ''}
-            <button type="button" class="btn-delete-event px-3 py-1.5 rounded-lg border border-error/40 text-error hover:bg-error hover:text-white text-xs font-bold flex items-center gap-1 transition-all cursor-pointer" data-id="${ev.event_id}">
+            <button type="button" class="btn-edit-event px-3 py-1.5 rounded-lg border border-primary/40 text-primary hover:bg-primary hover:text-white text-xs font-bold flex items-center gap-1 transition-all cursor-pointer" data-id="${ev.event_id}" title="Sunting Acara / Draf">
+              <span class="material-symbols-outlined text-sm">edit</span>
+              <span>Sunting</span>
+            </button>
+            <button type="button" class="btn-delete-event px-3 py-1.5 rounded-lg border border-error/40 text-error hover:bg-error hover:text-white text-xs font-bold flex items-center gap-1 transition-all cursor-pointer" data-id="${ev.event_id}" title="Padam Acara">
               <span class="material-symbols-outlined text-sm">delete</span>
               <span>Padam</span>
             </button>
@@ -2768,6 +2790,12 @@
           showToast((res && res.message) || 'Gagal menerbitkan draf.', 'error');
           btn.disabled = false;
         }
+      });
+    });
+
+    container.querySelectorAll('.btn-edit-event').forEach(btn => {
+      btn.addEventListener('click', () => {
+        window.editEvent(btn.dataset.id);
       });
     });
 
@@ -3271,7 +3299,14 @@
     });
   }
 
-  function resetCreateEventForm() {
+  let editingEventId = null;
+
+  function resetCreateEventForm(keepEditingId) {
+    if (!keepEditingId) {
+      editingEventId = null;
+      const heading = document.querySelector('#view-admin-events h1');
+      if (heading) heading.textContent = State.lang === 'en' ? 'Create & Publish Official Event' : 'Bina & Terbitkan Acara Rasmi';
+    }
     selectedOfficerEmails.clear();
     renderIndividualOfficers();
     updateTargetBadges();
@@ -3323,6 +3358,109 @@
       btnSearchMaps.classList.add('opacity-50', 'pointer-events-none');
     }
   }
+
+  window.editEvent = function(eventId) {
+    const all = [...(State.events || []), ...(window.MOCK_DATA.events || [])];
+    const ev = all.find(e => String(e.event_id) === String(eventId));
+    if (!ev) {
+      showToast('Acara tidak dijumpai.', 'error');
+      return;
+    }
+
+    editingEventId = ev.event_id;
+    setView('admin-events');
+
+    const heading = document.querySelector('#view-admin-events h1');
+    if (heading) heading.textContent = (State.lang === 'en' ? 'Edit Event / Draft: ' : 'Sunting Acara / Draf: ') + (ev.title_bm || ev.event_id);
+
+    const inputTitle = document.getElementById('event-title-bm');
+    const selectCat = document.getElementById('event-category');
+    const inputCatCustom = document.getElementById('event-category-custom');
+    const containerCatCustom = document.getElementById('container-category-custom');
+    const inputDate = document.getElementById('event-date-input');
+    const inputStart = document.getElementById('event-start-time');
+    const inputEnd = document.getElementById('event-end-time');
+    const inputVenue = document.getElementById('event-venue-input');
+    const inputMeet = document.getElementById('event-meet-link');
+    const inputDeadline = document.getElementById('event-deadline-input');
+    const inputDrive = document.getElementById('event-drive-url');
+
+    if (inputTitle) inputTitle.value = ev.title_bm || '';
+
+    const cat = ev.category || 'Mesyuarat';
+    if (selectCat) {
+      const standardCats = ['Mesyuarat', 'Taklimat', 'Program', 'Lawatan'];
+      if (standardCats.includes(cat)) {
+        selectCat.value = cat;
+        if (containerCatCustom) containerCatCustom.classList.add('hidden');
+      } else {
+        selectCat.value = 'Lain-lain';
+        if (containerCatCustom) {
+          containerCatCustom.classList.remove('hidden');
+          if (inputCatCustom) inputCatCustom.value = cat;
+        }
+      }
+    }
+
+    if (inputDate) inputDate.value = ev.event_date || '';
+
+    if (inputStart) {
+      const s = (ev.start_time || '08:30').replace(/[^0-9:]/g, '').trim();
+      inputStart.value = s || '08:30';
+    }
+    if (inputEnd) {
+      const e = (ev.end_time || '12:00').replace(/[^0-9:]/g, '').trim();
+      inputEnd.value = e || '12:00';
+    }
+
+    if (inputVenue) inputVenue.value = ev.venue || '';
+    if (inputMeet) inputMeet.value = ev.meeting_link || '';
+    if (inputDeadline) inputDeadline.value = ev.rsvp_deadline || '';
+    if (inputDrive) inputDrive.value = ev.attachment_drive_url || '';
+
+    // Pratonton
+    const previewTitle = document.getElementById('preview-title');
+    const previewDate = document.getElementById('preview-date');
+    const previewTime = document.getElementById('preview-time');
+    const previewVenue = document.getElementById('preview-venue');
+    const previewVenueName = document.getElementById('preview-venue-name');
+    const previewDeadline = document.getElementById('preview-deadline');
+
+    if (previewTitle) previewTitle.textContent = ev.title_bm || 'Tajuk Acara Rasmi';
+    if (previewDate) previewDate.textContent = ev.event_date || '-- / -- / ----';
+    if (previewTime) previewTime.textContent = ev.start_time || '--:--';
+    if (previewVenue) previewVenue.textContent = ev.venue || 'Lokasi Acara';
+    if (previewVenueName) previewVenueName.textContent = ev.venue || 'Lokasi belum ditetapkan';
+    if (previewDeadline) previewDeadline.textContent = ev.rsvp_deadline ? `Tutup: ${ev.rsvp_deadline}` : 'Tarikh Tutup RSVP';
+
+    // Lampiran jika ada
+    const attachPreview = document.getElementById('event-attachment-preview');
+    const fileNamePreview = document.getElementById('event-file-name-preview');
+    const fileSizePreview = document.getElementById('event-file-size-preview');
+    const fileBadgeIcon = document.getElementById('event-file-badge-icon');
+    if (ev.attachment_drive_url && attachPreview) {
+      attachPreview.classList.remove('hidden');
+      if (fileNamePreview) fileNamePreview.textContent = 'Pautan Dokumen Lampiran';
+      if (fileSizePreview) fileSizePreview.innerHTML = `<span>Lampiran Tersimpan</span> • <span class="text-primary font-medium">${ev.attachment_drive_url.substring(0, 30)}...</span>`;
+      if (fileBadgeIcon) fileBadgeIcon.textContent = 'link';
+    } else if (attachPreview) {
+      attachPreview.classList.add('hidden');
+    }
+
+    // Isi semula guru sasaran yang dijemput
+    selectedOfficerEmails.clear();
+    const rawEmails = ev.target_emails || ev.individualEmails || [];
+    const emailList = (Array.isArray(rawEmails) ? rawEmails : String(rawEmails).split(','))
+      .map(s => String(s).trim().toLowerCase())
+      .filter(Boolean);
+
+    emailList.forEach(em => selectedOfficerEmails.add(em));
+    renderIndividualOfficers();
+    updateTargetBadges();
+    updateFormProgress();
+
+    showToast(State.lang === 'en' ? 'Event loaded for editing.' : 'Maklumat acara dimuatkan untuk disunting.', 'info');
+  };
 
   function updateFormProgress() {
     const inputTitle = document.getElementById('event-title-bm');
@@ -3670,8 +3808,15 @@
     // 11. Pengurusan Simpan Draf & Terbit Acara
     const btnSaveDraft = document.getElementById('btn-save-draft');
     const btnBroadcast = document.getElementById('btn-broadcast');
+    let isSubmittingEvent = false;
 
     async function handleEventSubmission(isDraft) {
+      if (isSubmittingEvent) {
+        console.warn('Pengesahan acara sedang diproses, mengabaikan klik pendua.');
+        return;
+      }
+      isSubmittingEvent = true;
+
       try {
         const titleEl = document.getElementById('event-title-bm');
         const titleBm = titleEl ? titleEl.value.trim() : (isDraft ? 'Draf Acara Baharu' : '');
@@ -3738,6 +3883,7 @@
         }
 
         const res = await api('saveEvent', {
+          eventId: editingEventId || undefined,
           isDraft: isDraft,
           titleBm: titleBm || (isDraft ? 'Draf Acara' : 'Acara Rasmi'),
           titleEn: titleBm || (isDraft ? 'Event Draft' : 'Official Event'),
@@ -3761,6 +3907,7 @@
         });
 
         if (res && res.success) {
+          editingEventId = null;
           if (activeBtn) {
             activeBtn.innerHTML = `<span class="material-symbols-outlined text-[18px]">check_circle</span><span>${isDraft ? (State.lang === 'en' ? 'Draft Saved' : 'Draf Disimpan') : (State.lang === 'en' ? 'Broadcasted!' : 'Berjaya Disiarkan!')}</span>`;
             activeBtn.classList.remove('bg-primary');
@@ -3799,25 +3946,13 @@
             ? `<span class="material-symbols-outlined text-[18px]">save</span><span>${State.lang === 'en' ? 'Save Draft' : 'Simpan Draf'}</span>`
             : `<span class="material-symbols-outlined text-[18px]">send</span><span>${State.lang === 'en' ? 'Publish & Broadcast' : 'Terbit & Siar FCM'}</span>`;
         }
+      } finally {
+        isSubmittingEvent = false;
       }
     }
 
     window.handleEventPublish = () => handleEventSubmission(false);
     window.handleEventDraft = () => handleEventSubmission(true);
-
-    if (btnSaveDraft) {
-      btnSaveDraft.addEventListener('click', (e) => {
-        e.preventDefault();
-        handleEventSubmission(true);
-      });
-    }
-
-    if (btnBroadcast) {
-      btnBroadcast.addEventListener('click', (e) => {
-        e.preventDefault();
-        handleEventSubmission(false);
-      });
-    }
 
     if (formCreate) {
       formCreate.addEventListener('submit', (e) => {
