@@ -252,6 +252,7 @@ const CONFIG = {
   SHEET_NAMES: {
     config: 'AppConfig',
     users: 'tbl_users',
+    pengetua: 'tbl_pengetua', // Lembaran berasingan khas untuk Pengetua, Timbalan Pengetua & Superintenden
     events: 'tbl_events',
     rsvp: 'tbl_rsvp',
     memos: 'tbl_memos_docs',
@@ -458,6 +459,12 @@ function handleSendOtp_(email) {
   try {
     const users = readSheetAsObjects_(CONFIG.SHEET_NAMES.users);
     let user = users.find(u => String(u.email || '').toLowerCase().trim() === em);
+    if (!user) {
+      try {
+        const pengetuaList = readSheetAsObjects_(CONFIG.SHEET_NAMES.pengetua);
+        user = pengetuaList.find(u => String(u.email || '').toLowerCase().trim() === em);
+      } catch(e) {}
+    }
 
     // Jika pengguna baru sah ber-domain rasmi, daftarkan automatik sebagai Guru Pending
     let namaUser = 'Guru Pendidikan Kerjaya';
@@ -562,15 +569,24 @@ function handleVerifyOtp_(email, otp, device) {
   // OTP Sah! Hapus dari cache
   CacheService.getScriptCache().remove('otp_' + em);
 
-  // Ambil maklumat pengguna
+  // Ambil maklumat pengguna (Semak tbl_users dan tbl_pengetua)
   const users = readSheetAsObjects_(CONFIG.SHEET_NAMES.users);
-  const user = users.find(u => String(u.email || '').toLowerCase().trim() === em) || {
-    email: em,
-    full_name: 'Guru Pendidikan Kerjaya',
-    role: 'Guru',
-    district: 'Brunei-Muara',
-    school_name: 'Sekolah Menengah'
-  };
+  let user = users.find(u => String(u.email || '').toLowerCase().trim() === em);
+  if (!user) {
+    try {
+      const pengetuaList = readSheetAsObjects_(CONFIG.SHEET_NAMES.pengetua);
+      user = pengetuaList.find(u => String(u.email || '').toLowerCase().trim() === em);
+    } catch(e) {}
+  }
+  if (!user) {
+    user = {
+      email: em,
+      full_name: 'Pegawai Kementerian Pendidikan',
+      role: 'Guru',
+      district: 'Brunei-Muara',
+      school_name: 'Sekolah Menengah'
+    };
+  }
 
   // Buat Sesi HMAC 30 Hari
   const token = buatSesi_(em, user.role, user.full_name, user.district, user.school_name);
@@ -939,11 +955,16 @@ function mapRoleGroup_(role) {
   return role;
 }
 
-// Senarai Pengguna Direktori (tbl_users) untuk Admin
+// Senarai Pengguna Direktori (Menggabungkan tbl_users & tbl_pengetua) untuk Admin
 function handleGetUsers_(user) {
   try {
-    const rows = readSheetAsObjects_(CONFIG.SHEET_NAMES.users);
-    const users = rows.map(r => ({
+    const userRows = readSheetAsObjects_(CONFIG.SHEET_NAMES.users);
+    let pengetuaRows = [];
+    try {
+      pengetuaRows = readSheetAsObjects_(CONFIG.SHEET_NAMES.pengetua);
+    } catch(e) {}
+
+    const teachers = userRows.map(r => ({
       email: String(r.email || '').toLowerCase().trim(),
       name: r.full_name || r.name || r.nama || '',
       role: r.role || 'Guru',
@@ -951,9 +972,23 @@ function handleGetUsers_(user) {
       district: r.district || r.daerah || 'Brunei-Muara',
       school: r.school_name || r.sekolah || r.school || '',
       phone: r.phone_number || r.phone || '',
-      status: r.account_status || r.status || 'Active'
+      status: r.account_status || r.status || 'Active',
+      sheetSource: 'tbl_users'
     }));
-    return { success: true, users: users };
+
+    const leaders = pengetuaRows.map(r => ({
+      email: String(r.email || '').toLowerCase().trim(),
+      name: r.full_name || r.name || r.nama || '',
+      role: r.role || 'Pengetua',
+      roleGroup: mapRoleGroup_(r.role || 'Pengetua'),
+      district: r.district || r.daerah || 'Brunei-Muara',
+      school: r.school_name || r.sekolah || r.school || '',
+      phone: r.phone_number || r.phone || '',
+      status: r.account_status || r.status || 'Active',
+      sheetSource: 'tbl_pengetua'
+    }));
+
+    return { success: true, users: [...teachers, ...leaders] };
   } catch (err) {
     return { success: false, message: 'Gagal memuat senarai pengguna: ' + err.toString() };
   }
@@ -965,7 +1000,11 @@ function handleGetAdminDashboard_(user) {
   if (cached) return { success: true, data: cached, cached: true };
 
   const users = readSheetAsObjects_(CONFIG.SHEET_NAMES.users);
-  const teachers = users.filter(u => u.role !== 'Admin');
+  // Hanya Guru Pendidikan Kerjaya (Abaikan Admin, Pengetua, Timbalan Pengetua, Superintenden)
+  const teachers = users.filter(u => {
+    const rl = String(u.role || '').toLowerCase();
+    return rl !== 'admin' && !rl.includes('pengetua') && !rl.includes('superintenden');
+  });
   const events = readSheetAsObjects_(CONFIG.SHEET_NAMES.events);
   const latestEvent = events[0] || null;
 
@@ -1325,6 +1364,25 @@ function setupAppEnvironment() {
     shUsers.appendRow([
       'zaki.kassim@moe.bn', 'Cikgu Mohd Zaki bin Kassim', 'Temburong',
       'Sekolah Menengah Sultan Hassan', '+673 8654321', 'Guru', 'Active', '', 'FALSE', new Date().toISOString()
+    ]);
+
+    // tbl_pengetua (Helaian Berasingan bagi Pengetua, Timbalan Pengetua & Superintenden)
+    const shPengetua = ss.insertSheet(CONFIG.SHEET_NAMES.pengetua);
+    shPengetua.appendRow([
+      'email', 'full_name', 'district', 'school_name', 'phone_number',
+      'role', 'account_status', 'fcm_device_token', 'biometric_enabled', 'created_at'
+    ]);
+    shPengetua.appendRow([
+      'pengetua.maktabduli@moe.edu.bn', 'Pengetua Maktab Duli PMAMB', 'Brunei-Muara',
+      'Maktab Duli Pengiran Muda Al-Muhtadee Billah', '+673 2441234', 'Pengetua', 'Active', '', 'FALSE', new Date().toISOString()
+    ]);
+    shPengetua.appendRow([
+      'tpengetua.maktabduli@moe.edu.bn', 'Timbalan Pengetua Pentadbiran Maktab Duli', 'Brunei-Muara',
+      'Maktab Duli Pengiran Muda Al-Muhtadee Billah', '+673 2441235', 'Timbalan Pengetua', 'Active', '', 'FALSE', new Date().toISOString()
+    ]);
+    shPengetua.appendRow([
+      'superintenden.k1@moe.gov.bn', 'Pegawai Superintenden Kluster 1', 'Brunei-Muara',
+      'Jabatan Sekolah-Sekolah (Kluster 1)', '+673 2381122', 'Superintenden', 'Active', '', 'FALSE', new Date().toISOString()
     ]);
 
     // tbl_events
