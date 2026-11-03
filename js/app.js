@@ -457,7 +457,7 @@
             users: (State.users && State.users.length) ? State.users : mock.users
           });
         } else if (action === 'sendOtp') {
-          resolve({ success: true, message: 'Kod OTP dihantar (Mod Demo: 123456)', email: payload.email });
+          resolve({ success: true, message: (State.lang === 'en' ? 'OTP code has been sent to your official email.' : 'Kod OTP telah berjaya dihantar ke emel rasmi anda.'), email: payload.email });
         } else if (action === 'verifyOtp') {
           const em = (payload.email || '').toLowerCase().trim();
           const target = mock.users.find(u => u.email === em) || {
@@ -2375,12 +2375,11 @@
           submitBtn.classList.remove('opacity-80', 'pointer-events-none');
         }, 2500);
       }
-      showToast(res.message || (State.lang === 'en' ? 'OTP code sent (Demo Mode: 123456)' : 'Kod OTP berjaya dihantar (Mod Demo: 123456)'), 'success');
+      showToast(res.message || (State.lang === 'en' ? 'OTP code has been sent to your email.' : 'Kod OTP telah berjaya dihantar ke emel anda.'), 'success');
       
-      // Auto-fill demo OTP digits for smooth testing
-      const demoOtp = '123456';
-      document.querySelectorAll('.otp-digit-input').forEach((inp, idx) => {
-        inp.value = demoOtp[idx] || '';
+      // Kosongkan kotak OTP supaya pengguna memasukkan kod sebenar dari emel
+      document.querySelectorAll('.otp-digit-input').forEach(inp => {
+        inp.value = '';
       });
 
       startOtpCountdown();
@@ -2423,21 +2422,21 @@
 
   async function handleVerifyOtpClick() {
     const emailInput = document.getElementById('email') || document.getElementById('auth-email-input');
-    let email = (emailInput?.value || '').trim();
+    const email = (emailInput?.value || '').trim();
     if (!email) {
-      email = 'noraini.yusof@moe.bn';
-      if (emailInput) emailInput.value = email;
+      showToast(State.lang === 'en' ? 'Please enter your official email address.' : 'Sila masukkan alamat emel rasmi anda.', 'warning');
+      emailInput?.focus();
+      return;
     }
 
     let otp = '';
     document.querySelectorAll('.otp-digit-input').forEach(inp => otp += (inp.value || '').trim());
 
     if (!otp || otp.length < 6) {
-      otp = '123456';
-      const demoOtp = '123456';
-      document.querySelectorAll('.otp-digit-input').forEach((inp, idx) => {
-        inp.value = demoOtp[idx] || '';
-      });
+      showToast(State.lang === 'en' ? 'Please enter the complete 6-digit OTP code.' : 'Sila masukkan 6-digit kod OTP yang lengkap.', 'warning');
+      const firstEmpty = Array.from(document.querySelectorAll('.otp-digit-input')).find(i => !i.value);
+      if (firstEmpty) firstEmpty.focus();
+      return;
     }
 
     const res = await api('verifyOtp', { email: email, otp: otp, device: navigator.userAgent });
