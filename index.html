@@ -1397,11 +1397,11 @@
         <!-- Sticky Bottom Action Bar -->
         <div class="fixed bottom-16 left-0 right-0 z-40 bg-surface-container-lowest/95 backdrop-blur-md px-4 py-3 shadow-[0_-4px_16px_rgba(0,0,0,0.08)] border-t border-outline-variant/30">
           <div class="max-w-2xl mx-auto flex items-center gap-3">
-            <button id="btn-save-draft" type="button" class="flex-1 h-11 px-3 rounded-full bg-surface-container-low hover:bg-surface-container text-on-surface text-xs font-bold flex items-center justify-center gap-1.5 transition-colors cursor-pointer border border-outline-variant/40">
+            <button id="btn-save-draft" onclick="window.handleEventDraft()" type="button" class="flex-1 h-11 px-3 rounded-full bg-surface-container-low hover:bg-surface-container text-on-surface text-xs font-bold flex items-center justify-center gap-1.5 transition-colors cursor-pointer border border-outline-variant/40">
               <span class="material-symbols-outlined text-[18px]">save</span>
               <span>Simpan Draf</span>
             </button>
-            <button id="btn-broadcast" type="button" class="flex-[1.6] h-11 px-4 rounded-full bg-secondary-container hover:bg-secondary-fixed text-on-secondary-container text-xs font-bold flex items-center justify-center gap-2 shadow-[0_6px_16px_rgba(252,183,38,0.35)] transition-all active:scale-[0.98] cursor-pointer">
+            <button id="btn-broadcast" onclick="window.handleEventPublish()" type="button" class="flex-[1.6] h-11 px-4 rounded-full bg-secondary-container hover:bg-secondary-fixed text-on-secondary-container text-xs font-bold flex items-center justify-center gap-2 shadow-[0_6px_16px_rgba(252,183,38,0.35)] transition-all active:scale-[0.98] cursor-pointer">
               <span class="material-symbols-outlined text-[18px]">send</span>
               <span id="btn-broadcast-text" data-i18n="publishBroadcastBtn">Terbit &amp; Siar FCM</span>
             </button>
@@ -1630,8 +1630,8 @@
   </nav>
 
   <!-- Application Logic Scripts -->
-  <script src="js/config.js?v=1.5.7"></script>
-  <script src="js/data-mock.js?v=1.5.7"></script>
-  <script src="js/app.js?v=1.5.7"></script>
+  <script src="js/config.js?v=1.5.8"></script>
+  <script src="js/data-mock.js?v=1.5.8"></script>
+  <script src="js/app.js?v=1.5.8"></script>
 </body>
 </html>
