@@ -123,6 +123,44 @@
       catCirculars: 'Pekeliling',
       catMinutes: 'Minit Mesyuarat',
       catCalendar: 'Kalendar Tahunan',
+      // Stepper & Kemajuan Borang
+      stepProgressTitle: 'Kemajuan Penerbitan',
+      eventTitleLabel: 'Tajuk Acara',
+      eventCategoryLabel: 'Kategori Acara',
+      optMeeting: 'Mesyuarat',
+      optBriefing: 'Taklimat',
+      optProgram: 'Program',
+      optVisit: 'Lawatan',
+      optOther: 'Lain-lain (sila nyatakan)',
+      eventFormatLabel: 'Format Pelaksanaan',
+      formatInPerson: 'Bersemuka',
+      formatInPersonDesc: 'Fizikal di lokasi pilihan',
+      formatHybrid: 'Hibrid',
+      formatHybridDesc: 'Google Meet Berintegrasi',
+      formatOnline: 'Dalam Talian Penuh',
+      formatOnlineDesc: 'Siaran Webex / Google Meet Rasmi',
+      onlineMeetLinkOptional: 'Pautan Mesyuarat Dalam Talian (Google Meet / Webex)',
+      execDateLabel: 'Tarikh Pelaksanaan',
+      sessionTimeLabel: 'Waktu Sesi',
+      venueLabelLong: 'Lokasi Acara / Tempat Pelaksanaan',
+      venueNote: 'Boleh masukkan sebarang lokasi pilihan — hotel, pusat persidangan, dewan, bilik mesyuarat, dalam talian, atau luar pejabat.',
+      venueNotSet: 'Lokasi belum ditetapkan',
+      rsvpDeadlineLabel: 'Tarikh Tutup RSVP',
+      requireReasonLabel: 'Wajibkan Alasan Ketidakhadiran',
+      requireReasonDesc: 'Memerlukan pengesahan Pengetua jika wakil dihantar',
+      rsvpDeadlineNotSet: 'Belum ditetapkan',
+      attachmentLabel: 'Lampiran Fail Rasmi (Pilihan)',
+      broadcastChannelsLabel: 'Saluran Hebahan Serentak',
+      fcmChannelTitle: 'Notifikasi Tolak (Android PWA)',
+      bannerChannelTitle: 'Banner Siaran Automatik Laman Utama Guru',
+      bannerChannelDesc: 'Dipaparkan pada kedudukan tertinggi papan kenyataan portal CEU selama 7 hari.',
+      previewPortalHeader: 'Portal Guru Pendidikan Kerjaya MOE',
+      justNowText: 'Baru sahaja',
+      badgeCompulsory: 'Wajib Hadir',
+      previewDefaultTitle: 'Tajuk Acara Rasmi',
+      previewDefaultVenue: 'Lokasi Acara',
+      previewDefaultDeadline: 'Tarikh Tutup RSVP',
+
       venueMapsHint: 'Tekan untuk semak atau pandu arah di Google Maps',
       btnOpenMaps: 'Buka di Google Maps',
       targetRoleCareerTeachers: 'Guru Pendidikan Kerjaya',
@@ -370,6 +408,44 @@
       catCirculars: 'Circulars',
       catMinutes: 'Meeting Minutes',
       catCalendar: 'Annual Calendar',
+      // Stepper & Form Progress
+      stepProgressTitle: 'Publishing Progress',
+      eventTitleLabel: 'Event Title',
+      eventCategoryLabel: 'Event Category',
+      optMeeting: 'Meeting',
+      optBriefing: 'Briefing',
+      optProgram: 'Program',
+      optVisit: 'Official Visit',
+      optOther: 'Other (please specify)',
+      eventFormatLabel: 'Delivery Format',
+      formatInPerson: 'In-Person',
+      formatInPersonDesc: 'Physical at selected venue',
+      formatHybrid: 'Hybrid',
+      formatHybridDesc: 'Integrated Google Meet',
+      formatOnline: 'Fully Online',
+      formatOnlineDesc: 'Official Webex / Google Meet broadcast',
+      onlineMeetLinkOptional: 'Online Meeting Link (Google Meet / Webex)',
+      execDateLabel: 'Event Date',
+      sessionTimeLabel: 'Session Time',
+      venueLabelLong: 'Event Venue / Location',
+      venueNote: 'Can enter any venue of choice — hotel, conference centre, hall, meeting room, or online.',
+      venueNotSet: 'Venue not specified yet',
+      rsvpDeadlineLabel: 'RSVP Deadline',
+      requireReasonLabel: 'Require Justification for Absence',
+      requireReasonDesc: 'Requires Principal confirmation if a representative is sent',
+      rsvpDeadlineNotSet: 'Not set yet',
+      attachmentLabel: 'Official Attachment File (Optional)',
+      broadcastChannelsLabel: 'Simultaneous Broadcast Channels',
+      fcmChannelTitle: 'Push Notifications (Android PWA)',
+      bannerChannelTitle: 'Teacher Home Screen Broadcast Banner',
+      bannerChannelDesc: 'Featured prominently on the portal dashboard for 7 days.',
+      previewPortalHeader: 'MOE Career Education Teachers Portal',
+      justNowText: 'Just now',
+      badgeCompulsory: 'Compulsory',
+      previewDefaultTitle: 'Official Event Title',
+      previewDefaultVenue: 'Event Venue',
+      previewDefaultDeadline: 'RSVP Deadline',
+
       venueMapsHint: 'Click to view or navigate via Google Maps',
       btnOpenMaps: 'Open in Google Maps',
       targetRoleCareerTeachers: 'Career Education Teachers',
@@ -1289,11 +1365,17 @@
     // Terapkan semua teks statik & placeholder
     applyTranslations();
 
-    // Re-render paparan aktif
+    // Re-render paparan aktif & sokongan berbilang bahasa
+    renderMonthlyCalendar();
     if (State.currentView === 'home') renderHomeView();
     if (State.currentView === 'archive') renderArchiveView();
     if (State.currentView === 'notif') renderNotifView();
     if (State.currentView === 'admin-dashboard') renderAdminDashboardView();
+    if (State.currentView === 'admin-rsvp') renderAdminRsvpTableView();
+    if (State.currentView === 'admin-events') {
+      applyTranslations();
+      updateFormProgress();
+    }
     if (State.currentView === 'profile') renderProfileView();
 
     showToast(lang === 'en' ? 'Language switched to English' : 'Bahasa ditukar ke Bahasa Melayu', 'info');
@@ -1342,6 +1424,11 @@
     if (viewName === 'profile') renderProfileView();
     if (viewName === 'admin-dashboard') renderAdminDashboardView();
     if (viewName === 'admin-rsvp') renderAdminRsvpTableView();
+    if (viewName === 'admin-events') {
+      applyTranslations();
+      resetCreateEventForm();
+      updateFormProgress();
+    }
 
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
@@ -2867,7 +2954,125 @@
   // ==========================================================================
   // 16B. PENGAWAL MODUL BINA & TERBITKAN ACARA RASMI (STITCH INTEGRATION)
   // ==========================================================================
+  function resetCreateEventForm() {
+    const inputTitle = document.getElementById('event-title-bm');
+    const selectCat = document.getElementById('event-category');
+    const inputDate = document.getElementById('event-date-input');
+    const inputStart = document.getElementById('event-start-time');
+    const inputEnd = document.getElementById('event-end-time');
+    const inputVenue = document.getElementById('event-venue-input');
+    const inputMeet = document.getElementById('event-meet-link');
+    const inputDeadline = document.getElementById('event-deadline-input');
+    const inputDrive = document.getElementById('event-drive-url');
+
+    const previewTitle = document.getElementById('preview-title');
+    const previewDate = document.getElementById('preview-date');
+    const previewTime = document.getElementById('preview-time');
+    const previewVenue = document.getElementById('preview-venue');
+    const previewVenueName = document.getElementById('preview-venue-name');
+    const previewDeadline = document.getElementById('preview-deadline');
+    const rsvpDeadlineText = document.getElementById('rsvp-deadline-text');
+
+    if (inputTitle) inputTitle.value = '';
+    if (selectCat) selectCat.value = 'Mesyuarat';
+    if (inputDate) inputDate.value = '';
+    if (inputStart) inputStart.value = '';
+    if (inputEnd) inputEnd.value = '';
+    if (inputVenue) inputVenue.value = '';
+    if (inputMeet) inputMeet.value = '';
+    if (inputDeadline) inputDeadline.value = '';
+    if (inputDrive) inputDrive.value = '';
+
+    const isEn = State.lang === 'en';
+    if (previewTitle) previewTitle.textContent = isEn ? 'Official Event Title' : 'Tajuk Acara Rasmi';
+    if (previewDate) previewDate.textContent = '-- / -- / ----';
+    if (previewTime) previewTime.textContent = '--:--';
+    if (previewVenue) previewVenue.textContent = isEn ? 'Event Venue' : 'Lokasi Acara';
+    if (previewVenueName) previewVenueName.textContent = isEn ? 'Venue not specified yet' : 'Lokasi belum ditetapkan';
+    if (previewDeadline) previewDeadline.textContent = isEn ? 'RSVP Deadline' : 'Tarikh Tutup RSVP';
+    if (rsvpDeadlineText) rsvpDeadlineText.textContent = isEn ? 'Not set yet' : 'Belum ditetapkan';
+
+    const btnSearchMaps = document.getElementById('btn-search-maps');
+    if (btnSearchMaps) {
+      btnSearchMaps.href = '#';
+      btnSearchMaps.classList.add('opacity-50', 'pointer-events-none');
+    }
+  }
+
+  function updateFormProgress() {
+    const inputTitle = document.getElementById('event-title-bm');
+    const inputDate = document.getElementById('event-date-input');
+    const inputVenue = document.getElementById('event-venue-input');
+    const inputDeadline = document.getElementById('event-deadline-input');
+
+    const hasTitle = Boolean(inputTitle && inputTitle.value.trim().length > 0);
+    const hasDateVenue = Boolean(inputDate && inputDate.value && inputVenue && inputVenue.value.trim().length > 0);
+    const hasDeadline = Boolean(inputDeadline && inputDeadline.value);
+
+    let completedSteps = 0;
+    if (hasTitle) completedSteps++;
+    if (hasDateVenue) completedSteps++;
+    if (hasDeadline) completedSteps++;
+
+    const currentStep = completedSteps === 3 ? 4 : (completedSteps + 1);
+    const percentage = completedSteps === 3 ? 100 : Math.round((completedSteps / 3) * 75 + 10);
+
+    const isEn = State.lang === 'en';
+    const badge = document.getElementById('step-progress-badge');
+    if (badge) {
+      if (currentStep === 4) {
+        badge.textContent = isEn ? 'Step 4 / 4 (100% Ready to Publish)' : 'Langkah 4 / 4 (100% Sedia Terbit)';
+        badge.className = 'font-label-sm text-label-sm text-[#15803D] font-bold px-2.5 py-0.5 rounded-full bg-[#DCFCE7]';
+      } else {
+        const stepName = currentStep === 1 ? (isEn ? 'Basics' : 'Asas') : (currentStep === 2 ? (isEn ? 'Location' : 'Lokasi') : (isEn ? 'Target' : 'Sasaran'));
+        badge.textContent = isEn
+          ? `Step ${currentStep} / 4: ${stepName} (${percentage}% Complete)`
+          : `Langkah ${currentStep} / 4: ${stepName} (${percentage}% Siap)`;
+        badge.className = 'font-label-sm text-label-sm text-primary font-bold px-2.5 py-0.5 rounded-full bg-primary/10';
+      }
+    }
+
+    for (let i = 1; i <= 4; i++) {
+      const bar = document.getElementById('step-bar-' + i);
+      const btn = document.getElementById('step-btn-' + i);
+      if (bar) {
+        if (i <= currentStep) {
+          bar.className = 'h-2 rounded-full bg-primary transition-all duration-300 shadow-xs' + (i === currentStep ? ' ring-1 ring-primary-container' : '');
+        } else {
+          bar.className = 'h-2 rounded-full bg-surface-container-highest transition-all duration-300';
+        }
+      }
+      if (btn) {
+        if (i === currentStep) {
+          btn.className = 'text-primary font-black cursor-pointer hover:underline transition-colors';
+        } else if (i < currentStep) {
+          btn.className = 'text-primary/75 font-bold cursor-pointer hover:underline transition-colors';
+        } else {
+          btn.className = 'text-on-surface-variant/70 font-medium cursor-pointer hover:underline transition-colors';
+        }
+      }
+    }
+  }
+
   function initAdminCreateEvent() {
+    // Hubungkan butang kemajuan stepper ke bahagian borang berkenaan
+    for (let s = 1; s <= 4; s++) {
+      const stepBtn = document.getElementById('step-btn-' + s);
+      const targetSec = document.getElementById('form-section-' + s);
+      if (stepBtn && targetSec) {
+        stepBtn.addEventListener('click', () => {
+          targetSec.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+      }
+    }
+
+    // Pendengar kemajuan langsung untuk mengemas kini progress bar secara automatik
+    const formCreate = document.getElementById('form-create-event');
+    if (formCreate) {
+      formCreate.addEventListener('input', updateFormProgress);
+      formCreate.addEventListener('change', updateFormProgress);
+    }
+
     const inputTitleBm = document.getElementById('event-title-bm');
     const selectCategory = document.getElementById('event-category');
     const containerCategoryCustom = document.getElementById('container-category-custom');

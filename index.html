@@ -913,34 +913,34 @@
             Sesi UPK
           </span>
         </div>
-        <h1 class="font-headline text-2xl sm:text-3xl font-bold text-on-surface tracking-tight">
+        <h1 data-i18n="adminCreateEventTitle" class="font-headline text-2xl sm:text-3xl font-bold text-on-surface tracking-tight">
           Bina &amp; Terbitkan Acara Rasmi
         </h1>
-        <p class="font-body text-xs text-on-surface-variant mt-0.5">
+        <p data-i18n="adminCreateEventSubtitle" class="font-body text-xs text-on-surface-variant mt-0.5">
           Unit Pendidikan Kerjaya, Jabatan Sekolah-Sekolah
         </p>
       </div>
 
-      <!-- Stepper / Progress Bar -->
-      <div class="bg-surface-container-lowest p-3.5 rounded-xl shadow-sm border border-outline-variant/30 mb-5">
+      <!-- Stepper / Progress Bar (Dinamik & Boleh Ditekan) -->
+      <div class="bg-surface-container-lowest p-3.5 rounded-xl shadow-sm border border-outline-variant/30 mb-5 sticky top-16 z-20 backdrop-blur-md bg-surface-container-lowest/95">
         <div class="flex items-center justify-between mb-2">
           <span class="font-label-md text-label-md text-on-surface font-semibold flex items-center gap-1.5">
             <span class="material-symbols-outlined text-primary text-[18px]">steppers</span>
-            Kemajuan Penerbitan
+            <span data-i18n="stepProgressTitle">Kemajuan Penerbitan</span>
           </span>
-          <span data-i18n="stepProgress" class="font-label-sm text-label-sm text-primary font-bold">Langkah 4 / 4 Siap</span>
+          <span id="step-progress-badge" class="font-label-sm text-label-sm text-primary font-bold px-2 py-0.5 rounded-full bg-primary/10">Langkah 1 / 4 (0% Selesai)</span>
         </div>
         <div class="grid grid-cols-4 gap-1.5 mb-2">
-          <div class="h-2 rounded-full bg-primary transition-all"></div>
-          <div class="h-2 rounded-full bg-primary transition-all"></div>
-          <div class="h-2 rounded-full bg-primary transition-all"></div>
-          <div class="h-2 rounded-full bg-primary-container animate-pulse"></div>
+          <div id="step-bar-1" class="h-2 rounded-full bg-primary transition-all duration-300"></div>
+          <div id="step-bar-2" class="h-2 rounded-full bg-surface-container-highest transition-all duration-300"></div>
+          <div id="step-bar-3" class="h-2 rounded-full bg-surface-container-highest transition-all duration-300"></div>
+          <div id="step-bar-4" class="h-2 rounded-full bg-surface-container-highest transition-all duration-300"></div>
         </div>
         <div class="flex items-center justify-between text-[11px] text-on-surface-variant font-medium px-0.5">
-          <span data-i18n="step1Basic" class="text-primary font-semibold">1. Asas</span>
-          <span data-i18n="step2Location" class="text-primary font-semibold">2. Lokasi</span>
-          <span data-i18n="step3Target" class="text-primary font-semibold">3. Sasaran</span>
-          <span data-i18n="step4Broadcast" class="text-primary font-bold">4. Hebahan</span>
+          <button type="button" id="step-btn-1" class="text-primary font-bold cursor-pointer hover:underline transition-colors" data-i18n="step1Basic">1. Asas</button>
+          <button type="button" id="step-btn-2" class="text-on-surface-variant font-medium cursor-pointer hover:underline transition-colors" data-i18n="step2Location">2. Lokasi</button>
+          <button type="button" id="step-btn-3" class="text-on-surface-variant font-medium cursor-pointer hover:underline transition-colors" data-i18n="step3Target">3. Sasaran</button>
+          <button type="button" id="step-btn-4" class="text-on-surface-variant font-medium cursor-pointer hover:underline transition-colors" data-i18n="step4Broadcast">4. Hebahan</button>
         </div>
       </div>
 
@@ -962,24 +962,24 @@
           <!-- Tajuk BM Sahaja (Tiada Tajuk English) -->
           <div class="space-y-1">
             <label class="block font-label-md text-xs font-semibold text-on-surface">
-              Tajuk Acara <span class="text-error">*</span>
+              <span data-i18n="eventTitleLabel">Tajuk Acara</span> <span class="text-error">*</span>
             </label>
-            <input id="event-title-bm" required type="text" value="Mesyuarat Penyelarasan Guru Pendidikan Kerjaya Bil. 2/2026" class="w-full h-11 px-3.5 rounded-lg bg-surface-container-low text-on-surface text-xs font-medium focus:bg-surface-container-lowest focus:outline-none focus:ring-2 focus:ring-primary/40 transition-all border border-outline-variant/40"/>
+            <input id="event-title-bm" required type="text" value="" placeholder="cth: Mesyuarat Penyelarasan Guru Pendidikan Kerjaya Bil. 1/2026" class="w-full h-11 px-3.5 rounded-lg bg-surface-container-low text-on-surface text-xs font-medium focus:bg-surface-container-lowest focus:outline-none focus:ring-2 focus:ring-primary/40 transition-all border border-outline-variant/40"/>
             <p data-i18n="adminStep1Desc" class="text-[11px] text-on-surface-variant">Sesuai untuk paparan rasmi di kalendar aktiviti sekolah.</p>
           </div>
 
           <!-- Kategori Acara (Mesyuarat, Taklimat, Program, Lawatan, Lain-lain) -->
           <div class="space-y-1">
             <label class="block font-label-md text-xs font-semibold text-on-surface">
-              Kategori Acara <span class="text-error">*</span>
+              <span data-i18n="eventCategoryLabel">Kategori Acara</span> <span class="text-error">*</span>
             </label>
             <div class="relative">
               <select id="event-category" class="w-full h-11 px-3.5 pr-10 rounded-lg bg-surface-container-low text-on-surface text-xs appearance-none font-medium focus:outline-none focus:ring-2 focus:ring-primary/40 border border-outline-variant/40 cursor-pointer">
-                <option value="Mesyuarat" selected>Mesyuarat</option>
-                <option value="Taklimat">Taklimat</option>
-                <option value="Program">Program</option>
-                <option value="Lawatan">Lawatan</option>
-                <option value="Lain-lain">Lain-lain (sila nyatakan)</option>
+                <option value="Mesyuarat" selected data-i18n="optMeeting">Mesyuarat</option>
+                <option value="Taklimat" data-i18n="optBriefing">Taklimat</option>
+                <option value="Program" data-i18n="optProgram">Program</option>
+                <option value="Lawatan" data-i18n="optVisit">Lawatan</option>
+                <option value="Lain-lain" data-i18n="optOther">Lain-lain (sila nyatakan)</option>
               </select>
               <span class="material-symbols-outlined absolute right-3 top-2.5 text-on-surface-variant pointer-events-none text-[22px]">keyboard_arrow_down</span>
             </div>
@@ -991,7 +991,7 @@
           <!-- Format Pelaksanaan -->
           <div class="space-y-2 pt-1">
             <label class="block font-label-md text-xs font-semibold text-on-surface">
-              Format Pelaksanaan <span class="text-error">*</span>
+              <span data-i18n="eventFormatLabel">Format Pelaksanaan</span> <span class="text-error">*</span>
             </label>
             <div class="grid grid-cols-1 gap-2">
               
@@ -1001,8 +1001,8 @@
                 <div class="flex items-center gap-2 flex-1 min-w-0">
                   <span class="material-symbols-outlined text-primary text-[20px]">groups</span>
                   <div class="min-w-0">
-                    <p class="font-label-md text-xs font-semibold text-on-surface">Bersemuka</p>
-                    <p class="text-[11px] text-on-surface-variant truncate">Fizikal Dewan BPK, Gadong</p>
+                    <p class="font-label-md text-xs font-semibold text-on-surface" data-i18n="formatInPerson">Bersemuka</p>
+                    <p class="text-[11px] text-on-surface-variant truncate" data-i18n="formatInPersonDesc">Fizikal di lokasi pilihan</p>
                   </div>
                 </div>
                 <span id="format-badge-active" class="px-2 py-0.5 rounded-full bg-primary text-white text-[10px] font-bold shrink-0">Aktif</span>
@@ -1014,8 +1014,8 @@
                 <div class="flex items-center gap-2 flex-1 min-w-0">
                   <span class="material-symbols-outlined text-on-surface-variant text-[20px]">devices</span>
                   <div class="min-w-0">
-                    <p class="font-label-md text-xs font-semibold text-on-surface">Hibrid</p>
-                    <p class="text-[11px] text-on-surface-variant truncate">Google Meet Berintegrasi</p>
+                    <p class="font-label-md text-xs font-semibold text-on-surface" data-i18n="formatHybrid">Hibrid</p>
+                    <p class="text-[11px] text-on-surface-variant truncate" data-i18n="formatHybridDesc">Google Meet Berintegrasi</p>
                   </div>
                 </div>
               </label>
@@ -1026,8 +1026,8 @@
                 <div class="flex items-center gap-2 flex-1 min-w-0">
                   <span class="material-symbols-outlined text-on-surface-variant text-[20px]">videocam</span>
                   <div class="min-w-0">
-                    <p class="font-label-md text-xs font-semibold text-on-surface">Dalam Talian Penuh</p>
-                    <p class="text-[11px] text-on-surface-variant truncate">Siaran Webex / Google Meet Rasmi</p>
+                    <p class="font-label-md text-xs font-semibold text-on-surface" data-i18n="formatOnline">Dalam Talian Penuh</p>
+                    <p class="text-[11px] text-on-surface-variant truncate" data-i18n="formatOnlineDesc">Siaran Webex / Google Meet Rasmi</p>
                   </div>
                 </div>
               </label>
@@ -1035,7 +1035,7 @@
 
             <!-- Optional Online Meeting Link Input (Conditional) -->
             <div id="container-meet-link" class="hidden pt-1">
-              <label class="block font-label-md text-xs font-semibold text-on-surface mb-1">
+              <label class="block font-label-md text-xs font-semibold text-on-surface mb-1" data-i18n="onlineMeetLinkOptional">
                 Pautan Mesyuarat Dalam Talian (Google Meet / Webex)
               </label>
               <input id="event-meet-link" type="url" placeholder="https://meet.google.com/upk-ceu-2026" class="w-full h-11 px-3.5 rounded-lg bg-surface-container-low text-on-surface text-xs focus:bg-surface-container-lowest focus:outline-none focus:ring-2 focus:ring-primary/40 border border-outline-variant/40"/>
@@ -1058,19 +1058,19 @@
 
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div class="space-y-1">
-              <label class="block font-label-sm text-xs font-semibold text-on-surface">Tarikh Pelaksanaan</label>
+              <label class="block font-label-sm text-xs font-semibold text-on-surface" data-i18n="execDateLabel">Tarikh Pelaksanaan</label>
               <div class="flex items-center gap-2 h-11 px-3 rounded-lg bg-surface-container-low border border-outline-variant/40">
                 <span class="material-symbols-outlined text-primary text-[18px]">calendar_today</span>
-                <input id="event-date-input" required type="date" value="2026-04-23" class="w-full bg-transparent text-xs font-semibold text-on-surface outline-none"/>
+                <input id="event-date-input" required type="date" value="" class="w-full bg-transparent text-xs font-semibold text-on-surface outline-none cursor-pointer"/>
               </div>
             </div>
             <div class="space-y-1">
-              <label class="block font-label-sm text-xs font-semibold text-on-surface">Waktu Sesi</label>
+              <label class="block font-label-sm text-xs font-semibold text-on-surface" data-i18n="sessionTimeLabel">Waktu Sesi</label>
               <div class="flex items-center gap-2 h-11 px-3 rounded-lg bg-surface-container-low border border-outline-variant/40">
                 <span class="material-symbols-outlined text-primary text-[18px]">alarm</span>
-                <input id="event-start-time" required type="time" value="08:30" class="bg-transparent text-xs font-semibold text-on-surface outline-none"/>
+                <input id="event-start-time" required type="time" value="" class="bg-transparent text-xs font-semibold text-on-surface outline-none"/>
                 <span class="text-xs text-on-surface-variant font-bold">-</span>
-                <input id="event-end-time" required type="time" value="12:00" class="bg-transparent text-xs font-semibold text-on-surface outline-none"/>
+                <input id="event-end-time" required type="time" value="" class="bg-transparent text-xs font-semibold text-on-surface outline-none"/>
               </div>
             </div>
           </div>
@@ -1079,14 +1079,11 @@
           <div class="space-y-1.5">
             <div class="flex items-center justify-between">
               <label class="block font-label-md text-xs font-semibold text-on-surface">
-                Lokasi Acara / Tempat Pelaksanaan <span class="text-error">*</span>
+                <span data-i18n="venueLabelLong">Lokasi Acara / Tempat Pelaksanaan</span> <span class="text-error">*</span>
               </label>
-              <span class="text-[10px] text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full font-bold flex items-center gap-0.5">
-                <span class="material-symbols-outlined text-[12px]">edit_location_alt</span>
-                Bebas Masuk Mana-mana Lokasi
-              </span>
+              
             </div>
-            <p class="text-[11px] text-on-surface-variant">Boleh masukkan sebarang lokasi pilihan — hotel, pusat persidangan, dewan, bilik mesyuarat, dalam talian, atau luar pejabat.</p>
+            <p data-i18n="venueNote" class="text-[11px] text-on-surface-variant">Boleh masukkan sebarang lokasi pilihan — hotel, pusat persidangan, dewan, bilik mesyuarat, dalam talian, atau luar pejabat.</p>
             
             <div class="relative">
               <div class="p-2.5 rounded-lg bg-surface-container-low border border-outline-variant/40 flex items-center gap-2">
@@ -1146,8 +1143,8 @@
                 <span class="material-symbols-outlined text-[18px]">location_on</span>
               </span>
               <div class="min-w-0">
-                <span id="preview-venue-name" class="block font-headline text-xs font-bold text-on-surface truncate">
-                  Pusat Persidangan Antarabangsa (ICC), Berakas
+                <span id="preview-venue-name" data-i18n="venueNotSet" class="block font-headline text-xs font-bold text-on-surface truncate">
+                  Lokasi belum ditetapkan
                 </span>
                 <span class="text-[10px] text-on-surface-variant block truncate" data-i18n="venueMapsHint">
                   Tekan untuk semak atau pandu arah di Google Maps
@@ -1370,17 +1367,17 @@
               <div class="flex items-center gap-2">
                 <span class="material-symbols-outlined text-primary text-[20px]">event_busy</span>
                 <div>
-                  <p class="font-label-md text-xs font-semibold text-on-surface">Tarikh Tutup RSVP</p>
-                  <p id="rsvp-deadline-text" class="text-[11px] text-on-surface-variant">20 April 2026, 17:00 (Waktu Brunei)</p>
+                  <p class="font-label-md text-xs font-semibold text-on-surface" data-i18n="rsvpDeadlineLabel">Tarikh Tutup RSVP</p>
+                  <p id="rsvp-deadline-text" data-i18n="rsvpDeadlineNotSet" class="text-[11px] text-on-surface-variant">Belum ditetapkan</p>
                 </div>
               </div>
-              <input id="event-deadline-input" required type="datetime-local" value="2026-04-20T17:00" class="text-xs font-semibold px-2 py-1 bg-surface-container-lowest rounded border border-outline-variant/40 outline-none"/>
+              <input id="event-deadline-input" required type="datetime-local" value="" class="text-xs font-semibold px-2 py-1 bg-surface-container-lowest rounded border border-outline-variant/40 outline-none"/>
             </div>
 
             <div class="pt-2 flex items-center justify-between border-t border-outline-variant/30">
               <div class="min-w-0 pr-2">
-                <p class="font-label-md text-xs font-semibold text-on-surface leading-tight">Wajibkan Alasan Ketidakhadiran</p>
-                <p class="text-[11px] text-on-surface-variant">Memerlukan pengesahan Pengetua jika wakil dihantar</p>
+                <p data-i18n="requireReasonLabel" class="font-label-md text-xs font-semibold text-on-surface leading-tight">Wajibkan Alasan Ketidakhadiran</p>
+                <p data-i18n="requireReasonDesc" class="text-[11px] text-on-surface-variant">Memerlukan pengesahan Pengetua jika wakil dihantar</p>
               </div>
               <label class="relative inline-flex items-center cursor-pointer shrink-0">
                 <input id="event-require-reason" checked type="checkbox" class="sr-only peer"/>
@@ -1406,7 +1403,7 @@
 
           <!-- Lampiran Fail Rasmi -->
           <div class="space-y-1.5">
-            <span class="block font-label-md text-xs font-semibold text-on-surface">Lampiran Fail Rasmi</span>
+            <span data-i18n="attachmentLabel" class="block font-label-md text-xs font-semibold text-on-surface">Lampiran Fail Rasmi (Pilihan)</span>
             <div class="p-3 rounded-lg bg-surface-container-low border border-outline-variant/40 flex items-center justify-between gap-2">
               <div class="flex items-center gap-3 min-w-0">
                 <div class="w-10 h-10 rounded-lg bg-error-container text-error flex items-center justify-center shrink-0">
@@ -1425,12 +1422,12 @@
                 Bersedia
               </span>
             </div>
-            <input id="event-drive-url" type="url" placeholder="Pautan Surat / Lampiran Drive (Pilihan)" value="https://drive.google.com/viewerng/viewer?url=surat_panggilan_bil2_2026.pdf" class="w-full h-9 px-3 rounded-lg bg-surface-container-low text-xs border border-outline-variant/30 outline-none focus:border-primary"/>
+            <input id="event-drive-url" type="url" placeholder="Pautan Surat / Lampiran Drive (Pilihan)" value="" class="w-full h-9 px-3 rounded-lg bg-surface-container-low text-xs border border-outline-variant/30 outline-none focus:border-primary"/>
           </div>
 
           <!-- Saluran Hebahan Serentak -->
           <div class="space-y-2 pt-1">
-            <label class="block font-label-md text-xs font-semibold text-on-surface">
+            <label data-i18n="broadcastChannelsLabel" class="block font-label-md text-xs font-semibold text-on-surface">
               Saluran Hebahan Serentak
             </label>
             <div class="space-y-2">
@@ -1441,7 +1438,7 @@
                 <div class="min-w-0 flex-1">
                   <div class="flex items-center gap-1.5">
                     <span class="material-symbols-outlined text-primary text-[18px]">notifications_active</span>
-                    <p class="font-label-md text-xs font-semibold text-on-surface">Notifikasi Tolak FCM (Android)</p>
+                    <p data-i18n="fcmChannelTitle" class="font-label-md text-xs font-semibold text-on-surface">Notifikasi Tolak (Android PWA)</p>
                   </div>
                   <p class="text-[11px] text-on-surface-variant mt-0.5">
                     Dihantar serta-merta ke peranti mudah alih <span id="fcm-target-count" class="font-bold text-primary">37</span> orang Guru Pendidikan Kerjaya berdaftar.
@@ -1467,9 +1464,9 @@
                 <div class="min-w-0 flex-1">
                   <div class="flex items-center gap-1.5">
                     <span class="material-symbols-outlined text-primary text-[18px]">view_carousel</span>
-                    <p class="font-label-md text-xs font-semibold text-on-surface">Banner Siaran Automatik Laman Utama Guru</p>
+                    <p data-i18n="bannerChannelTitle" class="font-label-md text-xs font-semibold text-on-surface">Banner Siaran Automatik Laman Utama Guru</p>
                   </div>
-                  <p class="text-[11px] text-on-surface-variant mt-0.5">Dipaparkan pada kedudukan tertinggi papan kenyataan portal CEU selama 7 hari.</p>
+                  <p data-i18n="bannerChannelDesc" class="text-[11px] text-on-surface-variant mt-0.5">Dipaparkan pada kedudukan tertinggi papan kenyataan portal CEU selama 7 hari.</p>
                 </div>
               </div>
             </div>
@@ -1493,36 +1490,36 @@
               <div class="w-6 h-6 rounded-full bg-primary flex items-center justify-center">
                 <span class="material-symbols-outlined text-white text-[14px]">school</span>
               </div>
-              <span class="text-xs font-bold text-on-surface">Portal Guru Pendidikan Kerjaya MOE</span>
-              <span class="text-[11px] text-on-surface-variant ml-auto">Baru sahaja</span>
+              <span data-i18n="previewPortalHeader" class="text-xs font-bold text-on-surface">Portal Guru Pendidikan Kerjaya MOE</span>
+              <span data-i18n="justNowText" class="text-[11px] text-on-surface-variant ml-auto">Baru sahaja</span>
             </div>
 
             <!-- Card Inner -->
             <div class="bg-surface-container-lowest p-3.5 rounded-lg shadow-sm space-y-2 border border-outline-variant/20">
               <div>
-                <span class="px-2 py-0.5 rounded bg-tertiary-fixed text-on-tertiary-fixed text-[10px] font-bold uppercase">Wajib Hadir</span>
-                <h3 id="preview-title" class="font-headline text-sm font-bold text-on-surface mt-1 line-clamp-2 leading-snug">
-                  Mesyuarat Penyelarasan Guru Pendidikan Kerjaya Bil. 2/2026
+                <span data-i18n="badgeCompulsory" class="px-2 py-0.5 rounded bg-tertiary-fixed text-on-tertiary-fixed text-[10px] font-bold uppercase">Wajib Hadir</span>
+                <h3 id="preview-title" data-i18n="previewDefaultTitle" class="font-headline text-sm font-bold text-on-surface mt-1 line-clamp-2 leading-snug">
+                  Tajuk Acara Rasmi
                 </h3>
               </div>
 
               <div class="flex flex-wrap items-center gap-3 text-on-surface-variant text-[11px] font-medium pt-0.5">
                 <span class="flex items-center gap-1">
                   <span class="material-symbols-outlined text-[15px] text-primary">calendar_month</span>
-                  <span id="preview-date">23 Apr 2026</span>
+                  <span id="preview-date">-- / -- / ----</span>
                 </span>
                 <span class="flex items-center gap-1">
                   <span class="material-symbols-outlined text-[15px] text-primary">schedule</span>
-                  <span id="preview-time">08:30 PAGI</span>
+                  <span id="preview-time">--:--</span>
                 </span>
                 <span class="flex items-center gap-1">
                   <span class="material-symbols-outlined text-[15px] text-primary">location_on</span>
-                  <span id="preview-venue" class="truncate max-w-[150px]">Dewan BPK, Gadong</span>
+                  <span id="preview-venue" data-i18n="previewDefaultVenue" class="truncate max-w-[150px]">Lokasi Acara</span>
                 </span>
               </div>
 
               <div class="flex items-center justify-between pt-2 border-t border-outline-variant/20 text-xs">
-                <span id="preview-deadline" class="text-error font-semibold text-[11px]">RSVP sebelum 20 Apr</span>
+                <span id="preview-deadline" data-i18n="previewDefaultDeadline" class="text-error font-semibold text-[11px]">Tarikh Tutup RSVP</span>
                 <span class="text-primary font-bold flex items-center text-[11px] gap-0.5">
                   Buka RSVP
                   <span class="material-symbols-outlined text-[14px]">arrow_forward</span>
@@ -1776,8 +1773,8 @@
   </nav>
 
   <!-- Application Logic Scripts -->
-  <script src="js/config.js?v=1.4.4"></script>
-  <script src="js/data-mock.js?v=1.4.4"></script>
-  <script src="js/app.js?v=1.4.4"></script>
+  <script src="js/config.js?v=1.5.0"></script>
+  <script src="js/data-mock.js?v=1.5.0"></script>
+  <script src="js/app.js?v=1.5.0"></script>
 </body>
 </html>
