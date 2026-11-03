@@ -1210,42 +1210,50 @@
     return false;
   }
 
+  let isBiometricRunning = false;
   async function triggerBiometricLogin() {
-    const ring = document.getElementById('bio-ring');
-    if (ring) {
-      ring.classList.add('scale-125', 'opacity-100');
-      setTimeout(() => ring.classList.remove('scale-125', 'opacity-100'), 1000);
-    }
+    if (isBiometricRunning) return;
+    isBiometricRunning = true;
 
-    const storedBioToken = localStorage.getItem('ceu_bio_token');
-    const storedBioUser = localStorage.getItem('ceu_bio_user');
+    try {
+      const ring = document.getElementById('bio-ring');
+      if (ring) {
+        ring.classList.add('scale-125', 'opacity-100');
+        setTimeout(() => ring.classList.remove('scale-125', 'opacity-100'), 1000);
+      }
 
-    if (!storedBioToken || !storedBioUser) {
-      showToast(State.lang === 'en' ? 'Scanning biometrics...' : 'Mengimbas cap jari / biometrik...', 'info');
-      const emailInput = document.getElementById('email') || document.getElementById('auth-email-input');
-      const email = (emailInput?.value || '').trim();
-      if (!email && !storedBioUser) {
-        showToast(State.lang === 'en' ? 'Please enter your official email first.' : 'Sila masukkan e-mel rasmi Awda terlebih dahulu.', 'warning');
+      const storedBioToken = localStorage.getItem('ceu_bio_token');
+      const storedBioUser = localStorage.getItem('ceu_bio_user');
+
+      if (!storedBioToken || !storedBioUser) {
+        const emailInput = document.getElementById('email') || document.getElementById('auth-email-input');
+        const email = (emailInput?.value || '').trim();
+        if (!email) {
+          showToast(State.lang === 'en' ? 'Please enter your official email first to use biometrics.' : 'Sila masukkan e-mel rasmi Awda terlebih dahulu.', 'warning');
+          if (emailInput) emailInput.focus();
+          return;
+        }
+        showToast(State.lang === 'en' ? 'Verifying email account...' : 'Menyemak akaun e-mel...', 'info');
+        setTimeout(async () => {
+          const res = await api('biometricLogin', { email: email });
+          if (res && res.success) {
+            State.token = res.token;
+            State.currentUser = res.user;
+            localStorage.setItem('ceu_tok', res.token);
+            localStorage.setItem('ceu_user', JSON.stringify(res.user));
+            localStorage.setItem('ceu_bio_token', res.token);
+            localStorage.setItem('ceu_bio_user', JSON.stringify(res.user));
+            showToast((State.lang === 'en' ? 'Biometric verified! Welcome ' : 'Biometrik disahkan! Selamat datang ') + res.user.name, 'success');
+            await loadAppBoot();
+            navigateAfterLogin(res.user);
+          } else {
+            showToast((res && res.message) || (State.lang === 'en' ? 'Please log in with OTP first.' : 'Sila log masuk dengan OTP terlebih dahulu.'), 'warning');
+          }
+        }, 500);
         return;
       }
-      setTimeout(async () => {
-        const res = await api('biometricLogin', { email: email });
-        if (res && res.success) {
-          State.token = res.token;
-          State.currentUser = res.user;
-          localStorage.setItem('ceu_tok', res.token);
-          localStorage.setItem('ceu_user', JSON.stringify(res.user));
-          localStorage.setItem('ceu_bio_token', res.token);
-          localStorage.setItem('ceu_bio_user', JSON.stringify(res.user));
-          showToast((State.lang === 'en' ? 'Biometric verified! Welcome ' : 'Biometrik disahkan! Selamat datang ') + res.user.name, 'success');
-          await loadAppBoot();
-          navigateAfterLogin(res.user);
-        }
-      }, 700);
-      return;
-    }
 
-    showToast(I18N[State.lang].bioPromptLabel, 'info');
+      showToast(I18N[State.lang].bioPromptLabel, 'info');
 
     // 1. Android APK Native Bridge (CEUAndroid WebView Bridge)
     if (window.CEUAndroid && typeof window.CEUAndroid.promptBiometric === 'function') {
@@ -1311,6 +1319,9 @@
 
     // Jika pelayar tidak menyokong WebAuthn perkakasan sama sekali
     showToast(State.lang === 'en' ? 'Biometric is not supported on this browser. Please use official email OTP.' : 'Biometrik perkakasan tidak disokong pada pelayar ini. Sila gunakan OTP.', 'warning');
+    } finally {
+      setTimeout(() => { isBiometricRunning = false; }, 800);
+    }
   }
 
   window.onBiometricSuccess = function (token) {
@@ -3257,12 +3268,23 @@
   // 16. TOAST NOTIFICATION HELPER
   // ==========================================================================
   function showToast(message, type) {
+    if (!message) return;
     type = type || 'info';
     let container = document.getElementById('toast-container');
     if (!container) {
       container = document.createElement('div');
       container.id = 'toast-container';
       document.body.appendChild(container);
+    }
+
+    // Elakkan duplikasi mesej yang sama terpapar serentak
+    const existing = Array.from(container.children);
+    const isDuplicate = existing.some(el => el.textContent && el.textContent.includes(message));
+    if (isDuplicate) return;
+
+    // Hadkan maksimum 2 toast serentak supaya tidak bertindih
+    if (existing.length >= 2) {
+      existing[0].remove();
     }
 
     const toast = document.createElement('div');
@@ -3279,7 +3301,7 @@
       toast.style.opacity = '0';
       toast.style.transform = 'translateY(-10px)';
       setTimeout(() => toast.remove(), 300);
-    }, 3800);
+    }, 3500);
   }
 
   // ==========================================================================
@@ -4100,17 +4122,7 @@
       });
     }
 
-    const bioTriggerBtn = document.getElementById('bio-trigger-btn');
-    if (bioTriggerBtn) {
-      bioTriggerBtn.addEventListener('click', () => {
-        const ring = document.getElementById('bio-ring');
-        if (ring) {
-          ring.classList.add('scale-125', 'opacity-100');
-          setTimeout(() => ring.classList.remove('scale-125', 'opacity-100'), 1000);
-        }
-        triggerBiometricLogin();
-      });
-    }
+    // bio-trigger-btn dikendalikan secara terus oleh window.triggerBiometricScan() dalam HTML
 
     const btnSwitchUser = document.getElementById('btn-bio-switch-user');
     if (btnSwitchUser) {
