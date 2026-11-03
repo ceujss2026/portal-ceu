@@ -138,3 +138,14 @@ function migrasikanDataLama_(oldSpreadsheetId, dryRun) {
   Logger.log('✅ Ringkasan Keputusan Migrasi: ' + JSON.stringify(summary));
   return summary;
 }
+
+
+/**
+ * Jalankan fungsi ini untuk memindahkan/menyegerakkan senarai guru
+ * dari Google Sheet pengguna (1XoWoy-fm3yPC0HSdV-MxvIWBScr8zXKxGzCjeVAr9vA)
+ * ke dalam tbl_users pangkalan data sistem secara langsung.
+ */
+function migrasikanSenaraiGuruUser() {
+  const SPREADSHEET_ID_SUMBER = '1XoWoy-fm3yPC0HSdV-MxvIWBScr8zXKxGzCjeVAr9vA';
+  return migrasikanDataLama_(SPREADSHEET_ID_SUMBER, false);
+}

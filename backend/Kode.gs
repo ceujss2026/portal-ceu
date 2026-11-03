@@ -270,6 +270,18 @@ function getSs_() {
 function getSheet_(name) {
   const ss = getSs_();
   let sh = ss.getSheetByName(name);
+  if (!sh) {
+    // Toleran terhadap variasi nama helaian guru
+    if (name === CONFIG.SHEET_NAMES.users) {
+      sh = ss.getSheetByName('Users') || 
+           ss.getSheetByName('Guru') || 
+           ss.getSheetByName('Senarai Guru') || 
+           ss.getSheetByName('Senarai_Guru') || 
+           ss.getSheetByName('Sheet1') || 
+           ss.getSheetByName('Helaian1') ||
+           ss.getSheets()[0];
+    }
+  }
   if (!sh) throw new Error('Lembaran ' + name + ' tidak ditemukan di pangkalan data.');
   return sh;
 }
@@ -278,10 +290,17 @@ function readSheetAsObjects_(name) {
   const sh = getSheet_(name);
   const v = sh.getDataRange().getValues();
   if (v.length <= 1) return [];
-  const h = v[0].map(String);
+  const h = v[0].map(s => String(s).trim());
   return v.slice(1).filter(r => r.join('') !== '').map(r => {
     const o = {};
-    h.forEach((k, i) => { if (k) o[k] = r[i]; });
+    h.forEach((k, i) => {
+      if (k) {
+        o[k] = r[i];
+        const lower = k.toLowerCase();
+        o[lower] = r[i];
+        o[lower.replace(/[^a-z0-9]/g, '_')] = r[i];
+      }
+    });
     return o;
   });
 }
@@ -1504,4 +1523,15 @@ function setupAppEnvironment() {
   Logger.log('✅ Pemasangan selesai dengan jayanya!');
   Logger.log('   Pangkalan Data : ' + ss.getUrl());
   Logger.log('   Folder Induk    : ' + rootFolder.getUrl());
+}
+
+/**
+ * Sambungkan pangkalan data terus ke Google Sheet senarai guru
+ * ID: 1XoWoy-fm3yPC0HSdV-MxvIWBScr8zXKxGzCjeVAr9vA
+ */
+function sambungDatabaseUtama() {
+  const SPREADSHEET_ID = '1XoWoy-fm3yPC0HSdV-MxvIWBScr8zXKxGzCjeVAr9vA';
+  PropertiesService.getScriptProperties().setProperty('SPREADSHEET_ID', SPREADSHEET_ID);
+  Logger.log('BERJAYA: Pangkalan data utama disambungkan ke SPREADSHEET_ID: ' + SPREADSHEET_ID);
+  return 'Berjaya disambungkan ke ' + SPREADSHEET_ID;
 }
