@@ -65,7 +65,7 @@
       navRsvp: 'RSVP',
       navArchive: 'Arkib',
       navNotif: 'Notifikasi',
-      navAdmin: 'Admin',
+      navAdmin: 'UPK',
       navProfile: 'Profil',
 
       // Home
@@ -144,14 +144,14 @@
       archiveAvgSize: 'Purata Saiz',
       archiveVerifiedBadge: 'Disahkan UPK',
 
-      // Penapis Acara Pihak Unit
+      // Penapis Acara UPK
       adminEventFilterAll: 'Semua',
       adminEventFilterPublished: 'Diterbitkan',
       adminEventFilterDraft: 'Draf Sahaja',
       adminAnalysisEventLabel: 'Analisis Acara:',
       adminRsvpEventLabel: 'Acara:',
 
-      // Bina & Terbit Acara (Pihak Unit)
+      // Bina & Terbit Acara (UPK)
       adminCreateEventTitle: 'Bina & Terbitkan Acara Rasmi',
       adminCreateEventSubtitle: 'Unit Pendidikan Kerjaya, Jabatan Sekolah-Sekolah',
       stepProgress: 'Langkah 4 / 4 Siap',
@@ -195,8 +195,8 @@
       logoutBtn: 'Log Keluar Sesi',
 
       // Admin Dashboard & Table
-      adminDashboard: 'Papan Pemuka Pihak Unit UPK',
-      adminDashboardSubtitle: 'Analisis kehadiran 4 daerah dan pengurusan rasmi pihak unit.',
+      adminDashboard: 'Papan Pemuka UPK',
+      adminDashboardSubtitle: 'Analisis kehadiran 4 daerah dan pengurusan rasmi UPK.',
       adminTableViewBtn: 'Semakan Jadual',
       totalTeachersKpi: 'Jumlah Guru',
       rsvpRateKpi: 'Kadar Respons RSVP',
@@ -442,8 +442,8 @@
       logoutBtn: 'Log Out Session',
 
       // Admin Dashboard & Table
-      adminDashboard: 'CEU Administrator Dashboard',
-      adminDashboardSubtitle: '4-district attendance analytics and official administration.',
+      adminDashboard: 'UPK Dashboard',
+      adminDashboardSubtitle: '4-district attendance analytics and official UPK management.',
       adminTableViewBtn: 'Table View',
       totalTeachersKpi: 'Total Career Teachers',
       rsvpRateKpi: 'RSVP Response Rate',
@@ -1428,7 +1428,7 @@
       }
       if (homeGreetingLabel && State.currentUser) {
         homeGreetingLabel.textContent = (State.lang === 'en' ? 'Welcome • ' : 'Selamat Datang • ') +
-          (State.currentUser.role === 'Admin' ? (State.lang === 'en' ? 'UPK JSS Admin' : 'Pihak Unit UPK') : (State.lang === 'en' ? 'Career Education Teacher' : 'Guru Pendidikan Kerjaya'));
+          (State.currentUser.role === 'Admin' ? (State.lang === 'en' ? 'UPK Officer' : 'Pegawai UPK') : (State.lang === 'en' ? 'Career Education Teacher' : 'Guru Pendidikan Kerjaya'));
       }
       if (districtEl && State.currentUser) {
         districtEl.textContent = (State.lang === 'en' ? 'District: ' : 'Daerah: ') + State.currentUser.district;
@@ -1715,7 +1715,7 @@
       }
       if (homeGreetingLabel) {
         homeGreetingLabel.textContent = (State.lang === 'en' ? 'Welcome • ' : 'Selamat Datang • ') +
-          (State.currentUser.role === 'Admin' ? (State.lang === 'en' ? 'UPK JSS Admin' : 'Pihak Unit UPK') : (State.lang === 'en' ? 'Career Education Teacher' : 'Guru Pendidikan Kerjaya'));
+          (State.currentUser.role === 'Admin' ? (State.lang === 'en' ? 'UPK Officer' : 'Pegawai UPK') : (State.lang === 'en' ? 'Career Education Teacher' : 'Guru Pendidikan Kerjaya'));
       }
     }
 
@@ -2238,7 +2238,7 @@
     if (nameEl) nameEl.textContent = u.name;
     if (roleEl) {
       if (u.role === 'Admin') {
-        roleEl.textContent = State.lang === 'en' ? 'CEU Unit Officer' : 'Pegawai Pihak Unit UPK';
+        roleEl.textContent = State.lang === 'en' ? 'UPK Officer' : 'Pegawai UPK';
       } else {
         roleEl.textContent = State.lang === 'en' ? 'Career Education Teacher' : 'Guru Pendidikan Kerjaya';
       }
@@ -2383,7 +2383,7 @@
   }
 
   // ==========================================================================
-  // 13B. PENGURUSAN ACARA & DRAF PIHAK UNIT (SENARAI, TERBITKAN DRAF & PADAM)
+  // 13B. PENGURUSAN ACARA & DRAF UPK (SENARAI, TERBITKAN DRAF & PADAM)
   // ==========================================================================
   let _adminEventFilter = 'all'; // 'all' | 'published' | 'draft'
 
@@ -2493,7 +2493,7 @@
   }
 
   // ==========================================================================
-  // 14. JADUAL RSVP PIHAK UNIT & PENJANAAN PDF
+  // 14. JADUAL RSVP UPK & PENJANAAN PDF
   // ==========================================================================
   let _adminRsvpStatusFilter = 'all'; // 'all' | 'hadir' | 'wakil' | 'tidakhadir' | 'belum'
   let _adminRsvpSearchQuery = '';
