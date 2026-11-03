@@ -139,39 +139,39 @@
   </script>
 
   <!-- Custom Styles & Print Specifications -->
-  <link rel="stylesheet" href="css/style.css"/>
+  <link rel="stylesheet" href="css/style.css?v=1.6.5"/>
 </head>
 <body class="bg-surface font-body text-on-surface flex flex-col min-h-screen overscroll-none antialiased select-none">
 
   <!-- ========================================================================
        TOP HEADER (Dipaparkan selepas log masuk)
        ======================================================================== -->
-  <header id="app-header" style="display: none;" class="fixed top-0 w-full z-50 pt-safe bg-primary-container shadow-[0_2px_12px_rgba(44,160,160,0.18)]">
-    <div class="h-14 px-4 flex items-center justify-between max-w-2xl mx-auto">
-      <div class="flex items-center gap-2.5">
-        <div class="w-9 h-9 rounded-full bg-white/15 backdrop-blur-md flex items-center justify-center text-on-primary shadow-sm overflow-hidden p-0.5">
+  <header id="app-header" style="display: none;" class="fixed top-0 left-0 right-0 w-full z-50 pt-safe bg-primary-container shadow-[0_2px_12px_rgba(44,160,160,0.18)]">
+    <div class="h-14 px-3 sm:px-4 flex items-center justify-between max-w-md sm:max-w-xl md:max-w-2xl mx-auto min-w-0">
+      <div class="flex items-center gap-2 min-w-0">
+        <div class="w-8 h-8 rounded-full bg-white/15 backdrop-blur-md flex items-center justify-center text-on-primary shadow-sm overflow-hidden p-0.5 shrink-0">
           <img src="assets/logo-upk.png" alt="UPK" class="w-full h-full rounded-full object-cover"/>
         </div>
-        <div class="flex flex-col">
-          <span class="font-title-appbar text-title-appbar text-on-primary tracking-wider uppercase drop-shadow-sm font-extrabold text-[15px] leading-tight">PORTAL CEU</span>
-          <span class="font-caption text-caption text-on-primary/80 uppercase text-[10px]" data-i18n="deptBadge">UPK JSS • Unit Kerjaya</span>
+        <div class="flex flex-col min-w-0">
+          <span class="font-title-appbar text-on-primary tracking-wider uppercase drop-shadow-sm font-extrabold text-xs sm:text-[14px] leading-tight truncate">PORTAL CEU</span>
+          <span class="font-caption text-on-primary/80 uppercase text-[9px] sm:text-[10px] truncate" data-i18n="deptBadge">UPK JSS • Unit Kerjaya</span>
         </div>
       </div>
-      <div class="flex items-center gap-2">
+      <div class="flex items-center gap-1.5 shrink-0">
         <!-- Language Switcher Pill -->
         <div class="flex items-center rounded-full bg-white/20 p-0.5 text-on-primary backdrop-blur-md" id="header-lang-switch">
-          <button class="lang-btn-bm px-2 py-0.5 rounded-full text-[11px] font-bold transition cursor-pointer" type="button">BM</button>
-          <button class="lang-btn-en px-2 py-0.5 rounded-full text-[11px] font-bold transition cursor-pointer" type="button">EN</button>
+          <button class="lang-btn-bm px-2 py-0.5 rounded-full text-[10px] font-bold transition cursor-pointer" type="button">BM</button>
+          <button class="lang-btn-en px-2 py-0.5 rounded-full text-[10px] font-bold transition cursor-pointer" type="button">EN</button>
         </div>
         <!-- Notification Bell -->
-        <button type="button" onclick="window.CEU_APP.setView('notif')" aria-label="Notifikasi" class="relative w-9 h-9 rounded-full bg-white/15 backdrop-blur-md flex items-center justify-center text-on-primary transition-transform active:scale-95 cursor-pointer">
-          <span class="material-symbols-outlined text-[20px]">notifications</span>
-          <span id="header-notif-badge" class="hidden absolute top-1.5 right-1.5 w-2.5 h-2.5 bg-secondary-container rounded-full ring-2 ring-primary-container animate-pulse"></span>
+        <button type="button" onclick="window.CEU_APP.setView('notif')" aria-label="Notifikasi" class="relative w-8 h-8 rounded-full bg-white/15 backdrop-blur-md flex items-center justify-center text-on-primary transition-transform active:scale-95 cursor-pointer">
+          <span class="material-symbols-outlined text-[18px]">notifications</span>
+          <span id="header-notif-badge" class="hidden absolute top-1 right-1 w-2 h-2 bg-secondary-container rounded-full ring-2 ring-primary-container animate-pulse"></span>
         </button>
         <!-- User Profile Avatar Pill -->
-        <button type="button" onclick="window.CEU_APP.setView('profile')" class="h-8 px-2.5 rounded-full bg-primary flex items-center gap-1.5 shadow-sm text-on-primary cursor-pointer active:scale-95 transition-transform">
-          <span class="material-symbols-outlined text-on-primary text-[17px]">person</span>
-          <span id="header-user-name" class="font-body-sm text-[11px] font-bold text-white max-w-[80px] sm:max-w-[130px] truncate">Guru</span>
+        <button type="button" onclick="window.CEU_APP.setView('profile')" class="h-8 px-2 rounded-full bg-primary flex items-center gap-1 shadow-sm text-on-primary cursor-pointer active:scale-95 transition-transform max-w-[95px] sm:max-w-[130px] truncate">
+          <span class="material-symbols-outlined text-on-primary text-[16px] shrink-0">person</span>
+          <span id="header-user-name" class="font-body-sm text-[11px] font-bold text-white truncate">Guru</span>
         </button>
       </div>
     </div>
@@ -180,7 +180,7 @@
   <!-- ========================================================================
        MAIN WORKSPACE CONTAINER
        ======================================================================== -->
-  <main id="main-container" class="flex-1 flex flex-col relative w-full max-w-5xl mx-auto pb-24">
+  <main id="main-container" class="flex-1 flex flex-col relative w-full max-w-md sm:max-w-xl md:max-w-2xl mx-auto min-w-0 overflow-x-hidden">
 
     <!-- ======================================================================
          1. VIEW: AUTHENTICATION (SPLASH, EMAIL OTP & BIOMETRICS) - STITCH DESIGN SYSTEM
@@ -358,46 +358,46 @@
         <div class="absolute -right-12 -top-12 w-48 h-48 rounded-full bg-white/10 pointer-events-none blur-xl"></div>
         <div class="absolute -left-10 bottom-0 w-36 h-36 rounded-full bg-secondary-container/20 pointer-events-none blur-lg"></div>
 
-        <div class="max-w-2xl mx-auto">
+        <div class="max-w-md sm:max-w-xl md:max-w-2xl mx-auto min-w-0">
           <!-- User Greeting & Location Pill Bar -->
-          <div class="relative z-10 flex items-center justify-between mb-4">
-            <div class="flex flex-col">
-              <span class="font-caption text-[11px] uppercase tracking-wider text-white/80" id="home-greeting-label" data-i18n="teacherGreeting">Selamat Datang • Guru Pendidikan Kerjaya</span>
-              <h1 class="font-headline-md text-xl sm:text-2xl font-bold tracking-tight text-white leading-tight" id="home-greeting-name">Guru Pendidikan Kerjaya</h1>
+          <div class="relative z-10 flex items-center justify-between mb-4 gap-2">
+            <div class="flex flex-col min-w-0 flex-1">
+              <span class="font-caption text-[10px] sm:text-[11px] uppercase tracking-wider text-white/80 truncate block" id="home-greeting-label" data-i18n="teacherGreeting">Selamat Datang • Guru Kerjaya</span>
+              <h1 class="font-headline-md text-lg sm:text-xl font-bold tracking-tight text-white leading-tight truncate" id="home-greeting-name">Guru Pendidikan Kerjaya</h1>
             </div>
-            <div class="flex items-center gap-1.5 bg-white/20 backdrop-blur-md px-3 py-1 rounded-full shadow-sm">
-              <span class="material-symbols-outlined text-[16px] text-secondary-container" style="font-variation-settings: 'FILL' 1;">location_on</span>
-              <span class="font-label-md text-xs text-white font-semibold tracking-wide" id="header-district-badge">Zon Brunei-Muara</span>
+            <div class="flex items-center gap-1.5 bg-white/20 backdrop-blur-md px-2.5 py-1 rounded-full shadow-sm shrink-0">
+              <span class="material-symbols-outlined text-[15px] text-secondary-container" style="font-variation-settings: 'FILL' 1;">location_on</span>
+              <span class="font-label-md text-[11px] text-white font-semibold tracking-wide" id="header-district-badge">Zon Brunei-Muara</span>
             </div>
           </div>
 
           <!-- Calendar Month & Day Selector Strip -->
-          <div class="relative z-10">
-            <div class="flex items-center justify-between mb-2 gap-2">
+          <div class="relative z-10 min-w-0">
+            <div class="flex items-center justify-between mb-2 gap-1.5 flex-wrap sm:flex-nowrap">
               <div class="flex items-center gap-1.5 min-w-0">
                 <span class="material-symbols-outlined text-secondary-container text-base shrink-0">calendar_month</span>
                 <span id="calendar-month-label" class="font-label-md text-xs sm:text-sm text-white font-bold truncate">Minggu Ini</span>
               </div>
-              <div class="flex items-center gap-1.5 shrink-0">
+              <div class="flex items-center gap-1 shrink-0 ml-auto">
                 <!-- Opsyen Mod Mingguan / Bulanan -->
                 <div class="flex items-center bg-black/30 backdrop-blur-md p-0.5 rounded-lg border border-white/20">
-                  <button id="btn-cal-weekly" type="button" class="px-2.5 py-0.5 rounded-md text-[10px] font-bold transition-all bg-white text-primary shadow-xs cursor-pointer">
+                  <button id="btn-cal-weekly" type="button" class="px-2 py-0.5 rounded-md text-[10px] font-bold transition-all bg-white text-primary shadow-xs cursor-pointer">
                     <span data-i18n="calModeWeekly">Mingguan</span>
                   </button>
-                  <button id="btn-cal-monthly" type="button" class="px-2.5 py-0.5 rounded-md text-[10px] font-semibold text-white/80 hover:text-white transition-all cursor-pointer">
+                  <button id="btn-cal-monthly" type="button" class="px-2 py-0.5 rounded-md text-[10px] font-semibold text-white/80 hover:text-white transition-all cursor-pointer">
                     <span data-i18n="calModeMonthly">Bulanan</span>
                   </button>
                 </div>
 
-                <div class="flex items-center gap-1">
-                  <button id="btn-prev-cal" type="button" aria-label="Sebelumnya" class="w-7 h-7 rounded-full bg-white/15 flex items-center justify-center text-white hover:bg-white/25 active:scale-90 transition-all cursor-pointer">
-                    <span class="material-symbols-outlined text-sm">chevron_left</span>
+                <div class="flex items-center gap-0.5">
+                  <button id="btn-prev-cal" type="button" aria-label="Sebelumnya" class="w-6 h-6 rounded-full bg-white/15 flex items-center justify-center text-white hover:bg-white/25 active:scale-90 transition-all cursor-pointer">
+                    <span class="material-symbols-outlined text-xs">chevron_left</span>
                   </button>
-                  <button id="btn-today-cal" type="button" class="px-2.5 py-0.5 rounded-full bg-white/20 hover:bg-white/30 text-[10px] font-bold text-white transition-all cursor-pointer">
-                    <span id="cal-today-btn-text" data-i18n="currentWeek">Minggu Ini</span>
+                  <button id="btn-today-cal" type="button" class="px-2 py-0.5 rounded-full bg-white/20 hover:bg-white/30 text-[9px] font-bold text-white transition-all cursor-pointer">
+                    <span id="cal-today-btn-text" data-i18n="currentWeek">Kini</span>
                   </button>
-                  <button id="btn-next-cal" type="button" aria-label="Seterusnya" class="w-7 h-7 rounded-full bg-white/15 flex items-center justify-center text-white hover:bg-white/25 active:scale-90 transition-all cursor-pointer">
-                    <span class="material-symbols-outlined text-sm">chevron_right</span>
+                  <button id="btn-next-cal" type="button" aria-label="Seterusnya" class="w-6 h-6 rounded-full bg-white/15 flex items-center justify-center text-white hover:bg-white/25 active:scale-90 transition-all cursor-pointer">
+                    <span class="material-symbols-outlined text-xs">chevron_right</span>
                   </button>
                 </div>
               </div>
@@ -435,7 +435,7 @@
       </div>
 
       <!-- Main Scrollable Body Content -->
-      <div class="px-4 max-w-2xl mx-auto w-full flex flex-col gap-4 -mt-5 z-20">
+      <div class="px-4 max-w-md sm:max-w-xl md:max-w-2xl mx-auto w-full flex flex-col gap-4 -mt-5 z-20 min-w-0">
         <!-- Quick Metric Summary Bento Cards (Gaya 16061) -->
         <section class="grid grid-cols-3 gap-2 sm:gap-3">
           <!-- Metric 1: Program Bulan Ini -->
@@ -511,7 +511,7 @@
       <!-- Dynamic Teal Top Area with Stats Pill Mosaic (Gaya 16061) -->
       <div class="bg-primary-container text-on-primary px-4 pt-20 pb-8 rounded-b-[2rem] shadow-[0_12px_28px_rgba(44,160,160,0.22)] relative overflow-hidden">
         <div class="absolute -right-12 -top-12 w-48 h-48 rounded-full bg-white/10 blur-xl pointer-events-none"></div>
-        <div class="max-w-2xl mx-auto">
+        <div class="max-w-md sm:max-w-xl md:max-w-2xl mx-auto min-w-0">
           <div class="flex items-start justify-between gap-3 mb-4">
             <div class="flex flex-col">
               <div class="flex items-center gap-2 mb-1">
@@ -556,7 +556,7 @@
       </div>
 
       <!-- Main Document List Surface Panels -->
-      <div class="px-4 max-w-2xl mx-auto w-full flex flex-col gap-3 -mt-4 z-20">
+      <div class="px-4 max-w-md sm:max-w-xl md:max-w-2xl mx-auto w-full flex flex-col gap-3 -mt-4 z-20 min-w-0">
         <!-- ======================================================================
              SEKSYEN KHAS: PENGHANTARAN LAPORAN RASMI GURU PENDIDIKAN KERJAYA
              ====================================================================== -->
@@ -658,7 +658,7 @@
     <!-- ======================================================================
          4. VIEW: NOTIFICATION BULLETIN
          ====================================================================== -->
-    <section id="view-notif" class="app-view view-hidden flex-1 flex flex-col w-full pt-20 px-4 pb-24">
+    <section id="view-notif" class="app-view view-hidden flex-1 flex flex-col w-full max-w-md sm:max-w-xl md:max-w-2xl mx-auto pt-20 px-4 pb-24 min-w-0">
       <div class="flex items-center justify-between mb-4">
         <div>
           <h2 data-i18n="notifTitle" class="font-headline text-lg font-bold text-on-surface">Pusat Makluman & Hebahan</h2>
@@ -683,7 +683,7 @@
         <div class="absolute -right-12 -top-12 w-48 h-48 rounded-full bg-white/10 pointer-events-none blur-xl"></div>
         <div class="absolute -left-10 bottom-0 w-36 h-36 rounded-full bg-secondary-container/25 pointer-events-none blur-lg"></div>
 
-        <div class="max-w-md mx-auto relative z-10 flex flex-col items-center text-center">
+        <div class="max-w-md sm:max-w-xl md:max-w-2xl mx-auto relative z-10 flex flex-col items-center text-center min-w-0">
           <!-- Avatar Node with Amber Accent Ring -->
           <div class="relative mb-3">
             <div class="w-20 h-20 rounded-full bg-gradient-to-tr from-[#004f50] to-[#2ca0a0] text-white font-headline text-2xl font-black flex items-center justify-center shadow-xl ring-4 ring-secondary-container p-0.5">
@@ -728,7 +728,7 @@
       </div>
 
       <!-- Settings Panels (Crisp Pure White Floating Panels) -->
-      <div class="px-4 max-w-md mx-auto w-full flex flex-col gap-3 -mt-6 z-20">
+      <div class="px-4 max-w-md sm:max-w-xl md:max-w-2xl mx-auto w-full flex flex-col gap-3 -mt-6 z-20 min-w-0">
         <!-- Settings Group 1: Keselamatan -->
         <div class="bg-surface-container-lowest rounded-2xl shadow-md border border-outline-variant/30 overflow-hidden">
           <div class="p-3.5 bg-surface-container-low/50 border-b border-outline-variant/20 flex items-center gap-2">
@@ -824,7 +824,7 @@
         <div class="absolute -right-12 -top-12 w-48 h-48 rounded-full bg-white/10 pointer-events-none blur-xl"></div>
         <div class="absolute -left-10 bottom-0 w-36 h-36 rounded-full bg-secondary-container/25 pointer-events-none blur-lg"></div>
 
-        <div class="max-w-2xl mx-auto relative z-10 flex flex-col gap-3">
+        <div class="max-w-md sm:max-w-xl md:max-w-2xl mx-auto relative z-10 flex flex-col gap-3 min-w-0">
           <!-- Top Row: Admin Badge + Table View Shortcut -->
           <div class="flex items-center justify-between">
             <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-secondary-container text-on-secondary-container font-label-pill text-[11px] font-black uppercase tracking-wider shadow-sm">
@@ -846,7 +846,7 @@
       </div>
 
       <!-- Content Container with Bento Cards & Floating Controls -->
-      <div class="px-4 max-w-2xl mx-auto w-full flex flex-col gap-4 -mt-6 z-20">
+      <div class="px-4 max-w-md sm:max-w-xl md:max-w-2xl mx-auto w-full flex flex-col gap-4 -mt-6 z-20 min-w-0">
         <!-- Pemilih Acara untuk Analisis Dinamik & Real-Time (Elevated Card) -->
         <div class="bg-surface-container-lowest p-3.5 rounded-2xl border border-outline-variant/30 shadow-md flex items-center gap-3">
           <div class="w-9 h-9 rounded-xl bg-primary/10 text-primary flex items-center justify-center shrink-0">
@@ -1018,7 +1018,7 @@
         <div class="absolute -right-12 -top-12 w-48 h-48 rounded-full bg-white/10 pointer-events-none blur-xl"></div>
         <div class="absolute -left-10 bottom-0 w-36 h-36 rounded-full bg-secondary-container/25 pointer-events-none blur-lg"></div>
 
-        <div class="max-w-4xl mx-auto relative z-10 flex flex-col gap-3">
+        <div class="max-w-md sm:max-w-xl md:max-w-2xl mx-auto relative z-10 flex flex-col gap-3 min-w-0">
           <!-- Top Row: Back button + Export PDF -->
           <div class="flex items-center justify-between">
             <button type="button" onclick="window.CEU_APP.setView('admin-dashboard')" class="text-xs font-bold text-white bg-white/20 hover:bg-white/30 backdrop-blur-sm px-3.5 py-1.5 rounded-full flex items-center gap-1.5 transition-all cursor-pointer">
@@ -1044,7 +1044,7 @@
       </div>
 
       <!-- Content Container: Filter, Search & Table -->
-      <div class="px-4 max-w-4xl mx-auto w-full flex flex-col gap-3.5 -mt-6 z-20">
+      <div class="px-4 max-w-md sm:max-w-xl md:max-w-2xl mx-auto w-full flex flex-col gap-3.5 -mt-6 z-20 min-w-0">
         <!-- Penapis Acara, Status & Carian bagi Jadual Semakan -->
         <div class="bg-surface-container-lowest p-4 rounded-2xl shadow-md border border-outline-variant/30 flex flex-col gap-3">
           <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
@@ -1075,8 +1075,8 @@
         </div>
 
         <!-- Data Table Card -->
-        <div class="bg-surface-container-lowest rounded-2xl shadow-md border border-outline-variant/30 overflow-x-auto">
-          <table class="w-full text-left text-xs border-collapse min-w-[640px]">
+        <div class="bg-surface-container-lowest rounded-2xl shadow-md border border-outline-variant/30 overflow-x-auto w-full max-w-full min-w-0">
+          <table class="w-full text-left text-xs border-collapse min-w-[560px]">
             <thead class="bg-surface-container text-on-surface-variant font-headline font-bold border-b border-outline-variant/40">
               <tr>
                 <th class="p-3 text-center w-12" data-i18n="tableColNo">No.</th>
@@ -1099,7 +1099,7 @@
     <!-- ======================================================================
          8. VIEW: ADMIN EVENT CREATOR FORM (BINA & TERBITKAN ACARA RASMI)
          ====================================================================== -->
-    <section id="view-admin-events" class="app-view view-hidden flex-1 flex flex-col w-full max-w-2xl mx-auto pt-20 px-4 pb-36">
+    <section id="view-admin-events" class="app-view view-hidden flex-1 flex flex-col w-full max-w-md sm:max-w-xl md:max-w-2xl mx-auto pt-20 px-4 pb-36 min-w-0">
       
       <!-- Top Action & Department Badge -->
       <div class="flex items-center justify-between mb-3">
@@ -1889,8 +1889,8 @@
     <!-- ========================================================================
        BAR NAVIGASI PORTAL CEU (BOTTOM TAB BAR: UTAMA | RSVP | ARKIB | NOTIFIKASI | PROFIL)
        ======================================================================== -->
-  <nav id="app-bottom-nav" aria-label="Navigasi Utama Mudah Alih" class="fixed bottom-0 w-full z-50 pb-safe bg-surface-container-lowest/95 backdrop-blur-xl shadow-[0_-2px_16px_rgba(18,28,42,0.06)] border-t border-outline-variant/30 select-none" style="display: none;">
-    <div class="flex justify-around items-center h-16 px-1 max-w-md mx-auto">
+  <nav id="app-bottom-nav" aria-label="Navigasi Utama Mudah Alih" class="fixed bottom-0 left-0 right-0 w-full z-50 pb-safe bg-surface-container-lowest/95 backdrop-blur-xl shadow-[0_-2px_16px_rgba(18,28,42,0.06)] border-t border-outline-variant/30 select-none" style="display: none;">
+    <div class="flex justify-around items-center h-16 px-1 max-w-md sm:max-w-xl md:max-w-2xl mx-auto">
       <!-- Item 1: Utama -->
       <button type="button" data-tab="home" class="nav-tab-btn flex flex-col items-center justify-center flex-1 h-full py-1 text-primary border-t-2 border-secondary font-bold cursor-pointer transition-all">
         <span class="material-symbols-outlined text-[22px]">home</span>
@@ -1927,8 +1927,8 @@
   </nav>
 
   <!-- Application Logic Scripts -->
-  <script src="js/config.js?v=1.6.4"></script>
-  <script src="js/data-mock.js?v=1.6.4"></script>
-  <script src="js/app.js?v=1.6.4"></script>
+  <script src="js/config.js?v=1.6.5"></script>
+  <script src="js/data-mock.js?v=1.6.5"></script>
+  <script src="js/app.js?v=1.6.5"></script>
 </body>
 </html>
