@@ -938,7 +938,7 @@
         </div>
       </div>
 
-      <form id="form-create-event" class="flex flex-col gap-4">
+      <form id="form-create-event" class="flex flex-col gap-4" onsubmit="event.preventDefault();">
 
         <!-- ==================================================================
              SEKSYEN 1: MAKLUMAT ASAS ACARA
@@ -1404,7 +1404,7 @@
               <span class="material-symbols-outlined text-[18px]">save</span>
               <span>Simpan Draf</span>
             </button>
-            <button id="btn-broadcast" type="submit" class="flex-[1.6] h-11 px-4 rounded-full bg-secondary-container hover:bg-secondary-fixed text-on-secondary-container text-xs font-bold flex items-center justify-center gap-2 shadow-[0_6px_16px_rgba(252,183,38,0.35)] transition-all active:scale-[0.98] cursor-pointer">
+            <button id="btn-broadcast" type="button" class="flex-[1.6] h-11 px-4 rounded-full bg-secondary-container hover:bg-secondary-fixed text-on-secondary-container text-xs font-bold flex items-center justify-center gap-2 shadow-[0_6px_16px_rgba(252,183,38,0.35)] transition-all active:scale-[0.98] cursor-pointer">
               <span class="material-symbols-outlined text-[18px]">send</span>
               <span id="btn-broadcast-text" data-i18n="publishBroadcastBtn">Terbit &amp; Siar FCM</span>
             </button>
@@ -1633,8 +1633,8 @@
   </nav>
 
   <!-- Application Logic Scripts -->
-  <script src="js/config.js?v=1.5.1"></script>
-  <script src="js/data-mock.js?v=1.5.1"></script>
-  <script src="js/app.js?v=1.5.1"></script>
+  <script src="js/config.js?v=1.5.2"></script>
+  <script src="js/data-mock.js?v=1.5.2"></script>
+  <script src="js/app.js?v=1.5.2"></script>
 </body>
 </html>

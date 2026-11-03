@@ -672,7 +672,7 @@
   async function api(action, payload, forceLive) {
     const isMock = !window.APP_CONFIG.GAS_URL;
 
-    if (isMock) {
+    if (isMock || (State.token && State.token.startsWith('mock_token_'))) {
       return handleMockApi(action, payload);
     }
 
@@ -3414,93 +3414,128 @@
     renderIndividualOfficers();
     updateTargetBadges();
 
-    // 11. Simpan Draf Acara
+    // 11. Pengurusan Simpan Draf & Terbit Acara
     const btnSaveDraft = document.getElementById('btn-save-draft');
-    if (btnSaveDraft) {
-      btnSaveDraft.addEventListener('click', async () => {
-        const titleBm = inputTitleBm ? inputTitleBm.value.trim() : 'Draf Acara Baharu';
-        let category = selectCategory ? selectCategory.value : 'Mesyuarat';
-        if (category === 'Lain-lain' && inputCategoryCustom && inputCategoryCustom.value.trim()) {
-          category = inputCategoryCustom.value.trim();
-        }
+    const btnBroadcast = document.getElementById('btn-broadcast');
 
-        const date = inputDate ? inputDate.value : '';
-        const startTime = inputStartTime ? inputStartTime.value : '08:30';
-        const endTime = inputEndTime ? inputEndTime.value : '12:00';
-        const venue = inputVenue ? inputVenue.value.trim() : '';
-        const deadline = inputDeadline ? inputDeadline.value : '';
+    async function handleEventSubmission(isDraft) {
+      const titleBm = inputTitleBm ? inputTitleBm.value.trim() : (isDraft ? 'Draf Acara Baharu' : '');
+      let category = selectCategory ? selectCategory.value : 'Mesyuarat';
+      if (category === 'Lain-lain' && inputCategoryCustom && inputCategoryCustom.value.trim()) {
+        category = inputCategoryCustom.value.trim();
+      }
+
+      const date = inputDate ? inputDate.value : '';
+      const startTime = inputStartTime ? inputStartTime.value : '08:30';
+      const endTime = inputEndTime ? inputEndTime.value : '12:00';
+      const venue = inputVenue ? inputVenue.value.trim() : '';
+      const meetLink = inputMeet ? inputMeet.value.trim() : '';
+      const driveUrl = inputDriveUrl ? inputDriveUrl.value.trim() : '';
+      const deadline = inputDeadline ? inputDeadline.value : '';
+
+      if (!isDraft) {
+        if (!titleBm || !date) {
+          showToast(State.lang === 'en' ? 'Please fill in the event title and date.' : 'Sila isikan maklumat tajuk dan tarikh acara.', 'error');
+          return;
+        }
         if (selectedOfficerEmails.size === 0) {
           showToast(State.lang === 'en' ? 'Please select at least one Career Education Teacher to invite.' : 'Sila tandakan sekurang-kurangnya seorang Guru Pendidikan Kerjaya yang dijemput hadir.', 'warning');
           return;
         }
+      }
 
-        const individualEmails = Array.from(selectedOfficerEmails);
-        const finalCount = individualEmails.length;
-        const currentTargetMode = 'individual';
-        const checkInvitePrincipals = document.getElementById('check-invite-principals');
-        const targetRolesList = ['Guru Pendidikan Kerjaya'];
-        if (checkInvitePrincipals && checkInvitePrincipals.checked) {
-          targetRolesList.push('Pengetua');
+      const individualEmails = Array.from(selectedOfficerEmails);
+      const finalCount = individualEmails.length;
+      const currentTargetMode = 'individual';
+      const checkInvitePrincipals = document.getElementById('check-invite-principals');
+      const targetRolesList = ['Guru Pendidikan Kerjaya'];
+      if (checkInvitePrincipals && checkInvitePrincipals.checked) {
+        targetRolesList.push('Pengetua');
+      }
+
+      const channelFcm = document.getElementById('channel-fcm')?.checked ?? true;
+      const channelEmail = document.getElementById('channel-email')?.checked ?? true;
+      const channelBanner = document.getElementById('channel-banner')?.checked ?? true;
+
+      const activeBtn = isDraft ? btnSaveDraft : btnBroadcast;
+      if (activeBtn) {
+        activeBtn.disabled = true;
+        activeBtn.innerHTML = `<span class="material-symbols-outlined text-[18px] animate-spin">progress_activity</span><span>${isDraft ? (State.lang === 'en' ? 'Saving Draft...' : 'Menyimpan Draf...') : (State.lang === 'en' ? 'Broadcasting...' : 'Menghantar FCM...')}</span>`;
+      }
+
+      const res = await api('saveEvent', {
+        isDraft: isDraft,
+        titleBm: titleBm || (isDraft ? 'Draf Acara' : 'Acara Rasmi'),
+        titleEn: titleBm || (isDraft ? 'Event Draft' : 'Official Event'),
+        category,
+        eventDate: date,
+        startTime: startTime + ' PAGI',
+        endTime: endTime + ' TGH HARI',
+        venue,
+        meetingLink: meetLink,
+        rsvpDeadline: deadline,
+        driveUrl,
+        targetMode: currentTargetMode,
+        targetRoles: targetRolesList,
+        individualEmails,
+        targetCount: finalCount,
+        channels: {
+          fcm: channelFcm,
+          email: channelEmail,
+          banner: channelBanner
         }
+      });
 
-        if (!titleBm || !date) {
-          showToast('Sila isikan maklumat tajuk dan tarikh acara.', 'error');
-          return;
+      if (res && res.success) {
+        if (activeBtn) {
+          activeBtn.innerHTML = `<span class="material-symbols-outlined text-[18px]">check_circle</span><span>${isDraft ? (State.lang === 'en' ? 'Draft Saved' : 'Draf Disimpan') : (State.lang === 'en' ? 'Broadcasted!' : 'Berjaya Disiarkan!')}</span>`;
+          activeBtn.classList.remove('bg-primary');
+          activeBtn.classList.add('bg-secondary');
         }
-
-        if (btnBroadcast) {
-          btnBroadcast.disabled = true;
-          btnBroadcast.innerHTML = `<span class="material-symbols-outlined text-[18px] animate-spin">progress_activity</span><span>Menghantar FCM...</span>`;
-        }
-
-        const res = await api('saveEvent', {
-          isDraft: false,
-          titleBm,
-          titleEn: titleBm,
-          category,
-          eventDate: date,
-          startTime: startTime + ' PAGI',
-          endTime: endTime + ' TGH HARI',
-          venue,
-          meetingLink: meetLink,
-          rsvpDeadline: deadline,
-          driveUrl,
-          targetMode: currentTargetMode,
-          targetRoles: targetRolesList,
-          individualEmails,
-          targetCount: finalCount,
-          channels: {
-            fcm: channelFcm,
-            email: channelEmail,
-            banner: channelBanner
+        showToast(res.message || (isDraft ? (State.lang === 'en' ? 'Draft saved successfully.' : 'Draf berjaya disimpan.') : (State.lang === 'en' ? 'Event published successfully.' : 'Acara berjaya diterbitkan.')), 'success');
+        State.adminData = null;
+        await loadAppBoot();
+        setTimeout(() => {
+          setView('admin-dashboard');
+          if (activeBtn) {
+            activeBtn.innerHTML = isDraft 
+              ? `<span class="material-symbols-outlined text-[18px]">save</span><span>${State.lang === 'en' ? 'Save Draft' : 'Simpan Draf'}</span>`
+              : `<span class="material-symbols-outlined text-[18px]">send</span><span>${State.lang === 'en' ? 'Publish & Broadcast' : 'Terbit & Siar FCM'}</span>`;
+            activeBtn.classList.add('bg-primary');
+            activeBtn.classList.remove('bg-secondary');
+            activeBtn.disabled = false;
           }
-        });
-
-        if (res && res.success) {
-          if (btnBroadcast) {
-            btnBroadcast.innerHTML = `<span class="material-symbols-outlined text-[18px]">check_circle</span><span>Berjaya Disiarkan!</span>`;
-            btnBroadcast.classList.remove('bg-primary');
-            btnBroadcast.classList.add('bg-secondary');
-          }
-          showToast(res.message, 'success');
-          State.adminData = null;
-          await loadAppBoot();
-          setTimeout(() => {
-            setView('admin-dashboard');
-            if (btnBroadcast) {
-              btnBroadcast.innerHTML = `<span class="material-symbols-outlined text-[18px]">send</span><span>Terbit &amp; Siar FCM</span>`;
-              btnBroadcast.classList.add('bg-primary');
-              btnBroadcast.classList.remove('bg-secondary');
-              btnBroadcast.disabled = false;
-            }
-          }, 1200);
-        } else {
-          showToast((res && res.message) || 'Gagal menerbitkan acara.', 'error');
-          if (btnBroadcast) {
-            btnBroadcast.disabled = false;
-            btnBroadcast.innerHTML = `<span class="material-symbols-outlined text-[18px]">send</span><span>Terbit &amp; Siar FCM</span>`;
-          }
+        }, 1200);
+      } else {
+        showToast((res && res.message) || (State.lang === 'en' ? 'Failed to save event.' : 'Gagal menyimpan acara.'), 'error');
+        if (activeBtn) {
+          activeBtn.disabled = false;
+          activeBtn.innerHTML = isDraft 
+            ? `<span class="material-symbols-outlined text-[18px]">save</span><span>${State.lang === 'en' ? 'Save Draft' : 'Simpan Draf'}</span>`
+            : `<span class="material-symbols-outlined text-[18px]">send</span><span>${State.lang === 'en' ? 'Publish & Broadcast' : 'Terbit & Siar FCM'}</span>`;
         }
+      }
+    }
+
+    if (btnSaveDraft) {
+      btnSaveDraft.addEventListener('click', (e) => {
+        e.preventDefault();
+        handleEventSubmission(true);
+      });
+    }
+
+    if (btnBroadcast) {
+      btnBroadcast.addEventListener('click', (e) => {
+        e.preventDefault();
+        handleEventSubmission(false);
+      });
+    }
+
+    const formCreate = document.getElementById('form-create-event');
+    if (formCreate) {
+      formCreate.addEventListener('submit', (e) => {
+        e.preventDefault();
+        handleEventSubmission(false);
       });
     }
   }
@@ -3816,14 +3851,27 @@
     setLanguage(State.lang);
     updateBiometricUI();
 
-    // Sentiasa pastikan pengguna bermula di skrin Log Masuk (view-auth)
-    // Pengguna mesti memasukkan emel + OTP atau mengimbas biometrik secara eksplisit
-    State.token = '';
-    State.currentUser = null;
-    localStorage.removeItem('ceu_tok');
-    localStorage.removeItem('ceu_user');
-    sessionStorage.removeItem('ceu_tok');
-    sessionStorage.removeItem('ceu_user');
+    const savedToken = localStorage.getItem('ceu_tok');
+    const savedUser = localStorage.getItem('ceu_user');
+    if (savedToken && savedUser) {
+      try {
+        State.token = savedToken;
+        State.currentUser = JSON.parse(savedUser);
+        loadAppBoot().then(() => {
+          if (State.currentUser && State.currentUser.role === 'Admin') {
+            setView('admin-dashboard');
+          } else {
+            setView('home');
+          }
+        }).catch(() => {
+          setView('auth');
+        });
+        return;
+      } catch (e) {
+        localStorage.removeItem('ceu_tok');
+        localStorage.removeItem('ceu_user');
+      }
+    }
 
     setView('auth');
   });

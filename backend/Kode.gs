@@ -280,6 +280,30 @@ function getSheet_(name) {
            ss.getSheetByName('Sheet1') || 
            ss.getSheetByName('Helaian1') ||
            ss.getSheets()[0];
+    } else if (name === CONFIG.SHEET_NAMES.events) {
+      try {
+        sh = ss.insertSheet(CONFIG.SHEET_NAMES.events);
+        sh.appendRow([
+          'event_id', 'title_bm', 'title_en', 'event_date', 'start_time', 'end_time',
+          'venue', 'meeting_link', 'rsvp_deadline', 'attachment_drive_url', 'status',
+          'created_by', 'created_at', 'target_mode', 'target_roles', 'target_emails', 'target_count'
+        ]);
+      } catch(e) {}
+    } else if (name === CONFIG.SHEET_NAMES.notif) {
+      try {
+        sh = ss.insertSheet(CONFIG.SHEET_NAMES.notif);
+        sh.appendRow(['notif_id', 'title_bm', 'title_en', 'body_bm', 'body_en', 'priority', 'created_at', 'sender', 'target']);
+      } catch(e) {}
+    } else if (name === CONFIG.SHEET_NAMES.rsvp) {
+      try {
+        sh = ss.insertSheet(CONFIG.SHEET_NAMES.rsvp);
+        sh.appendRow(['rsvp_id', 'event_id', 'user_email', 'full_name', 'school_name', 'district', 'response_status', 'absence_reason', 'rep_name', 'rep_email', 'rep_phone', 'submitted_at']);
+      } catch(e) {}
+    } else if (name === CONFIG.SHEET_NAMES.config) {
+      try {
+        sh = ss.insertSheet(CONFIG.SHEET_NAMES.config);
+        sh.appendRow(['key', 'value', 'keterangan']);
+      } catch(e) {}
     }
   }
   if (!sh) throw new Error('Lembaran ' + name + ' tidak ditemukan di pangkalan data.');
