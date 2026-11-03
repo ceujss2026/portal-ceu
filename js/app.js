@@ -1447,6 +1447,73 @@
     return `${String(h).padStart(2, '0')}:${m}`;
   }
 
+  function escapeHtml(str) {
+    if (!str) return '';
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;');
+  }
+
+  function normalizeDateISOToYMD(dVal) {
+    if (!dVal) return '';
+    if (typeof dVal === 'object' && dVal instanceof Date) {
+      const y = dVal.getFullYear();
+      const m = String(dVal.getMonth() + 1).padStart(2, '0');
+      const d = String(dVal.getDate()).padStart(2, '0');
+      return `${y}-${m}-${d}`;
+    }
+    const s = String(dVal).trim();
+    if (s.includes('T')) {
+      const d = new Date(s);
+      if (!isNaN(d.getTime())) {
+        const y = d.getFullYear();
+        const m = String(d.getMonth() + 1).padStart(2, '0');
+        const day = String(d.getDate()).padStart(2, '0');
+        return `${y}-${m}-${day}`;
+      }
+    }
+    return s;
+  }
+
+  function formatEventDateClean(dateVal) {
+    if (!dateVal) return '';
+    if (typeof dateVal === 'object' && dateVal instanceof Date) {
+      const monthNames = ['Jan', 'Feb', 'Mac', 'Apr', 'Mei', 'Jun', 'Jul', 'Ogo', 'Sep', 'Okt', 'Nov', 'Dis'];
+      return `${dateVal.getDate()} ${monthNames[dateVal.getMonth()]} ${dateVal.getFullYear()}`;
+    }
+    const str = String(dateVal).trim();
+    if (!str) return '';
+
+    // Tangani format ISO seperti 2026-11-03T16:00:00.000Z
+    if (str.includes('T')) {
+      const d = new Date(str);
+      if (!isNaN(d.getTime())) {
+        const monthNames = ['Jan', 'Feb', 'Mac', 'Apr', 'Mei', 'Jun', 'Jul', 'Ogo', 'Sep', 'Okt', 'Nov', 'Dis'];
+        return `${d.getDate()} ${monthNames[d.getMonth()]} ${d.getFullYear()}`;
+      }
+    }
+
+    // Tangani format YYYY-MM-DD
+    if (/^\d{4}-\d{2}-\d{2}$/.test(str)) {
+      const [y, m, d] = str.split('-');
+      const monthNames = ['Jan', 'Feb', 'Mac', 'Apr', 'Mei', 'Jun', 'Jul', 'Ogo', 'Sep', 'Okt', 'Nov', 'Dis'];
+      return `${parseInt(d, 10)} ${monthNames[parseInt(m, 10) - 1] || m} ${y}`;
+    }
+
+    return str;
+  }
+
+  function getEventDisplayName(e) {
+    if (!e) return 'Acara Rasmi';
+    const title = (State.lang === 'en' && e.title_en) ? e.title_en : (e.title_bm || e.title || '');
+    if (title && title.trim()) return title.trim();
+    if (e.category) return `${e.category} (${e.event_id || 'Rasmi'})`;
+    return e.event_id || 'Acara Rasmi';
+  }
+
   // ==========================================================================
   // 5. ENJIN TERJEMAHAN DINAMIK (DYNAMIC I18N ENGINE)
   // ==========================================================================
@@ -1667,7 +1734,10 @@
     const res = await api('boot', {});
     if (res && res.success && res.data) {
       State.currentUser = res.data.user || State.currentUser;
-      State.events = res.data.events || [];
+      State.events = (res.data.events || []).map(e => {
+        if (e.event_date) e.event_date = normalizeDateISOToYMD(e.event_date);
+        return e;
+      });
       State.rsvps = res.data.rsvp || [];
       State.notifications = res.data.notifications || [];
       if (res.data.users && Array.isArray(res.data.users)) {
@@ -2111,7 +2181,7 @@
             </div>
             <span class="font-label-sm text-xs text-on-surface-variant font-medium flex items-center gap-1">
               <span class="material-symbols-outlined text-sm text-primary">event</span>
-              ${ev.event_date}
+              ${formatEventDateClean(ev.event_date)}
             </span>
           </div>
 
@@ -2223,7 +2293,7 @@
     const titleEl = document.getElementById('rsvp-event-title');
     const metaEl = document.getElementById('rsvp-event-meta');
     if (titleEl) titleEl.textContent = (State.lang === 'en' && ev.title_en) ? ev.title_en : ev.title_bm;
-    if (metaEl) metaEl.textContent = `${ev.event_date} • ${formatTime12H(ev.start_time)} • ${ev.venue}`;
+    if (metaEl) metaEl.textContent = `${formatEventDateClean(ev.event_date)} • ${formatTime12H(ev.start_time)} • ${ev.venue}`;
 
     const userRsvp = State.rsvps.find(r => r.event_id === eventId);
     const radioAttend = document.getElementById('radio-attend');
@@ -2688,11 +2758,16 @@
 
     const eventSelect = document.getElementById('admin-dashboard-event-select');
     if (eventSelect && publishedEvents.length) {
-      eventSelect.innerHTML = publishedEvents.map(e => `
+      eventSelect.innerHTML = publishedEvents.map(e => {
+        const title = getEventDisplayName(e);
+        const dClean = formatEventDateClean(e.event_date);
+        const label = dClean ? `${title} (${dClean})` : title;
+        return `
         <option value="${e.event_id}" ${e.event_id === _adminSelectedEventId ? 'selected' : ''}>
-          ${e.event_date} — ${e.title_bm}
+          ${escapeHtml(label)}
         </option>
-      `).join('');
+      `;
+      }).join('');
 
       eventSelect.onchange = async () => {
         _adminSelectedEventId = eventSelect.value;
@@ -2845,14 +2920,14 @@
               ${statusBadge}
               <span class="text-[11px] text-on-surface-variant font-medium flex items-center gap-1">
                 <span class="material-symbols-outlined text-xs text-primary">calendar_month</span>
-                ${ev.event_date}
+                ${formatEventDateClean(ev.event_date)}
               </span>
               <span class="text-[11px] text-on-surface-variant font-medium flex items-center gap-1">
                 <span class="material-symbols-outlined text-xs text-secondary">schedule</span>
                 ${formatTime12H(ev.start_time) || '08:30 PAGI'}
               </span>
             </div>
-            <h4 class="font-headline text-xs sm:text-sm font-bold text-on-surface truncate">${ev.title_bm}</h4>
+            <h4 class="font-headline text-xs sm:text-sm font-bold text-on-surface truncate">${escapeHtml(getEventDisplayName(ev))}</h4>
             <p class="text-[11px] text-on-surface-variant truncate mt-0.5">
               <span class="material-symbols-outlined text-[13px] align-middle">location_on</span> ${ev.venue || 'Dalam Talian'} • Sasaran: ${ev.target_count || 37} pegawai
             </p>
@@ -2941,11 +3016,16 @@
 
     const eventSelect = document.getElementById('admin-rsvp-event-select');
     if (eventSelect && publishedEvents.length) {
-      eventSelect.innerHTML = publishedEvents.map(e => `
+      eventSelect.innerHTML = publishedEvents.map(e => {
+        const title = getEventDisplayName(e);
+        const dClean = formatEventDateClean(e.event_date);
+        const label = dClean ? `${title} (${dClean})` : title;
+        return `
         <option value="${e.event_id}" ${e.event_id === _adminSelectedEventId ? 'selected' : ''}>
-          ${e.event_date} — ${e.title_bm}
+          ${escapeHtml(label)}
         </option>
-      `).join('');
+      `;
+      }).join('');
 
       eventSelect.onchange = async () => {
         _adminSelectedEventId = eventSelect.value;

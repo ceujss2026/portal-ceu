@@ -326,14 +326,19 @@ function readSheetAsObjects_(name) {
   const v = sh.getDataRange().getValues();
   if (v.length <= 1) return [];
   const h = v[0].map(s => String(s).trim());
+  const tz = Session.getScriptTimeZone() || 'Asia/Brunei';
   return v.slice(1).filter(r => r.join('') !== '').map(r => {
     const o = {};
     h.forEach((k, i) => {
       if (k) {
-        o[k] = r[i];
+        let val = r[i];
+        if (val instanceof Date) {
+          val = Utilities.formatDate(val, tz, 'yyyy-MM-dd');
+        }
+        o[k] = val;
         const lower = k.toLowerCase();
-        o[lower] = r[i];
-        o[lower.replace(/[^a-z0-9]/g, '_')] = r[i];
+        o[lower] = val;
+        o[lower.replace(/[^a-z0-9]/g, '_')] = val;
       }
     });
     return o;
