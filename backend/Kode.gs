@@ -304,6 +304,17 @@ function getSheet_(name) {
         sh = ss.insertSheet(CONFIG.SHEET_NAMES.config);
         sh.appendRow(['key', 'value', 'keterangan']);
       } catch(e) {}
+    } else if (name === CONFIG.SHEET_NAMES.memos) {
+      try {
+        sh = ss.insertSheet(CONFIG.SHEET_NAMES.memos);
+        sh.appendRow([
+          'doc_id', 'title_bm', 'title_en', 'category', 'ref_no',
+          'drive_file_id', 'file_view_url', 'size', 'publish_date', 'target_audience'
+        ]);
+        sh.appendRow(['MEMO-2026-01', 'Pekeliling UPK Bil 02/2026: Garis Panduan Pameran Kerjaya Sekolah Menengah dan Maktab 2026', 'CEU Circular No. 02/2026: Career Exhibition Guidelines 2026', 'Persuratan & Pekeliling', 'MOE/JSS/UPK/2026/04', '', 'https://drive.google.com/viewerng/viewer?embedded=true&url=https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf', '1.2 MB', '2026-02-28', 'Semua']);
+        sh.appendRow(['MEMO-2026-02', 'Minit Mesyuarat Agung Tahunan Guru Bimbingan Kerjaya Sesi 2025', 'Minutes of Annual General Meeting 2025', 'Minit Mesyuarat', 'UPK/MINIT/2025/11', '', 'https://drive.google.com/viewerng/viewer?embedded=true&url=https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf', '2.4 MB', '2026-01-15', 'Semua']);
+        sh.appendRow(['MEMO-2026-03', 'Memorandum Penyelarasan Takwim Bimbingan Kerjaya Tahun 2026', 'Memorandum on Coordination of Career Guidance Calendar 2026', 'Memorandum', 'UPK/MEMO/2026/01', '', 'https://drive.google.com/viewerng/viewer?embedded=true&url=https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf', '850 KB', '2026-01-08', 'Semua']);
+      } catch(e) {}
     }
   }
   if (!sh) throw new Error('Lembaran ' + name + ' tidak ditemukan di pangkalan data.');
@@ -442,6 +453,8 @@ function dispatchPost_(action, data, token) {
       return handleSubmitRsvp_(user, data);
     case 'getMemos':
       return handleGetMemos_(user, data);
+    case 'uploadMemoDoc':
+      return handleUploadMemoDoc_(user, data);
     case 'getNotifications':
       return handleGetNotifications_(user);
     case 'markNotifRead':
@@ -949,6 +962,95 @@ function handleGetMemos_(user, filter) {
   }
 
   return { success: true, data: result };
+}
+
+// Muat Naik Minit, Memorandum & Persuratan (PDF Langsung ke Drive)
+function handleUploadMemoDoc_(user, data) {
+  try {
+    const title_bm = String(data.title_bm || data.title || '').trim();
+    if (!title_bm) return { success: false, message: 'Tajuk dokumen diperlukan.' };
+    const category = String(data.category || 'Persuratan & Pekeliling').trim();
+    const ref_no = String(data.ref_no || ('UPK/JSS/' + new Date().getFullYear() + '/' + Math.floor(100 + Math.random()*900))).trim();
+    const title_en = String(data.title_en || title_bm).trim();
+    const publish_date = new Date().toISOString().split('T')[0];
+    
+    let fileViewUrl = '';
+    let driveFileId = '';
+    let fileSizeStr = '1.2 MB';
+
+    if (data.fileBase64) {
+      const fileName = data.fileName || (title_bm.replace(/[^a-zA-Z0-9_-]/g, '_') + '.pdf');
+      const mimeType = data.mimeType || 'application/pdf';
+      const cleanBase64 = data.fileBase64.replace(/^data:[^;]+;base64,/, '');
+      const bytes = Utilities.base64Decode(cleanBase64);
+      const blob = Utilities.newBlob(bytes, mimeType, fileName);
+      fileSizeStr = (blob.getBytes().length / (1024 * 1024)).toFixed(1) + ' MB';
+
+      let targetFolder = null;
+      try {
+        if (CONFIG.MEMOS_FOLDER_ID) {
+          targetFolder = DriveApp.getFolderById(CONFIG.MEMOS_FOLDER_ID);
+        }
+      } catch (e) {}
+
+      if (!targetFolder) {
+        const folders = DriveApp.getFoldersByName('02_Minit_Memorandum_Persuratan');
+        if (folders.hasNext()) {
+          targetFolder = folders.next();
+        } else {
+          targetFolder = DriveApp.createFolder('02_Minit_Memorandum_Persuratan');
+        }
+        try {
+          setProp_('MEMOS_FOLDER_ID', targetFolder.getId());
+        } catch(e) {}
+      }
+
+      const driveFile = targetFolder.createFile(blob);
+      try {
+        driveFile.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+      } catch(e) {}
+      driveFileId = driveFile.getId();
+      fileViewUrl = driveFile.getUrl();
+    } else if (data.file_view_url || data.url) {
+      fileViewUrl = data.file_view_url || data.url;
+    }
+
+    const doc_id = 'MEMO-' + new Date().getFullYear() + '-' + Math.floor(1000 + Math.random() * 9000);
+    const sh = getSheet_(CONFIG.SHEET_NAMES.memos);
+    sh.appendRow([
+      doc_id,
+      title_bm,
+      title_en,
+      category,
+      ref_no,
+      driveFileId,
+      fileViewUrl,
+      fileSizeStr,
+      publish_date,
+      'Semua'
+    ]);
+
+    CacheX.del('memos_list');
+
+    return {
+      success: true,
+      message: 'Dokumen berjaya dimuat naik ke Google Drive & pangkalan data!',
+      data: {
+        doc_id,
+        title_bm,
+        title_en,
+        category,
+        ref_no,
+        drive_file_id: driveFileId,
+        file_view_url: fileViewUrl,
+        size: fileSizeStr,
+        publish_date,
+        target_audience: 'Semua'
+      }
+    };
+  } catch (err) {
+    return { success: false, message: 'Ralat memuat naik dokumen: ' + err.toString() };
+  }
 }
 
 // Senarai Notifikasi

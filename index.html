@@ -505,7 +505,7 @@
     </section>
 
     <!-- ======================================================================
-         3. VIEW: DIGITAL ARCHIVE & MEMO REPOSITORY
+         3. VIEW: DIGITAL ARCHIVE & MEMO REPOSITORY (MINIT, MEMORANDUM & PERSURATAN)
          ====================================================================== -->
     <section id="view-archive" class="app-view view-hidden flex-1 flex flex-col w-full pb-24">
       <!-- Dynamic Teal Top Area with Stats Pill Mosaic (Gaya 16061) -->
@@ -523,10 +523,10 @@
                 </span>
               </div>
               <h1 data-i18n="archiveTitle" class="font-headline-md text-xl sm:text-2xl text-white font-bold tracking-tight">
-                Pustaka Digital Kerjaya
+                Minit, Memorandum dan Persuratan
               </h1>
               <p data-i18n="archiveSubtitle" class="font-body-sm text-xs text-white/85 leading-relaxed mt-0.5">
-                Pekeliling rasmi, surat siaran &amp; instrumen bimbingan kerjaya KPM.
+                Pustaka rasmi minit mesyuarat, pekeliling, memorandum dan takwim UPK JSS.
               </p>
             </div>
             <button onclick="renderArchiveView()" aria-label="Segar Semula" class="w-9 h-9 rounded-full bg-white/20 backdrop-blur-sm text-white flex items-center justify-center shadow-sm active:scale-90 transition-transform cursor-pointer" type="button">
@@ -557,27 +557,75 @@
 
       <!-- Main Document List Surface Panels -->
       <div class="px-4 max-w-2xl mx-auto w-full flex flex-col gap-3 -mt-4 z-20">
+        <!-- ======================================================================
+             SEKSYEN KHAS: PENGHANTARAN LAPORAN RASMI GURU PENDIDIKAN KERJAYA
+             ====================================================================== -->
+        <div class="bg-surface-container-lowest rounded-2xl shadow-md p-4 border border-outline-variant/30 flex flex-col gap-3">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <div class="w-8 h-8 rounded-lg bg-primary-container text-on-primary flex items-center justify-center shrink-0">
+                <span class="material-symbols-outlined text-[18px]">cloud_upload</span>
+              </div>
+              <div>
+                <h3 class="font-headline font-bold text-xs sm:text-sm text-on-surface">Penghantaran Laporan Rasmi Guru</h3>
+                <p class="font-body-sm text-[11px] text-on-surface-variant">Sila hantar dokumen laporan awda ke folder rasmi Google Drive (Format: .docx atau .pdf)</p>
+              </div>
+            </div>
+            <span class="px-2 py-0.5 rounded-full bg-secondary-fixed text-on-secondary-fixed text-[10px] font-bold">2026</span>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-1">
+            <!-- 1. Rancangan Tahunan -->
+            <a href="https://drive.google.com/drive/folders/10wmGnCmOS3PiI3Vm_b9F-XI4zbmqEIe8" target="_blank" rel="noopener noreferrer" class="group p-3 rounded-xl bg-surface-container-low hover:bg-surface-container border border-outline-variant/30 flex items-start gap-3 transition-all cursor-pointer">
+              <div class="w-10 h-10 rounded-lg bg-primary/10 text-primary group-hover:bg-primary group-hover:text-white flex items-center justify-center shrink-0 transition-colors">
+                <span class="material-symbols-outlined text-[22px]">calendar_month</span>
+              </div>
+              <div class="min-w-0 flex-1">
+                <div class="flex items-center justify-between gap-1">
+                  <h4 class="font-label-md text-xs font-bold text-on-surface group-hover:text-primary transition-colors">1. Rancangan Tahunan</h4>
+                  <span class="material-symbols-outlined text-outline group-hover:text-primary text-[16px] transition-transform group-hover:translate-x-0.5">open_in_new</span>
+                </div>
+                <p class="text-[11px] text-on-surface-variant mt-0.5 line-clamp-2">Takwim aktiviti &amp; pelan tindakan perkhidmatan kerjaya sekolah.</p>
+                <div class="flex items-center gap-1.5 mt-2">
+                  <span class="px-1.5 py-0.5 rounded bg-surface-container-high text-on-surface-variant text-[9px] font-semibold">.docx</span>
+                  <span class="px-1.5 py-0.5 rounded bg-surface-container-high text-on-surface-variant text-[9px] font-semibold">.pdf</span>
+                  <span class="text-[10px] text-primary font-bold ml-auto flex items-center gap-0.5">Buka Folder <span class="material-symbols-outlined text-[12px]">chevron_right</span></span>
+                </div>
+              </div>
+            </a>
+
+            <!-- 2. Laporan Tahunan -->
+            <a href="https://drive.google.com/drive/folders/10wmGnCmOS3PiI3Vm_b9F-XI4zbmqEIe8" target="_blank" rel="noopener noreferrer" class="group p-3 rounded-xl bg-surface-container-low hover:bg-surface-container border border-outline-variant/30 flex items-start gap-3 transition-all cursor-pointer">
+              <div class="w-10 h-10 rounded-lg bg-tertiary-fixed text-on-tertiary-fixed group-hover:bg-tertiary group-hover:text-white flex items-center justify-center shrink-0 transition-colors">
+                <span class="material-symbols-outlined text-[22px]">assignment</span>
+              </div>
+              <div class="min-w-0 flex-1">
+                <div class="flex items-center justify-between gap-1">
+                  <h4 class="font-label-md text-xs font-bold text-on-surface group-hover:text-tertiary transition-colors">2. Laporan Tahunan</h4>
+                  <span class="material-symbols-outlined text-outline group-hover:text-tertiary text-[16px] transition-transform group-hover:translate-x-0.5">open_in_new</span>
+                </div>
+                <p class="text-[11px] text-on-surface-variant mt-0.5 line-clamp-2">Laporan penuh pelaksanaan program &amp; pencapaian bimbingan kerjaya.</p>
+                <div class="flex items-center gap-1.5 mt-2">
+                  <span class="px-1.5 py-0.5 rounded bg-surface-container-high text-on-surface-variant text-[9px] font-semibold">.docx</span>
+                  <span class="px-1.5 py-0.5 rounded bg-surface-container-high text-on-surface-variant text-[9px] font-semibold">.pdf</span>
+                  <span class="text-[10px] text-primary font-bold ml-auto flex items-center gap-0.5">Buka Folder <span class="material-symbols-outlined text-[12px]">chevron_right</span></span>
+                </div>
+              </div>
+            </a>
+          </div>
+        </div>
+
+        <!-- Butang Tindakan: Muat Naik PDF Terus -->
+        <button type="button" onclick="window.openUploadPdfModal()" class="w-full py-2.5 px-4 rounded-xl bg-primary hover:bg-primary-dark text-white font-label-md text-xs font-bold flex items-center justify-center gap-2 shadow-sm hover:shadow-md active:scale-[0.99] transition-all cursor-pointer">
+          <span class="material-symbols-outlined text-[18px]">upload_file</span>
+          <span>Muat Naik Dokumen PDF (Minit / Memorandum / Persuratan)</span>
+        </button>
+
         <!-- Search Box (Pure White Tactical Pill) -->
         <div class="bg-surface-container-lowest rounded-2xl shadow-md p-3 flex flex-col gap-2 border border-outline-variant/30">
           <div class="flex items-center gap-2 px-1">
             <span class="material-symbols-outlined text-primary text-[20px]">search</span>
-            <input id="archive-search-input" class="w-full bg-transparent border-0 outline-none text-on-surface font-body-sm text-xs placeholder:text-outline" data-i18n-placeholder="searchArchivePlaceholder" placeholder="Cari tajuk surat, no. rujukan UPK..." type="text"/>
-          </div>
-          <div class="flex items-center gap-2 pt-1 border-t border-outline-variant/20">
-            <button class="flex-1 flex items-center justify-between px-3 py-1 rounded-full bg-surface-container-low text-on-surface font-label-md text-[11px]" type="button">
-              <span class="flex items-center gap-1 text-on-surface">
-                <span class="material-symbols-outlined text-[14px] text-primary">calendar_today</span>
-                Tahun: 2026
-              </span>
-              <span class="material-symbols-outlined text-[14px] text-on-surface-variant">expand_more</span>
-            </button>
-            <button class="flex-1 flex items-center justify-between px-3 py-1 rounded-full bg-surface-container-low text-on-surface font-label-md text-[11px]" type="button">
-              <span class="flex items-center gap-1 text-on-surface">
-                <span class="material-symbols-outlined text-[14px] text-primary">pin_drop</span>
-                Semua Daerah
-              </span>
-              <span class="material-symbols-outlined text-[14px] text-on-surface-variant">expand_more</span>
-            </button>
+            <input id="archive-search-input" class="w-full bg-transparent border-0 outline-none text-on-surface font-body-sm text-xs placeholder:text-outline" data-i18n-placeholder="searchArchivePlaceholder" placeholder="Cari tajuk minit, memo, surat pekeliling, no. rujukan..." type="text"/>
           </div>
         </div>
 
@@ -586,14 +634,17 @@
           <button type="button" data-cat="Semua" data-i18n="catAll" class="archive-category-pill px-4 py-1.5 rounded-full bg-secondary-container text-on-secondary-container font-label-md text-xs font-bold shadow-sm whitespace-nowrap active:scale-95 transition-transform cursor-pointer">
             Semua
           </button>
-          <button type="button" data-cat="Pekeliling" data-i18n="catCirculars" class="archive-category-pill px-4 py-1.5 rounded-full bg-surface-container-lowest text-on-surface font-label-md text-xs shadow-sm whitespace-nowrap active:scale-95 transition-transform hover:bg-surface-container-low cursor-pointer">
-            Pekeliling (14)
-          </button>
           <button type="button" data-cat="Minit Mesyuarat" data-i18n="catMinutes" class="archive-category-pill px-4 py-1.5 rounded-full bg-surface-container-lowest text-on-surface font-label-md text-xs shadow-sm whitespace-nowrap active:scale-95 transition-transform hover:bg-surface-container-low cursor-pointer">
-            Minit Mesyuarat (9)
+            Minit Mesyuarat
           </button>
-          <button type="button" data-cat="Kalendar Tahunan" data-i18n="catCalendar" class="archive-category-pill px-4 py-1.5 rounded-full bg-surface-container-lowest text-on-surface font-label-md text-xs shadow-sm whitespace-nowrap active:scale-95 transition-transform hover:bg-surface-container-low cursor-pointer">
-            Kalendar Tahunan (8)
+          <button type="button" data-cat="Memorandum" data-i18n="catMemo" class="archive-category-pill px-4 py-1.5 rounded-full bg-surface-container-lowest text-on-surface font-label-md text-xs shadow-sm whitespace-nowrap active:scale-95 transition-transform hover:bg-surface-container-low cursor-pointer">
+            Memorandum
+          </button>
+          <button type="button" data-cat="Persuratan & Pekeliling" data-i18n="catCirculars" class="archive-category-pill px-4 py-1.5 rounded-full bg-surface-container-lowest text-on-surface font-label-md text-xs shadow-sm whitespace-nowrap active:scale-95 transition-transform hover:bg-surface-container-low cursor-pointer">
+            Persuratan &amp; Pekeliling
+          </button>
+          <button type="button" data-cat="Takwim & Kalendar" data-i18n="catCalendar" class="archive-category-pill px-4 py-1.5 rounded-full bg-surface-container-lowest text-on-surface font-label-md text-xs shadow-sm whitespace-nowrap active:scale-95 transition-transform hover:bg-surface-container-low cursor-pointer">
+            Takwim &amp; Kalendar
           </button>
         </div>
 
@@ -1259,27 +1310,37 @@
           </div>
 
           <!-- Lampiran Fail Rasmi -->
-          <div class="space-y-1.5">
+          <div class="space-y-2">
             <span data-i18n="attachmentLabel" class="block font-label-md text-xs font-semibold text-on-surface">Lampiran Fail Rasmi (Pilihan)</span>
-            <div class="p-3 rounded-lg bg-surface-container-low border border-outline-variant/40 flex items-center justify-between gap-2">
-              <div class="flex items-center gap-3 min-w-0">
-                <div class="w-10 h-10 rounded-lg bg-error-container text-error flex items-center justify-center shrink-0">
-                  <span class="material-symbols-outlined text-[24px]">picture_as_pdf</span>
+            
+            <div class="flex flex-col sm:flex-row items-stretch gap-2">
+              <input id="event-drive-url" type="url" placeholder="Tampal Pautan Dokumen / Surat Google Drive..." value="" class="flex-1 h-9 px-3 rounded-lg bg-surface-container-low text-xs border border-outline-variant/30 outline-none focus:border-primary"/>
+              <label class="h-9 px-3 rounded-lg bg-surface-container-high hover:bg-surface-container text-on-surface text-xs font-semibold flex items-center justify-center gap-1.5 cursor-pointer border border-outline-variant/30 shrink-0">
+                <span class="material-symbols-outlined text-[18px] text-primary">upload_file</span>
+                <span>Pilih Fail PDF / Word</span>
+                <input id="event-file-attachment" type="file" accept=".pdf,.docx,.doc" class="hidden"/>
+              </label>
+            </div>
+
+            <!-- Dynamic File Attachment Preview (Hidden by default) -->
+            <div id="event-attachment-preview" class="hidden p-2.5 rounded-lg bg-surface-container-low border border-primary/30 flex items-center justify-between gap-2">
+              <div class="flex items-center gap-2.5 min-w-0">
+                <div class="w-8 h-8 rounded-lg bg-error-container text-error flex items-center justify-center shrink-0">
+                  <span id="event-file-badge-icon" class="material-symbols-outlined text-[20px]">picture_as_pdf</span>
                 </div>
                 <div class="min-w-0">
-                  <p class="font-label-md text-xs font-semibold text-on-surface truncate">Surat_Panggilan_Bil2_2026.pdf</p>
-                  <p class="text-[11px] text-on-surface-variant flex items-center gap-1">
-                    <span>1.4 MB</span>
+                  <p id="event-file-name-preview" class="font-label-md text-xs font-semibold text-on-surface truncate">Nama Fail</p>
+                  <p id="event-file-size-preview" class="text-[10px] text-on-surface-variant flex items-center gap-1">
+                    <span>1.2 MB</span>
                     <span>•</span>
-                    <span class="text-primary font-medium">Google Drive Sync</span>
+                    <span class="text-primary font-medium">Sedia Dilampirkan</span>
                   </p>
                 </div>
               </div>
-              <span class="inline-flex items-center px-2 py-0.5 rounded-full bg-secondary-fixed text-on-secondary-fixed-variant text-[10px] font-bold shrink-0">
-                Bersedia
-              </span>
+              <button id="btn-remove-attachment" type="button" class="w-7 h-7 rounded-full hover:bg-error-container hover:text-error text-on-surface-variant flex items-center justify-center transition-colors cursor-pointer" title="Padam Lampiran">
+                <span class="material-symbols-outlined text-[16px]">close</span>
+              </button>
             </div>
-            <input id="event-drive-url" type="url" placeholder="Pautan Surat / Lampiran Drive (Pilihan)" value="" class="w-full h-9 px-3 rounded-lg bg-surface-container-low text-xs border border-outline-variant/30 outline-none focus:border-primary"/>
           </div>
 
           <!-- Saluran Hebahan Serentak -->
@@ -1576,13 +1637,83 @@
        ======================================================================== -->
   <div id="modal-pdf-viewer" class="hidden fixed inset-0 z-50 bg-black/80 flex flex-col">
     <div class="h-14 bg-primary-dark text-white px-4 flex items-center justify-between">
-      <span class="font-headline font-bold text-xs truncate">Pustaka PDF Rasmi</span>
-      <button id="btn-close-pdf-viewer" type="button" class="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-white">
+      <span id="pdf-viewer-title" class="font-headline font-bold text-xs truncate">Pustaka Dokumen PDF</span>
+      <button id="btn-close-pdf-viewer" type="button" class="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-white cursor-pointer">
         <span class="material-symbols-outlined text-lg">close</span>
       </button>
     </div>
     <div class="flex-1 w-full bg-gray-900">
       <iframe id="pdf-viewer-frame" class="w-full h-full border-none" src="about:blank"></iframe>
+    </div>
+  </div>
+
+  <!-- ========================================================================
+       MODAL 4: MUAT NAIK DOKUMEN PDF (MINIT, MEMORANDUM & PERSURATAN)
+       ======================================================================== -->
+  <div id="modal-upload-pdf" class="hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-surface-container-lowest w-full max-w-lg rounded-2xl shadow-xl border border-outline-variant/30 overflow-hidden flex flex-col animate-scale-up">
+      <!-- Modal Header -->
+      <div class="px-5 py-4 bg-primary text-white flex items-center justify-between">
+        <div class="flex items-center gap-2.5">
+          <span class="material-symbols-outlined text-[24px]">upload_file</span>
+          <div>
+            <h3 class="font-headline font-bold text-sm">Muat Naik Dokumen PDF</h3>
+            <p class="font-body-sm text-[11px] text-white/80">Minit, Memorandum dan Persuratan Rasmi</p>
+          </div>
+        </div>
+        <button type="button" onclick="window.closeUploadPdfModal()" class="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-colors cursor-pointer">
+          <span class="material-symbols-outlined text-lg">close</span>
+        </button>
+      </div>
+
+      <!-- Modal Body -->
+      <form id="form-upload-pdf" onsubmit="event.preventDefault(); window.handleDirectPdfUpload();" class="p-5 space-y-4">
+        <!-- Tajuk Dokumen -->
+        <div>
+          <label class="block font-label-md text-xs font-semibold text-on-surface mb-1">Tajuk Dokumen <span class="text-error">*</span></label>
+          <input id="upload-doc-title" type="text" required placeholder="Contoh: Minit Mesyuarat Penyelarasan Kerjaya Bil 1/2026" class="w-full h-10 px-3 rounded-lg bg-surface-container-low text-xs border border-outline-variant/30 outline-none focus:border-primary text-on-surface"/>
+        </div>
+
+        <!-- Kategori & No. Rujukan Grid -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block font-label-md text-xs font-semibold text-on-surface mb-1">Kategori <span class="text-error">*</span></label>
+            <select id="upload-doc-category" class="w-full h-10 px-3 rounded-lg bg-surface-container-low text-xs border border-outline-variant/30 outline-none focus:border-primary text-on-surface cursor-pointer">
+              <option value="Minit Mesyuarat">Minit Mesyuarat</option>
+              <option value="Memorandum">Memorandum</option>
+              <option value="Persuratan & Pekeliling" selected>Persuratan & Pekeliling</option>
+              <option value="Takwim & Kalendar">Takwim & Kalendar</option>
+              <option value="Laporan & Panduan">Laporan & Panduan</option>
+            </select>
+          </div>
+          <div>
+            <label class="block font-label-md text-xs font-semibold text-on-surface mb-1">No. Rujukan (Pilihan)</label>
+            <input id="upload-doc-ref" type="text" placeholder="Contoh: UPK/JSS/2026/05" class="w-full h-10 px-3 rounded-lg bg-surface-container-low text-xs border border-outline-variant/30 outline-none focus:border-primary text-on-surface"/>
+          </div>
+        </div>
+
+        <!-- Fail PDF Drag / Select -->
+        <div>
+          <label class="block font-label-md text-xs font-semibold text-on-surface mb-1">Pilih Fail PDF <span class="text-error">*</span></label>
+          <div id="upload-dropzone" onclick="document.getElementById('upload-pdf-file').click()" class="border-2 border-dashed border-primary/40 hover:border-primary rounded-xl p-4 text-center bg-surface-container-low hover:bg-surface-container cursor-pointer transition-colors">
+            <span class="material-symbols-outlined text-[36px] text-primary">picture_as_pdf</span>
+            <p id="upload-pdf-filename" class="font-label-md text-xs font-bold text-on-surface mt-1">Klik untuk memilih fail PDF dari peranti</p>
+            <p id="upload-pdf-filesize" class="text-[10px] text-on-surface-variant mt-0.5">Format disokong: .pdf (Maksimum 10 MB)</p>
+            <input id="upload-pdf-file" type="file" accept="application/pdf" class="hidden" required/>
+          </div>
+        </div>
+
+        <!-- Submit Button -->
+        <div class="flex items-center justify-end gap-2 pt-2 border-t border-outline-variant/20">
+          <button type="button" onclick="window.closeUploadPdfModal()" class="px-4 py-2 rounded-full bg-surface-container-low text-on-surface text-xs font-semibold hover:bg-surface-container transition-colors cursor-pointer">
+            Batal
+          </button>
+          <button id="btn-submit-upload-pdf" type="submit" class="px-5 py-2 rounded-full bg-primary hover:bg-primary-dark text-white text-xs font-bold shadow-sm flex items-center gap-1.5 active:scale-95 transition-all cursor-pointer">
+            <span class="material-symbols-outlined text-[16px]">cloud_upload</span>
+            <span id="btn-upload-text">Muat Naik Sekarang</span>
+          </button>
+        </div>
+      </form>
     </div>
   </div>
 
@@ -1615,10 +1746,10 @@
         <span class="font-caption text-[11px] mt-0.5" data-i18n="navRsvp">RSVP</span>
       </button>
 
-      <!-- Item 4: Arkib -->
+      <!-- Item 4: Minit & Persuratan -->
       <button type="button" data-tab="archive" class="nav-tab-btn flex flex-col items-center justify-center flex-1 h-full py-1 text-on-surface-variant border-t-2 border-transparent hover:text-on-surface cursor-pointer font-medium transition-all">
         <span class="material-symbols-outlined text-[22px]">inventory_2</span>
-        <span class="font-caption text-[11px] mt-0.5" data-i18n="navArchive">Arkib</span>
+        <span class="font-caption text-[11px] mt-0.5" data-i18n="navArchive">Minit &amp; Persuratan</span>
       </button>
 
       <!-- Item 5: Profil -->
@@ -1630,8 +1761,8 @@
   </nav>
 
   <!-- Application Logic Scripts -->
-  <script src="js/config.js?v=1.5.8"></script>
-  <script src="js/data-mock.js?v=1.5.8"></script>
-  <script src="js/app.js?v=1.5.8"></script>
+  <script src="js/config.js?v=1.5.9"></script>
+  <script src="js/data-mock.js?v=1.5.9"></script>
+  <script src="js/app.js?v=1.5.9"></script>
 </body>
 </html>

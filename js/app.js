@@ -63,7 +63,7 @@
       navTakwim: 'Kalendar',
       navCalendar: 'Kalendar',
       navRsvp: 'RSVP',
-      navArchive: 'Arkib',
+      navArchive: 'Minit & Persuratan',
       navNotif: 'Notifikasi',
       navAdmin: 'UPK',
       navProfile: 'Profil',
@@ -115,14 +115,15 @@
       confirmDeclaration: 'Saya mengesahkan maklumat jawapan RSVP ini adalah benar dan rasmi.',
       submitRsvpBtn: 'Hantar Pengesahan RSVP',
 
-      // Arkib
-      archiveTitle: 'Arkib Dokumen & Memo Rasmi',
-      archiveSubtitle: 'Pustaka surat pekeliling, minit mesyuarat, dan kalendar tahunan UPK.',
-      searchArchivePlaceholder: 'Cari tajuk memo, minit, atau nombor rujukan...',
+      // Minit, Memorandum dan Persuratan
+      archiveTitle: 'Minit, Memorandum dan Persuratan',
+      archiveSubtitle: 'Pustaka rasmi minit mesyuarat, pekeliling, memorandum dan takwim UPK JSS.',
+      searchArchivePlaceholder: 'Cari tajuk minit, memo, surat pekeliling, no. rujukan...',
       catAll: 'Semua',
-      catCirculars: 'Pekeliling',
+      catCirculars: 'Persuratan & Pekeliling',
       catMinutes: 'Minit Mesyuarat',
-      catCalendar: 'Kalendar Tahunan',
+      catMemo: 'Memorandum',
+      catCalendar: 'Takwim & Kalendar',
       adminStep3Title: 'Pilih Guru Pendidikan Kerjaya',
       chooseTeachersDesc: 'Pilih guru secara individu yang wajib hadir ke acara ini (Sekolah Menengah, Maktab & PTE):',
       searchTeacherPlaceholder: 'Cari nama guru, sekolah, atau e-mel...',
@@ -356,7 +357,7 @@
       navTakwim: 'Calendar',
       navCalendar: 'Calendar',
       navRsvp: 'RSVP',
-      navArchive: 'Archive',
+      navArchive: 'Minutes & Letters',
       navNotif: 'Notifications',
       navAdmin: 'Admin',
       navProfile: 'Profile',
@@ -408,14 +409,15 @@
       confirmDeclaration: 'I hereby certify that this RSVP response is true and official.',
       submitRsvpBtn: 'Submit Official RSVP',
 
-      // Arkib
-      archiveTitle: 'Official Document & Memo Repository',
-      archiveSubtitle: 'Library of official circulars, minutes, and CEU annual calendar.',
-      searchArchivePlaceholder: 'Search circular title, minutes, or reference number...',
+      // Minit, Memorandum dan Persuratan
+      archiveTitle: 'Minutes, Memorandums and Official Letters',
+      archiveSubtitle: 'Official repository for meeting minutes, circulars, memorandums, and UPK calendar.',
+      searchArchivePlaceholder: 'Search minutes, memos, official circulars, or reference number...',
       catAll: 'All',
-      catCirculars: 'Circulars',
+      catCirculars: 'Letters & Circulars',
       catMinutes: 'Meeting Minutes',
-      catCalendar: 'Annual Calendar',
+      catMemo: 'Memorandums',
+      catCalendar: 'Calendar & Schedules',
       adminStep3Title: 'Select Career Education Teachers',
       chooseTeachersDesc: 'Choose individual teachers required to attend this event (Secondary Schools, Colleges & PTE):',
       searchTeacherPlaceholder: 'Search teacher name, school, or email...',
@@ -820,7 +822,32 @@
           State.adminData = null; // Paksa kalkulasi semula secara dinamik
           resolve({ success: true, message: 'RSVP berjaya dihantar.' });
         } else if (action === 'getMemos') {
-          resolve({ success: true, data: mock.memos });
+          let savedMemos = [];
+          try { savedMemos = JSON.parse(localStorage.getItem('ceu_memos') || '[]'); } catch(e) {}
+          if (!savedMemos.length && mock.memos) {
+            savedMemos = [...mock.memos];
+            try { localStorage.setItem('ceu_memos', JSON.stringify(savedMemos)); } catch(e) {}
+          }
+          resolve({ success: true, data: savedMemos });
+        } else if (action === 'uploadMemoDoc') {
+          let savedMemos = [];
+          try { savedMemos = JSON.parse(localStorage.getItem('ceu_memos') || '[]'); } catch(e) {}
+          if (!savedMemos.length && mock.memos) savedMemos = [...mock.memos];
+          
+          const newDoc = {
+            doc_id: 'MEMO-' + Date.now(),
+            title_bm: payload.title_bm || payload.title,
+            title_en: payload.title_en || payload.title_bm || payload.title,
+            category: payload.category || 'Persuratan & Pekeliling',
+            ref_no: payload.ref_no || ('UPK/JSS/' + new Date().getFullYear() + '/' + Math.floor(100 + Math.random()*900)),
+            publish_date: new Date().toISOString().split('T')[0],
+            size: payload.size || '1.2 MB',
+            file_view_url: payload.fileDataUrl || 'https://drive.google.com/viewerng/viewer?embedded=true&url=https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf'
+          };
+          savedMemos.unshift(newDoc);
+          try { localStorage.setItem('ceu_memos', JSON.stringify(savedMemos)); } catch(e) {}
+          State.memos = savedMemos;
+          resolve({ success: true, message: 'Dokumen berjaya dimuat naik ke Minit, Memorandum dan Persuratan!', data: newDoc });
         } else if (action === 'getAdminDashboard') {
           let teachers = (mock.users || []).filter(u => u.roleGroup === 'Guru Pendidikan Kerjaya' || u.role === 'Guru');
           const publishedEvents = (mock.events || []).filter(e => (e.status || 'Published').toLowerCase() !== 'draft');
@@ -2187,31 +2214,49 @@
     if (!container) return;
 
     let docs = State.memos;
-    if (!docs.length) {
+    if (!docs || !docs.length) {
+      try { docs = JSON.parse(localStorage.getItem('ceu_memos') || '[]'); } catch(e) {}
+      if (docs && docs.length) State.memos = docs;
+    }
+
+    if (!docs || !docs.length) {
       const res = await api('getMemos', {});
       if (res && res.success && res.data) {
         State.memos = res.data;
         docs = res.data;
+        try { localStorage.setItem('ceu_memos', JSON.stringify(docs)); } catch(e) {}
       }
     }
 
-    const query = (document.getElementById('archive-search-input')?.value || '').toLowerCase();
-    let filtered = docs;
-    if (State.activeMemoCategory !== 'Semua') {
+    const query = (document.getElementById('archive-search-input')?.value || '').toLowerCase().trim();
+    let filtered = docs || [];
+
+    if (State.activeMemoCategory && State.activeMemoCategory !== 'Semua') {
+      const sel = State.activeMemoCategory.toLowerCase();
       filtered = filtered.filter(d => {
-        const sel = (State.activeMemoCategory || '').toLowerCase();
         const docCat = (d.category || '').toLowerCase();
         if (sel.includes('kalendar') || sel.includes('takwim')) {
           return docCat.includes('kalendar') || docCat.includes('takwim');
         }
+        if (sel.includes('minit')) {
+          return docCat.includes('minit');
+        }
+        if (sel.includes('memo')) {
+          return docCat.includes('memo');
+        }
+        if (sel.includes('pekeliling') || sel.includes('persuratan') || sel.includes('surat')) {
+          return docCat.includes('pekeliling') || docCat.includes('persuratan') || docCat.includes('surat');
+        }
         return docCat === sel;
       });
     }
+
     if (query) {
       filtered = filtered.filter(d =>
         (d.title_bm || '').toLowerCase().includes(query) ||
         (d.title_en || '').toLowerCase().includes(query) ||
-        (d.ref_no || '').toLowerCase().includes(query)
+        (d.ref_no || '').toLowerCase().includes(query) ||
+        (d.category || '').toLowerCase().includes(query)
       );
     }
 
@@ -2262,7 +2307,7 @@
 
           <!-- Action Footer -->
           <div class="flex items-center gap-2 pt-1 border-t border-outline-variant/20">
-            <button class="btn-preview-pdf flex-1 h-10 rounded-full bg-surface-container-low text-primary font-label-md text-xs font-bold flex items-center justify-center gap-1.5 active:scale-95 transition-transform cursor-pointer" data-url="${d.file_view_url}">
+            <button class="btn-preview-pdf flex-1 h-10 rounded-full bg-surface-container-low text-primary font-label-md text-xs font-bold flex items-center justify-center gap-1.5 active:scale-95 transition-transform cursor-pointer" data-url="${d.file_view_url}" data-title="${title.replace(/"/g, '&quot;')}">
               <span class="material-symbols-outlined text-[18px]">visibility</span>
               <span>${I18N[State.lang].previewDocBtn}</span>
             </button>
@@ -2275,21 +2320,157 @@
       `;
     }).join('');
 
-        container.querySelectorAll('.btn-preview-pdf').forEach(btn => {
+    container.querySelectorAll('.btn-preview-pdf').forEach(btn => {
       btn.addEventListener('click', () => {
-        openPdfViewerModal(btn.dataset.url);
+        openPdfViewerModal(btn.dataset.url, btn.dataset.title);
       });
     });
   }
 
-  function openPdfViewerModal(url) {
+  function openPdfViewerModal(url, title) {
     const modal = document.getElementById('modal-pdf-viewer');
     const iframe = document.getElementById('pdf-viewer-frame');
+    const titleEl = document.getElementById('pdf-viewer-title');
+    if (titleEl && title) titleEl.textContent = title;
     if (modal && iframe) {
-      iframe.src = url || 'https://drive.google.com/viewerng/viewer?embedded=true&url=https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf';
+      let finalUrl = url || '';
+      if (finalUrl.includes('drive.google.com/file/d/')) {
+        finalUrl = finalUrl.replace(/\/view(\?usp=sharing)?/, '/preview');
+      }
+      iframe.src = finalUrl || 'https://drive.google.com/viewerng/viewer?embedded=true&url=https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf';
       modal.classList.remove('hidden');
     }
   }
+  window.openPdfViewerModal = openPdfViewerModal;
+
+  // ==========================================================================
+  // PENGURUSAN MUAT NAIK PDF LANGSUNG (MINIT, MEMO & PERSURATAN)
+  // ==========================================================================
+  window.openUploadPdfModal = function() {
+    const modal = document.getElementById('modal-upload-pdf');
+    if (!modal) return;
+    const form = document.getElementById('form-upload-pdf');
+    if (form) form.reset();
+    const filenameEl = document.getElementById('upload-pdf-filename');
+    const filesizeEl = document.getElementById('upload-pdf-filesize');
+    if (filenameEl) filenameEl.textContent = 'Klik untuk memilih fail PDF dari peranti';
+    if (filesizeEl) filesizeEl.textContent = 'Format disokong: .pdf (Maksimum 10 MB)';
+    modal.classList.remove('hidden');
+  };
+
+  window.closeUploadPdfModal = function() {
+    const modal = document.getElementById('modal-upload-pdf');
+    if (modal) modal.classList.add('hidden');
+  };
+
+  function initUploadPdfDropzone() {
+    const fileInput = document.getElementById('upload-pdf-file');
+    if (!fileInput) return;
+    fileInput.addEventListener('change', e => {
+      const file = e.target.files && e.target.files[0];
+      if (file) {
+        const filenameEl = document.getElementById('upload-pdf-filename');
+        const filesizeEl = document.getElementById('upload-pdf-filesize');
+        const titleInput = document.getElementById('upload-doc-title');
+        const sizeMb = (file.size / (1024 * 1024)).toFixed(2);
+
+        if (filenameEl) filenameEl.textContent = file.name;
+        if (filesizeEl) filesizeEl.innerHTML = `<span class="text-primary font-bold">${sizeMb} MB</span> • Sedia Dimuat Naik`;
+
+        if (titleInput && !titleInput.value.trim()) {
+          titleInput.value = file.name.replace(/\.pdf$/i, '').replace(/[-_]/g, ' ');
+        }
+      }
+    });
+  }
+
+  window.handleDirectPdfUpload = async function() {
+    const titleInput = document.getElementById('upload-doc-title');
+    const categorySelect = document.getElementById('upload-doc-category');
+    const refInput = document.getElementById('upload-doc-ref');
+    const fileInput = document.getElementById('upload-pdf-file');
+    const btnSubmit = document.getElementById('btn-submit-upload-pdf');
+
+    const title = titleInput ? titleInput.value.trim() : '';
+    const category = categorySelect ? categorySelect.value : 'Persuratan & Pekeliling';
+    const ref = refInput ? refInput.value.trim() : '';
+    const file = fileInput && fileInput.files ? fileInput.files[0] : null;
+
+    if (!title) {
+      showToast(State.lang === 'en' ? 'Please enter the document title.' : 'Sila masukkan tajuk dokumen.', 'warning');
+      titleInput?.focus();
+      return;
+    }
+
+    if (!file) {
+      showToast(State.lang === 'en' ? 'Please select a PDF file.' : 'Sila pilih fail PDF untuk dimuat naik.', 'warning');
+      return;
+    }
+
+    if (file.size > 15 * 1024 * 1024) {
+      showToast('Saiz fail melebihi had maksimum 15 MB.', 'error');
+      return;
+    }
+
+    const prevHtml = btnSubmit ? btnSubmit.innerHTML : '';
+    if (btnSubmit) {
+      btnSubmit.disabled = true;
+      btnSubmit.innerHTML = `<span class="material-symbols-outlined text-[16px] animate-spin">progress_activity</span><span>Memuat naik...</span>`;
+    }
+
+    try {
+      const fileDataUrl = await new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = err => reject(err);
+        reader.readAsDataURL(file);
+      });
+
+      const sizeStr = (file.size / (1024 * 1024)).toFixed(1) + ' MB';
+
+      const res = await api('uploadMemoDoc', {
+        title_bm: title,
+        title_en: title,
+        category: category,
+        ref_no: ref || ('UPK/JSS/' + new Date().getFullYear() + '/' + Math.floor(100 + Math.random()*900)),
+        fileName: file.name,
+        size: sizeStr,
+        fileBase64: fileDataUrl,
+        fileDataUrl: fileDataUrl
+      });
+
+      if (res && res.success) {
+        const createdDoc = res.data || {
+          doc_id: 'MEMO-' + Date.now(),
+          title_bm: title,
+          title_en: title,
+          category: category,
+          ref_no: ref || ('UPK/JSS/' + new Date().getFullYear() + '/01'),
+          size: sizeStr,
+          publish_date: new Date().toISOString().split('T')[0],
+          file_view_url: fileDataUrl
+        };
+
+        if (!State.memos) State.memos = [];
+        State.memos.unshift(createdDoc);
+        try { localStorage.setItem('ceu_memos', JSON.stringify(State.memos)); } catch(e) {}
+
+        window.closeUploadPdfModal();
+        showToast(State.lang === 'en' ? 'PDF successfully uploaded!' : 'Dokumen PDF berjaya dimuat naik ke Minit, Memorandum dan Persuratan!', 'success');
+        renderArchiveView();
+      } else {
+        showToast((res && res.message) || 'Gagal memuat naik dokumen.', 'error');
+      }
+    } catch (err) {
+      console.error('Error direct upload PDF:', err);
+      showToast('Ralat memuat naik dokumen PDF: ' + err.message, 'error');
+    } finally {
+      if (btnSubmit) {
+        btnSubmit.disabled = false;
+        btnSubmit.innerHTML = prevHtml;
+      }
+    }
+  };
 
   // ==========================================================================
   // 11. RENDER NOTIFIKASI
@@ -3122,6 +3303,11 @@
     if (inputDeadline) inputDeadline.value = '';
     if (inputDrive) inputDrive.value = '';
 
+    const inputFile = document.getElementById('event-file-attachment');
+    if (inputFile) inputFile.value = '';
+    const attachPreview = document.getElementById('event-attachment-preview');
+    if (attachPreview) attachPreview.classList.add('hidden');
+
     const isEn = State.lang === 'en';
     if (previewTitle) previewTitle.textContent = isEn ? 'Official Event Title' : 'Tajuk Acara Rasmi';
     if (previewDate) previewDate.textContent = '-- / -- / ----';
@@ -3436,6 +3622,50 @@
 
     renderIndividualOfficers();
     updateTargetBadges();
+
+    // 10. Pengurusan Lampiran Fail & Pautan Drive (Seksyen 4)
+    const inputFileAttachment = document.getElementById('event-file-attachment');
+    const inputDriveUrlAttachment = document.getElementById('event-drive-url');
+    const attachmentPreview = document.getElementById('event-attachment-preview');
+    const fileNamePreview = document.getElementById('event-file-name-preview');
+    const fileSizePreview = document.getElementById('event-file-size-preview');
+    const fileBadgeIcon = document.getElementById('event-file-badge-icon');
+    const btnRemoveAttachment = document.getElementById('btn-remove-attachment');
+
+    if (inputFileAttachment) {
+      inputFileAttachment.addEventListener('change', e => {
+        const file = e.target.files && e.target.files[0];
+        if (file) {
+          const isDoc = file.name.endsWith('.docx') || file.name.endsWith('.doc');
+          if (fileNamePreview) fileNamePreview.textContent = file.name;
+          if (fileSizePreview) fileSizePreview.innerHTML = `<span>${(file.size / (1024*1024)).toFixed(1)} MB</span> • <span class="text-primary font-medium">Sedia Dilampirkan</span>`;
+          if (fileBadgeIcon) fileBadgeIcon.textContent = isDoc ? 'description' : 'picture_as_pdf';
+          if (attachmentPreview) attachmentPreview.classList.remove('hidden');
+        }
+      });
+    }
+
+    if (inputDriveUrlAttachment) {
+      inputDriveUrlAttachment.addEventListener('input', e => {
+        const val = e.target.value.trim();
+        if (val && (!inputFileAttachment || !inputFileAttachment.files.length)) {
+          if (fileNamePreview) fileNamePreview.textContent = 'Pautan Dokumen Google Drive';
+          if (fileSizePreview) fileSizePreview.innerHTML = `<span>Pautan Dokumen</span> • <span class="text-primary font-medium">${val.substring(0, 30)}...</span>`;
+          if (fileBadgeIcon) fileBadgeIcon.textContent = 'link';
+          if (attachmentPreview) attachmentPreview.classList.remove('hidden');
+        } else if (!val && (!inputFileAttachment || !inputFileAttachment.files.length)) {
+          if (attachmentPreview) attachmentPreview.classList.add('hidden');
+        }
+      });
+    }
+
+    if (btnRemoveAttachment) {
+      btnRemoveAttachment.addEventListener('click', () => {
+        if (inputFileAttachment) inputFileAttachment.value = '';
+        if (inputDriveUrlAttachment) inputDriveUrlAttachment.value = '';
+        if (attachmentPreview) attachmentPreview.classList.add('hidden');
+      });
+    }
 
     // 11. Pengurusan Simpan Draf & Terbit Acara
     const btnSaveDraft = document.getElementById('btn-save-draft');
@@ -3897,6 +4127,10 @@
         }
       });
     }
+
+    try {
+      initUploadPdfDropzone();
+    } catch(e) {}
   }
 
   // ==========================================================================
