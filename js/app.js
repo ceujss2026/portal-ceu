@@ -704,8 +704,11 @@
       });
       const data = await res.json();
       if (data.code === 'AUTH_EXPIRED') {
+        const wasLoggedIn = !!State.currentUser;
         logout();
-        showToast(I18N[State.lang].verifyOtpDesc, 'warning');
+        if (wasLoggedIn) {
+          showToast(State.lang === 'en' ? 'Session expired. Please log in again.' : 'Sesi Awda telah tamat. Sila log masuk semula.', 'warning');
+        }
       }
       return data;
     } catch (err) {
@@ -1350,12 +1353,13 @@
     localStorage.setItem('ceu_lang', lang);
 
     document.querySelectorAll('.lang-btn-bm').forEach(b => {
-      const isAuthSwitch = b.closest('#lang-switch');
+      const isAuthSwitch = b.closest('#lang-switch') || b.closest('#header-lang-switch');
       if (isAuthSwitch) {
+        b.classList.add('rounded-full');
         b.classList.toggle('bg-surface-container-lowest', lang === 'bm');
         b.classList.toggle('text-primary', lang === 'bm');
         b.classList.toggle('font-bold', lang === 'bm');
-        b.classList.toggle('text-surface-container-low', lang !== 'bm');
+        b.classList.toggle('text-white/80', lang !== 'bm');
         b.classList.toggle('opacity-80', lang !== 'bm');
       } else {
         b.classList.toggle('bg-tertiary', lang === 'bm');
@@ -1364,12 +1368,13 @@
       }
     });
     document.querySelectorAll('.lang-btn-en').forEach(b => {
-      const isAuthSwitch = b.closest('#lang-switch');
+      const isAuthSwitch = b.closest('#lang-switch') || b.closest('#header-lang-switch');
       if (isAuthSwitch) {
+        b.classList.add('rounded-full');
         b.classList.toggle('bg-surface-container-lowest', lang === 'en');
         b.classList.toggle('text-primary', lang === 'en');
         b.classList.toggle('font-bold', lang === 'en');
-        b.classList.toggle('text-surface-container-low', lang !== 'en');
+        b.classList.toggle('text-white/80', lang !== 'en');
         b.classList.toggle('opacity-80', lang !== 'en');
       } else {
         b.classList.toggle('bg-tertiary', lang === 'en');
