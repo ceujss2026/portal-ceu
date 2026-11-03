@@ -275,7 +275,7 @@
 
                 <!-- Action: Send OTP Button -->
                 <div class="flex flex-col gap-1.5 pt-0.5">
-                  <button class="relative flex h-11 w-full items-center justify-center gap-2 rounded-full bg-primary-container hover:bg-primary text-white font-label-md text-xs font-bold shadow-md active:scale-[0.99] transition-all overflow-hidden cursor-pointer" id="otp-submit-btn" type="button">
+                  <button class="relative flex h-11 w-full items-center justify-center gap-2 rounded-full bg-primary-container hover:bg-primary text-white font-label-md text-xs font-bold shadow-md active:scale-[0.99] transition-all overflow-hidden cursor-pointer" id="otp-submit-btn" type="button" onclick="window.triggerOtpProcess()">
                     <span class="material-symbols-outlined text-[18px] text-secondary-container" style="font-variation-settings: 'FILL' 1;">send</span>
                     <span id="otp-btn-text" data-i18n="sendOtpBtn">Hantar Kod OTP ke Emel Rasmi</span>
                   </button>
@@ -300,7 +300,7 @@
 
                 <!-- Verify OTP & Log In (Warm Sun Gold CTA) -->
                 <div class="pt-1 flex flex-col gap-2">
-                  <button id="btn-verify-otp" class="relative flex h-12 w-full items-center justify-center gap-2 rounded-full bg-secondary-container hover:bg-secondary-fixed text-on-secondary-container font-label-lg text-sm font-bold shadow-[0_6px_16px_rgba(252,183,38,0.35)] active:scale-[0.99] transition-all overflow-hidden cursor-pointer" type="button">
+                  <button id="btn-verify-otp" onclick="window.handleAuthSubmit()" class="relative flex h-12 w-full items-center justify-center gap-2 rounded-full bg-secondary-container hover:bg-secondary-fixed text-on-secondary-container font-label-lg text-sm font-bold shadow-[0_6px_16px_rgba(252,183,38,0.35)] active:scale-[0.99] transition-all overflow-hidden cursor-pointer" type="button">
                     <span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 1;">lock_open</span>
                     <span data-i18n="verifyBtn">Sahkan &amp; Log Masuk</span>
                   </button>
@@ -318,7 +318,7 @@
                   <span class="absolute bg-surface-container-lowest px-3 font-label-sm text-xs font-semibold uppercase tracking-wider text-outline" data-i18n="orSeparator">Atau</span>
                 </div>
                 <div class="relative flex flex-col items-center">
-                  <button aria-label="Mulakan imbasan biometrik" id="bio-trigger-btn" class="group relative flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-b from-surface-container-low to-surface-container-high shadow-lg hover:shadow-xl active:scale-95 transition-transform cursor-pointer" type="button">
+                  <button aria-label="Mulakan imbasan biometrik" id="bio-trigger-btn" onclick="window.triggerBiometricScan()" class="group relative flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-b from-surface-container-low to-surface-container-high shadow-lg hover:shadow-xl active:scale-95 transition-transform cursor-pointer" type="button">
                     <div class="absolute -inset-1.5 rounded-full bg-gradient-to-tr from-primary-container via-secondary-container to-primary opacity-30 blur-sm group-hover:opacity-75 transition-opacity" id="bio-ring"></div>
                     <div class="relative flex h-16 w-16 items-center justify-center rounded-full bg-surface-container-lowest shadow-inner">
                       <span class="material-symbols-outlined text-[34px] text-primary transition-colors group-hover:text-primary-container" style="font-variation-settings: 'FILL' 1;">fingerprint</span>
@@ -1633,8 +1633,8 @@
   </nav>
 
   <!-- Application Logic Scripts -->
-  <script src="js/config.js?v=1.5.5"></script>
-  <script src="js/data-mock.js?v=1.5.5"></script>
-  <script src="js/app.js?v=1.5.5"></script>
+  <script src="js/config.js?v=1.5.6"></script>
+  <script src="js/data-mock.js?v=1.5.6"></script>
+  <script src="js/app.js?v=1.5.6"></script>
 </body>
 </html>

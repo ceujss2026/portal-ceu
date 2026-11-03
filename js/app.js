@@ -1106,7 +1106,7 @@
         if (notEnrolledBox) notEnrolledBox.classList.add('hidden');
 
         // Buka tab biometrik jika peranti ini sudah berdaftar
-        if (tabBio) tabBio.click();
+        if (tabBio && typeof tabBio.click === 'function') tabBio.click();
         return;
       } catch (e) {
         console.warn('Gagal membaca profil biometrik tempatan:', e);
@@ -1118,7 +1118,7 @@
     if (notEnrolledBox) notEnrolledBox.classList.remove('hidden');
 
     // Utamakan tab Emel OTP untuk pengguna baharu
-    if (tabEmail) tabEmail.click();
+    if (tabEmail && typeof tabEmail.click === 'function') tabEmail.click();
   }
 
   async function registerPlatformBiometric(user) {
@@ -3142,9 +3142,14 @@
     const inputVenue = document.getElementById('event-venue-input');
     const inputDeadline = document.getElementById('event-deadline-input');
 
-    const hasTitle = Boolean(inputTitle && inputTitle.value.trim().length > 0);
-    const hasDateVenue = Boolean(inputDate && inputDate.value && inputVenue && inputVenue.value.trim().length > 0);
-    const hasDeadline = Boolean(inputDeadline && inputDeadline.value);
+    const titleVal = (inputTitle && typeof inputTitle.value === 'string') ? inputTitle.value.trim() : '';
+    const dateVal = (inputDate && inputDate.value) ? String(inputDate.value).trim() : '';
+    const venueVal = (inputVenue && typeof inputVenue.value === 'string') ? inputVenue.value.trim() : '';
+    const deadlineVal = (inputDeadline && inputDeadline.value) ? String(inputDeadline.value).trim() : '';
+
+    const hasTitle = Boolean(titleVal.length > 0);
+    const hasDateVenue = Boolean(dateVal.length > 0 && venueVal.length > 0);
+    const hasDeadline = Boolean(deadlineVal.length > 0);
 
     let completedSteps = 0;
     if (hasTitle) completedSteps++;
@@ -3860,11 +3865,23 @@
   // ==========================================================================
   // 18. BOOTSTRAP APLIKASI
   // ==========================================================================
-  window.addEventListener('DOMContentLoaded', () => {
-    initEvents();
-    // Terapkan bahasa yang disimpan (atau default bm)
-    setLanguage(State.lang);
-    updateBiometricUI();
+  window.triggerOtpProcess = handleSendOtpClick;
+  window.triggerBiometricScan = triggerBiometricLogin;
+  window.handleAuthSubmit = handleVerifyOtpClick;
+
+  function bootApp() {
+    try {
+      initEvents();
+    } catch (e) {
+      console.warn('initEvents error:', e);
+    }
+
+    try {
+      setLanguage(State.lang);
+      updateBiometricUI();
+    } catch (e) {
+      console.warn('UI init error:', e);
+    }
 
     const savedToken = localStorage.getItem('ceu_tok');
     const savedUser = localStorage.getItem('ceu_user');
@@ -3889,11 +3906,13 @@
     }
 
     setView('auth');
-  });
+  }
 
-  window.triggerOtpProcess = handleSendOtpClick;
-  window.triggerBiometricScan = triggerBiometricLogin;
-  window.handleAuthSubmit = handleVerifyOtpClick;
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', bootApp);
+  } else {
+    bootApp();
+  }
 
   window.CEU_APP = {
     State: State,
