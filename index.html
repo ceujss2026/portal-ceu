@@ -1721,25 +1721,25 @@
         <span class="font-caption text-[11px] mt-0.5" data-i18n="navHome">Utama</span>
       </button>
 
-      <!-- Item 2: RSVP -->
-      <button type="button" data-tab="rsvp" class="nav-tab-btn flex flex-col items-center justify-center flex-1 h-full py-1 text-on-surface-variant border-t-2 border-transparent hover:text-on-surface cursor-pointer font-medium transition-all">
-        <span class="material-symbols-outlined text-[22px]">event_available</span>
+      <!-- Item 2: Takwim (Calendar) -->
+      <button type="button" data-tab="takwim" class="nav-tab-btn flex flex-col items-center justify-center flex-1 h-full py-1 text-on-surface-variant border-t-2 border-transparent hover:text-on-surface cursor-pointer font-medium transition-all">
+        <span class="material-symbols-outlined text-[22px]">calendar_month</span>
+        <span class="font-caption text-[11px] mt-0.5" data-i18n="navTakwim">Takwim</span>
+      </button>
+
+      <!-- Item 3: RSVP -->
+      <button type="button" data-tab="rsvp" class="nav-tab-btn relative flex flex-col items-center justify-center flex-1 h-full py-1 text-on-surface-variant border-t-2 border-transparent hover:text-on-surface cursor-pointer font-medium transition-all">
+        <div class="relative inline-flex items-center justify-center">
+          <span class="material-symbols-outlined text-[22px]">event_available</span>
+          <span id="bottom-notif-dot" class="absolute -top-1 -right-1 w-2 h-2 bg-secondary-container rounded-full ring-2 ring-white"></span>
+        </div>
         <span class="font-caption text-[11px] mt-0.5" data-i18n="navRsvp">RSVP</span>
       </button>
 
-      <!-- Item 3: Arkib -->
+      <!-- Item 4: Arkib -->
       <button type="button" data-tab="archive" class="nav-tab-btn flex flex-col items-center justify-center flex-1 h-full py-1 text-on-surface-variant border-t-2 border-transparent hover:text-on-surface cursor-pointer font-medium transition-all">
         <span class="material-symbols-outlined text-[22px]">inventory_2</span>
         <span class="font-caption text-[11px] mt-0.5" data-i18n="navArchive">Arkib</span>
-      </button>
-
-      <!-- Item 4: Notifikasi -->
-      <button type="button" data-tab="notif" class="nav-tab-btn relative flex flex-col items-center justify-center flex-1 h-full py-1 text-on-surface-variant border-t-2 border-transparent hover:text-on-surface cursor-pointer font-medium transition-all">
-        <div class="relative inline-flex items-center justify-center">
-          <span class="material-symbols-outlined text-[22px]">notifications</span>
-          <span id="bottom-notif-dot" class="absolute -top-1 -right-1 w-2.5 h-2.5 bg-red-600 rounded-full border-2 border-white"></span>
-        </div>
-        <span class="font-caption text-[11px] mt-0.5" data-i18n="navNotif">Notifikasi</span>
       </button>
 
       <!-- Item 5: Profil -->
@@ -1751,8 +1751,8 @@
   </nav>
 
   <!-- Application Logic Scripts -->
-  <script src="js/config.js?v=1.3.2"></script>
-  <script src="js/data-mock.js?v=1.3.2"></script>
-  <script src="js/app.js?v=1.3.2"></script>
+  <script src="js/config.js?v=1.3.3"></script>
+  <script src="js/data-mock.js?v=1.3.3"></script>
+  <script src="js/app.js?v=1.3.3"></script>
 </body>
 </html>

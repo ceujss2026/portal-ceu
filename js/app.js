@@ -1110,7 +1110,9 @@
       const tab = btn.dataset.tab;
       let isActive = false;
       if (tab === 'home') {
-        isActive = (State.currentView === 'home' && !isUrgent) || (State.currentView === 'admin-dashboard');
+        isActive = (State.currentView === 'home' && !isUrgent && !State.selectedCalendarDate) || (State.currentView === 'admin-dashboard');
+      } else if (tab === 'takwim') {
+        isActive = State.currentView === 'home' && Boolean(State.selectedCalendarDate);
       } else if (tab === 'rsvp') {
         isActive = State.currentView === 'admin-rsvp' || (State.currentView === 'home' && isUrgent);
       } else if (tab === 'archive') {
@@ -1255,23 +1257,23 @@
 
       let dayClasses = 'cal-day-btn h-9 sm:h-10 rounded-xl flex flex-col items-center justify-center transition-all cursor-pointer relative ';
       if (isSelected) {
-        dayClasses += 'bg-primary text-white shadow-md font-bold scale-105 ring-2 ring-primary/40';
+        dayClasses += 'bg-secondary-container text-on-secondary-container shadow-lg font-black scale-105 ring-2 ring-white';
       } else if (isToday) {
-        dayClasses += 'bg-primary/10 text-primary font-bold border-2 border-primary/50 hover:bg-primary/20';
+        dayClasses += 'bg-white text-primary font-black shadow-md border-2 border-secondary-container';
       } else if (hasEvents) {
-        dayClasses += 'bg-surface-container-lowest text-on-surface font-semibold shadow-sm hover:border-primary/40 hover:bg-surface-container';
+        dayClasses += 'bg-white/25 text-white font-extrabold shadow-sm border border-white/40 ring-1 ring-secondary-container/60 hover:bg-white/35';
       } else {
-        dayClasses += 'text-on-surface hover:bg-surface-container-low';
+        dayClasses += 'bg-white/10 text-white/90 font-bold border border-white/10 hover:bg-white/20';
       }
 
       return `
         <button type="button" data-date="${c.dateStr}" class="${dayClasses}" title="${isToday ? (State.lang === 'en' ? 'Today' : 'Hari Ini') : ''}">
-          <span class="font-headline text-xs sm:text-sm leading-none">${c.dayNum}</span>
+          <span class="font-headline text-xs sm:text-sm font-bold leading-none">${c.dayNum}</span>
           ${hasEvents
-            ? `<span class="w-1.5 h-1.5 rounded-full mt-1 ${isSelected ? 'bg-white' : 'bg-tertiary'}"></span>`
+            ? `<span class="w-1.5 h-1.5 rounded-full mt-0.5 ${isSelected ? 'bg-primary' : 'bg-secondary-container'}"></span>`
             : (isToday
-                ? `<span class="w-1 h-1 rounded-full mt-1 bg-primary"></span>`
-                : '<span class="w-1.5 h-1.5 mt-1 bg-transparent"></span>')}
+                ? `<span class="w-1 h-1 rounded-full mt-0.5 bg-primary"></span>`
+                : '<span class="w-1.5 h-1.5 mt-0.5 bg-transparent"></span>')}
         </button>
       `;
     }).join('');
@@ -3016,6 +3018,11 @@
             setView('home');
             setEventFilter('urgent');
           }
+        } else if (tab === 'takwim') {
+          setView('home');
+          setEventFilter('all');
+          const cal = document.getElementById('calendar-grid') || document.getElementById('calendar-month-label');
+          if (cal) cal.scrollIntoView({ behavior: 'smooth', block: 'center' });
         } else if (tab === 'home') {
           if (State.currentUser && State.currentUser.role === 'Admin') {
             setView('admin-dashboard');
