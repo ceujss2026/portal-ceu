@@ -50,7 +50,7 @@
       welcomeAuthSub: 'Sila masukkan Emel Rasmi Kementerian untuk menerima Kod Laluan Sekali (OTP) atau daftar masuk pantas menggunakan biometrik.',
       securityTwoFactor: 'Pengesahan Taraf Keselamatan Dua-Faktor Peranti',
       teeEnclaveActive: 'TEE ENCLAVE AKTIF',
-      orSeparator: 'Atau Akses Demonstrasi',
+      orSeparator: 'Atau',
       forgotEmail: 'Lupa Emel?',
       registerNewTeacher: 'Daftar Guru Baharu',
       activeStatus: 'Aktif',
