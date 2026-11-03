@@ -203,11 +203,22 @@ body {
     background: #ffffff !important;
     color: #000000 !important;
   }
-  header, #app-bottom-nav, #toast-container, .btn-open-rsvp, #btn-save-draft, #btn-broadcast, .venue-quick-chip {
+  header, #app-bottom-nav, #toast-container, .btn-open-rsvp, #btn-save-draft, #btn-broadcast, .venue-quick-chip, .no-print, .app-view {
     display: none !important;
   }
-  .app-view {
+  #modal-pdf-report {
+    position: static !important;
     display: block !important;
+    background: #ffffff !important;
     padding: 0 !important;
+    overflow: visible !important;
+    z-index: 1 !important;
+  }
+  #pdf-report-canvas {
+    max-width: 100% !important;
+    padding: 0 !important;
+    box-shadow: none !important;
+    border: none !important;
+    overflow: visible !important;
   }
 }

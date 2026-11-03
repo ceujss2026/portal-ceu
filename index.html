@@ -139,7 +139,7 @@
   </script>
 
   <!-- Custom Styles & Print Specifications -->
-  <link rel="stylesheet" href="css/style.css?v=1.6.5"/>
+  <link rel="stylesheet" href="css/style.css?v=1.6.6"/>
 </head>
 <body class="bg-surface font-body text-on-surface flex flex-col min-h-screen overscroll-none antialiased select-none">
 
@@ -1722,27 +1722,22 @@
         </div>
       </div>
 
-      <!-- Official Letterhead -->
-      <div class="flex items-center justify-between border-b-2 border-black pb-4 text-center">
-        <div class="w-16 h-16 rounded-full border border-gray-300 flex items-center justify-center font-bold text-xs p-1">
-          JSS MOE
-        </div>
-        <div class="flex-1 px-4">
-          <h2 data-i18n="ministryHeader" class="font-headline font-bold text-sm sm:text-base uppercase tracking-wide">KEMENTERIAN PENDIDIKAN NEGARA BRUNEI DARUSSALAM</h2>
-          <h3 data-i18n="deptHeader" class="font-headline font-semibold text-xs sm:text-sm uppercase tracking-wider">JABATAN SEKOLAH-SEKOLAH • UNIT PENDIDIKAN KERJAYA</h3>
-          <p data-i18n="exportPdfDocTitle" class="font-headline font-bold text-xs underline mt-1.5 uppercase">LAPORAN RASMI KEHADIRAN DAN KETIDAKHADIRAN PROGRAM KERJAYA</p>
-        </div>
-        <div class="w-16 h-16 rounded-full bg-[#1B87B8] text-white flex flex-col items-center justify-center text-[8px] font-bold">
-          <span>UPK</span>
-        </div>
+      <!-- Official Combined Letterhead Banner (JSS MOE + UPK) -->
+      <div class="flex flex-col items-center border-b-2 border-black pb-4 text-center">
+        <img src="assets/logo-header-jss-upk.png" alt="Jabatan Sekolah-Sekolah & Unit Pendidikan Kerjaya MOE" class="h-20 sm:h-24 w-auto object-contain mx-auto mb-2"/>
+        <h2 data-i18n="ministryHeader" class="font-headline font-bold text-xs sm:text-sm uppercase tracking-wider text-gray-800">KEMENTERIAN PENDIDIKAN NEGARA BRUNEI DARUSSALAM</h2>
+        <h3 data-i18n="deptHeader" class="font-headline font-semibold text-[11px] sm:text-xs uppercase tracking-wider text-gray-700">JABATAN SEKOLAH-SEKOLAH • UNIT PENDIDIKAN KERJAYA</h3>
+        <p data-i18n="exportPdfDocTitle" class="font-headline font-extrabold text-xs sm:text-sm underline mt-2 uppercase tracking-wide text-black">LAPORAN RASMI KEHADIRAN DAN KETIDAKHADIRAN PROGRAM KERJAYA</p>
       </div>
 
       <!-- Report Metadata -->
-      <div class="grid grid-cols-2 gap-2 text-xs border border-gray-200 p-3 rounded-lg bg-gray-50">
-        <div><strong data-i18n="pdfRefLabel">No. Rujukan Laporan:</strong> <span id="pdf-report-id">REP-2026-001</span></div>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs border border-gray-200 p-3 rounded-xl bg-gray-50/80">
+        <div><strong data-i18n="pdfRefLabel">No. Rujukan Laporan:</strong> <span id="pdf-report-id" class="font-mono font-bold text-primary">REP-2026-001</span></div>
         <div><strong data-i18n="pdfGeneratedAtLabel">Tarikh & Masa Dijana:</strong> <span id="pdf-generated-at">-</span></div>
-        <div><strong data-i18n="pdfEventTitleLabel">Nama Acara:</strong> <span id="pdf-event-title">-</span></div>
-        <div><strong data-i18n="pdfVenueLabel">Lokasi:</strong> <span id="pdf-event-venue">-</span></div>
+        <div><strong data-i18n="pdfEventTitleLabel">Nama Acara:</strong> <span id="pdf-event-title" class="font-bold text-gray-900">-</span></div>
+        <div><strong>Tarikh &amp; Masa Program:</strong> <span id="pdf-event-datetime" class="font-semibold text-gray-800">-</span></div>
+        <div><strong data-i18n="pdfVenueLabel">Lokasi Acara:</strong> <span id="pdf-event-venue">-</span></div>
+        <div><strong>Status Rekod:</strong> <span id="pdf-event-status" class="font-bold text-emerald-700">Disahkan (Rasmi)</span></div>
       </div>
 
       <!-- Summary KPI Boxes -->
@@ -1755,25 +1750,47 @@
 
       <!-- District Breakdown -->
       <div class="text-xs">
-        <h4 data-i18n="pdfDistrictBreakdown" class="font-bold mb-1">Pecahan Kehadiran 4 Daerah:</h4>
-        <table class="w-full border-collapse border border-gray-300 text-center">
+        <h4 data-i18n="pdfDistrictBreakdown" class="font-bold mb-1.5 text-gray-900">Pecahan Kehadiran 4 Daerah:</h4>
+        <table class="w-full border-collapse border border-gray-300 text-center text-xs">
           <thead class="bg-gray-100 font-bold">
             <tr>
-              <th class="border p-1.5">Daerah</th>
-              <th class="border p-1.5">Jumlah Sekolah</th>
-              <th class="border p-1.5">Hadir</th>
-              <th class="border p-1.5">Wakil</th>
-              <th class="border p-1.5">Tidak Hadir</th>
-              <th class="border p-1.5">% Kehadiran</th>
+              <th class="border border-gray-300 p-1.5">Daerah</th>
+              <th class="border border-gray-300 p-1.5">Jumlah Sekolah</th>
+              <th class="border border-gray-300 p-1.5 text-green-700">Hadir</th>
+              <th class="border border-gray-300 p-1.5 text-amber-700">Wakil</th>
+              <th class="border border-gray-300 p-1.5 text-red-700">Tidak Hadir</th>
+              <th class="border border-gray-300 p-1.5">% Kehadiran</th>
             </tr>
           </thead>
-          <tbody>
-            <tr><td class="border p-1 font-semibold">Brunei-Muara</td><td class="border p-1">18</td><td class="border p-1 text-green-700">15</td><td class="border p-1">2</td><td class="border p-1 text-red-700">1</td><td class="border p-1 font-bold">94.4%</td></tr>
-            <tr><td class="border p-1 font-semibold">Tutong</td><td class="border p-1">7</td><td class="border p-1 text-green-700">6</td><td class="border p-1">1</td><td class="border p-1 text-red-700">0</td><td class="border p-1 font-bold">100.0%</td></tr>
-            <tr><td class="border p-1 font-semibold">Belait</td><td class="border p-1">8</td><td class="border p-1 text-green-700">6</td><td class="border p-1">1</td><td class="border p-1 text-red-700">1</td><td class="border p-1 font-bold">87.5%</td></tr>
-            <tr><td class="border p-1 font-semibold">Temburong</td><td class="border p-1">4</td><td class="border p-1 text-green-700">3</td><td class="border p-1">0</td><td class="border p-1 text-red-700">1</td><td class="border p-1 font-bold">75.0%</td></tr>
+          <tbody id="pdf-district-table-body">
+            <!-- Populated dynamically via JS -->
           </tbody>
         </table>
+      </div>
+
+      <!-- Nominal Roll Table -->
+      <div class="text-xs mt-1">
+        <div class="flex items-center justify-between mb-1.5">
+          <h4 class="font-bold text-gray-900">Senarai Terperinci Kehadiran Guru &amp; Wakil Sekolah:</h4>
+          <span id="pdf-nominal-count" class="text-[10px] text-gray-500 font-medium">37 Rekod</span>
+        </div>
+        <div class="border border-gray-300 rounded-lg overflow-x-auto">
+          <table class="w-full border-collapse text-left text-[11px] min-w-[500px]">
+            <thead class="bg-gray-100 font-bold border-b border-gray-300 text-gray-700">
+              <tr>
+                <th class="p-1.5 text-center w-8">No.</th>
+                <th class="p-1.5">Nama Guru</th>
+                <th class="p-1.5">Sekolah</th>
+                <th class="p-1.5">Daerah</th>
+                <th class="p-1.5 text-center">Status</th>
+                <th class="p-1.5">Catatan / Wakil</th>
+              </tr>
+            </thead>
+            <tbody id="pdf-nominal-roll-body">
+              <!-- Populated dynamically via JS -->
+            </tbody>
+          </table>
+        </div>
       </div>
 
       <!-- Footer Verification & Signatures -->
@@ -1927,8 +1944,8 @@
   </nav>
 
   <!-- Application Logic Scripts -->
-  <script src="js/config.js?v=1.6.5"></script>
-  <script src="js/data-mock.js?v=1.6.5"></script>
-  <script src="js/app.js?v=1.6.5"></script>
+  <script src="js/config.js?v=1.6.6"></script>
+  <script src="js/data-mock.js?v=1.6.6"></script>
+  <script src="js/app.js?v=1.6.6"></script>
 </body>
 </html>
