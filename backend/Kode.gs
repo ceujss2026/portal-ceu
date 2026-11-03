@@ -459,11 +459,11 @@ function dispatchPost_(action, data, token) {
 // 5. BUSINESS LOGIC & ENDPOINT HANDLERS
 // ============================================================================
 
-// Validasi Domain Brunei Rasmi (.moe.bn, .gov.bn, .edu.bn, .jpi.bn, edu.moe.bn)
+// Validasi Emel Pengguna Sah
 function isValidOfficialEmail_(email) {
   if (!email || typeof email !== 'string') return false;
   const em = email.toLowerCase().trim();
-  return /^[a-zA-Z0-9._%+-]+@([a-zA-Z0-9.-]+\.)?(moe\.bn|gov\.bn|edu\.bn|jpi\.bn|edu\.moe\.bn)$/i.test(em);
+  return /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/i.test(em);
 }
 
 // Hantar Kod OTP (6 Digit, Sah 10 Minit)

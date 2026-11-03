@@ -2796,12 +2796,8 @@
       showToast(State.lang === 'en' ? 'Please enter your official email address.' : 'Sila masukkan alamat e-mel rasmi Awda.', 'warning');
       return;
     }
-    const allowedDomains = (window.APP_CONFIG && window.APP_CONFIG.OFFICIAL_DOMAINS) || ['moe.edu.bn', 'edu.moe.bn', 'moe.bn', 'gov.bn', 'jpi.bn'];
-    const emailParts = email.toLowerCase().split('@');
-    const emailDomain = emailParts.length === 2 ? emailParts[1].trim() : '';
-    const isDomainValid = allowedDomains.some(d => emailDomain === d || emailDomain.endsWith('.' + d));
-    if (!isDomainValid) {
-      showToast(I18N[State.lang]?.emailDomainNotice || 'Emel rasmi mestilah berakhir dengan @moe.edu.bn, @edu.moe.bn, @moe.bn, @gov.bn, atau @jpi.bn', 'error');
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      showToast(State.lang === 'en' ? 'Please enter a valid email address.' : 'Sila masukkan alamat e-mel yang sah.', 'warning');
       return;
     }
 
