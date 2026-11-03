@@ -672,7 +672,7 @@
   async function api(action, payload, forceLive) {
     const isMock = !window.APP_CONFIG.GAS_URL;
 
-    if (isMock || (State.token && State.token.startsWith('mock_token_'))) {
+    if (isMock || (State.token && String(State.token).startsWith('mock_'))) {
       return handleMockApi(action, payload);
     }
 
@@ -1204,7 +1204,8 @@
           localStorage.setItem('ceu_bio_token', res.token);
           localStorage.setItem('ceu_bio_user', JSON.stringify(res.user));
           showToast((State.lang === 'en' ? 'Biometric verified! Welcome ' : 'Biometrik disahkan! Selamat datang ') + res.user.name, 'success');
-          loadAppBoot();
+          await loadAppBoot();
+          navigateAfterLogin(res.user);
         }
       }, 700);
       return;
@@ -1405,6 +1406,15 @@
   // ==========================================================================
   // 6. NAVIGASI, ROUTING & UI RENDER
   // ==========================================================================
+  
+  function navigateAfterLogin(user) {
+    if (user && String(user.role).toLowerCase() === 'admin') {
+      setView('admin-dashboard');
+    } else {
+      setView('home');
+    }
+  }
+
   function setView(viewName) {
     State.currentView = viewName;
     document.querySelectorAll('.app-view').forEach(el => {
@@ -2898,8 +2908,9 @@
       localStorage.setItem('ceu_bio_user', JSON.stringify(res.user));
       updateBiometricUI();
 
-      showToast((State.lang === 'en' ? 'Login successful! Welcome ' : 'Log masuk berjaya! Selamat datang ') + res.user.name, 'success');
-      loadAppBoot();
+      showToast((State.lang === 'en' ? 'Login successful! Welcome ' : 'Log masuk berjaya! Selamat datang ') + (res.user.name || res.user.email), 'success');
+      await loadAppBoot();
+      navigateAfterLogin(res.user);
     } else {
       showToast((res && res.message) || (State.lang === 'en' ? 'Invalid OTP code.' : 'Kod OTP tidak sah.'), 'error');
     }
