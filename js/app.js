@@ -1710,10 +1710,13 @@
         isActive = State.currentView === 'profile' || State.currentView === 'admin-users';
       }
 
+      const iconSpan = btn.querySelector('.material-symbols-outlined');
       if (isActive) {
-        btn.className = 'nav-tab-btn flex flex-col items-center justify-center flex-1 h-full py-1 text-primary border-t-2 border-secondary font-bold cursor-pointer transition-all' + (tab === 'notif' ? ' relative' : '');
+        btn.className = 'nav-tab-btn flex flex-col items-center justify-center flex-1 h-full py-1 text-primary bg-primary/10 rounded-xl border-t-2 border-secondary font-black scale-[1.03] cursor-pointer transition-all' + (tab === 'notif' ? ' relative' : '');
+        if (iconSpan) iconSpan.style.fontVariationSettings = "'FILL' 1";
       } else {
-        btn.className = 'nav-tab-btn flex flex-col items-center justify-center flex-1 h-full py-1 text-on-surface-variant border-t-2 border-transparent hover:text-on-surface cursor-pointer font-medium transition-all' + (tab === 'notif' ? ' relative' : '');
+        btn.className = 'nav-tab-btn flex flex-col items-center justify-center flex-1 h-full py-1 text-on-surface-variant hover:text-primary border-t-2 border-transparent cursor-pointer font-medium transition-all' + (tab === 'notif' ? ' relative' : '');
+        if (iconSpan) iconSpan.style.fontVariationSettings = "'FILL' 0";
       }
     });
 
@@ -2466,43 +2469,69 @@
 
     container.innerHTML = filtered.map(d => {
       const title = (State.lang === 'en' && d.title_en) ? d.title_en : d.title_bm;
+      const catLower = (d.category || '').toLowerCase();
+
+      // Dynamic Vibrant Category Tokens (Gaya 16061)
+      let iconName = 'description';
+      let iconGradient = 'from-teal-600 to-cyan-500 text-white shadow-teal-600/25';
+      let badgeStyle = 'bg-teal-50 text-teal-800 border-teal-200/70';
+
+      if (catLower.includes('memo')) {
+        iconName = 'campaign';
+        iconGradient = 'from-amber-500 to-orange-400 text-white shadow-amber-500/25';
+        badgeStyle = 'bg-amber-50 text-amber-800 border-amber-200/70';
+      } else if (catLower.includes('pekeliling') || catLower.includes('surat') || catLower.includes('persuratan')) {
+        iconName = 'policy';
+        iconGradient = 'from-indigo-600 to-blue-500 text-white shadow-indigo-600/25';
+        badgeStyle = 'bg-blue-50 text-blue-800 border-blue-200/70';
+      } else if (catLower.includes('takwim') || catLower.includes('kalendar')) {
+        iconName = 'calendar_month';
+        iconGradient = 'from-emerald-600 to-teal-500 text-white shadow-emerald-600/25';
+        badgeStyle = 'bg-emerald-50 text-emerald-800 border-emerald-200/70';
+      } else if (catLower.includes('minit')) {
+        iconName = 'groups';
+        iconGradient = 'from-[#006a6a] to-[#2ca0a0] text-white shadow-teal-700/25';
+        badgeStyle = 'bg-teal-50 text-teal-800 border-teal-200/70';
+      }
+
       return `
-        <div class="bg-surface-container-lowest rounded-2xl p-4 shadow-sm border border-outline-variant/30 flex flex-col gap-3 hover:shadow-md transition-shadow">
+        <div class="bg-surface-container-lowest rounded-2xl p-4 shadow-md border border-outline-variant/30 flex flex-col gap-3 hover:shadow-lg transition-all group">
           <!-- Top Row: Icon node + Status badges -->
           <div class="flex items-start justify-between gap-3">
-            <div class="flex items-start gap-3">
-              <div class="w-11 h-11 rounded-xl bg-error-container text-on-error-container flex items-center justify-center shrink-0 shadow-sm">
-                <span class="material-symbols-outlined text-[24px]">picture_as_pdf</span>
+            <div class="flex items-start gap-3 min-w-0">
+              <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr ${iconGradient} flex items-center justify-center shrink-0 shadow-md">
+                <span class="material-symbols-outlined text-[22px]">${iconName}</span>
               </div>
-              <div class="flex flex-col">
+              <div class="flex flex-col min-w-0">
                 <div class="flex flex-wrap items-center gap-1.5">
-                  <span class="inline-flex items-center px-2.5 py-0.5 rounded-full bg-surface-container-high text-primary font-label-pill text-[10px] font-bold">
+                  <span class="inline-flex items-center px-2.5 py-0.5 rounded-full font-label-pill text-[10px] font-black uppercase tracking-wider border ${badgeStyle}">
                     ${d.category}
                   </span>
-                  <span class="inline-flex items-center px-2 py-0.5 rounded-full bg-surface-container-low text-on-surface-variant font-label-pill text-[10px]">
+                  <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-surface-container-low text-on-surface-variant font-label-pill text-[10px] font-semibold">
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
                     Semua Sekolah
                   </span>
                 </div>
-                <span class="font-caption text-[11px] text-on-surface-variant mt-1">
+                <span class="font-caption text-[11px] text-on-surface-variant mt-1 truncate">
                   Ruj: ${d.ref_no || 'UPK/2026'} • ${d.size || '1.8 MB'}
                 </span>
               </div>
             </div>
-            <span class="font-caption text-[11px] text-on-surface-variant font-medium">${d.publish_date}</span>
+            <span class="font-caption text-[10px] font-bold px-2 py-0.5 rounded-full bg-surface-container text-on-surface-variant shrink-0">${d.publish_date}</span>
           </div>
 
           <!-- Title -->
           <div class="flex flex-col">
-            <h4 class="font-label-lg text-sm font-bold text-on-surface leading-snug">${title}</h4>
+            <h4 class="font-label-lg text-sm font-bold text-on-surface leading-snug group-hover:text-primary transition-colors">${title}</h4>
           </div>
 
           <!-- Action Footer -->
           <div class="flex items-center gap-2 pt-1 border-t border-outline-variant/20">
-            <button class="btn-preview-pdf flex-1 h-10 rounded-full bg-surface-container-low text-primary font-label-md text-xs font-bold flex items-center justify-center gap-1.5 active:scale-95 transition-transform cursor-pointer" data-url="${d.file_view_url}" data-title="${title.replace(/"/g, '&quot;')}">
+            <button class="btn-preview-pdf flex-1 h-10 rounded-xl bg-surface-container-low hover:bg-surface-container text-primary font-label-md text-xs font-bold flex items-center justify-center gap-1.5 active:scale-95 transition-all cursor-pointer" data-url="${d.file_view_url}" data-title="${title.replace(/"/g, '&quot;')}">
               <span class="material-symbols-outlined text-[18px]">visibility</span>
               <span>${I18N[State.lang].previewDocBtn}</span>
             </button>
-            <a href="${d.file_view_url}" target="_blank" download class="flex-1 h-10 rounded-full bg-primary-container text-on-primary font-label-md text-xs font-bold flex items-center justify-center gap-1.5 shadow-sm active:scale-95 transition-transform cursor-pointer">
+            <a href="${d.file_view_url}" target="_blank" download class="flex-1 h-10 rounded-xl bg-gradient-to-r from-primary to-[#2ca0a0] hover:from-primary-dark hover:to-primary text-white font-label-md text-xs font-bold flex items-center justify-center gap-1.5 shadow-sm hover:shadow active:scale-95 transition-all cursor-pointer">
               <span class="material-symbols-outlined text-[18px]">download</span>
               <span>${I18N[State.lang].downloadBtn}</span>
             </a>
