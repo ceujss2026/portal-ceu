@@ -3547,7 +3547,6 @@
       });
     }
 
-    const formCreate = document.getElementById('form-create-event');
     if (formCreate) {
       formCreate.addEventListener('submit', (e) => {
         e.preventDefault();
