@@ -34,7 +34,7 @@
       emailDomainNotice: 'Diterima: @moe.edu.bn, @edu.moe.bn, @moe.bn, @gov.bn, @jpi.bn',
       sendOtpBtn: 'Hantar Kod OTP Keselamatan',
       verifyOtpTitle: 'Masukkan Kod OTP 6-Digit',
-      verifyOtpDesc: 'Kod pengesahan telah dihantar ke emel anda.',
+      verifyOtpDesc: 'Kod pengesahan telah dihantar ke e-mel rasmi Awda.',
       verifyBtn: 'Sahkan & Masuk Portal',
       resendOtp: 'Hantar Semula Kod',
       changeEmailBtn: 'Tukar Emel',
@@ -60,7 +60,8 @@
       
       // Navigasi Bawah
       navHome: 'Utama',
-      navTakwim: 'Takwim',
+      navTakwim: 'Kalendar',
+      navCalendar: 'Kalendar',
       navRsvp: 'RSVP',
       navArchive: 'Arkib',
       navNotif: 'Notifikasi',
@@ -116,12 +117,50 @@
 
       // Arkib
       archiveTitle: 'Arkib Dokumen & Memo Rasmi',
-      archiveSubtitle: 'Pustaka pekeliling, minit mesyuarat, dan takwim tahunan UPK.',
+      archiveSubtitle: 'Pustaka surat pekeliling, minit mesyuarat, dan kalendar tahunan UPK.',
       searchArchivePlaceholder: 'Cari tajuk memo, minit, atau nombor rujukan...',
       catAll: 'Semua',
       catCirculars: 'Pekeliling',
       catMinutes: 'Minit Mesyuarat',
-      catCalendar: 'Takwim Tahunan',
+      catCalendar: 'Kalendar Tahunan',
+      // Mod Kalendar & Tajuk
+      calModeWeekly: 'Mingguan',
+      calModeMonthly: 'Bulanan',
+      currentWeek: 'Minggu Ini',
+      currentMonth: 'Bulan Ini',
+
+      // Pustaka Arkib & Badge
+      archiveRepoBadge: 'Repositori 2026',
+      archiveOfficialBadge: 'UPK JSS Rasmi',
+      archiveTotalFiles: 'Jumlah Fail',
+      archiveAvgSize: 'Purata Saiz',
+      archiveVerifiedBadge: 'Disahkan UPK',
+
+      // Penapis Acara Pentadbir
+      adminEventFilterAll: 'Semua',
+      adminEventFilterPublished: 'Diterbitkan',
+      adminEventFilterDraft: 'Draf Sahaja',
+      adminAnalysisEventLabel: 'Analisis Acara:',
+      adminRsvpEventLabel: 'Acara:',
+
+      // Bina & Terbit Acara (Pentadbir)
+      adminCreateEventTitle: 'Bina & Terbitkan Acara Rasmi',
+      adminCreateEventSubtitle: 'Unit Pendidikan Kerjaya, Jabatan Sekolah-Sekolah',
+      stepProgress: 'Langkah 4 / 4 Siap',
+      step1Basic: '1. Asas',
+      step2Location: '2. Lokasi',
+      step3Target: '3. Sasaran',
+      step4Broadcast: '4. Hebahan',
+      adminStep1Title: 'Maklumat Asas Acara',
+      adminStep1Desc: 'Sesuai untuk paparan rasmi di kalendar aktiviti sekolah.',
+      adminStep2Title: 'Tarikh & Lokasi',
+      adminStep3Title: 'Kumpulan Sasaran Pegawai & Guru',
+      adminStep4Title: 'Lampiran & Hebahan FCM',
+      livePreviewTitle: 'Pratonton Langsung Guru',
+      publishBroadcastBtn: 'Terbit & Siar FCM',
+      targetModeGroupTitle: 'Mengikut Kumpulan Rasmi',
+      targetModeIndividualTitle: 'Pilih Individu Pegawai',
+
       catGuidelines: 'Garis Panduan',
       previewDocBtn: 'Pratinjau',
       downloadBtn: 'Muat Turun',
@@ -180,7 +219,43 @@
       pdfAbsent: 'Tak Hadir',
       pdfDistrictBreakdown: 'Pecahan Kehadiran 4 Daerah:',
       pdfHeadUnit: 'Ketua Unit Pendidikan Kerjaya',
-      pdfDeptBrunei: 'Jabatan Sekolah-Sekolah Brunei'
+      pdfDeptBrunei: 'Jabatan Sekolah-Sekolah Brunei',
+
+      // Kekunci Baru (Standard Bahasa Melayu Brunei)
+      calModeWeekly: 'Mingguan',
+      calModeMonthly: 'Bulanan',
+      currentWeek: 'Minggu Ini',
+      counselorGreeting: 'Selamat Datang • Guru Pendidikan Kerjaya',
+      cannotAttendTitle: 'Ada Kekangan Kehadiran?',
+      cannotAttendSub: 'Lantik pegawai pengganti bagi pihak sekolah Awda',
+      appointRepBtn: 'Lantik',
+      validDomainNotice: 'Domain Sah MOE',
+      otpReady: 'Sedia',
+      otpNotice: 'Kod pengesahan dihantar ke peti masuk emel rasmi.',
+      copyrightNotice: '© 2026 Unit Pendidikan Kerjaya (UPK), Jabatan Sekolah-Sekolah Brunei',
+      allRightsReserved: 'Hak Cipta Terpelihara',
+      sub4Districts: '4 Daerah Brunei',
+      subHighOptimum: 'Tinggi / Optimum',
+      subPhysicalVerify: 'Pengesahan Kehadiran',
+      subWithJustification: 'Dengan Justifikasi Rasmi',
+      legendAttending: 'Hadir',
+      legendProxy: 'Wakil',
+      legendAbsent: 'Tak Hadir',
+      adminEventsManagementTitle: 'Pengurusan Acara & Draf Program',
+      adminEventsManagementSubtitle: 'Urus, terbitkan draf, atau padamkan acara rasmi.',
+      tableColNo: 'No.',
+      tableColOfficer: 'Nama Guru & Emel',
+      tableColSchool: 'Sekolah / Maktab',
+      tableColDistrict: 'Daerah',
+      tableColStatus: 'Status RSVP',
+      tableColNotes: 'Catatan / Wakil',
+      tableColActions: 'Tindakan',
+      totalFilesStat: 'Jumlah Fail',
+      avgSizeStat: 'Purata Saiz',
+      upkVerifiedStat: 'Disahkan UPK',
+      timeLabel: 'Masa',
+      venueLabel: 'Lokasi',
+      onlineVenue: 'Dalam Talian'
     },
     en: {
       appName: 'PORTAL CEU',
@@ -224,6 +299,7 @@
       // Navigasi Bawah
       navHome: 'Home',
       navTakwim: 'Calendar',
+      navCalendar: 'Calendar',
       navRsvp: 'RSVP',
       navArchive: 'Archive',
       navNotif: 'Notifications',
@@ -285,6 +361,44 @@
       catCirculars: 'Circulars',
       catMinutes: 'Meeting Minutes',
       catCalendar: 'Annual Calendar',
+      // Calendar Mode & Headings
+      calModeWeekly: 'Weekly',
+      calModeMonthly: 'Monthly',
+      currentWeek: 'This Week',
+      currentMonth: 'This Month',
+
+      // Archive Library & Badges
+      archiveRepoBadge: '2026 Repository',
+      archiveOfficialBadge: 'Official UPK JSS',
+      archiveTotalFiles: 'Total Files',
+      archiveAvgSize: 'Avg Size',
+      archiveVerifiedBadge: 'UPK Verified',
+
+      // Admin Event Filters
+      adminEventFilterAll: 'All',
+      adminEventFilterPublished: 'Published',
+      adminEventFilterDraft: 'Drafts Only',
+      adminAnalysisEventLabel: 'Event Analysis:',
+      adminRsvpEventLabel: 'Event:',
+
+      // Admin Event Creator
+      adminCreateEventTitle: 'Create & Publish Official Event',
+      adminCreateEventSubtitle: 'Career Education Unit, Department of Schools',
+      stepProgress: 'Step 4 / 4 Completed',
+      step1Basic: '1. Basics',
+      step2Location: '2. Location',
+      step3Target: '3. Target Audience',
+      step4Broadcast: '4. Broadcast',
+      adminStep1Title: 'Basic Event Details',
+      adminStep1Desc: 'Suitable for official display on school activity calendar.',
+      adminStep2Title: 'Date & Venue',
+      adminStep3Title: 'Target Officers & Teachers',
+      adminStep4Title: 'Attachments & Push Broadcast',
+      livePreviewTitle: 'Live Teacher Preview',
+      publishBroadcastBtn: 'Publish & Push FCM',
+      targetModeGroupTitle: 'By Official Group',
+      targetModeIndividualTitle: 'Select Individual Officers',
+
       catGuidelines: 'Guidelines',
       previewDocBtn: 'Preview',
       downloadBtn: 'Download',
@@ -343,7 +457,43 @@
       pdfAbsent: 'Absent',
       pdfDistrictBreakdown: '4-District Attendance Breakdown:',
       pdfHeadUnit: 'Head of Career Education Unit',
-      pdfDeptBrunei: 'Department of Schools, Brunei'
+      pdfDeptBrunei: 'Department of Schools, Brunei',
+
+      // New English Keys (Pristine Standard)
+      calModeWeekly: 'Weekly',
+      calModeMonthly: 'Monthly',
+      currentWeek: 'This Week',
+      counselorGreeting: 'Welcome • Career Guidance Counselor',
+      cannotAttendTitle: 'Unable to Attend?',
+      cannotAttendSub: 'Appoint an official substitute on behalf of your school',
+      appointRepBtn: 'Appoint',
+      validDomainNotice: 'Valid MOE Domain',
+      otpReady: 'Ready',
+      otpNotice: 'Verification code dispatched to your official email inbox.',
+      copyrightNotice: '© 2026 Career Education Unit (CEU), Department of Schools Brunei',
+      allRightsReserved: 'All Rights Reserved',
+      sub4Districts: '4 Brunei Districts',
+      subHighOptimum: 'High / Optimum',
+      subPhysicalVerify: 'Attendance Confirmed',
+      subWithJustification: 'With Official Justification',
+      legendAttending: 'Attending',
+      legendProxy: 'Proxy',
+      legendAbsent: 'Absent',
+      adminEventsManagementTitle: 'Event Management & Program Drafts',
+      adminEventsManagementSubtitle: 'Manage, publish drafts, or remove official events.',
+      tableColNo: 'No.',
+      tableColOfficer: 'Officer Name & Email',
+      tableColSchool: 'School / College',
+      tableColDistrict: 'District',
+      tableColStatus: 'RSVP Status',
+      tableColNotes: 'Remarks / Proxy',
+      tableColActions: 'Action',
+      totalFilesStat: 'Total Files',
+      avgSizeStat: 'Average Size',
+      upkVerifiedStat: 'CEU Verified',
+      timeLabel: 'Time',
+      venueLabel: 'Venue',
+      onlineVenue: 'Online'
     }
   };
 
@@ -366,8 +516,8 @@
     activeMemoCategory: 'Semua',
     activeDistrictFilter: 'Semua',
     selectedCalendarDate: null,
-    calendarYear: new Date().getFullYear(),
-    calendarMonth: new Date().getMonth()
+    calendarMode: 'weekly', // 'weekly' (default) | 'monthly'
+    calendarDate: new Date()
   };
 
   // ==========================================================================
@@ -1176,7 +1326,7 @@
       let isActive = false;
       if (tab === 'home') {
         isActive = (State.currentView === 'home' && !isUrgent && !State.selectedCalendarDate) || (State.currentView === 'admin-dashboard');
-      } else if (tab === 'takwim') {
+      } else if (tab === 'takwim' || tab === 'calendar') {
         isActive = State.currentView === 'home' && Boolean(State.selectedCalendarDate);
       } else if (tab === 'rsvp') {
         isActive = State.currentView === 'admin-rsvp' || (State.currentView === 'home' && isUrgent);
@@ -1261,12 +1411,37 @@
   }
 
   // ==========================================================================
-  // INTERACTIVE MONTHLY CALENDAR ENGINE
+  // KALENDAR INTERAKTIF (MOD MINGGUAN SEBAGAI LALAI, DENGAN OPSYEN BULANAN)
   // ==========================================================================
   const MONTH_NAMES = {
     bm: ['Januari', 'Februari', 'Mac', 'April', 'Mei', 'Jun', 'Julai', 'Ogos', 'September', 'Oktober', 'November', 'Disember'],
     en: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
   };
+
+  function getWeekDays(refDate) {
+    const d = new Date(refDate);
+    const day = d.getDay(); // 0: Ahad, 1: Isnin ...
+    const diffToMon = (day === 0 ? -6 : 1) - day;
+    const monday = new Date(d);
+    monday.setDate(d.getDate() + diffToMon);
+
+    const days = [];
+    for (let i = 0; i < 7; i++) {
+      const cur = new Date(monday);
+      cur.setDate(monday.getDate() + i);
+      const y = cur.getFullYear();
+      const m = String(cur.getMonth() + 1).padStart(2, '0');
+      const dt = String(cur.getDate()).padStart(2, '0');
+      days.push({
+        dateObj: cur,
+        dayNum: cur.getDate(),
+        month: cur.getMonth(),
+        year: y,
+        dateStr: `${y}-${m}-${dt}`
+      });
+    }
+    return days;
+  }
 
   function getMonthCalendarCells(year, month) {
     const firstDay = new Date(year, month, 1);
@@ -1293,60 +1468,134 @@
     return cells;
   }
 
-  function renderMonthlyCalendar() {
+  function renderCalendar() {
     const container = document.getElementById('calendar-grid');
     const monthLabel = document.getElementById('calendar-month-label');
     const filterIndicator = document.getElementById('calendar-filter-indicator');
     const filterText = document.getElementById('calendar-filter-text');
+    const todayBtnText = document.getElementById('cal-today-btn-text');
+    const btnWeekly = document.getElementById('btn-cal-weekly');
+    const btnMonthly = document.getElementById('btn-cal-monthly');
 
     if (!container) return;
 
-    const now = new Date();
-    const year = State.calendarYear !== undefined ? State.calendarYear : now.getFullYear();
-    const month = (State.calendarMonth !== undefined) ? State.calendarMonth : now.getMonth();
-    const monthName = (MONTH_NAMES[State.lang] || MONTH_NAMES.bm)[month];
+    const isWeekly = State.calendarMode === 'weekly';
+    if (btnWeekly && btnMonthly) {
+      btnWeekly.classList.toggle('bg-white', isWeekly);
+      btnWeekly.classList.toggle('text-primary', isWeekly);
+      btnWeekly.classList.toggle('font-bold', isWeekly);
+      btnWeekly.classList.toggle('shadow-xs', isWeekly);
+      btnWeekly.classList.toggle('text-white/80', !isWeekly);
+      btnWeekly.classList.toggle('font-semibold', !isWeekly);
 
-    if (monthLabel) {
-      monthLabel.textContent = `${State.lang === 'en' ? 'Month: ' : 'Bulan '}${monthName} ${year}`;
+      btnMonthly.classList.toggle('bg-white', !isWeekly);
+      btnMonthly.classList.toggle('text-primary', !isWeekly);
+      btnMonthly.classList.toggle('font-bold', !isWeekly);
+      btnMonthly.classList.toggle('shadow-xs', !isWeekly);
+      btnMonthly.classList.toggle('text-white/80', isWeekly);
+      btnMonthly.classList.toggle('font-semibold', isWeekly);
     }
 
+    if (todayBtnText) {
+      todayBtnText.textContent = isWeekly
+        ? (State.lang === 'en' ? 'This Week' : 'Minggu Ini')
+        : (State.lang === 'en' ? 'This Month' : 'Bulan Ini');
+    }
+
+    const now = new Date();
     const todayDateStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
     const publishedEvents = (State.events || [])
       .filter(e => (e.status || 'Published').toLowerCase() !== 'draft')
       .filter(e => isUserInvitedToEvent(e, State.currentUser));
 
-    const cells = getMonthCalendarCells(year, month);
-    container.innerHTML = cells.map(c => {
-      if (c.isEmpty) {
-        return `<div class="h-9 sm:h-10"></div>`;
-      }
+    const mNames = (MONTH_NAMES[State.lang] || MONTH_NAMES.bm);
 
-      const isSelected = State.selectedCalendarDate === c.dateStr;
-      const isToday = c.dateStr === todayDateStr;
-      const hasEvents = publishedEvents.some(e => e.event_date === c.dateStr);
-
-      let dayClasses = 'cal-day-btn h-9 sm:h-10 rounded-xl flex flex-col items-center justify-center transition-all cursor-pointer relative ';
-      if (isSelected) {
-        dayClasses += 'bg-secondary-container text-on-secondary-container shadow-lg font-black scale-105 ring-2 ring-white';
-      } else if (isToday) {
-        dayClasses += 'bg-white text-primary font-black shadow-md border-2 border-secondary-container';
-      } else if (hasEvents) {
-        dayClasses += 'bg-white/25 text-white font-extrabold shadow-sm border border-white/40 ring-1 ring-secondary-container/60 hover:bg-white/35';
+    if (isWeekly) {
+      // 1. MOD MINGGUAN (DEFAULT)
+      const days = getWeekDays(State.calendarDate);
+      const startM = mNames[days[0].month];
+      const endM = mNames[days[6].month];
+      let weekLabelStr = '';
+      if (days[0].month === days[6].month) {
+        weekLabelStr = `${days[0].dayNum} - ${days[6].dayNum} ${startM} ${days[6].year}`;
       } else {
-        dayClasses += 'bg-white/10 text-white/90 font-bold border border-white/10 hover:bg-white/20';
+        weekLabelStr = `${days[0].dayNum} ${startM} - ${days[6].dayNum} ${endM} ${days[6].year}`;
       }
 
-      return `
-        <button type="button" data-date="${c.dateStr}" class="${dayClasses}" title="${isToday ? (State.lang === 'en' ? 'Today' : 'Hari Ini') : ''}">
-          <span class="font-headline text-xs sm:text-sm font-bold leading-none">${c.dayNum}</span>
-          ${hasEvents
-            ? `<span class="w-1.5 h-1.5 rounded-full mt-0.5 ${isSelected ? 'bg-primary' : 'bg-secondary-container'}"></span>`
-            : (isToday
-                ? `<span class="w-1 h-1 rounded-full mt-0.5 bg-primary"></span>`
-                : '<span class="w-1.5 h-1.5 mt-0.5 bg-transparent"></span>')}
-        </button>
-      `;
-    }).join('');
+      if (monthLabel) {
+        monthLabel.textContent = (State.lang === 'en' ? 'Week: ' : 'Minggu: ') + weekLabelStr;
+      }
+
+      container.innerHTML = days.map(d => {
+        const isSelected = State.selectedCalendarDate === d.dateStr;
+        const isToday = d.dateStr === todayDateStr;
+        const hasEvents = publishedEvents.some(e => e.event_date === d.dateStr);
+
+        let dayClasses = 'cal-day-btn h-11 sm:h-12 rounded-xl flex flex-col items-center justify-center transition-all cursor-pointer relative ';
+        if (isSelected) {
+          dayClasses += 'bg-secondary-container text-on-secondary-container shadow-lg font-black scale-105 ring-2 ring-white';
+        } else if (isToday) {
+          dayClasses += 'bg-white text-primary font-black shadow-md border-2 border-secondary-container';
+        } else if (hasEvents) {
+          dayClasses += 'bg-white/25 text-white font-extrabold shadow-sm border border-white/40 ring-1 ring-secondary-container/60 hover:bg-white/35';
+        } else {
+          dayClasses += 'bg-white/10 text-white/90 font-bold border border-white/10 hover:bg-white/20';
+        }
+
+        return `
+          <button type="button" data-date="${d.dateStr}" class="${dayClasses}" title="${isToday ? (State.lang === 'en' ? 'Today' : 'Hari Ini') : ''}">
+            <span class="font-headline text-xs sm:text-sm font-bold leading-none">${d.dayNum}</span>
+            ${hasEvents
+              ? `<span class="w-1.5 h-1.5 rounded-full mt-1 ${isSelected ? 'bg-primary' : 'bg-secondary-container'}"></span>`
+              : (isToday
+                  ? `<span class="w-1 h-1 rounded-full mt-1 bg-primary"></span>`
+                  : '<span class="w-1.5 h-1.5 mt-1 bg-transparent"></span>')}
+          </button>
+        `;
+      }).join('');
+    } else {
+      // 2. MOD BULANAN (OPSYEN PILIHAN)
+      const year = State.calendarDate.getFullYear();
+      const month = State.calendarDate.getMonth();
+      const monthName = mNames[month];
+
+      if (monthLabel) {
+        monthLabel.textContent = `${State.lang === 'en' ? 'Month: ' : 'Bulan '}${monthName} ${year}`;
+      }
+
+      const cells = getMonthCalendarCells(year, month);
+      container.innerHTML = cells.map(c => {
+        if (c.isEmpty) {
+          return `<div class="h-9 sm:h-10"></div>`;
+        }
+
+        const isSelected = State.selectedCalendarDate === c.dateStr;
+        const isToday = c.dateStr === todayDateStr;
+        const hasEvents = publishedEvents.some(e => e.event_date === c.dateStr);
+
+        let dayClasses = 'cal-day-btn h-9 sm:h-10 rounded-xl flex flex-col items-center justify-center transition-all cursor-pointer relative ';
+        if (isSelected) {
+          dayClasses += 'bg-secondary-container text-on-secondary-container shadow-lg font-black scale-105 ring-2 ring-white';
+        } else if (isToday) {
+          dayClasses += 'bg-white text-primary font-black shadow-md border-2 border-secondary-container';
+        } else if (hasEvents) {
+          dayClasses += 'bg-white/25 text-white font-extrabold shadow-sm border border-white/40 ring-1 ring-secondary-container/60 hover:bg-white/35';
+        } else {
+          dayClasses += 'bg-white/10 text-white/90 font-bold border border-white/10 hover:bg-white/20';
+        }
+
+        return `
+          <button type="button" data-date="${c.dateStr}" class="${dayClasses}" title="${isToday ? (State.lang === 'en' ? 'Today' : 'Hari Ini') : ''}">
+            <span class="font-headline text-xs sm:text-sm font-bold leading-none">${c.dayNum}</span>
+            ${hasEvents
+              ? `<span class="w-1.5 h-1.5 rounded-full mt-0.5 ${isSelected ? 'bg-primary' : 'bg-secondary-container'}"></span>`
+              : (isToday
+                  ? `<span class="w-1 h-1 rounded-full mt-0.5 bg-primary"></span>`
+                  : '<span class="w-1.5 h-1.5 mt-0.5 bg-transparent"></span>')}
+          </button>
+        `;
+      }).join('');
+    }
 
     if (filterIndicator) {
       if (State.selectedCalendarDate) {
@@ -1367,11 +1616,14 @@
         } else {
           State.selectedCalendarDate = dateStr;
         }
-        renderMonthlyCalendar();
+        renderCalendar();
         renderHomeView();
       });
     });
   }
+
+  // Alias untuk keserasian panggilan sedia ada
+  const renderMonthlyCalendar = renderCalendar;
 
   // ==========================================================================
   // 8. RENDER PAPARAN HOME (TAKWIN GURU)
@@ -1552,7 +1804,7 @@
                 <span class="material-symbols-outlined text-[16px]">schedule</span>
               </div>
               <div class="flex flex-col min-w-0">
-                <span class="font-caption text-[10px] text-on-surface-variant">Masa</span>
+                <span class="font-caption text-[10px] text-on-surface-variant">${I18N[State.lang].timeLabel}</span>
                 <span class="font-label-md font-semibold truncate">${ev.start_time} - ${ev.end_time}</span>
               </div>
             </div>
@@ -1561,8 +1813,8 @@
                 <span class="material-symbols-outlined text-[16px]">location_on</span>
               </div>
               <div class="flex flex-col min-w-0">
-                <span class="font-caption text-[10px] text-on-surface-variant">Lokasi</span>
-                <span class="font-label-md font-semibold truncate">${ev.venue || 'Dalam Talian'}</span>
+                <span class="font-caption text-[10px] text-on-surface-variant">${I18N[State.lang].venueLabel}</span>
+                <span class="font-label-md font-semibold truncate">${ev.venue || I18N[State.lang].onlineVenue}</span>
               </div>
             </div>
           </div>
@@ -1598,7 +1850,7 @@
     container.querySelectorAll('.btn-delete-event').forEach(btn => {
       btn.addEventListener('click', async () => {
         const eventId = btn.dataset.id;
-        const conf = confirm(State.lang === 'en' ? 'Are you sure you want to delete this event? This action cannot be undone.' : 'Adakah anda pasti ingin memadamkan acara ini? Tindakan ini tidak boleh diundur.');
+        const conf = confirm(State.lang === 'en' ? 'Are you sure you want to delete this event? This action cannot be undone.' : 'Adakah Awda pasti ingin memadamkan acara ini? Tindakan ini tidak boleh diundur.');
         if (!conf) return;
 
         showToast(State.lang === 'en' ? 'Deleting event...' : 'Memadamkan acara...', 'info');
@@ -1750,7 +2002,14 @@
     const query = (document.getElementById('archive-search-input')?.value || '').toLowerCase();
     let filtered = docs;
     if (State.activeMemoCategory !== 'Semua') {
-      filtered = filtered.filter(d => (d.category || '').toLowerCase() === State.activeMemoCategory.toLowerCase());
+      filtered = filtered.filter(d => {
+        const sel = (State.activeMemoCategory || '').toLowerCase();
+        const docCat = (d.category || '').toLowerCase();
+        if (sel.includes('kalendar') || sel.includes('takwim')) {
+          return docCat.includes('kalendar') || docCat.includes('takwim');
+        }
+        return docCat === sel;
+      });
     }
     if (query) {
       filtered = filtered.filter(d =>
@@ -2138,7 +2397,7 @@
     container.querySelectorAll('.btn-delete-event').forEach(btn => {
       btn.addEventListener('click', async () => {
         const eventId = btn.dataset.id;
-        const conf = confirm(State.lang === 'en' ? 'Are you sure you want to delete this event? This action cannot be undone.' : 'Adakah anda pasti ingin memadamkan acara ini? Tindakan ini tidak boleh diundur.');
+        const conf = confirm(State.lang === 'en' ? 'Are you sure you want to delete this event? This action cannot be undone.' : 'Adakah Awda pasti ingin memadamkan acara ini? Tindakan ini tidak boleh diundur.');
         if (!conf) return;
 
         showToast(State.lang === 'en' ? 'Deleting event...' : 'Memadamkan acara...', 'info');
@@ -2353,7 +2612,7 @@
     const email = (emailInput?.value || '').trim();
 
     if (!email) {
-      showToast(State.lang === 'en' ? 'Please enter your official email address.' : 'Sila masukkan alamat emel rasmi anda.', 'warning');
+      showToast(State.lang === 'en' ? 'Please enter your official email address.' : 'Sila masukkan alamat e-mel rasmi Awda.', 'warning');
       return;
     }
     const allowedDomains = (window.APP_CONFIG && window.APP_CONFIG.OFFICIAL_DOMAINS) || ['moe.edu.bn', 'edu.moe.bn', 'moe.bn', 'gov.bn', 'jpi.bn'];
@@ -2382,7 +2641,7 @@
           submitBtn.classList.remove('opacity-80', 'pointer-events-none');
         }, 2500);
       }
-      showToast(res.message || (State.lang === 'en' ? 'OTP code has been sent to your email.' : 'Kod OTP telah berjaya dihantar ke emel anda.'), 'success');
+      showToast(res.message || (State.lang === 'en' ? 'OTP code has been sent to your email.' : 'Kod OTP keselamatan telah berjaya dihantar ke e-mel rasmi Awda.'), 'success');
       
       // Kosongkan kotak OTP supaya pengguna memasukkan kod sebenar dari emel
       document.querySelectorAll('.otp-digit-input').forEach(inp => {
@@ -2431,7 +2690,7 @@
     const emailInput = document.getElementById('email') || document.getElementById('auth-email-input');
     const email = (emailInput?.value || '').trim();
     if (!email) {
-      showToast(State.lang === 'en' ? 'Please enter your official email address.' : 'Sila masukkan alamat emel rasmi anda.', 'warning');
+      showToast(State.lang === 'en' ? 'Please enter your official email address.' : 'Sila masukkan alamat e-mel rasmi Awda.', 'warning');
       emailInput?.focus();
       return;
     }
@@ -2470,7 +2729,7 @@
     localStorage.removeItem('ceu_tok');
     localStorage.removeItem('ceu_user');
     setView('auth');
-    showToast(State.lang === 'en' ? 'You have successfully logged out.' : 'Anda telah berjaya log keluar.', 'info');
+    showToast(State.lang === 'en' ? 'You have successfully logged out.' : 'Awda telah berjaya log keluar dari Portal CEU.', 'info');
   }
 
   async function quickLogin(userKey) {
@@ -3176,7 +3435,7 @@
             setView('home');
             setEventFilter('urgent');
           }
-        } else if (tab === 'takwim') {
+        } else if (tab === 'takwim' || tab === 'calendar') {
           setView('home');
           setEventFilter('all');
           const cal = document.getElementById('calendar-grid') || document.getElementById('calendar-month-label');
@@ -3226,14 +3485,33 @@
       });
     });
 
+    // Segmen Mod Kalendar: Mingguan (Lalai) / Bulanan (Pilihan)
+    const btnCalWeekly = document.getElementById('btn-cal-weekly');
+    if (btnCalWeekly) {
+      btnCalWeekly.addEventListener('click', () => {
+        State.calendarMode = 'weekly';
+        renderMonthlyCalendar();
+      });
+    }
+
+    const btnCalMonthly = document.getElementById('btn-cal-monthly');
+    if (btnCalMonthly) {
+      btnCalMonthly.addEventListener('click', () => {
+        State.calendarMode = 'monthly';
+        renderMonthlyCalendar();
+      });
+    }
+
     const btnPrevCal = document.getElementById('btn-prev-cal');
     if (btnPrevCal) {
       btnPrevCal.addEventListener('click', () => {
-        State.calendarMonth--;
-        if (State.calendarMonth < 0) {
-          State.calendarMonth = 11;
-          State.calendarYear--;
+        const cur = new Date(State.calendarDate || new Date());
+        if (State.calendarMode === 'weekly') {
+          cur.setDate(cur.getDate() - 7);
+        } else {
+          cur.setMonth(cur.getMonth() - 1);
         }
+        State.calendarDate = cur;
         renderMonthlyCalendar();
       });
     }
@@ -3241,11 +3519,13 @@
     const btnNextCal = document.getElementById('btn-next-cal');
     if (btnNextCal) {
       btnNextCal.addEventListener('click', () => {
-        State.calendarMonth++;
-        if (State.calendarMonth > 11) {
-          State.calendarMonth = 0;
-          State.calendarYear++;
+        const cur = new Date(State.calendarDate || new Date());
+        if (State.calendarMode === 'weekly') {
+          cur.setDate(cur.getDate() + 7);
+        } else {
+          cur.setMonth(cur.getMonth() + 1);
         }
+        State.calendarDate = cur;
         renderMonthlyCalendar();
       });
     }
@@ -3253,9 +3533,7 @@
     const btnTodayCal = document.getElementById('btn-today-cal');
     if (btnTodayCal) {
       btnTodayCal.addEventListener('click', () => {
-        const today = new Date();
-        State.calendarYear = today.getFullYear();
-        State.calendarMonth = today.getMonth();
+        State.calendarDate = new Date();
         State.selectedCalendarDate = null;
         renderMonthlyCalendar();
         renderHomeView();

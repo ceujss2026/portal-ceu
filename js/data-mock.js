@@ -531,7 +531,7 @@ window.MOCK_DATA = (function () {
       attachment_drive_url: 'https://moe.gov.bn/circulars/agenda_bil1_2026.pdf',
       status: 'Published',
       created_by: 'pegawai.upk@moe.bn',
-      summary: 'Perbincangan hala tuju aktiviti pendidikan kerjaya, takwim pameran kerjaya kebangsaan, dan taklimat biasiswa kerajaan.'
+      summary: 'Perbincangan hala tuju aktiviti pendidikan kerjaya, kalendar pameran kerjaya kebangsaan, dan taklimat biasiswa kerajaan.'
     },
     {
       event_id: 'EVT-2026-002',
@@ -657,9 +657,9 @@ window.MOCK_DATA = (function () {
     },
     {
       doc_id: 'MEMO-2026-03',
-      title_bm: 'Takwim Aktiviti dan Program Bimbingan Kerjaya Kebangsaan Tahun 2026',
+      title_bm: 'Kalendar Aktiviti dan Program Bimbingan Kerjaya Kebangsaan Tahun 2026',
       title_en: 'National Career Guidance Activity & Event Calendar 2026',
-      category: 'Takwim Tahunan',
+      category: 'Kalendar Tahunan',
       ref_no: 'MOE/JSS/UPK/CAL/2026/01',
       publish_date: '2026-01-05',
       size: '850 KB',
@@ -690,9 +690,9 @@ window.MOCK_DATA = (function () {
     },
     {
       notif_id: 'NOTIF-002',
-      title_bm: 'Dokumen Baharu Dimuat Naik: Takwim Program Kerjaya Suku Tahun Kedua',
+      title_bm: 'Dokumen Baharu Dimuat Naik: Kalendar Program Kerjaya Suku Tahun Kedua',
       title_en: 'New Document Uploaded: Q2 Career Guidance Program Calendar',
-      content_bm: 'Takwim program bagi bulan hadapan kini sedia dimuat turun di bahagian Arkib Dokumen.',
+      content_bm: 'Kalendar program bagi bulan hadapan kini sedia dimuat turun di bahagian Arkib Dokumen.',
       content_en: 'The upcoming program calendar is now available for download in the Document Archive.',
       type: 'General',
       sent_at: 'Semalam',

@@ -371,7 +371,7 @@
           <!-- User Greeting & Location Pill Bar -->
           <div class="relative z-10 flex items-center justify-between mb-4">
             <div class="flex flex-col">
-              <span class="font-caption text-[11px] uppercase tracking-wider text-white/80" id="home-greeting-label">Selamat Datang • Guru Pendidikan Kerjaya</span>
+              <span class="font-caption text-[11px] uppercase tracking-wider text-white/80" id="home-greeting-label" data-i18n="counselorGreeting">Selamat Datang • Guru Pendidikan Kerjaya</span>
               <h1 class="font-headline-md text-xl sm:text-2xl font-bold tracking-tight text-white leading-tight" id="home-greeting-name">Cikgu Noraini binti Yusof</h1>
             </div>
             <div class="flex items-center gap-1.5 bg-white/20 backdrop-blur-md px-3 py-1 rounded-full shadow-sm">
@@ -382,21 +382,33 @@
 
           <!-- Calendar Month & Day Selector Strip -->
           <div class="relative z-10">
-            <div class="flex items-center justify-between mb-2">
-              <div class="flex items-center gap-1.5">
-                <span class="material-symbols-outlined text-secondary-container text-base">calendar_month</span>
-                <span id="calendar-month-label" class="font-label-md text-xs sm:text-sm text-white font-bold">Bulan Mac 2026</span>
+            <div class="flex items-center justify-between mb-2 gap-2">
+              <div class="flex items-center gap-1.5 min-w-0">
+                <span class="material-symbols-outlined text-secondary-container text-base shrink-0">calendar_month</span>
+                <span id="calendar-month-label" class="font-label-md text-xs sm:text-sm text-white font-bold truncate">Minggu Ini</span>
               </div>
-              <div class="flex items-center gap-1">
-                <button id="btn-prev-cal" type="button" aria-label="Bulan Lepas" class="w-7 h-7 rounded-full bg-white/15 flex items-center justify-center text-white hover:bg-white/25 active:scale-90 transition-all cursor-pointer">
-                  <span class="material-symbols-outlined text-sm">chevron_left</span>
-                </button>
-                <button id="btn-today-cal" type="button" class="px-2.5 py-0.5 rounded-full bg-white/20 hover:bg-white/30 text-[10px] font-bold text-white transition-all cursor-pointer">
-                  <span data-i18n="currentMonth">Bulan Ini</span>
-                </button>
-                <button id="btn-next-cal" type="button" aria-label="Bulan Seterusnya" class="w-7 h-7 rounded-full bg-white/15 flex items-center justify-center text-white hover:bg-white/25 active:scale-90 transition-all cursor-pointer">
-                  <span class="material-symbols-outlined text-sm">chevron_right</span>
-                </button>
+              <div class="flex items-center gap-1.5 shrink-0">
+                <!-- Opsyen Mod Mingguan / Bulanan -->
+                <div class="flex items-center bg-black/30 backdrop-blur-md p-0.5 rounded-lg border border-white/20">
+                  <button id="btn-cal-weekly" type="button" class="px-2.5 py-0.5 rounded-md text-[10px] font-bold transition-all bg-white text-primary shadow-xs cursor-pointer">
+                    <span data-i18n="calModeWeekly">Mingguan</span>
+                  </button>
+                  <button id="btn-cal-monthly" type="button" class="px-2.5 py-0.5 rounded-md text-[10px] font-semibold text-white/80 hover:text-white transition-all cursor-pointer">
+                    <span data-i18n="calModeMonthly">Bulanan</span>
+                  </button>
+                </div>
+
+                <div class="flex items-center gap-1">
+                  <button id="btn-prev-cal" type="button" aria-label="Sebelumnya" class="w-7 h-7 rounded-full bg-white/15 flex items-center justify-center text-white hover:bg-white/25 active:scale-90 transition-all cursor-pointer">
+                    <span class="material-symbols-outlined text-sm">chevron_left</span>
+                  </button>
+                  <button id="btn-today-cal" type="button" class="px-2.5 py-0.5 rounded-full bg-white/20 hover:bg-white/30 text-[10px] font-bold text-white transition-all cursor-pointer">
+                    <span id="cal-today-btn-text" data-i18n="currentWeek">Minggu Ini</span>
+                  </button>
+                  <button id="btn-next-cal" type="button" aria-label="Seterusnya" class="w-7 h-7 rounded-full bg-white/15 flex items-center justify-center text-white hover:bg-white/25 active:scale-90 transition-all cursor-pointer">
+                    <span class="material-symbols-outlined text-sm">chevron_right</span>
+                  </button>
+                </div>
               </div>
             </div>
 
@@ -490,12 +502,12 @@
               <span class="material-symbols-outlined text-[20px]">support_agent</span>
             </div>
             <div class="flex flex-col min-w-0">
-              <span class="font-label-lg text-xs sm:text-sm font-bold leading-tight truncate">Ada Kekangan Kehadiran?</span>
-              <span class="font-caption text-[11px] text-white/85 truncate">Lantik wakil rasmi bagi pihak sekolah anda</span>
+              <span class="font-label-lg text-xs sm:text-sm font-bold leading-tight truncate" data-i18n="cannotAttendTitle">Ada Kekangan Kehadiran?</span>
+              <span class="font-caption text-[11px] text-white/85 truncate" data-i18n="cannotAttendSub">Lantik pegawai pengganti bagi pihak sekolah Awda</span>
             </div>
           </div>
           <button type="button" onclick="const ev = (State.events||[])[0]; if(ev) openRsvpModal(ev.event_id);" class="bg-surface-container-lowest text-primary px-3.5 py-1.5 rounded-full font-label-md text-xs font-bold shadow-sm active:scale-95 transition-transform shrink-0 cursor-pointer">
-            Lantik
+            <span data-i18n="appointRepBtn">Lantik</span>
           </button>
         </div>
       </div>
@@ -589,8 +601,8 @@
           <button type="button" data-cat="Minit Mesyuarat" data-i18n="catMinutes" class="archive-category-pill px-4 py-1.5 rounded-full bg-surface-container-lowest text-on-surface font-label-md text-xs shadow-sm whitespace-nowrap active:scale-95 transition-transform hover:bg-surface-container-low cursor-pointer">
             Minit Mesyuarat (9)
           </button>
-          <button type="button" data-cat="Takwim Tahunan" data-i18n="catCalendar" class="archive-category-pill px-4 py-1.5 rounded-full bg-surface-container-lowest text-on-surface font-label-md text-xs shadow-sm whitespace-nowrap active:scale-95 transition-transform hover:bg-surface-container-low cursor-pointer">
-            Takwim Kerjaya (8)
+          <button type="button" data-cat="Kalendar Tahunan" data-i18n="catCalendar" class="archive-category-pill px-4 py-1.5 rounded-full bg-surface-container-lowest text-on-surface font-label-md text-xs shadow-sm whitespace-nowrap active:scale-95 transition-transform hover:bg-surface-container-low cursor-pointer">
+            Kalendar Tahunan (8)
           </button>
         </div>
 
@@ -723,22 +735,22 @@
         <div class="bg-surface-container-lowest p-3 rounded-2xl shadow-sm border border-outline-variant/30">
           <span data-i18n="totalTeachersKpi" class="font-body text-[11px] text-on-surface-variant block">Jumlah Guru</span>
           <span id="kpi-total-teachers" class="font-headline text-2xl font-black text-primary block mt-0.5">37</span>
-          <span class="font-body text-[10px] text-primary/80 mt-1 block">4 Daerah Brunei</span>
+          <span data-i18n="sub4Districts" class="font-body text-[10px] text-primary/80 mt-1 block">4 Daerah Brunei</span>
         </div>
         <div class="bg-surface-container-lowest p-3 rounded-2xl shadow-sm border border-outline-variant/30">
           <span data-i18n="rsvpRateKpi" class="font-body text-[11px] text-on-surface-variant block">Kadar Respons RSVP</span>
           <span id="kpi-rsvp-rate" class="font-headline text-2xl font-black text-tertiary block mt-0.5">88%</span>
-          <span class="font-body text-[10px] text-tertiary mt-1 block">Tinggi / Optimum</span>
+          <span data-i18n="subHighOptimum" class="font-body text-[10px] text-tertiary mt-1 block">Tinggi / Optimum</span>
         </div>
         <div class="bg-surface-container-lowest p-3 rounded-2xl shadow-sm border border-outline-variant/30">
           <span data-i18n="attendingKpi" class="font-body text-[11px] text-on-surface-variant block">Hadir Disahkan</span>
           <span id="kpi-attending" class="font-headline text-2xl font-black text-[#15803D] block mt-0.5">30</span>
-          <span class="font-body text-[10px] text-[#15803D] mt-1 block">Pengesahan Fizikal</span>
+          <span data-i18n="subPhysicalVerify" class="font-body text-[10px] text-[#15803D] mt-1 block">Pengesahan Kehadiran</span>
         </div>
         <div class="bg-surface-container-lowest p-3 rounded-2xl shadow-sm border border-outline-variant/30">
           <span data-i18n="repAbsentKpi" class="font-body text-[11px] text-on-surface-variant block">Wakil / Tak Hadir</span>
           <span id="kpi-rep-absent" class="font-headline text-2xl font-black text-[#B91C1C] block mt-0.5">4 / 3</span>
-          <span class="font-body text-[10px] text-on-surface-variant mt-1 block">Dengan Justifikasi</span>
+          <span data-i18n="subWithJustification" class="font-body text-[10px] text-on-surface-variant mt-1 block">Dengan Justifikasi Rasmi</span>
         </div>
       </div>
 
@@ -790,8 +802,8 @@
           <div class="flex items-center gap-2">
             <span class="material-symbols-outlined text-primary text-[22px]">event_note</span>
             <div>
-              <h3 class="font-headline font-bold text-sm text-on-surface">Pengurusan Acara &amp; Draf Program</h3>
-              <p class="text-[11px] text-on-surface-variant">Urus, terbitkan draf, atau padamkan acara rasmi.</p>
+              <h3 data-i18n="adminEventsManagementTitle" class="font-headline font-bold text-sm text-on-surface">Pengurusan Acara &amp; Draf Program</h3>
+              <p data-i18n="adminEventsManagementSubtitle" class="text-[11px] text-on-surface-variant">Urus, terbitkan draf, atau padamkan acara rasmi.</p>
             </div>
           </div>
           <span id="admin-events-total-badge" class="px-2.5 py-0.5 rounded-full bg-secondary-fixed text-on-secondary-fixed-variant text-[11px] font-bold">0 Acara</span>
@@ -860,13 +872,13 @@
         <table class="w-full text-left text-xs border-collapse min-w-[620px]">
           <thead class="bg-surface-container text-on-surface-variant font-headline font-bold border-b border-outline-variant/40">
             <tr>
-              <th class="p-3 text-center w-12">No.</th>
-              <th class="p-3">Nama Guru & Emel</th>
-              <th class="p-3">Sekolah</th>
-              <th class="p-3">Daerah</th>
-              <th class="p-3">Status RSVP</th>
-              <th class="p-3">Catatan / Wakil</th>
-              <th class="p-3 text-center">Tindakan</th>
+              <th class="p-3 text-center w-12" data-i18n="tableColNo">No.</th>
+              <th class="p-3" data-i18n="tableColOfficer">Nama Guru &amp; Emel</th>
+              <th class="p-3" data-i18n="tableColSchool">Sekolah</th>
+              <th class="p-3" data-i18n="tableColDistrict">Daerah</th>
+              <th class="p-3" data-i18n="tableColStatus">Status RSVP</th>
+              <th class="p-3" data-i18n="tableColNotes">Catatan / Wakil</th>
+              <th class="p-3 text-center" data-i18n="tableColActions">Tindakan</th>
             </tr>
           </thead>
           <tbody id="admin-rsvp-table-body">
@@ -916,7 +928,7 @@
             <span class="material-symbols-outlined text-primary text-[18px]">steppers</span>
             Kemajuan Penerbitan
           </span>
-          <span class="font-label-sm text-label-sm text-primary font-bold">Langkah 4 / 4 Siap</span>
+          <span data-i18n="stepProgress" class="font-label-sm text-label-sm text-primary font-bold">Langkah 4 / 4 Siap</span>
         </div>
         <div class="grid grid-cols-4 gap-1.5 mb-2">
           <div class="h-2 rounded-full bg-primary transition-all"></div>
@@ -925,10 +937,10 @@
           <div class="h-2 rounded-full bg-primary-container animate-pulse"></div>
         </div>
         <div class="flex items-center justify-between text-[11px] text-on-surface-variant font-medium px-0.5">
-          <span class="text-primary font-semibold">1. Asas</span>
-          <span class="text-primary font-semibold">2. Lokasi</span>
-          <span class="text-primary font-semibold">3. Sasaran</span>
-          <span class="text-primary font-bold">4. Hebahan</span>
+          <span data-i18n="step1Basic" class="text-primary font-semibold">1. Asas</span>
+          <span data-i18n="step2Location" class="text-primary font-semibold">2. Lokasi</span>
+          <span data-i18n="step3Target" class="text-primary font-semibold">3. Sasaran</span>
+          <span data-i18n="step4Broadcast" class="text-primary font-bold">4. Hebahan</span>
         </div>
       </div>
 
@@ -942,7 +954,7 @@
           <div class="flex items-center justify-between">
             <div class="flex items-center gap-2">
               <span class="w-6 h-6 rounded-full bg-secondary-fixed text-on-secondary-fixed flex items-center justify-center font-label-sm text-xs font-bold">1</span>
-              <h2 class="font-headline text-base font-bold text-on-surface">Maklumat Asas Acara</h2>
+              <h2 data-i18n="adminStep1Title" class="font-headline text-base font-bold text-on-surface">Maklumat Asas Acara</h2>
             </div>
             <span class="material-symbols-outlined text-primary text-[20px]">check_circle</span>
           </div>
@@ -953,7 +965,7 @@
               Tajuk Acara <span class="text-error">*</span>
             </label>
             <input id="event-title-bm" required type="text" value="Mesyuarat Penyelarasan Guru Pendidikan Kerjaya Bil. 2/2026" class="w-full h-11 px-3.5 rounded-lg bg-surface-container-low text-on-surface text-xs font-medium focus:bg-surface-container-lowest focus:outline-none focus:ring-2 focus:ring-primary/40 transition-all border border-outline-variant/40"/>
-            <p class="text-[11px] text-on-surface-variant">Sesuai untuk paparan rasmi di kalendar aktiviti sekolah.</p>
+            <p data-i18n="adminStep1Desc" class="text-[11px] text-on-surface-variant">Sesuai untuk paparan rasmi di kalendar aktiviti sekolah.</p>
           </div>
 
           <!-- Kategori Acara (Mesyuarat, Taklimat, Program, Lawatan, Lain-lain) -->
@@ -1039,7 +1051,7 @@
           <div class="flex items-center justify-between">
             <div class="flex items-center gap-2">
               <span class="w-6 h-6 rounded-full bg-tertiary-fixed text-on-tertiary-fixed flex items-center justify-center font-label-sm text-xs font-bold">2</span>
-              <h2 class="font-headline text-base font-bold text-on-surface">Tarikh &amp; Lokasi</h2>
+              <h2 data-i18n="adminStep2Title" class="font-headline text-base font-bold text-on-surface">Tarikh &amp; Lokasi</h2>
             </div>
             <span class="material-symbols-outlined text-primary text-[20px]">schedule</span>
           </div>
@@ -1390,7 +1402,7 @@
           <div class="flex items-center justify-between">
             <div class="flex items-center gap-2">
               <span class="w-6 h-6 rounded-full bg-secondary-fixed text-on-secondary-fixed flex items-center justify-center font-label-sm text-xs font-bold">4</span>
-              <h2 class="font-headline text-base font-bold text-on-surface">Lampiran &amp; Hebahan FCM</h2>
+              <h2 data-i18n="adminStep4Title" class="font-headline text-base font-bold text-on-surface">Lampiran &amp; Hebahan FCM</h2>
             </div>
             <span class="material-symbols-outlined text-primary text-[20px]">cloud_sync</span>
           </div>
@@ -1474,7 +1486,7 @@
           <div class="flex items-center justify-between">
             <div class="flex items-center gap-2">
               <span class="material-symbols-outlined text-primary text-[22px]">smartphone</span>
-              <h2 class="font-headline text-base font-bold text-on-surface">Pratonton Langsung Guru</h2>
+              <h2 data-i18n="livePreviewTitle" class="font-headline text-base font-bold text-on-surface">Pratonton Langsung Guru</h2>
             </div>
             <span class="text-[10px] font-bold text-primary uppercase tracking-wider bg-primary/10 px-2 py-0.5 rounded-full">FCM Card View</span>
           </div>
@@ -1540,7 +1552,7 @@
             </button>
             <button id="btn-broadcast" type="submit" class="flex-[1.6] h-11 px-4 rounded-full bg-secondary-container hover:bg-secondary-fixed text-on-secondary-container text-xs font-bold flex items-center justify-center gap-2 shadow-[0_6px_16px_rgba(252,183,38,0.35)] transition-all active:scale-[0.98] cursor-pointer">
               <span class="material-symbols-outlined text-[18px]">send</span>
-              <span id="btn-broadcast-text">Terbit &amp; Siar FCM</span>
+              <span id="btn-broadcast-text" data-i18n="publishBroadcastBtn">Terbit &amp; Siar FCM</span>
             </button>
           </div>
         </div>
@@ -1737,10 +1749,10 @@
         <span class="font-caption text-[11px] mt-0.5" data-i18n="navHome">Utama</span>
       </button>
 
-      <!-- Item 2: Takwim (Calendar) -->
-      <button type="button" data-tab="takwim" class="nav-tab-btn flex flex-col items-center justify-center flex-1 h-full py-1 text-on-surface-variant border-t-2 border-transparent hover:text-on-surface cursor-pointer font-medium transition-all">
+      <!-- Item 2: Kalendar (Calendar) -->
+      <button type="button" data-tab="calendar" class="nav-tab-btn flex flex-col items-center justify-center flex-1 h-full py-1 text-on-surface-variant border-t-2 border-transparent hover:text-on-surface cursor-pointer font-medium transition-all">
         <span class="material-symbols-outlined text-[22px]">calendar_month</span>
-        <span class="font-caption text-[11px] mt-0.5" data-i18n="navTakwim">Takwim</span>
+        <span class="font-caption text-[11px] mt-0.5" data-i18n="navCalendar">Kalendar</span>
       </button>
 
       <!-- Item 3: RSVP -->
@@ -1767,8 +1779,8 @@
   </nav>
 
   <!-- Application Logic Scripts -->
-  <script src="js/config.js?v=1.3.4"></script>
-  <script src="js/data-mock.js?v=1.3.4"></script>
-  <script src="js/app.js?v=1.3.6"></script>
+  <script src="js/config.js?v=1.4.1"></script>
+  <script src="js/data-mock.js?v=1.4.1"></script>
+  <script src="js/app.js?v=1.4.1"></script>
 </body>
 </html>
