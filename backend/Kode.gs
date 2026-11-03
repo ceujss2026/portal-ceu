@@ -706,7 +706,7 @@ function handleBoot_(user) {
         email: String(r.email || '').toLowerCase().trim(),
         name: r.full_name || r.name || r.nama || '',
         role: r.role || 'Guru',
-        roleGroup: r.role === 'Admin' ? 'Pegawai UPK' : 'Guru Pendidikan Kerjaya',
+        roleGroup: mapRoleGroup_(r.role),
         district: r.district || r.daerah || 'Brunei-Muara',
         school: r.school_name || r.sekolah || r.school || '',
         phone: r.phone_number || r.phone || '',
@@ -783,6 +783,14 @@ function handleGetEvents_(user) {
         return false;
       }
     }
+
+    if (ev.target_roles) {
+      const roles = String(ev.target_roles).toLowerCase().split(',').map(s => s.trim()).filter(Boolean);
+      const userRole = String(user.role || '').toLowerCase();
+      const roleMatched = roles.some(r => userRole.includes(r) || r.includes(userRole));
+      if (!roleMatched) return false;
+    }
+
     return true;
   });
 
@@ -920,6 +928,17 @@ function handleUpdateProfile_(user, data) {
 // ============================================================================
 
 
+function mapRoleGroup_(role) {
+  if (!role) return 'Guru Pendidikan Kerjaya';
+  const rl = String(role).toLowerCase().trim();
+  if (rl === 'admin') return 'Pegawai UPK';
+  if (rl.includes('pengetua') && !rl.includes('timbalan')) return 'Pengetua';
+  if (rl.includes('timbalan')) return 'Timbalan Pengetua';
+  if (rl.includes('superintenden')) return 'Superintenden';
+  if (rl.includes('guru') || rl.includes('kaunselor') || rl.includes('kerjaya')) return 'Guru Pendidikan Kerjaya';
+  return role;
+}
+
 // Senarai Pengguna Direktori (tbl_users) untuk Admin
 function handleGetUsers_(user) {
   try {
@@ -928,7 +947,7 @@ function handleGetUsers_(user) {
       email: String(r.email || '').toLowerCase().trim(),
       name: r.full_name || r.name || r.nama || '',
       role: r.role || 'Guru',
-      roleGroup: r.role === 'Admin' ? 'Pegawai UPK' : 'Guru Pendidikan Kerjaya',
+      roleGroup: mapRoleGroup_(r.role),
       district: r.district || r.daerah || 'Brunei-Muara',
       school: r.school_name || r.sekolah || r.school || '',
       phone: r.phone_number || r.phone || '',

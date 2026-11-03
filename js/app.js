@@ -393,6 +393,13 @@
       if (dists.length && !dists.includes('semua') && !dists.includes(myDist)) return false;
     }
 
+    if (event.target_roles && Array.isArray(event.target_roles) && event.target_roles.length) {
+      const myRole = String(user.roleGroup || user.role || '').toLowerCase();
+      const roles = event.target_roles.map(r => String(r).toLowerCase());
+      const roleMatched = roles.some(r => myRole.includes(r) || r.includes(myRole));
+      if (!roleMatched) return false;
+    }
+
     return true;
   }
 
