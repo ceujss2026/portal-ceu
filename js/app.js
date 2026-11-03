@@ -1349,7 +1349,7 @@
     }
   }
 
-  function setLanguage(lang) {
+  function setLanguage(lang, isManual = false) {
     State.lang = lang;
     localStorage.setItem('ceu_lang', lang);
 
@@ -1400,7 +1400,7 @@
     }
     if (State.currentView === 'profile') renderProfileView();
 
-    showToast(lang === 'en' ? 'Language switched to English' : 'Bahasa ditukar ke Bahasa Melayu', 'info');
+    if (isManual) { showToast(lang === 'en' ? 'Language switched to English' : 'Bahasa ditukar ke Bahasa Melayu', 'info'); }
   }
 
   // ==========================================================================
@@ -2916,13 +2916,15 @@
     }
   }
 
-  function logout() {
+  function logout(isManual = false) {
     State.token = '';
     State.currentUser = null;
     localStorage.removeItem('ceu_tok');
     localStorage.removeItem('ceu_user');
     setView('auth');
-    showToast(State.lang === 'en' ? 'You have successfully logged out.' : 'Awda telah berjaya log keluar dari Portal CEU.', 'info');
+    if (isManual) {
+      showToast(State.lang === 'en' ? 'You have successfully logged out.' : 'Awda telah berjaya log keluar dari Portal CEU.', 'info');
+    }
   }
 
   async function quickLogin(userKey) {
@@ -3564,8 +3566,8 @@
   // 17. PEMASANGAN EVENT LISTENERS (INIT)
   // ==========================================================================
   function initEvents() {
-    document.querySelectorAll('.lang-btn-bm').forEach(b => b.addEventListener('click', () => setLanguage('bm')));
-    document.querySelectorAll('.lang-btn-en').forEach(b => b.addEventListener('click', () => setLanguage('en')));
+    document.querySelectorAll('.lang-btn-bm').forEach(b => b.addEventListener('click', () => setLanguage('bm', true)));
+    document.querySelectorAll('.lang-btn-en').forEach(b => b.addEventListener('click', () => setLanguage('en', true)));
 
     const tabEmail = document.getElementById('tab-btn-email');
     const tabBio = document.getElementById('tab-btn-biometric');
@@ -3847,7 +3849,7 @@
     }
 
     const btnLogout = document.getElementById('btn-logout');
-    if (btnLogout) btnLogout.addEventListener('click', logout);
+    if (btnLogout) btnLogout.addEventListener('click', () => logout(true));
 
     const bioSettingToggle = document.getElementById('toggle-bio-setting');
     if (bioSettingToggle) {
