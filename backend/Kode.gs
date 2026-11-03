@@ -436,17 +436,17 @@ function dispatchPost_(action, data, token) {
 // 5. BUSINESS LOGIC & ENDPOINT HANDLERS
 // ============================================================================
 
-// Validasi Domain Brunei Rasmi (.moe.bn, .gov.bn, .edu.bn)
+// Validasi Domain Brunei Rasmi (.moe.bn, .gov.bn, .edu.bn, .jpi.bn, edu.moe.bn)
 function isValidOfficialEmail_(email) {
   if (!email || typeof email !== 'string') return false;
   const em = email.toLowerCase().trim();
-  return /^[a-zA-Z0-9._%+-]+@([a-zA-Z0-9.-]+\.)?(moe\.bn|gov\.bn|edu\.bn)$/i.test(em);
+  return /^[a-zA-Z0-9._%+-]+@([a-zA-Z0-9.-]+\.)?(moe\.bn|gov\.bn|edu\.bn|jpi\.bn|edu\.moe\.bn)$/i.test(em);
 }
 
 // Hantar Kod OTP (6 Digit, Sah 10 Minit)
 function handleSendOtp_(email) {
   if (!isValidOfficialEmail_(email)) {
-    return { success: false, message: 'Hanya alamat emel rasmi kementerian/kerajaan (.moe.bn, .gov.bn, .edu.bn) yang dibenarkan.' };
+    return { success: false, message: 'Hanya alamat emel rasmi kementerian/kerajaan (.moe.bn, .gov.bn, .edu.bn, .jpi.bn, edu.moe.bn) yang dibenarkan.' };
   }
 
   const em = email.toLowerCase().trim();
@@ -1105,7 +1105,7 @@ function getPublicConfig_() {
     data: {
       appName: APP_NAME,
       version: APP_VERSION,
-      officialDomains: ['.moe.bn', '.gov.bn', '.edu.bn'],
+      officialDomains: ['moe.edu.bn', 'edu.moe.bn', 'moe.bn', 'gov.bn', 'jpi.bn'],
       districts: ['Brunei-Muara', 'Tutong', 'Belait', 'Temburong']
     }
   };

@@ -24,7 +24,7 @@ window.APP_CONFIG = {
   SESSION_DAYS: 30,
 
   // Domain Emel Rasmi Dibenarkan
-  OFFICIAL_DOMAINS: ['.moe.bn', '.gov.bn', '.edu.bn'],
+  OFFICIAL_DOMAINS: ['moe.edu.bn', 'edu.moe.bn', 'moe.bn', 'gov.bn', 'jpi.bn'],
 
   // Daerah Brunei
   DISTRICTS: ['Brunei-Muara', 'Tutong', 'Belait', 'Temburong']

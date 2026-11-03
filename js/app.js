@@ -31,7 +31,7 @@
       biometricFast: 'Biometrik Pantas',
       officialEmailLabel: 'E-mel Rasmi Pegawai / Kerajaan',
       emailPlaceholder: 'nama.guru@moe.bn',
-      emailDomainNotice: 'Hanya domain <strong>.moe.bn</strong>, <strong>.gov.bn</strong>, atau <strong>.edu.bn</strong> dibenarkan.',
+      emailDomainNotice: 'Diterima: @moe.edu.bn, @edu.moe.bn, @moe.bn, @gov.bn, @jpi.bn',
       sendOtpBtn: 'Hantar Kod OTP Keselamatan',
       verifyOtpTitle: 'Masukkan Kod OTP 6-Digit',
       verifyOtpDesc: 'Kod pengesahan telah dihantar ke emel anda.',
@@ -194,7 +194,7 @@
       biometricFast: 'Fast Biometrics',
       officialEmailLabel: 'Official Government / MOE Email',
       emailPlaceholder: 'teacher.name@moe.bn',
-      emailDomainNotice: 'Only <strong>.moe.bn</strong>, <strong>.gov.bn</strong>, or <strong>.edu.bn</strong> domains are permitted.',
+      emailDomainNotice: 'Accepted: @moe.edu.bn, @edu.moe.bn, @moe.bn, @gov.bn, @jpi.bn',
       sendOtpBtn: 'Send Security OTP Code',
       verifyOtpTitle: 'Enter 6-Digit OTP Code',
       verifyOtpDesc: 'A security verification code has been dispatched to your email.',
@@ -2280,9 +2280,12 @@
       showToast(State.lang === 'en' ? 'Please enter your official email address.' : 'Sila masukkan alamat emel rasmi anda.', 'warning');
       return;
     }
-    const isDomainValid = window.APP_CONFIG.OFFICIAL_DOMAINS.some(d => email.toLowerCase().endsWith(d));
+    const allowedDomains = (window.APP_CONFIG && window.APP_CONFIG.OFFICIAL_DOMAINS) || ['moe.edu.bn', 'edu.moe.bn', 'moe.bn', 'gov.bn', 'jpi.bn'];
+    const emailParts = email.toLowerCase().split('@');
+    const emailDomain = emailParts.length === 2 ? emailParts[1].trim() : '';
+    const isDomainValid = allowedDomains.some(d => emailDomain === d || emailDomain.endsWith('.' + d));
     if (!isDomainValid) {
-      showToast(I18N[State.lang]?.emailDomainNotice || 'Emel rasmi mestilah berakhir dengan @moe.edu.bn, @moe.bn, atau @gov.bn', 'error');
+      showToast(I18N[State.lang]?.emailDomainNotice || 'Emel rasmi mestilah berakhir dengan @moe.edu.bn, @edu.moe.bn, @moe.bn, @gov.bn, atau @jpi.bn', 'error');
       return;
     }
 
