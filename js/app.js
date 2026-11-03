@@ -554,10 +554,10 @@
               latestEvent: targetEvent,
               allEvents: publishedEvents,
               donutData: [
-                { label: 'Hadir', count: attending, color: '#10B981' },
-                { label: 'Mewakilkan', count: representative, color: '#F59E0B' },
-                { label: 'Tidak Hadir', count: absent, color: '#EF4444' },
-                { label: 'Belum Respon', count: pending, color: '#94A3B8' }
+                { label: 'Hadir', count: attending, color: '#2ca0a0' },
+                { label: 'Mewakilkan', count: representative, color: '#fcb726' },
+                { label: 'Tidak Hadir', count: absent, color: '#ba1a1a' },
+                { label: 'Belum Respon', count: pending, color: '#bcc9c8' }
               ],
               districtBreakdown
             }
@@ -1101,7 +1101,7 @@
     const profileLabel = document.getElementById('nav-profile-label');
     const btnProfile = document.getElementById('nav-btn-profile');
     if (profileIcon && profileLabel && btnProfile) {
-      profileIcon.className = 'fa-solid fa-user-gear text-xl mb-1';
+      profileIcon.textContent = 'account_circle';
       profileLabel.textContent = State.lang === 'en' ? 'Profile' : 'Profil';
       btnProfile.dataset.tab = 'profile';
     }
@@ -1121,34 +1121,10 @@
         isActive = State.currentView === 'profile' || State.currentView === 'admin-users';
       }
 
-      const indicator = btn.querySelector('.nav-indicator');
-      const icon = btn.querySelector('i');
-      const span = btn.querySelector('span:not(#bottom-notif-dot)');
-
       if (isActive) {
-        if (indicator) indicator.classList.remove('hidden');
-        btn.classList.add('text-brand-primary');
-        btn.classList.remove('text-slate-700');
-        if (icon) {
-          icon.classList.add('text-brand-primary');
-          icon.classList.remove('text-slate-700');
-        }
-        if (span) {
-          span.classList.add('font-semibold', 'text-brand-primary');
-          span.classList.remove('font-medium', 'text-slate-700');
-        }
+        btn.className = 'nav-tab-btn flex flex-col items-center justify-center min-w-[56px] h-12 px-2 transition-all text-secondary bg-secondary-container/20 rounded-full font-label-md cursor-pointer font-bold';
       } else {
-        if (indicator) indicator.classList.add('hidden');
-        btn.classList.remove('text-brand-primary');
-        btn.classList.add('text-slate-700');
-        if (icon) {
-          icon.classList.remove('text-brand-primary');
-          icon.classList.add('text-slate-700');
-        }
-        if (span) {
-          span.classList.remove('font-semibold', 'text-brand-primary');
-          span.classList.add('font-medium', 'text-slate-700');
-        }
+        btn.className = 'nav-tab-btn relative flex flex-col items-center justify-center min-w-[56px] h-12 px-2 text-on-surface-variant transition-all rounded-full hover:text-on-surface cursor-pointer font-medium';
       }
     });
 
@@ -1157,7 +1133,7 @@
     if (notifDot) {
       let readIds = [];
       try { readIds = JSON.parse(localStorage.getItem('ceu_read_notifs') || '[]'); } catch(e) {}
-      const unreadCount = (State.notifications || []).filter(a => !readIds.includes(a.notif_id)).length;
+      const unreadCount = (State.announcements || []).filter(a => !readIds.includes(a.id)).length;
       notifDot.style.display = unreadCount > 0 ? 'inline-block' : 'none';
     }
   }
@@ -1456,76 +1432,90 @@
       if (userRsvp) {
         const st = (userRsvp.response_status || '').toLowerCase();
         if (st.includes('hadir') && !st.includes('tidak')) {
-          statusBadge = `<span class="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-secondary-container text-on-secondary-container font-label-md text-label-md font-bold"><span class="material-symbols-outlined text-base">verified</span>${I18N[State.lang].badgeAttending}</span>`;
+          statusBadge = `<span class="bg-primary-container text-on-primary px-3 py-1 rounded-full font-label-pill text-[11px] font-bold flex items-center gap-1.5 shadow-sm"><span class="w-1.5 h-1.5 rounded-full bg-white"></span>${I18N[State.lang].badgeAttending}</span>`;
         } else if (st.includes('wakil')) {
-          statusBadge = `<span class="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-surface-container text-on-surface-variant font-label-md text-label-md font-medium"><span class="material-symbols-outlined text-base text-tertiary">swap_horiz</span>${I18N[State.lang].badgeRep}</span>`;
+          statusBadge = `<span class="bg-surface-container-high text-on-surface px-3 py-1 rounded-full font-label-pill text-[11px] font-bold flex items-center gap-1.5"><span class="material-symbols-outlined text-[15px] text-secondary">sync_alt</span>${I18N[State.lang].badgeRep}</span>`;
         } else {
-          statusBadge = `<span class="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-error-container text-on-error-container font-label-md text-label-md font-bold">${I18N[State.lang].badgeAbsent}</span>`;
+          statusBadge = `<span class="bg-error-container text-on-error-container px-3 py-1 rounded-full font-label-pill text-[11px] font-bold">${I18N[State.lang].badgeAbsent}</span>`;
         }
       } else {
-        statusBadge = `<span class="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-tertiary-fixed text-on-tertiary-fixed font-label-md text-label-md font-bold shadow-sm"><span class="material-symbols-outlined text-base">priority_high</span>${I18N[State.lang].badgePending}</span>`;
+        statusBadge = `<span class="bg-secondary-container text-on-secondary-container px-3 py-1 rounded-full font-label-pill text-[11px] font-bold flex items-center gap-1 shadow-sm"><span class="material-symbols-outlined text-[14px]" style="font-variation-settings: 'FILL' 1;">priority_high</span>${I18N[State.lang].badgePending}</span>`;
       }
 
       const title = (State.lang === 'en' && ev.title_en) ? ev.title_en : ev.title_bm;
       return `
-        <div class="bg-surface-container-lowest rounded-xl shadow-md p-space-md relative overflow-hidden transition-all border border-outline-variant/30 flex flex-col gap-space-sm mb-space-sm">
-          <div class="absolute top-0 left-0 right-0 h-1 ${isPending ? 'bg-tertiary' : 'bg-secondary'}"></div>
-          <div class="flex items-start justify-between gap-space-xs pt-1">
-            ${statusBadge}
-            <span class="font-label-sm text-label-sm text-on-surface-variant font-medium flex items-center gap-1">
+        <article class="bg-surface-container-lowest rounded-2xl p-4 shadow-[0_8px_24px_rgba(29,120,120,0.08)] flex flex-col gap-3 relative border border-outline-variant/30 transition-all hover:shadow-md">
+          <!-- Header row of Card -->
+          <div class="flex items-start justify-between gap-2">
+            <div class="flex flex-wrap items-center gap-1.5">
+              ${statusBadge}
+              ${ev.rsvp_deadline && isPending ? `
+                <span class="bg-error-container text-on-error-container px-2.5 py-0.5 rounded-full font-caption text-[10px] font-semibold">
+                  ${I18N[State.lang].deadline}: ${ev.rsvp_deadline.replace('T', ' ')}
+                </span>
+              ` : ''}
+            </div>
+            <span class="font-label-sm text-xs text-on-surface-variant font-medium flex items-center gap-1">
               <span class="material-symbols-outlined text-sm text-primary">event</span>
               ${ev.event_date}
             </span>
           </div>
-          <div>
-            <h2 class="font-headline-sm text-headline-sm font-bold text-on-surface leading-snug">${title}</h2>
-            <span class="font-label-sm text-label-sm text-secondary font-medium mt-0.5 block">${ev.summary || 'Jabatan Sekolah-Sekolah • UPK/2026'}</span>
+
+          <!-- Event Details & Title -->
+          <div class="flex flex-col gap-0.5">
+            <span class="font-caption text-[11px] uppercase tracking-wider text-primary font-bold">
+              ${ev.summary || 'Jabatan Sekolah-Sekolah • Unit CEU'}
+            </span>
+            <h2 class="font-headline-md text-base sm:text-lg font-bold text-on-surface leading-snug">
+              ${title}
+            </h2>
           </div>
-          <div class="bg-surface-container-low rounded-lg p-space-xs flex flex-col gap-1.5 text-on-surface">
+
+          <!-- Schedule Micro-Info Strip (Gaya 16061) -->
+          <div class="grid grid-cols-2 gap-2 bg-surface-container-low p-2.5 rounded-xl text-on-surface text-xs">
             <div class="flex items-center gap-2">
-              <span class="material-symbols-outlined text-primary text-base shrink-0">schedule</span>
-              <span class="font-body-sm text-body-sm font-semibold">${ev.start_time} - ${ev.end_time}</span>
+              <div class="w-7 h-7 rounded-full bg-surface-container-lowest flex items-center justify-center text-primary shadow-xs shrink-0">
+                <span class="material-symbols-outlined text-[16px]">schedule</span>
+              </div>
+              <div class="flex flex-col min-w-0">
+                <span class="font-caption text-[10px] text-on-surface-variant">Masa</span>
+                <span class="font-label-md font-semibold truncate">${ev.start_time} - ${ev.end_time}</span>
+              </div>
             </div>
-            <div class="flex items-center gap-2 text-on-surface-variant">
-              <span class="material-symbols-outlined text-secondary text-base shrink-0">location_on</span>
-              <span class="font-body-sm text-body-sm truncate">${ev.venue || 'Dalam Talian'}</span>
+            <div class="flex items-center gap-2">
+              <div class="w-7 h-7 rounded-full bg-surface-container-lowest flex items-center justify-center text-secondary shadow-xs shrink-0">
+                <span class="material-symbols-outlined text-[16px]">location_on</span>
+              </div>
+              <div class="flex flex-col min-w-0">
+                <span class="font-caption text-[10px] text-on-surface-variant">Lokasi</span>
+                <span class="font-label-md font-semibold truncate">${ev.venue || 'Dalam Talian'}</span>
+              </div>
             </div>
           </div>
-          ${ev.rsvp_deadline && isPending ? `
-            <div class="bg-error-container text-on-error-container p-space-xs rounded-lg flex items-center justify-between">
-              <div class="flex items-center gap-2">
-                <span class="material-symbols-outlined text-error text-lg shrink-0">hourglass_top</span>
-                <div class="flex flex-col">
-                  <span class="font-label-sm text-label-sm font-bold">${I18N[State.lang].deadline}: ${ev.rsvp_deadline.replace('T', ' ')}</span>
-                  <span class="font-body-sm text-body-sm opacity-90">${State.lang === 'en' ? 'Action required immediately' : 'Tindakan segera diperlukan'}</span>
-                </div>
-              </div>
-              <span class="material-symbols-outlined text-error text-lg">alarm</span>
-            </div>
-          ` : ''}
-          <div class="flex flex-col sm:flex-row gap-2 pt-1">
-            <button class="btn-open-rsvp w-full flex-1 bg-primary text-on-primary py-2.5 px-4 rounded-lg font-label-lg text-label-lg font-semibold flex items-center justify-center gap-2 shadow-sm hover:opacity-95 active:scale-[0.98] transition-transform min-h-[44px]" data-id="${ev.event_id}">
-              <span class="material-symbols-outlined text-lg">check_circle</span>
+
+          <!-- Call to Action Controls -->
+          <div class="flex items-center gap-2 pt-1">
+            <button class="btn-open-rsvp flex-1 h-12 bg-secondary-container hover:bg-secondary-fixed text-on-secondary-container rounded-full font-label-lg text-xs sm:text-sm font-bold flex items-center justify-center gap-2 shadow-[0_6px_16px_rgba(252,183,38,0.35)] transition-all active:scale-[0.98] cursor-pointer" data-id="${ev.event_id}">
+              <span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 1;">check_circle</span>
               <span>${userRsvp ? I18N[State.lang].updateRsvpBtn : I18N[State.lang].respondRsvpBtn}</span>
             </button>
             ${ev.meeting_link ? `
-              <a href="${ev.meeting_link}" target="_blank" class="w-full sm:w-auto bg-surface-container-low text-primary py-2.5 px-4 rounded-lg font-label-lg text-label-lg font-semibold flex items-center justify-center gap-1.5 hover:bg-surface-container transition-colors min-h-[44px]">
-                <span class="material-symbols-outlined text-lg">videocam</span>
+              <a href="${ev.meeting_link}" target="_blank" class="h-12 px-4 rounded-full bg-surface-container-high hover:bg-surface-variant text-primary font-bold text-xs sm:text-sm flex items-center justify-center gap-1.5 transition-colors cursor-pointer">
+                <span class="material-symbols-outlined text-[18px]">videocam</span>
                 <span>Meet</span>
               </a>
             ` : ''}
             ${(State.currentUser && State.currentUser.role === 'Admin') ? `
-              <button type="button" class="btn-delete-event w-full sm:w-auto bg-surface-container-low text-error border border-error/30 py-2.5 px-3.5 rounded-lg font-label-md text-xs font-bold flex items-center justify-center gap-1 hover:bg-error hover:text-white transition-all min-h-[44px] cursor-pointer" data-id="${ev.event_id}" title="Padam Acara">
-                <span class="material-symbols-outlined text-base">delete</span>
-                <span>Padam</span>
+              <button type="button" class="btn-delete-event w-12 h-12 rounded-full bg-surface-container-low text-error hover:bg-error hover:text-white flex items-center justify-center transition-all cursor-pointer" data-id="${ev.event_id}" title="Padam Acara">
+                <span class="material-symbols-outlined text-[18px]">delete</span>
               </button>
             ` : ''}
           </div>
-        </div>
+        </article>
       `;
     }).join('');
 
-    container.querySelectorAll('.btn-open-rsvp').forEach(btn => {
+        container.querySelectorAll('.btn-open-rsvp').forEach(btn => {
       btn.addEventListener('click', () => {
         openRsvpModal(btn.dataset.id);
       });
@@ -1706,28 +1696,48 @@
       return;
     }
 
+    const statTotalEl = document.getElementById('stat-total-docs');
+    if (statTotalEl) statTotalEl.textContent = (State.memos || []).length;
+
     container.innerHTML = filtered.map(d => {
       const title = (State.lang === 'en' && d.title_en) ? d.title_en : d.title_bm;
       return `
-        <div class="bg-surface-container-lowest rounded-2xl p-4 shadow-sm border border-outline-variant/40 flex flex-col gap-2.5">
+        <div class="bg-surface-container-lowest rounded-2xl p-4 shadow-sm border border-outline-variant/30 flex flex-col gap-3 hover:shadow-md transition-shadow">
+          <!-- Top Row: Icon node + Status badges -->
           <div class="flex items-start justify-between gap-3">
-            <div class="w-10 h-10 rounded-xl bg-[#FEE2E2] text-[#B91C1C] flex items-center justify-center shrink-0 font-bold font-headline text-xs">
-              PDF
+            <div class="flex items-start gap-3">
+              <div class="w-11 h-11 rounded-xl bg-error-container text-on-error-container flex items-center justify-center shrink-0 shadow-sm">
+                <span class="material-symbols-outlined text-[24px]">picture_as_pdf</span>
+              </div>
+              <div class="flex flex-col">
+                <div class="flex flex-wrap items-center gap-1.5">
+                  <span class="inline-flex items-center px-2.5 py-0.5 rounded-full bg-surface-container-high text-primary font-label-pill text-[10px] font-bold">
+                    ${d.category}
+                  </span>
+                  <span class="inline-flex items-center px-2 py-0.5 rounded-full bg-surface-container-low text-on-surface-variant font-label-pill text-[10px]">
+                    Semua Sekolah
+                  </span>
+                </div>
+                <span class="font-caption text-[11px] text-on-surface-variant mt-1">
+                  Ruj: ${d.ref_no || 'UPK/2026'} • ${d.size || '1.8 MB'}
+                </span>
+              </div>
             </div>
-            <div class="flex-1 min-w-0">
-              <span class="bg-surface-container-high text-on-surface-variant font-headline text-[10px] px-2 py-0.5 rounded-full font-bold">
-                ${d.category}
-              </span>
-              <h4 class="font-headline text-xs font-bold text-on-surface mt-1 leading-snug">${title}</h4>
-              <p class="font-body text-[11px] text-on-surface-variant mt-0.5">${d.ref_no || ''} • ${d.publish_date} • ${d.size || 'PDF'}</p>
-            </div>
+            <span class="font-caption text-[11px] text-on-surface-variant font-medium">${d.publish_date}</span>
           </div>
-          <div class="flex items-center gap-2 pt-2 border-t border-outline-variant/30">
-            <button class="btn-preview-pdf flex-1 h-9 rounded-xl bg-surface-container text-primary font-headline text-xs font-bold flex items-center justify-center gap-1 active:scale-95 transition-transform" data-url="${d.file_view_url}">
+
+          <!-- Title -->
+          <div class="flex flex-col">
+            <h4 class="font-label-lg text-sm font-bold text-on-surface leading-snug">${title}</h4>
+          </div>
+
+          <!-- Action Footer -->
+          <div class="flex items-center gap-2 pt-1 border-t border-outline-variant/20">
+            <button class="btn-preview-pdf flex-1 h-10 rounded-full bg-surface-container-low text-primary font-label-md text-xs font-bold flex items-center justify-center gap-1.5 active:scale-95 transition-transform cursor-pointer" data-url="${d.file_view_url}">
               <span class="material-symbols-outlined text-[18px]">visibility</span>
               <span>${I18N[State.lang].previewDocBtn}</span>
             </button>
-            <a href="${d.file_view_url}" target="_blank" download class="flex-1 h-9 rounded-xl bg-primary text-white font-headline text-xs font-bold flex items-center justify-center gap-1 active:scale-95 transition-transform">
+            <a href="${d.file_view_url}" target="_blank" download class="flex-1 h-10 rounded-full bg-primary-container text-on-primary font-label-md text-xs font-bold flex items-center justify-center gap-1.5 shadow-sm active:scale-95 transition-transform cursor-pointer">
               <span class="material-symbols-outlined text-[18px]">download</span>
               <span>${I18N[State.lang].downloadBtn}</span>
             </a>
@@ -1736,7 +1746,7 @@
       `;
     }).join('');
 
-    container.querySelectorAll('.btn-preview-pdf').forEach(btn => {
+        container.querySelectorAll('.btn-preview-pdf').forEach(btn => {
       btn.addEventListener('click', () => {
         openPdfViewerModal(btn.dataset.url);
       });
@@ -1948,9 +1958,9 @@
             <span class="text-primary">${d.hadir} ${attendLabel} • ${hadirPct}%</span>
           </div>
           <div class="w-full h-3 bg-surface-container rounded-full overflow-hidden flex">
-            <div style="width: ${hadirPct}%" class="bg-[#10B981] h-full" title="Hadir: ${d.hadir}"></div>
-            <div style="width: ${wakilPct}%" class="bg-[#F59E0B] h-full" title="Wakil: ${d.wakil}"></div>
-            <div style="width: ${tidakPct}%" class="bg-[#EF4444] h-full" title="Tidak Hadir: ${d.tidakHadir}"></div>
+            <div style="width: ${hadirPct}%" class="bg-[#2ca0a0] h-full" title="Hadir: ${d.hadir}"></div>
+            <div style="width: ${wakilPct}%" class="bg-[#fcb726] h-full" title="Wakil: ${d.wakil}"></div>
+            <div style="width: ${tidakPct}%" class="bg-[#ba1a1a] h-full" title="Tidak Hadir: ${d.tidakHadir}"></div>
           </div>
         </div>
       `;
