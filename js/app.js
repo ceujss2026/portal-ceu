@@ -359,6 +359,7 @@
     rsvps: [],
     memos: [],
     notifications: [],
+    users: [], // Direktori Guru & Pegawai Rasmi dari Google Sheet (tbl_users)
     adminData: null,
     selectedEventForRsvp: null,
     activeEventFilter: 'all',
@@ -368,6 +369,32 @@
     calendarYear: new Date().getFullYear(),
     calendarMonth: new Date().getMonth()
   };
+
+  // ==========================================================================
+  // HELPER: PENENTUAN JEMPUTAN ACARA (MOD KUMPULAN VS INDIVIDU)
+  // ==========================================================================
+  function isUserInvitedToEvent(event, user) {
+    if (!user) return false;
+    if (user.role === 'Admin') return true;
+    const myEmail = String(user.email || '').toLowerCase().trim();
+    const mode = String(event.target_mode || event.targetMode || 'group').toLowerCase();
+
+    if (mode === 'individual') {
+      const rawList = event.target_emails || event.individualEmails || '';
+      const invited = (Array.isArray(rawList) ? rawList : String(rawList).split(','))
+        .map(s => String(s).toLowerCase().trim())
+        .filter(Boolean);
+      return invited.includes(myEmail);
+    }
+
+    if (event.target_districts && Array.isArray(event.target_districts)) {
+      const myDist = String(user.district || user.daerah || '').toLowerCase().trim();
+      const dists = event.target_districts.map(d => String(d).toLowerCase().trim());
+      if (dists.length && !dists.includes('semua') && !dists.includes(myDist)) return false;
+    }
+
+    return true;
+  }
 
   // ==========================================================================
   // 3. ENJIN REST API & TURBO CACHE (gas-pro-api & gas-scale-turbo)
@@ -424,7 +451,12 @@
     return new Promise(resolve => {
       setTimeout(() => {
         const mock = window.MOCK_DATA;
-        if (action === 'sendOtp') {
+        if (action === 'getUsers') {
+          resolve({
+            success: true,
+            users: (State.users && State.users.length) ? State.users : mock.users
+          });
+        } else if (action === 'sendOtp') {
           resolve({ success: true, message: 'Kod OTP dihantar (Mod Demo: 123456)', email: payload.email });
         } else if (action === 'verifyOtp') {
           const em = (payload.email || '').toLowerCase().trim();
@@ -449,11 +481,14 @@
             user: u
           });
         } else if (action === 'boot') {
+          const cu = State.currentUser || mock.users[1];
+          const visibleEvents = (mock.events || []).filter(e => isUserInvitedToEvent(e, cu));
           resolve({
             success: true,
             data: {
-              user: State.currentUser || mock.users[1],
-              events: mock.events,
+              user: cu,
+              users: (State.users && State.users.length) ? State.users : mock.users,
+              events: visibleEvents,
               rsvp: mock.rsvps,
               notifications: mock.notifications,
               unreadNotifCount: 1,
@@ -461,7 +496,9 @@
             }
           });
         } else if (action === 'getEvents') {
-          resolve({ success: true, data: mock.events });
+          const cu = State.currentUser || mock.users[1];
+          const visibleEvents = (mock.events || []).filter(e => isUserInvitedToEvent(e, cu));
+          resolve({ success: true, data: visibleEvents });
         } else if (action === 'submitRsvp') {
           const userEmail = (State.currentUser && State.currentUser.email) ? State.currentUser.email.toLowerCase() : 'ahmad.bakar@moe.bn';
           if (!mock.rsvps) mock.rsvps = [];
@@ -489,9 +526,7 @@
         } else if (action === 'getMemos') {
           resolve({ success: true, data: mock.memos });
         } else if (action === 'getAdminDashboard') {
-          // Kiraan 100% DINAMIK dari data 37 buah sekolah mengikut 4 daerah rasmi
-          const teachers = (mock.users || []).filter(u => u.roleGroup === 'Guru Pendidikan Kerjaya' || u.role === 'Guru');
-          const totalTeachers = teachers.length;
+          let teachers = (mock.users || []).filter(u => u.roleGroup === 'Guru Pendidikan Kerjaya' || u.role === 'Guru');
           const publishedEvents = (mock.events || []).filter(e => (e.status || 'Published').toLowerCase() !== 'draft');
           const requestedEventId = payload && payload.eventId;
           const targetEvent = (requestedEventId && mock.events.find(e => e.event_id === requestedEventId))
@@ -499,6 +534,17 @@
             || (mock.events && mock.events[0])
             || null;
           const targetEventId = targetEvent ? targetEvent.event_id : '';
+
+          if (targetEvent && String(targetEvent.target_mode || targetEvent.targetMode).toLowerCase() === 'individual') {
+            const raw = targetEvent.target_emails || targetEvent.individualEmails || '';
+            const invitedEmails = (Array.isArray(raw) ? raw : String(raw).split(','))
+              .map(s => String(s).toLowerCase().trim())
+              .filter(Boolean);
+            if (invitedEmails.length) {
+              teachers = teachers.filter(t => invitedEmails.includes(String(t.email).toLowerCase().trim()));
+            }
+          }
+          const totalTeachers = teachers.length;
 
           let attending = 0;
           let representative = 0;
@@ -563,8 +609,7 @@
             }
           });
         } else if (action === 'getAdminRsvpTable') {
-          // Senarai baris RSVP dinamik mengikut jawapan 37 guru bagi 37 buah sekolah
-          const teachers = (mock.users || []).filter(u => u.roleGroup === 'Guru Pendidikan Kerjaya' || u.role === 'Guru');
+          let teachers = (mock.users || []).filter(u => u.roleGroup === 'Guru Pendidikan Kerjaya' || u.role === 'Guru');
           const publishedEvents = (mock.events || []).filter(e => (e.status || 'Published').toLowerCase() !== 'draft');
           const requestedEventId = payload && payload.eventId;
           const targetEvent = (requestedEventId && mock.events.find(e => e.event_id === requestedEventId))
@@ -572,6 +617,17 @@
             || (mock.events && mock.events[0])
             || null;
           const targetEventId = targetEvent ? targetEvent.event_id : '';
+
+          if (targetEvent && String(targetEvent.target_mode || targetEvent.targetMode).toLowerCase() === 'individual') {
+            const raw = targetEvent.target_emails || targetEvent.individualEmails || '';
+            const invitedEmails = (Array.isArray(raw) ? raw : String(raw).split(','))
+              .map(s => String(s).toLowerCase().trim())
+              .filter(Boolean);
+            if (invitedEmails.length) {
+              teachers = teachers.filter(t => invitedEmails.includes(String(t.email).toLowerCase().trim()));
+            }
+          }
+          const totalTeachers = teachers.length;
 
           const rows = teachers.map((u, i) => {
             const userRsvp = (mock.rsvps || []).find(r =>
@@ -611,9 +667,11 @@
             rsvp_deadline: payload.rsvpDeadline,
             status: payload.isDraft ? 'Draft' : 'Published',
             created_by: (State.currentUser && State.currentUser.email) ? State.currentUser.email : 'pegawai.upk@moe.bn',
+            target_mode: payload.targetMode || 'group',
             target_districts: payload.targetDistricts || ['Semua'],
             target_roles: payload.targetRoles || ['Guru Pendidikan Kerjaya'],
-            target_count: payload.targetCount || 37
+            target_emails: payload.individualEmails || [],
+            target_count: payload.targetCount || (payload.individualEmails ? payload.individualEmails.length : 37)
           };
           if (!mock.events) mock.events = [];
           mock.events.unshift(newEvt);
@@ -1150,6 +1208,9 @@
       State.events = res.data.events || [];
       State.rsvps = res.data.rsvp || [];
       State.notifications = res.data.notifications || [];
+      if (res.data.users && Array.isArray(res.data.users)) {
+        State.users = res.data.users;
+      }
 
       const nameEl = document.getElementById('header-user-name');
       const districtEl = document.getElementById('header-district-badge');
@@ -1243,7 +1304,9 @@
     }
 
     const todayDateStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
-    const publishedEvents = (State.events || []).filter(e => (e.status || 'Published').toLowerCase() !== 'draft');
+    const publishedEvents = (State.events || [])
+      .filter(e => (e.status || 'Published').toLowerCase() !== 'draft')
+      .filter(e => isUserInvitedToEvent(e, State.currentUser));
 
     const cells = getMonthCalendarCells(year, month);
     container.innerHTML = cells.map(c => {
@@ -1337,7 +1400,9 @@
     const countMonthEl = document.getElementById('metric-count-month');
     const countAttendedEl = document.getElementById('metric-count-attended');
     const countUrgentEl = document.getElementById('metric-count-urgent');
-    const publishedEvents = (State.events || []).filter(e => (e.status || 'Published').toLowerCase() !== 'draft');
+    const publishedEvents = (State.events || [])
+      .filter(e => (e.status || 'Published').toLowerCase() !== 'draft')
+      .filter(e => isUserInvitedToEvent(e, State.currentUser));
     const totalEventsCount = publishedEvents.length;
     const urgentCount = publishedEvents.filter(e => !myAnsweredIds.includes(e.event_id)).length;
     if (countMonthEl) countMonthEl.textContent = totalEventsCount;
@@ -1845,7 +1910,9 @@
   let _adminSelectedEventId = null;
 
   async function renderAdminDashboardView() {
-    const publishedEvents = (State.events || []).filter(e => (e.status || 'Published').toLowerCase() !== 'draft');
+    const publishedEvents = (State.events || [])
+      .filter(e => (e.status || 'Published').toLowerCase() !== 'draft')
+      .filter(e => isUserInvitedToEvent(e, State.currentUser));
     if (!_adminSelectedEventId && publishedEvents.length > 0) {
       _adminSelectedEventId = publishedEvents[0].event_id;
     }
@@ -2091,7 +2158,9 @@
     const tableBody = document.getElementById('admin-rsvp-table-body');
     if (!tableBody) return;
 
-    const publishedEvents = (State.events || []).filter(e => (e.status || 'Published').toLowerCase() !== 'draft');
+    const publishedEvents = (State.events || [])
+      .filter(e => (e.status || 'Published').toLowerCase() !== 'draft')
+      .filter(e => isUserInvitedToEvent(e, State.currentUser));
     if (!_adminSelectedEventId && publishedEvents.length > 0) {
       _adminSelectedEventId = publishedEvents[0].event_id;
     }
@@ -2638,77 +2707,153 @@
     const btnSelectAllIndividuals = document.getElementById('btn-select-all-filtered-individuals');
     const btnClearAllIndividuals = document.getElementById('btn-clear-all-individuals');
 
-    function renderIndividualOfficers(filterText = '') {
-      if (!listIndividualOfficers) return;
-      const allUsers = (window.MOCK_DATA && window.MOCK_DATA.users) || [];
-      const query = filterText.toLowerCase().trim();
+    const selectedOfficerEmails = new Set();
+    let officerSearchQuery = '';
+    let officerDistrictFilter = 'all';
 
-      const filtered = allUsers.filter(u => {
-        if (!query) return true;
-        const str = `${u.name || ''} ${u.school || ''} ${u.district || ''} ${u.roleGroup || u.role || ''}`.toLowerCase();
-        return str.includes(query);
+    // Muat senarai pengguna rasmi dari Google Sheets (tbl_users) jika Admin
+    if (State.currentUser && State.currentUser.role === 'Admin' && (!State.users || !State.users.length)) {
+      api('getUsers').then(res => {
+        if (res && res.success && res.users && res.users.length) {
+          State.users = res.users;
+          renderIndividualOfficers();
+        }
+      }).catch(err => console.warn('Gagal muat senarai pengguna:', err));
+    }
+
+    function getOfficerUserList() {
+      // Keutamaan 1: Senarai dari Google Sheets (tbl_users)
+      if (State.users && State.users.length > 0) {
+        return State.users.filter(u => u.role !== 'Admin');
+      }
+      // Keutamaan 2: Sandaran simulasi MOCK_DATA
+      if (window.MOCK_DATA && window.MOCK_DATA.users) {
+        return window.MOCK_DATA.users.filter(u => u.role !== 'Admin');
+      }
+      return [];
+    }
+
+    function renderIndividualOfficers() {
+      if (!listIndividualOfficers) return;
+      const allOfficers = getOfficerUserList();
+      const q = officerSearchQuery.toLowerCase().trim();
+
+      const filtered = allOfficers.filter(u => {
+        if (officerDistrictFilter !== 'all') {
+          const uDist = String(u.district || '').toLowerCase();
+          if (uDist !== officerDistrictFilter.toLowerCase()) return false;
+        }
+        if (!q) return true;
+        const str = `${u.name || ''} ${u.school || ''} ${u.district || ''} ${u.email || ''}`.toLowerCase();
+        return str.includes(q);
       });
+
+      const indicator = document.getElementById('officer-count-indicator');
+      if (indicator) {
+        indicator.textContent = `${filtered.length} dijumpai (${allOfficers.length} dalam direktori)`;
+      }
 
       if (!filtered.length) {
         listIndividualOfficers.innerHTML = `
-          <div class="p-4 text-center text-xs text-on-surface-variant font-medium">
-            Tiada pegawai dijumpai untuk carian "${filterText}".
+          <div class="p-6 text-center text-xs text-on-surface-variant font-medium">
+            <span class="material-symbols-outlined text-2xl text-on-surface-variant/60 block mb-1">person_search</span>
+            Tiada guru dijumpai untuk carian atau daerah ini.
           </div>
         `;
         return;
       }
 
       listIndividualOfficers.innerHTML = filtered.map((u, idx) => {
-        const id = 'ind-user-' + idx;
+        const em = String(u.email || '').toLowerCase().trim();
+        const isChecked = selectedOfficerEmails.has(em);
         const initial = (u.name || 'G').charAt(0);
-        const groupLabel = u.roleGroup || (u.role === 'Admin' ? 'Pegawai UPK' : 'Guru Pendidikan Kerjaya');
-        
+        const groupLabel = u.roleGroup || 'Guru Pendidikan Kerjaya';
+        const districtBadge = u.district || 'Brunei-Muara';
+        const schoolName = u.school || 'Sekolah Menengah';
+
         return `
-          <label class="flex items-center gap-2.5 p-2 rounded-lg hover:bg-surface-container cursor-pointer transition-colors">
-            <input type="checkbox" class="individual-officer-check accent-primary w-4 h-4 shrink-0" data-email="${u.email}" data-name="${u.name}" data-district="${u.district || 'Brunei-Muara'}" data-role="${groupLabel}"/>
+          <label class="flex items-center gap-2.5 p-2 rounded-lg hover:bg-surface-container cursor-pointer transition-colors ${isChecked ? 'bg-primary/5 border border-primary/20' : ''}">
+            <input type="checkbox" class="individual-officer-check accent-primary w-4 h-4 shrink-0" data-email="${em}" ${isChecked ? 'checked' : ''}/>
             <div class="w-7 h-7 rounded-full bg-primary/10 text-primary flex items-center justify-center text-xs font-bold shrink-0">
               ${initial}
             </div>
             <div class="min-w-0 flex-1">
               <p class="text-xs font-bold text-on-surface truncate">${u.name}</p>
-              <p class="text-[10px] text-on-surface-variant truncate">${groupLabel} • ${u.school || u.district}</p>
+              <p class="text-[10px] text-on-surface-variant truncate">${schoolName}</p>
+              <p class="text-[9px] text-on-surface-variant/70 truncate font-mono">${em}</p>
             </div>
             <span class="text-[10px] px-1.5 py-0.5 rounded bg-surface-container-high text-on-surface-variant font-semibold shrink-0">
-              ${u.district || 'Daerah'}
+              ${districtBadge}
             </span>
           </label>
         `;
       }).join('');
 
       listIndividualOfficers.querySelectorAll('.individual-officer-check').forEach(ck => {
-        ck.addEventListener('change', calculateTargetRecipients);
+        ck.addEventListener('change', () => {
+          const em = ck.dataset.email;
+          if (ck.checked) {
+            selectedOfficerEmails.add(em);
+          } else {
+            selectedOfficerEmails.delete(em);
+          }
+          calculateTargetRecipients();
+        });
       });
     }
 
     renderIndividualOfficers();
 
+    // Penapis Daerah Pantas
+    document.querySelectorAll('.btn-ind-filter-district').forEach(btn => {
+      btn.addEventListener('click', () => {
+        officerDistrictFilter = btn.dataset.district;
+        document.querySelectorAll('.btn-ind-filter-district').forEach(b => {
+          const isMatch = b.dataset.district === officerDistrictFilter;
+          b.classList.toggle('bg-primary', isMatch);
+          b.classList.toggle('text-white', isMatch);
+          b.classList.toggle('font-bold', isMatch);
+          b.classList.toggle('bg-surface-container-high', !isMatch);
+          b.classList.toggle('text-on-surface-variant', !isMatch);
+          b.classList.toggle('font-semibold', !isMatch);
+        });
+        renderIndividualOfficers();
+      });
+    });
+
     if (searchIndividualInput) {
       searchIndividualInput.addEventListener('input', e => {
-        renderIndividualOfficers(e.target.value);
+        officerSearchQuery = e.target.value;
+        renderIndividualOfficers();
       });
     }
 
     if (btnSelectAllIndividuals) {
       btnSelectAllIndividuals.addEventListener('click', () => {
-        if (!listIndividualOfficers) return;
-        listIndividualOfficers.querySelectorAll('.individual-officer-check').forEach(ck => {
-          ck.checked = true;
+        const allOfficers = getOfficerUserList();
+        const q = officerSearchQuery.toLowerCase().trim();
+        const filtered = allOfficers.filter(u => {
+          if (officerDistrictFilter !== 'all') {
+            const uDist = String(u.district || '').toLowerCase();
+            if (uDist !== officerDistrictFilter.toLowerCase()) return false;
+          }
+          if (!q) return true;
+          const str = `${u.name || ''} ${u.school || ''} ${u.district || ''} ${u.email || ''}`.toLowerCase();
+          return str.includes(q);
         });
+
+        filtered.forEach(u => {
+          if (u.email) selectedOfficerEmails.add(String(u.email).toLowerCase().trim());
+        });
+        renderIndividualOfficers();
         calculateTargetRecipients();
       });
     }
 
     if (btnClearAllIndividuals) {
       btnClearAllIndividuals.addEventListener('click', () => {
-        if (!listIndividualOfficers) return;
-        listIndividualOfficers.querySelectorAll('.individual-officer-check').forEach(ck => {
-          ck.checked = false;
-        });
+        selectedOfficerEmails.clear();
+        renderIndividualOfficers();
         calculateTargetRecipients();
       });
     }
@@ -2746,8 +2891,7 @@
         }
       } else {
         // Mod Individu
-        const checkedInds = document.querySelectorAll('.individual-officer-check:checked');
-        finalCount = checkedInds.length;
+        finalCount = selectedOfficerEmails.size;
         targetSummary = `${finalCount} Pegawai Dipilih`;
 
         if (individualSelectedBadge) {
@@ -2797,7 +2941,8 @@
         const endTime = inputEndTime ? inputEndTime.value : '12:00';
         const venue = inputVenue ? inputVenue.value.trim() : '';
         const deadline = inputDeadline ? inputDeadline.value : '';
-        const { finalCount } = calculateTargetRecipients();
+        const { finalCount, currentTargetMode } = calculateTargetRecipients();
+        const individualEmails = currentTargetMode === 'individual' ? Array.from(selectedOfficerEmails) : [];
 
         showToast(State.lang === 'en' ? 'Saving event draft...' : 'Menyimpan draf acara...', 'info');
         const res = await api('saveEvent', {
@@ -2810,7 +2955,9 @@
           endTime,
           venue,
           rsvpDeadline: deadline,
-          targetCount: finalCount
+          targetMode: currentTargetMode,
+          individualEmails: individualEmails,
+          targetCount: currentTargetMode === 'individual' ? selectedOfficerEmails.size : finalCount
         });
 
         if (res && res.success) {
@@ -2859,9 +3006,11 @@
           if (roleDeputyPrincipals && roleDeputyPrincipals.checked) targetRolesList.push('Timbalan Pengetua');
           if (roleSuperintendents && roleSuperintendents.checked) targetRolesList.push('Superintenden 1 hingga 3');
         } else {
-          document.querySelectorAll('.individual-officer-check:checked').forEach(ck => {
-            individualEmails.push(ck.dataset.email);
-          });
+          if (selectedOfficerEmails.size === 0) {
+            showToast('Sila tandakan sekurang-kurangnya seorang Guru Pendidikan Kerjaya yang ingin dijemput.', 'warning');
+            return;
+          }
+          individualEmails = Array.from(selectedOfficerEmails);
         }
 
         if (!titleBm || !date) {

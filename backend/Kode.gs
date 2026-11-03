@@ -408,6 +408,9 @@ function dispatchPost_(action, data, token) {
       return handleUpdateProfile_(user, data);
 
     // Rute Khusus Admin
+    case 'getUsers':
+      if (user.role !== 'Admin') return { success: false, message: 'Capaian ditolak.' };
+      return handleGetUsers_(user);
     case 'getAdminDashboard':
       if (user.role !== 'Admin') return { success: false, message: 'Capaian ditolak: Peranan Admin diperlukan.' };
       return handleGetAdminDashboard_(user);
@@ -696,6 +699,21 @@ function handleBoot_(user) {
   const cached = CacheX.get(cacheKey);
   if (cached) return { success: true, data: cached, cached: true };
 
+  let userList = [];
+  if (user.role === 'Admin') {
+    try {
+      userList = readSheetAsObjects_(CONFIG.SHEET_NAMES.users).map(r => ({
+        email: String(r.email || '').toLowerCase().trim(),
+        name: r.full_name || r.name || r.nama || '',
+        role: r.role || 'Guru',
+        roleGroup: r.role === 'Admin' ? 'Pegawai UPK' : 'Guru Pendidikan Kerjaya',
+        district: r.district || r.daerah || 'Brunei-Muara',
+        school: r.school_name || r.sekolah || r.school || '',
+        phone: r.phone_number || r.phone || '',
+        status: r.account_status || r.status || 'Active'
+      }));
+    } catch(e) {}
+  }
   const allEvents = handleGetEvents_(user).data || [];
   const rsvpList = readSheetAsObjects_(CONFIG.SHEET_NAMES.rsvp)
     .filter(r => String(r.user_email).toLowerCase().trim() === user.email);
@@ -711,6 +729,7 @@ function handleBoot_(user) {
       district: user.daerah,
       school: user.sekolah
     },
+    users: userList,
     events: allEvents,
     rsvp: rsvpList,
     notifications: notifList,
@@ -726,17 +745,48 @@ function handleBoot_(user) {
   return { success: true, data: data, cached: false };
 }
 
-// Senarai Program / Acara
+// Senarai Program / Acara (Dengan Penapisan Jemputan Sasaran)
 function handleGetEvents_(user) {
   const cached = CacheX.get('events_list');
-  if (cached) return { success: true, data: cached };
+  let rows = cached;
+  if (!rows) {
+    rows = readSheetAsObjects_(CONFIG.SHEET_NAMES.events);
+    rows.sort((a, b) => new Date(b.event_date) - new Date(a.event_date));
+    CacheX.put('events_list', rows, 1800);
+  }
 
-  const rows = readSheetAsObjects_(CONFIG.SHEET_NAMES.events);
-  // Isih mengikut tarikh terkini
-  rows.sort((a, b) => new Date(b.event_date) - new Date(a.event_date));
+  // Pentadbir melihat semua program
+  if (user && user.role === 'Admin') {
+    return { success: true, data: rows };
+  }
 
-  CacheX.put('events_list', rows, 1800);
-  return { success: true, data: rows };
+  // Untuk Guru biasa: tapis hanya program yang mereka dijemput
+  const userEmail = (user && user.email) ? String(user.email).toLowerCase().trim() : '';
+  const userDistrict = (user && (user.daerah || user.district)) ? String(user.daerah || user.district).toLowerCase().trim() : '';
+
+  const filtered = rows.filter(ev => {
+    if (String(ev.status || 'Published').toLowerCase() === 'draft') return false;
+
+    const mode = String(ev.target_mode || 'group').toLowerCase();
+    if (mode === 'individual') {
+      const invited = String(ev.target_emails || '')
+        .toLowerCase()
+        .split(',')
+        .map(s => s.trim())
+        .filter(Boolean);
+      return invited.includes(userEmail);
+    }
+
+    if (ev.target_districts) {
+      const dists = String(ev.target_districts).toLowerCase().split(',').map(s => s.trim()).filter(Boolean);
+      if (dists.length && !dists.includes('semua') && !dists.includes(userDistrict)) {
+        return false;
+      }
+    }
+    return true;
+  });
+
+  return { success: true, data: filtered };
 }
 
 // Penyerahan RSVP (Hadir / Mewakilkan / Tidak Hadir)
@@ -869,6 +919,27 @@ function handleUpdateProfile_(user, data) {
 // 6. KHUSUS PENTADBIR (ADMIN ENDPOINTS)
 // ============================================================================
 
+
+// Senarai Pengguna Direktori (tbl_users) untuk Admin
+function handleGetUsers_(user) {
+  try {
+    const rows = readSheetAsObjects_(CONFIG.SHEET_NAMES.users);
+    const users = rows.map(r => ({
+      email: String(r.email || '').toLowerCase().trim(),
+      name: r.full_name || r.name || r.nama || '',
+      role: r.role || 'Guru',
+      roleGroup: r.role === 'Admin' ? 'Pegawai UPK' : 'Guru Pendidikan Kerjaya',
+      district: r.district || r.daerah || 'Brunei-Muara',
+      school: r.school_name || r.sekolah || r.school || '',
+      phone: r.phone_number || r.phone || '',
+      status: r.account_status || r.status || 'Active'
+    }));
+    return { success: true, users: users };
+  } catch (err) {
+    return { success: false, message: 'Gagal memuat senarai pengguna: ' + err.toString() };
+  }
+}
+
 // Papan Pemuka Admin (Ringkasan KPI & Analisis Daerah)
 function handleGetAdminDashboard_(user) {
   const cached = CacheX.get('admin_dashboard');
@@ -876,10 +947,16 @@ function handleGetAdminDashboard_(user) {
 
   const users = readSheetAsObjects_(CONFIG.SHEET_NAMES.users);
   const teachers = users.filter(u => u.role !== 'Admin');
-  const totalTeachers = teachers.length;
-
   const events = readSheetAsObjects_(CONFIG.SHEET_NAMES.events);
   const latestEvent = events[0] || null;
+
+  // Jika acara adalah sasaran individu terpilih, gunakan sasaran guru tersebut
+  let targetTeachers = teachers;
+  if (latestEvent && String(latestEvent.target_mode).toLowerCase() === 'individual' && latestEvent.target_emails) {
+    const invitedEmails = String(latestEvent.target_emails).toLowerCase().split(',').map(s => s.trim()).filter(Boolean);
+    targetTeachers = teachers.filter(t => invitedEmails.includes(String(t.email).toLowerCase().trim()));
+  }
+  const totalTeachers = targetTeachers.length;
 
   let rsvpRate = 0, attending = 0, rep = 0, absent = 0, pending = totalTeachers;
   let districtBreakdown = {
@@ -889,7 +966,7 @@ function handleGetAdminDashboard_(user) {
     'Temburong': { total: 0, hadir: 0, wakil: 0, tidakHadir: 0 }
   };
 
-  teachers.forEach(t => {
+  targetTeachers.forEach(t => {
     const d = t.district || 'Brunei-Muara';
     if (districtBreakdown[d]) districtBreakdown[d].total++;
   });
@@ -900,7 +977,8 @@ function handleGetAdminDashboard_(user) {
 
     rsvps.forEach(r => {
       const st = String(r.response_status || '').toLowerCase();
-      const u = teachers.find(t => String(t.email).toLowerCase() === String(r.user_email).toLowerCase());
+      const u = targetTeachers.find(t => String(t.email).toLowerCase() === String(r.user_email).toLowerCase());
+      if (!u) return; // Hanya kira bagi guru yang dijemput
       const d = (u && u.district) || 'Brunei-Muara';
 
       if (st.includes('hadir') && !st.includes('tidak')) {
@@ -948,6 +1026,13 @@ function handleGetAdminRsvpTable_(user, eventId) {
   const users = readSheetAsObjects_(CONFIG.SHEET_NAMES.users).filter(u => u.role !== 'Admin');
   const events = readSheetAsObjects_(CONFIG.SHEET_NAMES.events);
   const targetEventId = eventId || (events[0] ? events[0].event_id : '');
+  const targetEvent = events.find(e => String(e.event_id) === String(targetEventId)) || events[0];
+
+  let targetTeachers = users;
+  if (targetEvent && String(targetEvent.target_mode).toLowerCase() === 'individual' && targetEvent.target_emails) {
+    const invitedEmails = String(targetEvent.target_emails).toLowerCase().split(',').map(s => s.trim()).filter(Boolean);
+    targetTeachers = users.filter(u => invitedEmails.includes(String(u.email).toLowerCase().trim()));
+  }
 
   const rsvps = readSheetAsObjects_(CONFIG.SHEET_NAMES.rsvp)
     .filter(r => String(r.event_id) === String(targetEventId));
@@ -957,7 +1042,7 @@ function handleGetAdminRsvpTable_(user, eventId) {
     rsvpMap[String(r.user_email).toLowerCase().trim()] = r;
   });
 
-  const tableData = users.map((u, idx) => {
+  const tableData = targetTeachers.map((u, idx) => {
     const em = String(u.email).toLowerCase().trim();
     const r = rsvpMap[em];
     return {
@@ -987,42 +1072,67 @@ function handleSaveEvent_(user, data) {
   const sh = getSheet_(CONFIG.SHEET_NAMES.events);
   const eventId = data.eventId || ('EVT-' + new Date().getFullYear() + '-' + acak_(4, '0123456789'));
 
-  const row = [
-    eventId,
-    data.titleBm || '',
-    data.titleEn || '',
-    data.eventDate || '',
-    data.startTime || '',
-    data.endTime || '',
-    data.venue || '',
-    data.meetingLink || '',
-    data.rsvpDeadline || '',
-    data.attachmentUrl || '',
-    data.status || 'Published',
-    user.email,
-    new Date().toISOString()
-  ];
+  // Pastikan lajur penentuan sasaran wujud dalam tbl_events
+  const lastCol = Math.max(1, sh.getLastColumn());
+  const headerRange = sh.getRange(1, 1, 1, lastCol);
+  const headers = headerRange.getValues()[0].map(String);
+  const extraCols = ['target_mode', 'target_roles', 'target_emails', 'target_count'];
+  let colCount = headers.length;
+  extraCols.forEach(col => {
+    if (headers.indexOf(col) === -1) {
+      colCount++;
+      sh.getRange(1, colCount).setValue(col);
+      headers.push(col);
+    }
+  });
 
-  sh.appendRow(row);
+  const rowObj = {
+    event_id: eventId,
+    title_bm: data.titleBm || '',
+    title_en: data.titleEn || data.titleBm || '',
+    event_date: data.eventDate || '',
+    start_time: data.startTime || '',
+    end_time: data.endTime || '',
+    venue: data.venue || '',
+    meeting_link: data.meetingLink || '',
+    rsvp_deadline: data.rsvpDeadline || '',
+    attachment_drive_url: data.driveUrl || data.attachmentUrl || '',
+    status: data.isDraft ? 'Draft' : (data.status || 'Published'),
+    created_by: user.email,
+    created_at: new Date().toISOString(),
+    target_mode: data.targetMode || 'group',
+    target_roles: Array.isArray(data.targetRoles) ? data.targetRoles.join(', ') : (data.targetRoles || ''),
+    target_emails: Array.isArray(data.individualEmails) ? data.individualEmails.join(', ') : (data.individualEmails || ''),
+    target_count: data.targetCount || (data.individualEmails ? data.individualEmails.length : 0)
+  };
+
+  const newRow = headers.map(h => rowObj[h] !== undefined ? rowObj[h] : '');
+  sh.appendRow(newRow);
+
   bump('global');
   CacheX.remove('events_list');
   CacheX.remove('admin_dashboard');
 
-  // Hantar Hebahan automatik ke senarai notifikasi
-  try {
-    const shNotif = getSheet_(CONFIG.SHEET_NAMES.notif);
-    shNotif.appendRow([
-      'NOTIF-' + Utilities.getUuid().slice(0, 8),
-      'Program Baharu: ' + (data.titleBm || ''),
-      'New Event: ' + (data.titleEn || ''),
-      'Sila buat pengesahan RSVP sebelum ' + (data.rsvpDeadline || 'tarikh tutup'),
-      'Please submit your RSVP prior to ' + (data.rsvpDeadline || 'deadline'),
-      'Urgent',
-      new Date().toISOString(),
-      user.email,
-      'Broadcast'
-    ]);
-  } catch(e) {}
+  // Hantar Hebahan automatik ke senarai notifikasi jika diterbitkan
+  if (!data.isDraft) {
+    try {
+      const shNotif = getSheet_(CONFIG.SHEET_NAMES.notif);
+      const targetSummary = (data.targetMode === 'individual')
+        ? (Array.isArray(data.individualEmails) ? data.individualEmails.join(', ') : data.individualEmails)
+        : 'Broadcast';
+      shNotif.appendRow([
+        'NOTIF-' + Utilities.getUuid().slice(0, 8),
+        'Program Baharu: ' + (data.titleBm || ''),
+        'New Event: ' + (data.titleEn || ''),
+        'Sila buat pengesahan RSVP sebelum ' + (data.rsvpDeadline || 'tarikh tutup'),
+        'Please submit your RSVP prior to ' + (data.rsvpDeadline || 'deadline'),
+        'Urgent',
+        new Date().toISOString(),
+        user.email,
+        targetSummary
+      ]);
+    } catch(e) {}
+  }
 
   return { success: true, message: 'Acara ' + eventId + ' berjaya diterbitkan.', eventId: eventId };
 }
