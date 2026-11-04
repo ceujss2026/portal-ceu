@@ -393,6 +393,9 @@
 
       <!-- Main Scrollable Body Content -->
       <div class="px-4 max-w-md sm:max-w-xl md:max-w-2xl mx-auto w-full flex flex-col gap-4 -mt-5 z-20 min-w-0">
+        <!-- Banner Acara Esok / Hari Ini (Dinamik Pintar) -->
+        <div id="home-tomorrow-banner-container" class="hidden"></div>
+
         <!-- Quick Metric Summary Bento Cards (Gaya 16061) -->
         <section class="grid grid-cols-3 gap-2 sm:gap-3">
           <!-- Metric 1: Program Bulan Ini -->
@@ -1266,13 +1269,19 @@
             </div>
           </div>
 
-          <!-- Filter Status RSVP Pills with Vibrant Colors -->
-          <div class="flex items-center gap-1.5 overflow-x-auto pb-0.5" id="admin-rsvp-status-filter-pills">
-            <button type="button" class="admin-rsvp-status-btn px-3 py-1.5 rounded-full text-xs font-bold bg-primary text-white shadow-sm cursor-pointer transition-all whitespace-nowrap" data-status="all">Semua (<span id="rsvp-filter-count-all">0</span>)</button>
-            <button type="button" class="admin-rsvp-status-btn px-3 py-1.5 rounded-full text-xs font-bold bg-surface-container text-on-surface-variant hover:text-emerald-700 cursor-pointer transition-all whitespace-nowrap" data-status="hadir">Hadir (<span id="rsvp-filter-count-hadir">0</span>)</button>
-            <button type="button" class="admin-rsvp-status-btn px-3 py-1.5 rounded-full text-xs font-bold bg-surface-container text-on-surface-variant hover:text-amber-700 cursor-pointer transition-all whitespace-nowrap" data-status="wakil">Wakil (<span id="rsvp-filter-count-wakil">0</span>)</button>
-            <button type="button" class="admin-rsvp-status-btn px-3 py-1.5 rounded-full text-xs font-bold bg-surface-container text-on-surface-variant hover:text-rose-700 cursor-pointer transition-all whitespace-nowrap" data-status="tidakhadir">Tak Hadir (<span id="rsvp-filter-count-tidak">0</span>)</button>
-            <button type="button" class="admin-rsvp-status-btn px-3 py-1.5 rounded-full text-xs font-bold bg-surface-container text-on-surface-variant hover:text-slate-700 cursor-pointer transition-all whitespace-nowrap" data-status="belum">Belum Jawab (<span id="rsvp-filter-count-belum">0</span>)</button>
+          <!-- Filter Status RSVP Pills with Vibrant Colors & Broadcast Tomorrow Action -->
+          <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2 pt-1 border-t border-outline-variant/30">
+            <div class="flex items-center gap-1.5 overflow-x-auto pb-0.5" id="admin-rsvp-status-filter-pills">
+              <button type="button" class="admin-rsvp-status-btn px-3 py-1.5 rounded-full text-xs font-bold bg-primary text-white shadow-sm cursor-pointer transition-all whitespace-nowrap" data-status="all">Semua (<span id="rsvp-filter-count-all">0</span>)</button>
+              <button type="button" class="admin-rsvp-status-btn px-3 py-1.5 rounded-full text-xs font-bold bg-surface-container text-on-surface-variant hover:text-emerald-700 cursor-pointer transition-all whitespace-nowrap" data-status="hadir">Hadir (<span id="rsvp-filter-count-hadir">0</span>)</button>
+              <button type="button" class="admin-rsvp-status-btn px-3 py-1.5 rounded-full text-xs font-bold bg-surface-container text-on-surface-variant hover:text-amber-700 cursor-pointer transition-all whitespace-nowrap" data-status="wakil">Wakil (<span id="rsvp-filter-count-wakil">0</span>)</button>
+              <button type="button" class="admin-rsvp-status-btn px-3 py-1.5 rounded-full text-xs font-bold bg-surface-container text-on-surface-variant hover:text-rose-700 cursor-pointer transition-all whitespace-nowrap" data-status="tidakhadir">Tak Hadir (<span id="rsvp-filter-count-tidak">0</span>)</button>
+              <button type="button" class="admin-rsvp-status-btn px-3 py-1.5 rounded-full text-xs font-bold bg-surface-container text-on-surface-variant hover:text-slate-700 cursor-pointer transition-all whitespace-nowrap" data-status="belum">Belum Jawab (<span id="rsvp-filter-count-belum">0</span>)</button>
+            </div>
+            <button id="btn-admin-broadcast-tomorrow-reminder" type="button" class="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-headline text-xs font-bold shadow-sm active:scale-95 transition-all flex items-center justify-center gap-1.5 shrink-0 cursor-pointer">
+              <span class="material-symbols-outlined text-sm">notification_important</span>
+              <span>Kirim Peringatan Esok (H-1)</span>
+            </button>
           </div>
         </div>
 
@@ -2172,8 +2181,8 @@
   </nav>
 
   <!-- Application Logic Scripts -->
-  <script src="js/config.js?v=1.7.5"></script>
-  <script src="js/data-mock.js?v=1.7.5"></script>
-  <script src="js/app.js?v=1.7.5"></script>
+  <script src="js/config.js?v=1.7.6"></script>
+  <script src="js/data-mock.js?v=1.7.6"></script>
+  <script src="js/app.js?v=1.7.6"></script>
 </body>
 </html>

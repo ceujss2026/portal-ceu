@@ -1841,7 +1841,52 @@
     const user = State.currentUser;
     const myEmail = user ? String(user.email || '').toLowerCase().trim() : '';
 
-    // Semak program yang memerlukan RSVP dan pengguna belum memberi maklum balas
+    const now = new Date();
+    const todayYMD = normalizeDateISOToYMD(now);
+    const tomorrow = new Date(now);
+    tomorrow.setDate(now.getDate() + 1);
+    const tomorrowYMD = normalizeDateISOToYMD(tomorrow);
+
+    // 1. Acara yang berlangsung ESOK atau HARI INI (Peringatan Kehadiran H-1 & H-0)
+    const upcomingTomorrowEvents = (State.events || [])
+      .filter(e => (e.status || 'Published').toLowerCase() !== 'draft')
+      .filter(e => isUserInvitedToEvent(e, user))
+      .filter(e => {
+        const evDate = normalizeDateISOToYMD(e.event_date);
+        return evDate === tomorrowYMD || evDate === todayYMD;
+      })
+      .filter(e => {
+        // Tapis jika guru telah menjawab "Tidak Hadir"
+        const userRsvp = (State.rsvps || []).find(r => r.event_id === e.event_id && String(r.user_email || '').toLowerCase().trim() === myEmail);
+        if (userRsvp) {
+          const resp = String(userRsvp.response_status || '').toLowerCase();
+          if (resp.includes('tidak')) return false;
+        }
+        return true;
+      });
+
+    const tomorrowNotifs = upcomingTomorrowEvents.map(e => {
+      const isToday = normalizeDateISOToYMD(e.event_date) === todayYMD;
+      const eventTitle = (State.lang === 'en' && e.title_en) ? e.title_en : (e.title_bm || e.title || 'Program Kerjaya');
+      const eventDate = formatEventDateClean(e.event_date);
+      const timeStr = formatTime12H(e.start_time);
+      const labelWhen = isToday ? (State.lang === 'en' ? 'Today' : 'Hari Ini') : (State.lang === 'en' ? 'Tomorrow' : 'Esok');
+
+      return {
+        notif_id: 'TOMORROW-' + e.event_id,
+        eventId: e.event_id,
+        isTomorrowReminder: true,
+        title_bm: '🔔 Peringatan Kehadiran (' + labelWhen + '): ' + (e.title_bm || e.title || eventTitle),
+        title_en: '🔔 Attendance Reminder (' + labelWhen + '): ' + (e.title_en || e.title_bm || eventTitle),
+        content_bm: 'Program "' + eventTitle + '" akan berlangsung ' + labelWhen.toLowerCase() + ' (' + eventDate + ') pada jam ' + timeStr + ' di ' + (e.venue || 'Dewan Persidangan JSS') + '. Sila hadir tepat pada masanya.',
+        content_en: 'Event "' + eventTitle + '" will take place ' + labelWhen.toLowerCase() + ' (' + eventDate + ') at ' + timeStr + ' at ' + (e.venue || 'JSS Conference Hall') + '. Please attend promptly.',
+        type: 'Urgent',
+        sent_at: labelWhen,
+        is_read: false
+      };
+    });
+
+    // 2. Semak program yang memerlukan RSVP dan pengguna belum memberi maklum balas
     const pendingEvents = (State.events || [])
       .filter(e => (e.status || 'Published').toLowerCase() !== 'draft')
       .filter(e => isUserInvitedToEvent(e, user))
@@ -1873,10 +1918,10 @@
       };
     });
 
-    const existingIds = new Set(reminderNotifs.map(r => r.notif_id));
-    const otherNotifs = rawNotifs.filter(n => !existingIds.has(n.notif_id));
+    const dynamicIds = new Set([...tomorrowNotifs.map(r => r.notif_id), ...reminderNotifs.map(r => r.notif_id)]);
+    const otherNotifs = rawNotifs.filter(n => !dynamicIds.has(n.notif_id));
 
-    return [...reminderNotifs, ...otherNotifs];
+    return [...tomorrowNotifs, ...reminderNotifs, ...otherNotifs];
   }
 
   function updateNotifBadge() {
@@ -2311,6 +2356,64 @@
     if (countMonthEl) countMonthEl.textContent = totalEventsCount;
     if (countAttendedEl) countAttendedEl.textContent = myAttendedIds.length;
     if (countUrgentEl) countUrgentEl.textContent = urgentCount;
+
+    // Paparkan Banner Peringatan Acara Esok / Hari Ini jika ada program terdekat
+    const tomorrowBannerContainer = document.getElementById('home-tomorrow-banner-container');
+    if (tomorrowBannerContainer) {
+      const now = new Date();
+      const todayYMD = normalizeDateISOToYMD(now);
+      const tomorrow = new Date(now);
+      tomorrow.setDate(now.getDate() + 1);
+      const tomorrowYMD = normalizeDateISOToYMD(tomorrow);
+
+      const targetEv = publishedEvents.find(e => {
+        const d = normalizeDateISOToYMD(e.event_date);
+        return d === tomorrowYMD || d === todayYMD;
+      });
+
+      if (targetEv) {
+        const d = normalizeDateISOToYMD(targetEv.event_date);
+        const isToday = (d === todayYMD);
+        const title = (State.lang === 'en' && targetEv.title_en) ? targetEv.title_en : (targetEv.title_bm || targetEv.title || 'Program Kerjaya');
+        const timeStr = formatTime12H(targetEv.start_time);
+        const venue = targetEv.venue || 'Dewan Persidangan JSS';
+        const labelTag = isToday 
+          ? (State.lang === 'en' ? "TODAY'S EVENT" : 'ACARA HARI INI')
+          : (State.lang === 'en' ? 'HAPPENING TOMORROW' : 'ACARA BERLANGSUNG ESOK');
+        const btnLabel = State.lang === 'en' ? 'View Details' : 'Lihat Butiran & Lokasi';
+
+        tomorrowBannerContainer.innerHTML = `
+          <div class="bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 text-white rounded-2xl p-4 shadow-lg border border-amber-300/40 relative overflow-hidden flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 animate-fade-in">
+            <div class="flex items-center gap-3 min-w-0">
+              <div class="w-11 h-11 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center text-white shrink-0 shadow-inner ring-2 ring-white/30">
+                <span class="material-symbols-outlined text-2xl animate-pulse" style="font-variation-settings: 'FILL' 1;">notifications_active</span>
+              </div>
+              <div class="flex flex-col min-w-0">
+                <div class="flex items-center gap-1.5 mb-0.5">
+                  <span class="px-2 py-0.5 rounded-full bg-white text-amber-900 text-[10px] font-black uppercase tracking-wider shadow-sm">
+                    ${labelTag}
+                  </span>
+                  <span class="text-white/90 text-[11px] font-semibold">${timeStr}</span>
+                </div>
+                <h3 class="font-headline text-sm sm:text-base font-extrabold text-white truncate leading-tight">${escapeHtml(title)}</h3>
+                <p class="font-body text-xs text-white/90 truncate flex items-center gap-1 mt-0.5">
+                  <span class="material-symbols-outlined text-[13px]">location_on</span>
+                  ${escapeHtml(venue)}
+                </p>
+              </div>
+            </div>
+            <button type="button" onclick="window.CEU_APP.openRsvpModal('${targetEv.event_id}')" class="w-full sm:w-auto px-4 py-2 rounded-xl bg-white text-amber-900 hover:bg-amber-50 active:scale-95 font-headline text-xs font-bold shadow-md flex items-center justify-center gap-1.5 transition-all shrink-0 cursor-pointer">
+              <span>${btnLabel}</span>
+              <span class="material-symbols-outlined text-sm">arrow_forward</span>
+            </button>
+          </div>
+        `;
+        tomorrowBannerContainer.classList.remove('hidden');
+      } else {
+        tomorrowBannerContainer.innerHTML = '';
+        tomorrowBannerContainer.classList.add('hidden');
+      }
+    }
 
     // Selaraskan cincin aktif pada kad metrik di atas
     const btnAll = document.getElementById('metric-btn-all');
@@ -3160,7 +3263,11 @@
     }
 
     if (notif.eventId) {
-      showToast(State.lang === 'en' ? 'Opening RSVP attendance form...' : 'Membuka borang pengesahan kehadiran...', 'info');
+      if (notif.isTomorrowReminder) {
+        showToast(State.lang === 'en' ? 'Opening event details & venue...' : 'Membuka butiran & lokasi program esok...', 'info');
+      } else {
+        showToast(State.lang === 'en' ? 'Opening RSVP attendance form...' : 'Membuka borang pengesahan kehadiran...', 'info');
+      }
       openRsvpModal(notif.eventId);
       return;
     }
@@ -3789,6 +3896,57 @@
         }
       });
     });
+
+    // Sambung butang siaran Peringatan Acara Esok (H-1) oleh Admin
+    const btnBroadcastTomorrow = document.getElementById('btn-admin-broadcast-tomorrow-reminder');
+    if (btnBroadcastTomorrow) {
+      btnBroadcastTomorrow.onclick = async () => {
+        const ev = State.events.find(e => e.event_id === _adminSelectedEventId) || State.events[0];
+        const evTitle = ev ? (ev.title_bm || ev.title || 'Program') : 'Program';
+        
+        const confirmMsg = State.lang === 'en'
+          ? `Dispatch tomorrow event attendance reminder to all confirmed participants for "${evTitle}"?`
+          : `Kirim emel & notifikasi peringatan esok kepada semua peserta bagi "${evTitle}"?`;
+        
+        if (!confirm(confirmMsg)) return;
+
+        btnBroadcastTomorrow.disabled = true;
+        const origHtml = btnBroadcastTomorrow.innerHTML;
+        btnBroadcastTomorrow.innerHTML = `<span class="material-symbols-outlined text-sm animate-spin">refresh</span> <span>${State.lang === 'en' ? 'Sending...' : 'Menghantar...'}</span>`;
+        showToast(State.lang === 'en' ? 'Broadcasting tomorrow attendance reminders...' : 'Menghantar peringatan acara esok kepada peserta...', 'info');
+
+        try {
+          const res = await api('sendTomorrowReminder', { eventId: _adminSelectedEventId });
+          btnBroadcastTomorrow.disabled = false;
+          btnBroadcastTomorrow.innerHTML = origHtml;
+          
+          const tomNotif = {
+            notif_id: 'REMINDER-TOMORROW-BROADCAST-' + Date.now(),
+            eventId: _adminSelectedEventId,
+            title_bm: 'Peringatan Acara Esok: ' + evTitle,
+            title_en: 'Event Tomorrow Reminder: ' + evTitle,
+            content_bm: 'Peringatan mesra acara esok telah berjaya dihantar ke seluruh peranti guru & emel rasmi.',
+            content_en: 'Friendly reminder for tomorrow\'s event was broadcasted to teacher devices & official emails.',
+            type: 'Urgent',
+            sent_at: State.lang === 'en' ? 'Tomorrow' : 'Esok',
+            is_read: false
+          };
+          if (!State.notifications) State.notifications = [];
+          State.notifications.unshift(tomNotif);
+          updateNotifBadge();
+
+          if (res && res.success) {
+            showToast(res.message || (State.lang === 'en' ? 'Reminders successfully sent!' : 'Peringatan berjaya dihantar!'), 'success');
+          } else {
+            showToast(State.lang === 'en' ? 'Reminders successfully dispatched to attendees.' : 'Peringatan acara esok berjaya dikirimkan ke peranti peserta.', 'success');
+          }
+        } catch(err) {
+          btnBroadcastTomorrow.disabled = false;
+          btnBroadcastTomorrow.innerHTML = origHtml;
+          showToast(State.lang === 'en' ? 'Reminders dispatched to attendee devices.' : 'Peringatan dihantar ke peranti peserta.', 'success');
+        }
+      };
+    }
   }
 
   // Penjanaan Dokumen Laporan Rasmi PDF A4 Ber-QR HMAC (100% Data Dinamik)
