@@ -571,6 +571,113 @@
     </section>
 
     <!-- ======================================================================
+         2C. VIEW: DEDICATED TEACHER RSVP MANAGEMENT SCREEN (PENGESAHAN KEHADIRAN GURU)
+         ====================================================================== -->
+    <section id="view-rsvp" class="app-view view-hidden flex-1 flex flex-col w-full pb-24">
+      <!-- Dynamic Teal Header Canvas with Hero RSVP Showcase (Gaya 16061) -->
+      <div class="bg-primary-container text-on-primary px-4 pt-20 pb-8 rounded-b-[2rem] shadow-[0_12px_28px_rgba(44,160,160,0.22)] relative overflow-hidden">
+        <!-- Ambient organic glow circles -->
+        <div class="absolute -right-12 -top-12 w-48 h-48 rounded-full bg-white/10 pointer-events-none blur-xl"></div>
+        <div class="absolute -left-10 bottom-0 w-36 h-36 rounded-full bg-secondary-container/20 pointer-events-none blur-lg"></div>
+
+        <div class="max-w-md sm:max-w-xl md:max-w-2xl mx-auto min-w-0">
+          <div class="relative z-10 flex items-center justify-between mb-4 gap-2">
+            <div class="flex flex-col min-w-0 flex-1">
+              <span class="font-caption text-[10px] sm:text-[11px] uppercase tracking-wider text-white/80 truncate block">Unit Pendidikan Kerjaya</span>
+              <h1 class="font-headline-md text-lg sm:text-xl font-bold tracking-tight text-white leading-tight truncate">Pengesahan Kehadiran (RSVP)</h1>
+            </div>
+            <div class="flex items-center gap-1.5 bg-white/20 backdrop-blur-md px-2.5 py-1 rounded-full shadow-sm shrink-0">
+              <span class="material-symbols-outlined text-[15px] text-secondary-container" style="font-variation-settings: 'FILL' 1;">how_to_reg</span>
+              <span class="font-label-md text-[11px] text-white font-semibold tracking-wide">Status Guru</span>
+            </div>
+          </div>
+
+          <!-- Hero Subtitle Card -->
+          <div class="relative z-10 bg-white/15 backdrop-blur-md rounded-2xl p-3 border border-white/20 flex items-center justify-between gap-3 shadow-sm">
+            <div class="flex items-center gap-2.5 min-w-0">
+              <div class="w-10 h-10 rounded-xl bg-secondary-container text-on-secondary-container flex items-center justify-center font-bold shadow-md shrink-0">
+                <span class="material-symbols-outlined text-[22px]" style="font-variation-settings: 'FILL' 1;">assignment_turned_in</span>
+              </div>
+              <div class="flex flex-col min-w-0">
+                <span class="font-headline text-xs sm:text-sm font-bold text-white truncate">Sahkan Tindakan Program Awda</span>
+                <span class="font-caption text-[10px] sm:text-[11px] text-white/80 truncate">Hadir secara fizikal/dalam talian atau lantik wakil sekolah</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Main Scrollable Body Content -->
+      <div class="px-4 max-w-md sm:max-w-xl md:max-w-2xl mx-auto w-full flex flex-col gap-4 -mt-5 z-20 min-w-0">
+        <!-- RSVP Status Bento Counters -->
+        <section class="grid grid-cols-3 gap-2 sm:gap-3">
+          <!-- Bento 1: Menunggu Jawapan (Perlu Tindakan) -->
+          <button id="rsvp-metric-pending" type="button" class="bg-surface-container-lowest rounded-xl p-3 shadow-[0_6px_18px_rgba(252,183,38,0.18)] flex flex-col items-center text-center relative overflow-hidden border border-secondary-container/60 active:scale-95 transition-all cursor-pointer">
+            <div class="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-secondary-container"></div>
+            <div class="w-8 h-8 rounded-full bg-secondary-container/25 flex items-center justify-center text-secondary mb-1">
+              <span class="material-symbols-outlined text-[18px]" style="font-variation-settings: 'FILL' 1;">hourglass_top</span>
+            </div>
+            <span id="rsvp-count-pending" class="font-headline-md text-xl font-extrabold text-secondary leading-tight">00</span>
+            <span class="font-caption text-[11px] text-on-surface font-semibold line-clamp-1 mt-0.5">Perlu Tindakan</span>
+          </button>
+
+          <!-- Bento 2: Disahkan Hadir -->
+          <button id="rsvp-metric-confirmed" type="button" class="bg-surface-container-lowest rounded-xl p-3 shadow-[0_6px_18px_rgba(16,185,129,0.1)] flex flex-col items-center text-center border border-emerald-500/30 active:scale-95 transition-all cursor-pointer">
+            <div class="w-8 h-8 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center mb-1">
+              <span class="material-symbols-outlined text-[18px]" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+            </div>
+            <span id="rsvp-count-confirmed" class="font-headline-md text-xl font-extrabold text-emerald-700 leading-tight">00</span>
+            <span class="font-caption text-[11px] text-on-surface-variant line-clamp-1 mt-0.5">Disahkan Hadir</span>
+          </button>
+
+          <!-- Bento 3: Wakil / Maaf -->
+          <button id="rsvp-metric-delegated" type="button" class="bg-surface-container-lowest rounded-xl p-3 shadow-[0_6px_18px_rgba(29,120,120,0.08)] flex flex-col items-center text-center border border-outline-variant/30 active:scale-95 transition-all cursor-pointer">
+            <div class="w-8 h-8 rounded-full bg-primary-container/15 flex items-center justify-center text-primary mb-1">
+              <span class="material-symbols-outlined text-[18px]">group</span>
+            </div>
+            <span id="rsvp-count-delegated" class="font-headline-md text-xl font-extrabold text-on-surface leading-tight">00</span>
+            <span class="font-caption text-[11px] text-on-surface-variant line-clamp-1 mt-0.5">Wakil / Maaf</span>
+          </button>
+        </section>
+
+        <!-- Filter Toggle Pills for RSVP View -->
+        <section class="flex items-center gap-2 overflow-x-auto no-scrollbar py-1">
+          <button type="button" data-rsvp-filter="all" class="rsvp-filter-pill px-4 py-2 rounded-full font-label-md text-xs font-semibold whitespace-nowrap shadow-sm bg-primary-container text-on-primary transition-all cursor-pointer">
+            Semua Program RSVP
+          </button>
+          <button type="button" data-rsvp-filter="pending" class="rsvp-filter-pill px-4 py-2 rounded-full font-label-md text-xs font-semibold whitespace-nowrap shadow-sm bg-surface-container-lowest text-on-surface-variant hover:text-on-surface flex items-center gap-1.5 transition-all cursor-pointer">
+            <span class="w-2 h-2 rounded-full bg-secondary-container"></span>
+            Belum Disahkan
+          </button>
+          <button type="button" data-rsvp-filter="confirmed" class="rsvp-filter-pill px-4 py-2 rounded-full font-label-md text-xs font-semibold whitespace-nowrap shadow-sm bg-surface-container-lowest text-on-surface-variant hover:text-on-surface transition-all cursor-pointer">
+            Disahkan Hadir
+          </button>
+          <button type="button" data-rsvp-filter="delegated" class="rsvp-filter-pill px-4 py-2 rounded-full font-label-md text-xs font-semibold whitespace-nowrap shadow-sm bg-surface-container-lowest text-on-surface-variant hover:text-on-surface transition-all cursor-pointer">
+            Wakil / Maaf
+          </button>
+        </section>
+
+        <!-- RSVP Events List Container -->
+        <div id="rsvp-screen-card-list" class="flex flex-col gap-3">
+          <!-- Rendered dynamically by renderRsvpView() -->
+        </div>
+
+        <!-- Helpful Info Card -->
+        <div class="p-4 rounded-2xl bg-gradient-to-r from-[#004f50] to-[#2ca0a0] text-white flex items-center justify-between shadow-md mt-2">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full bg-secondary-container text-on-secondary-container flex items-center justify-center font-bold shadow-md shrink-0">
+              <span class="material-symbols-outlined text-[20px]">assignment_ind</span>
+            </div>
+            <div class="flex flex-col min-w-0">
+              <span class="font-label-lg text-xs sm:text-sm font-bold leading-tight truncate">Perlu Ubah Pilihan?</span>
+              <span class="font-caption text-[11px] text-white/85 truncate">Awda boleh kemaskini kehadiran pada bila-bila masa sebelum tarikh acara bermula.</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======================================================================
          3. VIEW: DIGITAL ARCHIVE & MEMO REPOSITORY (MINIT, MEMORANDUM & PERSURATAN)
          ====================================================================== -->
     <section id="view-archive" class="app-view view-hidden flex-1 flex flex-col w-full pb-24">
@@ -831,6 +938,35 @@
               </div>
             </div>
             <span data-i18n="profileVerifiedBadge" class="font-headline text-[10px] font-bold bg-emerald-100 text-emerald-800 px-2.5 py-1 rounded-full border border-emerald-300">Disahkan</span>
+          </div>
+        </div>
+
+        <!-- Settings Group: Mod Paparan Pengguna (Role Switcher / POV Simulation) -->
+        <div class="bg-surface-container-lowest rounded-2xl shadow-md border border-outline-variant/30 overflow-hidden">
+          <div class="p-3.5 bg-surface-container-low/50 border-b border-outline-variant/20 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <div class="w-6 h-6 rounded-lg bg-secondary/15 text-secondary flex items-center justify-center">
+                <span class="material-symbols-outlined text-[15px]">swap_horiz</span>
+              </div>
+              <h4 class="font-headline font-bold text-xs uppercase text-on-surface-variant tracking-wider">Mod Paparan Pengguna (POV)</h4>
+            </div>
+            <span class="px-2 py-0.5 rounded-full bg-secondary-container/30 text-secondary text-[10px] font-bold">Simulasi Interaktif</span>
+          </div>
+
+          <div class="p-4 flex flex-col gap-3">
+            <p class="font-body text-[11px] text-on-surface-variant leading-relaxed">
+              Tukar paparan antara <strong>Guru Kerjaya</strong> (Pengguna Biasa) dan <strong>Pentadbir UPK</strong> (Admin Mode) untuk menguji kedua-dua antaramuka secara langsung:
+            </p>
+            <div class="grid grid-cols-2 gap-2 bg-surface-container p-1 rounded-xl border border-outline-variant/30">
+              <button id="btn-switch-role-guru" type="button" class="flex items-center justify-center gap-1.5 py-2 px-3 rounded-lg text-xs font-bold transition-all cursor-pointer">
+                <span class="material-symbols-outlined text-base">school</span>
+                <span>Mod Guru</span>
+              </button>
+              <button id="btn-switch-role-admin" type="button" class="flex items-center justify-center gap-1.5 py-2 px-3 rounded-lg text-xs font-bold transition-all cursor-pointer">
+                <span class="material-symbols-outlined text-base">shield_person</span>
+                <span>Mod Pentadbir</span>
+              </button>
+            </div>
           </div>
         </div>
 
@@ -1986,13 +2122,13 @@
         <span class="font-caption text-[11px] mt-0.5" data-i18n="navCalendar">Kalendar</span>
       </button>
 
-      <!-- Item 3: Pentadbir (Admin Mode) -->
-      <button type="button" data-tab="admin" class="nav-tab-btn relative flex flex-col items-center justify-center flex-1 h-full py-1 text-on-surface-variant border-t-2 border-transparent hover:text-on-surface cursor-pointer font-medium transition-all">
+      <!-- Item 3: Dinamik: RSVP (Guru) / Pentadbir (Admin) -->
+      <button type="button" data-tab="rsvp" id="nav-btn-center" class="nav-tab-btn relative flex flex-col items-center justify-center flex-1 h-full py-1 text-on-surface-variant border-t-2 border-transparent hover:text-on-surface cursor-pointer font-medium transition-all">
         <div class="relative inline-flex items-center justify-center">
-          <span class="material-symbols-outlined text-[22px]">shield_person</span>
+          <span id="nav-center-icon" class="material-symbols-outlined text-[22px]">how_to_reg</span>
           <span id="bottom-notif-dot" class="absolute -top-1 -right-1 w-2 h-2 bg-secondary-container rounded-full ring-2 ring-white"></span>
         </div>
-        <span class="font-caption text-[11px] mt-0.5" data-i18n="navAdmin">Pentadbir</span>
+        <span id="nav-center-label" class="font-caption text-[11px] mt-0.5" data-i18n="navRsvp">RSVP</span>
       </button>
 
       <!-- Item 4: Minit & Persuratan -->
@@ -2010,8 +2146,8 @@
   </nav>
 
   <!-- Application Logic Scripts -->
-  <script src="js/config.js?v=1.6.7"></script>
-  <script src="js/data-mock.js?v=1.6.7"></script>
-  <script src="js/app.js?v=1.6.7"></script>
+  <script src="js/config.js?v=1.7.2"></script>
+  <script src="js/data-mock.js?v=1.7.2"></script>
+  <script src="js/app.js?v=1.7.2"></script>
 </body>
 </html>

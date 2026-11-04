@@ -625,6 +625,7 @@
     adminData: null,
     selectedEventForRsvp: null,
     activeEventFilter: 'all',
+    activeRsvpFilter: 'all',
     activeMemoCategory: 'Semua',
     activeDistrictFilter: 'Semua',
     selectedCalendarDate: null,
@@ -637,8 +638,7 @@
   // ==========================================================================
   function isUserAdmin(user) {
     if (!user) return false;
-    const em = String(user.email || '').toLowerCase().trim();
-    return user.role === 'Admin' || em === 'upk@ds.edu.moe.bn' || em.startsWith('upk@') || em.startsWith('pegawai.upk@') || em.includes('admin');
+    return String(user.role || '').trim().toLowerCase() === 'admin';
   }
 
   function isUserInvitedToEvent(event, user) {
@@ -1695,6 +1695,7 @@
     if (viewName === 'auth') updateBiometricUI();
     if (viewName === 'home') renderHomeView();
     if (viewName === 'calendar') renderCalendarView();
+    if (viewName === 'rsvp') renderRsvpView();
     if (viewName === 'archive') renderArchiveView();
     if (viewName === 'notif') renderNotifView();
     if (viewName === 'profile') renderProfileView();
@@ -1721,8 +1722,23 @@
     }
     nav.style.display = 'block';
 
-    const isUrgent = State.currentView === 'home' && State.activeEventFilter === 'urgent';
     const isAdmin = State.currentUser && State.currentUser.role === 'Admin';
+
+    // Selaraskan Butang Tengah (Item 3): Guru -> RSVP, Pentadbir -> Mod Admin
+    const centerBtn = document.getElementById('nav-btn-center');
+    const centerIcon = document.getElementById('nav-center-icon');
+    const centerLabel = document.getElementById('nav-center-label');
+    if (centerBtn && centerIcon && centerLabel) {
+      if (isAdmin) {
+        centerBtn.dataset.tab = 'admin';
+        centerIcon.textContent = 'shield_person';
+        centerLabel.textContent = State.lang === 'en' ? 'Admin' : 'Pentadbir';
+      } else {
+        centerBtn.dataset.tab = 'rsvp';
+        centerIcon.textContent = 'how_to_reg';
+        centerLabel.textContent = 'RSVP';
+      }
+    }
 
     // Update 5th button label/icon
     const profileIcon = document.getElementById('nav-profile-icon');
@@ -1741,7 +1757,9 @@
         isActive = State.currentView === 'home';
       } else if (tab === 'takwim' || tab === 'calendar') {
         isActive = State.currentView === 'calendar';
-      } else if (tab === 'admin' || tab === 'rsvp') {
+      } else if (tab === 'rsvp') {
+        isActive = State.currentView === 'rsvp';
+      } else if (tab === 'admin') {
         isActive = State.currentView === 'admin-dashboard' || State.currentView === 'admin-rsvp' || State.currentView === 'admin-events';
       } else if (tab === 'archive') {
         isActive = State.currentView === 'archive';
@@ -1778,8 +1796,10 @@
     const res = await api('boot', {});
     if (res && res.success && res.data) {
       State.currentUser = res.data.user || State.currentUser;
-      if (State.currentUser && isUserAdmin(State.currentUser)) {
-        State.currentUser.role = 'Admin';
+      if (State.currentUser) {
+        // Hormati peranan dari pangkalan data (lalai: Guru bagi upk@ds.edu.moe.bn)
+        const isAdm = isUserAdmin(State.currentUser);
+        State.currentUser.role = isAdm ? 'Admin' : (State.currentUser.role || 'Guru');
         try { localStorage.setItem('ceu_user', JSON.stringify(State.currentUser)); } catch(e) {}
       }
       State.events = (res.data.events || []).map(e => {
@@ -2404,7 +2424,7 @@
   // ==========================================================================
   // 9. MODAL RSVP PINTAR
   // ==========================================================================
-  function openRsvpModal(eventId) {
+  function openRsvpModal(eventId, preselectStatus) {
     const ev = State.events.find(e => e.event_id === eventId) || State.events[0];
     State.selectedEventForRsvp = ev;
     if (!ev) return;
@@ -2422,7 +2442,26 @@
     const repFields = document.getElementById('rsvp-rep-fields');
     const absentFields = document.getElementById('rsvp-absent-fields');
 
-    if (userRsvp) {
+    if (preselectStatus === 'rep') {
+      if (radioRep) radioRep.checked = true;
+      if (repFields) repFields.classList.remove('hidden');
+      if (absentFields) absentFields.classList.add('hidden');
+      if (userRsvp) {
+        document.getElementById('input-rep-name').value = userRsvp.rep_name || '';
+        document.getElementById('input-rep-phone').value = userRsvp.rep_phone || '';
+      }
+    } else if (preselectStatus === 'absent') {
+      if (radioAbsent) radioAbsent.checked = true;
+      if (absentFields) absentFields.classList.remove('hidden');
+      if (repFields) repFields.classList.add('hidden');
+      if (userRsvp) {
+        document.getElementById('input-absence-reason').value = userRsvp.absence_reason || '';
+      }
+    } else if (preselectStatus === 'attend') {
+      if (radioAttend) radioAttend.checked = true;
+      if (repFields) repFields.classList.add('hidden');
+      if (absentFields) absentFields.classList.add('hidden');
+    } else if (userRsvp) {
       if (userRsvp.response_status === 'Mewakilkan') {
         if (radioRep) radioRep.checked = true;
         if (repFields) repFields.classList.remove('hidden');
@@ -2448,7 +2487,8 @@
     if (modal) {
       modal.classList.remove('hidden');
       setTimeout(() => {
-        modal.querySelector('.bottom-sheet-panel').classList.remove('translate-y-full');
+        const p = modal.querySelector('.bottom-sheet-panel');
+        if (p) p.classList.remove('translate-y-full');
       }, 10);
     }
   }
@@ -2512,9 +2552,270 @@
 
       closeRsvpModal();
       renderHomeView();
+      renderCalendarView();
+      renderRsvpView();
     } else {
       showToast((res && res.message) || 'Gagal menghantar RSVP.', 'error');
     }
+  }
+
+  // ==========================================================================
+  // 9B. DEDICATED TEACHER RSVP SCREEN (PENGESAHAN KEHADIRAN GURU)
+  // ==========================================================================
+  function setRsvpFilter(filter) {
+    State.activeRsvpFilter = filter;
+    document.querySelectorAll('.rsvp-filter-pill').forEach(btn => {
+      const f = btn.dataset.rsvpFilter;
+      if (f === filter) {
+        btn.className = 'rsvp-filter-pill px-4 py-2 rounded-full font-label-md text-xs font-semibold whitespace-nowrap shadow-sm bg-primary-container text-on-primary transition-all cursor-pointer';
+      } else {
+        btn.className = 'rsvp-filter-pill px-4 py-2 rounded-full font-label-md text-xs font-semibold whitespace-nowrap shadow-sm bg-surface-container-lowest text-on-surface-variant hover:text-on-surface transition-all cursor-pointer';
+      }
+    });
+    renderRsvpView();
+  }
+
+  async function quickConfirmRsvp(eventId) {
+    const user = State.currentUser;
+    if (!user) return;
+    const ev = (State.events || []).find(e => e.event_id === eventId);
+    if (!ev) return;
+
+    showToast(State.lang === 'en' ? 'Submitting RSVP...' : 'Menghantar pengesahan kehadiran...', 'info');
+
+    const res = await api('submitRsvp', {
+      eventId: eventId,
+      status: 'Hadir',
+      dietary: 'Biasa',
+      repName: '',
+      repPhone: '',
+      repRole: '',
+      notes: ''
+    });
+
+    if (res && res.success) {
+      showToast(State.lang === 'en' ? 'Attendance confirmed successfully!' : 'Kehadiran berjaya disahkan!', 'success');
+      const existingIdx = State.rsvps.findIndex(r => r.event_id === eventId && String(r.user_email || '').toLowerCase() === String(user.email || '').toLowerCase());
+      const newRsvp = {
+        event_id: eventId,
+        user_email: user.email,
+        full_name: user.name,
+        school_name: user.school,
+        district: user.district,
+        response_status: 'Hadir',
+        dietary: 'Biasa',
+        created_at: new Date().toISOString()
+      };
+      if (existingIdx >= 0) {
+        State.rsvps[existingIdx] = newRsvp;
+      } else {
+        State.rsvps.push(newRsvp);
+      }
+      renderRsvpView();
+      renderHomeView();
+      renderCalendarView();
+    } else {
+      showToast(res && res.message ? res.message : 'Gagal merekodkan RSVP', 'error');
+    }
+  }
+
+  function renderRsvpView() {
+    const listEl = document.getElementById('rsvp-screen-card-list');
+    if (!listEl) return;
+
+    const user = State.currentUser;
+    const myEmail = user ? String(user.email || '').toLowerCase().trim() : '';
+
+    // Cari semua program yang memerlukan RSVP dan melibatkan pengguna
+    const allEvents = (State.events || [])
+      .filter(e => (e.status || 'Published').toLowerCase() !== 'draft')
+      .filter(e => isUserInvitedToEvent(e, user))
+      .filter(e => {
+        const req = String(e.rsvp_required || e.rsvpRequired || '').toLowerCase();
+        return req === 'true' || req === '1' || req === 'ya';
+      });
+
+    // Peta RSVP semasa pengguna
+    const myRsvps = (State.rsvps || []).filter(r => String(r.user_email || '').toLowerCase().trim() === myEmail);
+    const rsvpMap = {};
+    myRsvps.forEach(r => {
+      rsvpMap[r.event_id] = r;
+    });
+
+    let pendingCount = 0;
+    let confirmedCount = 0;
+    let delegatedCount = 0;
+
+    allEvents.forEach(ev => {
+      const r = rsvpMap[ev.event_id];
+      if (!r) {
+        pendingCount++;
+      } else if (r.response_status === 'Hadir') {
+        confirmedCount++;
+      } else {
+        delegatedCount++;
+      }
+    });
+
+    const pendingEl = document.getElementById('rsvp-count-pending');
+    const confirmedEl = document.getElementById('rsvp-count-confirmed');
+    const delegatedEl = document.getElementById('rsvp-count-delegated');
+
+    if (pendingEl) pendingEl.textContent = pendingCount < 10 ? '0' + pendingCount : pendingCount;
+    if (confirmedEl) confirmedEl.textContent = confirmedCount < 10 ? '0' + confirmedCount : confirmedCount;
+    if (delegatedEl) delegatedEl.textContent = delegatedCount < 10 ? '0' + delegatedCount : delegatedCount;
+
+    // Tapis mengikut State.activeRsvpFilter
+    const filtered = allEvents.filter(ev => {
+      const r = rsvpMap[ev.event_id];
+      if (State.activeRsvpFilter === 'pending') return !r;
+      if (State.activeRsvpFilter === 'confirmed') return r && r.response_status === 'Hadir';
+      if (State.activeRsvpFilter === 'delegated') return r && (r.response_status === 'Mewakilkan' || r.response_status === 'Tidak Hadir');
+      return true; // 'all'
+    });
+
+    if (filtered.length === 0) {
+      listEl.innerHTML = `
+        <div class="bg-surface-container-lowest rounded-2xl p-8 text-center border border-outline-variant/30 flex flex-col items-center shadow-xs">
+          <div class="w-14 h-14 rounded-2xl bg-primary-container/15 text-primary flex items-center justify-center mb-3">
+            <span class="material-symbols-outlined text-3xl">task_alt</span>
+          </div>
+          <h3 class="font-headline-md text-sm font-bold text-on-surface">Tiada Rekod RSVP Diperlukan</h3>
+          <p class="font-caption text-xs text-on-surface-variant max-w-xs mt-1 leading-relaxed">
+            ${State.activeRsvpFilter === 'pending'
+              ? 'Syabas! Semua program jemputan telah Awda sahkan kehadirannya.'
+              : 'Tiada program di bawah tapisan ini buat masa ini.'}
+          </p>
+        </div>
+      `;
+      return;
+    }
+
+    listEl.innerHTML = filtered.map(ev => {
+      const r = rsvpMap[ev.event_id];
+      const title = (State.lang === 'en' && ev.title_en) ? ev.title_en : (ev.title_bm || ev.title);
+      const dateStr = formatEventDateClean(ev.event_date);
+      const timeStr = formatTime12H(ev.start_time);
+      const mode = (ev.event_mode || 'Bersemuka');
+      const isOnline = mode.toLowerCase().includes('talian') || mode.toLowerCase().includes('online');
+
+      let statusBadge = '';
+      let actionButtons = '';
+
+      if (!r) {
+        statusBadge = `
+          <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-secondary-container/30 text-secondary border border-secondary-container/60 text-[11px] font-bold">
+            <span class="material-symbols-outlined text-[14px]" style="font-variation-settings: 'FILL' 1;">priority_high</span>
+            <span>Belum Sah</span>
+          </div>
+        `;
+        actionButtons = `
+          <div class="grid grid-cols-3 gap-2 mt-3 pt-3 border-t border-outline-variant/20">
+            <button type="button" onclick="window.CEU_APP.quickConfirmRsvp('${ev.event_id}')" class="py-2 px-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white font-headline text-[11px] font-bold shadow-sm flex items-center justify-center gap-1 transition-all cursor-pointer">
+              <span class="material-symbols-outlined text-[15px]">check_circle</span>
+              <span>Hadir</span>
+            </button>
+            <button type="button" onclick="window.CEU_APP.openRsvpModal('${ev.event_id}', 'rep')" class="py-2 px-2.5 rounded-xl bg-secondary-container text-on-secondary-container hover:bg-amber-400 active:scale-95 font-headline text-[11px] font-bold shadow-sm flex items-center justify-center gap-1 transition-all cursor-pointer">
+              <span class="material-symbols-outlined text-[15px]">group</span>
+              <span>Wakil</span>
+            </button>
+            <button type="button" onclick="window.CEU_APP.openRsvpModal('${ev.event_id}', 'absent')" class="py-2 px-2.5 rounded-xl bg-surface-container hover:bg-surface-container-high active:scale-95 text-on-surface-variant font-headline text-[11px] font-semibold border border-outline-variant/40 flex items-center justify-center gap-1 transition-all cursor-pointer">
+              <span class="material-symbols-outlined text-[15px]">cancel</span>
+              <span>Maaf</span>
+            </button>
+          </div>
+        `;
+      } else if (r.response_status === 'Hadir') {
+        statusBadge = `
+          <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300 text-[11px] font-bold">
+            <span class="material-symbols-outlined text-[14px]" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+            <span>Hadir (${r.dietary || 'Biasa'})</span>
+          </div>
+        `;
+        actionButtons = `
+          <div class="flex items-center justify-between mt-3 pt-3 border-t border-outline-variant/20">
+            <span class="text-[11px] text-on-surface-variant flex items-center gap-1">
+              <span class="material-symbols-outlined text-[14px] text-emerald-600">verified</span>
+              Kehadiran telah direkodkan
+            </span>
+            <button type="button" onclick="window.CEU_APP.openRsvpModal('${ev.event_id}')" class="px-3 py-1.5 rounded-xl bg-surface-container hover:bg-surface-container-high text-primary font-headline text-[11px] font-bold border border-outline-variant/40 active:scale-95 transition-all cursor-pointer">
+              Kemaskini
+            </button>
+          </div>
+        `;
+      } else if (r.response_status === 'Mewakilkan') {
+        statusBadge = `
+          <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-blue-100 text-blue-900 border border-blue-300 text-[11px] font-bold">
+            <span class="material-symbols-outlined text-[14px]">group</span>
+            <span>Wakil: ${r.rep_name || 'Pegawai Sekolah'}</span>
+          </div>
+        `;
+        actionButtons = `
+          <div class="flex items-center justify-between mt-3 pt-3 border-t border-outline-variant/20">
+            <span class="text-[11px] text-on-surface-variant flex items-center gap-1 truncate max-w-[200px]">
+              <span class="material-symbols-outlined text-[14px] text-blue-600">contact_phone</span>
+              ${r.rep_phone || 'Wakil rasmi dilantik'}
+            </span>
+            <button type="button" onclick="window.CEU_APP.openRsvpModal('${ev.event_id}')" class="px-3 py-1.5 rounded-xl bg-surface-container hover:bg-surface-container-high text-primary font-headline text-[11px] font-bold border border-outline-variant/40 active:scale-95 transition-all cursor-pointer">
+              Tukar Wakil
+            </button>
+          </div>
+        `;
+      } else {
+        statusBadge = `
+          <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-rose-100 text-rose-800 border border-rose-300 text-[11px] font-bold">
+            <span class="material-symbols-outlined text-[14px]">cancel</span>
+            <span>Tidak Hadir</span>
+          </div>
+        `;
+        actionButtons = `
+          <div class="flex items-center justify-between mt-3 pt-3 border-t border-outline-variant/20">
+            <span class="text-[11px] text-on-surface-variant italic truncate max-w-[200px]">
+              ${r.notes || r.absence_reason || 'Kekangan tugas rasmi'}
+            </span>
+            <button type="button" onclick="window.CEU_APP.openRsvpModal('${ev.event_id}')" class="px-3 py-1.5 rounded-xl bg-surface-container hover:bg-surface-container-high text-primary font-headline text-[11px] font-bold border border-outline-variant/40 active:scale-95 transition-all cursor-pointer">
+              Kemaskini
+            </button>
+          </div>
+        `;
+      }
+
+      return `
+        <div class="bg-surface-container-lowest rounded-2xl p-4 shadow-[0_4px_16px_rgba(18,28,42,0.06)] border border-outline-variant/30 flex flex-col gap-2 transition-all">
+          <div class="flex items-start justify-between gap-2">
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center gap-1.5 mb-1 flex-wrap">
+                <span class="px-2 py-0.5 rounded-md bg-primary-container/15 text-primary text-[10px] font-bold uppercase tracking-wide">
+                  ${dateStr}
+                </span>
+                <span class="px-2 py-0.5 rounded-md ${isOnline ? 'bg-purple-100 text-purple-800' : 'bg-surface-container text-on-surface-variant'} text-[10px] font-semibold">
+                  ${mode}
+                </span>
+              </div>
+              <h3 class="font-headline-md text-sm font-bold text-on-surface leading-snug">
+                ${title}
+              </h3>
+            </div>
+            <div class="shrink-0">
+              ${statusBadge}
+            </div>
+          </div>
+
+          <div class="flex items-center gap-3 text-xs text-on-surface-variant mt-1 flex-wrap">
+            <div class="flex items-center gap-1">
+              <span class="material-symbols-outlined text-[15px] text-secondary">schedule</span>
+              <span>${timeStr}</span>
+            </div>
+            <div class="flex items-center gap-1">
+              <span class="material-symbols-outlined text-[15px] text-primary">location_on</span>
+              <span class="truncate max-w-[180px]">${ev.venue || 'Dalam Talian'}</span>
+            </div>
+          </div>
+
+          ${actionButtons}
+        </div>
+      `;
+    }).join('');
   }
 
   // ==========================================================================
@@ -2882,6 +3183,44 @@
     if (emailEl) emailEl.textContent = u.email;
     if (schoolEl) schoolEl.textContent = `${u.school} (${u.district})`;
     if (bioToggle) bioToggle.checked = !!u.biometricEnabled;
+
+    // Selaraskan Butang Mod Pratonton Peranan (Guru vs Admin)
+    const btnGuru = document.getElementById('btn-switch-role-guru');
+    const btnAdmin = document.getElementById('btn-switch-role-admin');
+    const isAdmin = u.role === 'Admin';
+
+    if (btnGuru && btnAdmin) {
+      if (isAdmin) {
+        btnAdmin.className = 'flex items-center justify-center gap-1.5 py-2 px-3 rounded-lg text-xs font-bold transition-all bg-primary text-white shadow-sm cursor-pointer';
+        btnGuru.className = 'flex items-center justify-center gap-1.5 py-2 px-3 rounded-lg text-xs font-semibold text-on-surface-variant hover:text-on-surface transition-all cursor-pointer';
+      } else {
+        btnGuru.className = 'flex items-center justify-center gap-1.5 py-2 px-3 rounded-lg text-xs font-bold transition-all bg-primary text-white shadow-sm cursor-pointer';
+        btnAdmin.className = 'flex items-center justify-center gap-1.5 py-2 px-3 rounded-lg text-xs font-semibold text-on-surface-variant hover:text-on-surface transition-all cursor-pointer';
+      }
+    }
+  }
+
+  function switchUserRole(newRole) {
+    if (!State.currentUser) return;
+    State.currentUser.role = newRole;
+    try { localStorage.setItem('ceu_user', JSON.stringify(State.currentUser)); } catch(e) {}
+
+    const homeGreetingLabel = document.getElementById('home-greeting-label');
+    if (homeGreetingLabel) {
+      homeGreetingLabel.textContent = (State.lang === 'en' ? 'Welcome • ' : 'Selamat Datang • ') +
+        (newRole === 'Admin' ? (State.lang === 'en' ? 'UPK Officer' : 'Pegawai UPK') : (State.lang === 'en' ? 'Career Education Teacher' : 'Guru Pendidikan Kerjaya'));
+    }
+
+    updateNavActiveTabs();
+    renderProfileView();
+
+    if (newRole === 'Admin') {
+      showToast(State.lang === 'en' ? 'Switched to Admin Mode (Full Access)' : 'Beralih ke Mod Pentadbir (Akses Penuh UPK)', 'success');
+      setView('admin-dashboard');
+    } else {
+      showToast(State.lang === 'en' ? 'Switched to Teacher Mode (User POV)' : 'Beralih ke Mod Guru (Paparan Pengguna Biasa)', 'info');
+      setView('home');
+    }
   }
 
   // ==========================================================================
@@ -4509,8 +4848,10 @@
     document.querySelectorAll('.nav-tab-btn').forEach(btn => {
       btn.addEventListener('click', () => {
         const tab = btn.dataset.tab;
-        if (tab === 'admin' || tab === 'rsvp') {
+        if (tab === 'admin') {
           setView('admin-dashboard');
+        } else if (tab === 'rsvp') {
+          setView('rsvp');
         } else if (tab === 'takwim' || tab === 'calendar') {
           setView('calendar');
         } else if (tab === 'home') {
@@ -4527,6 +4868,36 @@
         }
       });
     });
+
+    // Pilihan Peranan Pengguna (Mod Pratonton / POV Switcher)
+    const btnSwitchGuru = document.getElementById('btn-switch-role-guru');
+    if (btnSwitchGuru) {
+      btnSwitchGuru.addEventListener('click', () => switchUserRole('Guru'));
+    }
+    const btnSwitchAdmin = document.getElementById('btn-switch-role-admin');
+    if (btnSwitchAdmin) {
+      btnSwitchAdmin.addEventListener('click', () => switchUserRole('Admin'));
+    }
+
+    // Butang Tapisan & Kad Metrik Skrin RSVP Guru
+    document.querySelectorAll('.rsvp-filter-pill').forEach(pill => {
+      pill.addEventListener('click', () => {
+        setRsvpFilter(pill.dataset.rsvpFilter);
+      });
+    });
+
+    const rsvpMetricPending = document.getElementById('rsvp-metric-pending');
+    if (rsvpMetricPending) {
+      rsvpMetricPending.addEventListener('click', () => setRsvpFilter('pending'));
+    }
+    const rsvpMetricConfirmed = document.getElementById('rsvp-metric-confirmed');
+    if (rsvpMetricConfirmed) {
+      rsvpMetricConfirmed.addEventListener('click', () => setRsvpFilter('confirmed'));
+    }
+    const rsvpMetricDelegated = document.getElementById('rsvp-metric-delegated');
+    if (rsvpMetricDelegated) {
+      rsvpMetricDelegated.addEventListener('click', () => setRsvpFilter('delegated'));
+    }
 
     const radioRep = document.getElementById('radio-rep');
     const radioAbsent = document.getElementById('radio-absent');
@@ -4780,7 +5151,12 @@
     setLanguage: setLanguage,
     logout: logout,
     quickLogin: quickLogin,
-    showToast: showToast
+    showToast: showToast,
+    openRsvpModal: openRsvpModal,
+    quickConfirmRsvp: quickConfirmRsvp,
+    renderRsvpView: renderRsvpView,
+    setRsvpFilter: setRsvpFilter,
+    switchUserRole: switchUserRole
   };
 
 })();

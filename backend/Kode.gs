@@ -449,11 +449,10 @@ function dispatchPost_(action, data, token) {
     return { success: false, code: 'AUTH_EXPIRED', message: 'Sesi anda telah tamat atau tidak sah. Sila log masuk semula.' };
   }
 
-  // Pengesanan Automatik Peranan Admin bagi Emel UPK / Pentadbir
-  const uEmail = String(user.email || '').toLowerCase().trim();
-  if (uEmail === 'upk@ds.edu.moe.bn' || uEmail.startsWith('upk@') || uEmail.startsWith('pegawai.upk@') || uEmail.includes('admin')) {
-    user.role = 'Admin';
-  }
+  // Peranan Pengguna: Hormati data daripada pangkalan data Users (lalai: Guru)
+  // upk@ds.edu.moe.bn kekal sebagai Guru agar dapat melihat paparan POV pengguna sebenar
+  const uRole = String(user.role || '').toLowerCase().trim();
+  user.role = (uRole === 'admin') ? 'Admin' : 'Guru';
 
   switch (action) {
     case 'boot':
@@ -691,11 +690,9 @@ function handleVerifyOtp_(email, otp, device) {
     };
   }
 
-  // Buat Sesi HMAC 30 Hari (Pengesanan Automatik Peranan Admin bagi Akaun UPK)
-  let userRole = user.role || 'Guru';
-  if (em === 'upk@ds.edu.moe.bn' || em.startsWith('upk@') || em.startsWith('pegawai.upk@') || em.includes('admin')) {
-    userRole = 'Admin';
-  }
+  // Buat Sesi HMAC 30 Hari mengikut peranan dari pangkalan data Users (lalai: Guru)
+  let userRole = String(user.role || 'Guru').trim();
+  userRole = (userRole.toLowerCase() === 'admin') ? 'Admin' : 'Guru';
   const token = buatSesi_(em, userRole, user.full_name, user.district, user.school_name);
 
   // Catat Audit Sesi
