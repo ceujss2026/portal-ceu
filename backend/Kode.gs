@@ -494,6 +494,9 @@ function dispatchPost_(action, data, token) {
     case 'deleteEvent':
       if (user.role !== 'Admin') return { success: false, message: 'Capaian ditolak.' };
       return handleDeleteEvent_(user, data.eventId);
+    case 'deleteUser':
+      if (user.role !== 'Admin') return { success: false, message: 'Capaian ditolak.' };
+      return handleDeleteUser_(user, data.email);
     case 'publishDraft':
       if (user.role !== 'Admin') return { success: false, message: 'Capaian ditolak.' };
       return handlePublishDraft_(user, data.eventId);
@@ -533,30 +536,24 @@ function handleSendOtp_(email) {
       } catch(e) {}
     }
 
-    // Jika pengguna baru sah ber-domain rasmi, daftarkan automatik sebagai Guru Pending
-    let namaUser = 'Guru Pendidikan Kerjaya';
+    // KESELAMATAN KETAT: Hanya pengguna berdaftar dibenarkan membuka sistem
+    // Jangan sekali-kali auto-daftar emel yang tidak dikenali / typo
     if (!user) {
-      const sh = getSheet_(CONFIG.SHEET_NAMES.users);
-      const parts = em.split('@')[0].split('.');
-      namaUser = parts.map(p => p.charAt(0).toUpperCase() + p.slice(1)).join(' ');
-      sh.appendRow([
-        em,
-        namaUser,
-        'Brunei-Muara', // default daerah
-        'Sekolah Menengah (Baharu)',
-        '',
-        'Guru',
-        'Active',
-        '',
-        'FALSE',
-        new Date().toISOString()
-      ]);
-      bump('users');
-    } else {
-      namaUser = user.full_name || namaUser;
-      if (String(user.account_status).toLowerCase() === 'inactive') {
-        return { success: false, message: 'Akaun anda telah dinyahaktifkan oleh Pentadbir. Sila hubungi UPK.' };
-      }
+      return {
+        success: false,
+        code: 'USER_NOT_REGISTERED',
+        message: 'Akses Ditolak: Alamat emel (' + em + ') tidak tersenarai sebagai pengguna berdaftar dalam sistem Unit Pendidikan Kerjaya. Sila semak semula ejaan emel Awda atau hubungi pentadbir UPK.'
+      };
+    }
+
+    const namaUser = user.full_name || user.name || user.nama || 'Guru Pendidikan Kerjaya';
+    const status = String(user.account_status || user.status || 'Active').toLowerCase();
+    if (status === 'inactive' || status === 'suspended') {
+      return {
+        success: false,
+        code: 'ACCOUNT_INACTIVE',
+        message: 'Akaun anda telah dinyahaktifkan oleh Pentadbir UPK. Sila hubungi Unit Pendidikan Kerjaya.'
+      };
     }
 
     // Bangkitkan OTP 6-Digit
@@ -648,12 +645,19 @@ function handleVerifyOtp_(email, otp, device) {
     } catch(e) {}
   }
   if (!user) {
-    user = {
-      email: em,
-      full_name: 'Pegawai Kementerian Pendidikan',
-      role: 'Guru',
-      district: 'Brunei-Muara',
-      school_name: 'Sekolah Menengah'
+    return {
+      success: false,
+      code: 'USER_NOT_REGISTERED',
+      message: 'Akses Ditolak: Emel (' + em + ') tidak berdaftar dalam sistem rasmi UPK.'
+    };
+  }
+
+  const status = String(user.account_status || user.status || 'Active').toLowerCase();
+  if (status === 'inactive' || status === 'suspended') {
+    return {
+      success: false,
+      code: 'ACCOUNT_INACTIVE',
+      message: 'Akaun anda telah dinyahaktifkan oleh Pentadbir UPK. Sila hubungi Unit Pendidikan Kerjaya.'
     };
   }
 
@@ -1421,6 +1425,36 @@ function handleDeleteEvent_(user, eventId) {
   CacheX.remove('admin_dashboard');
   
   return { success: true, message: 'Acara berjaya dipadamkan sepenuhnya.' };
+}
+
+// Padam Pengguna (Admin Sahaja) - untuk memadam emel salah/typo
+function handleDeleteUser_(user, emailToDelete) {
+  if (!emailToDelete) return { success: false, message: 'Alamat emel diperlukan.' };
+  const em = String(emailToDelete).toLowerCase().trim();
+  const sh = getSheet_(CONFIG.SHEET_NAMES.users);
+  const data = sh.getDataRange().getValues();
+  if (data.length <= 1) return { success: false, message: 'Tiada pengguna dijumpai.' };
+
+  const headers = data[0].map(s => String(s).trim());
+  const emailColIdx = headers.indexOf('email');
+  if (emailColIdx === -1) return { success: false, message: 'Lajur email tidak ditemui.' };
+
+  let rowIndex = -1;
+  for (let i = 1; i < data.length; i++) {
+    if (String(data[i][emailColIdx]).toLowerCase().trim() === em) {
+      rowIndex = i + 1;
+      break;
+    }
+  }
+
+  if (rowIndex === -1) {
+    return { success: false, message: 'Pengguna dengan emel ' + em + ' tidak dijumpai dalam senarai.' };
+  }
+
+  sh.deleteRow(rowIndex);
+  bump('users');
+  CacheX.remove('admin_dashboard');
+  return { success: true, message: 'Rekod emel ' + em + ' berjaya dipadamkan dari pangkalan data.' };
 }
 
 // Terbitkan Draf Acara

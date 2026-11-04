@@ -729,42 +729,76 @@
             users: (State.users && State.users.length) ? State.users : mock.users
           });
         } else if (action === 'sendOtp') {
-          resolve({ success: true, message: (State.lang === 'en' ? 'OTP code has been sent to your official email.' : 'Kod OTP telah berjaya dihantar ke emel rasmi anda.'), email: payload.email });
+          const em = (payload && payload.email || '').toLowerCase().trim();
+          const registeredList = (State.users && State.users.length) ? State.users : (mock.users || []);
+          const exists = registeredList.find(u => String(u.email || '').toLowerCase().trim() === em);
+          if (!exists) {
+            resolve({
+              success: false,
+              code: 'USER_NOT_REGISTERED',
+              message: State.lang === 'en'
+                ? `Access Denied: Email (${em}) is not registered in the UPK system. Please check for typos or contact the UPK administrator.`
+                : `Akses Ditolak: Alamat emel (${em}) tidak tersenarai sebagai pengguna berdaftar dalam sistem Unit Pendidikan Kerjaya. Sila semak semula ejaan emel Awda atau hubungi pihak pentadbir UPK.`
+            });
+            return;
+          }
+          if (String(exists.status || exists.account_status || 'Active').toLowerCase() === 'inactive') {
+            resolve({
+              success: false,
+              code: 'ACCOUNT_INACTIVE',
+              message: State.lang === 'en'
+                ? 'Your account has been deactivated by the UPK Administrator.'
+                : 'Akaun anda telah dinyahaktifkan oleh Pentadbir UPK. Sila hubungi Unit Pendidikan Kerjaya.'
+            });
+            return;
+          }
+          resolve({ success: true, message: (State.lang === 'en' ? 'OTP code has been sent to your official email.' : 'Kod OTP telah berjaya dihantar ke emel rasmi anda.'), email: em });
         } else if (action === 'verifyOtp') {
           const em = (payload.email || '').toLowerCase().trim();
-          const target = mock.users.find(u => u.email === em) || {
-            email: em,
-            name: 'Cikgu Ahmad bin Hj Bakar',
-            role: em.includes('upk') ? 'Admin' : 'Guru',
-            district: 'Belait',
-            school: 'Sekolah Menengah Sayyidina Ali',
-            biometricEnabled: true
-          };
+          const registeredList = (State.users && State.users.length) ? State.users : (mock.users || []);
+          const target = registeredList.find(u => String(u.email || '').toLowerCase().trim() === em);
+          if (!target) {
+            resolve({
+              success: false,
+              code: 'USER_NOT_REGISTERED',
+              message: State.lang === 'en'
+                ? `Access Denied: Email (${em}) is not registered in the UPK system.`
+                : `Akses Ditolak: Emel (${em}) tidak berdaftar dalam sistem UPK.`
+            });
+            return;
+          }
           resolve({
             success: true,
             token: 'mock_token_' + Date.now(),
             user: target
           });
         } else if (action === 'biometricLogin') {
-          // Cari pengguna berdasarkan emel atau token sesi biometrik sebenar (jangan paksa mock.users[1])
+          const registeredList = (State.users && State.users.length) ? State.users : (mock.users || []);
           let target = null;
           if (payload.email) {
-            target = (mock.users || []).find(u => u.email.toLowerCase() === payload.email.toLowerCase());
+            target = registeredList.find(u => String(u.email || '').toLowerCase().trim() === payload.email.toLowerCase().trim());
           }
           if (!target && payload.token) {
             try {
               const savedBio = JSON.parse(localStorage.getItem('ceu_bio_user') || 'null');
-              if (savedBio) target = savedBio;
+              if (savedBio && savedBio.email) {
+                target = registeredList.find(u => String(u.email || '').toLowerCase().trim() === savedBio.email.toLowerCase().trim());
+              }
             } catch (e) {}
           }
-          if (!target && State.currentUser) target = State.currentUser;
+          if (!target && State.currentUser && State.currentUser.email) {
+            target = registeredList.find(u => String(u.email || '').toLowerCase().trim() === State.currentUser.email.toLowerCase().trim());
+          }
           if (!target) {
-            try {
-              const savedUser = JSON.parse(localStorage.getItem('ceu_user') || 'null');
-              if (savedUser) target = savedUser;
-            } catch (e) {}
+            resolve({
+              success: false,
+              code: 'BIO_NOT_REGISTERED',
+              message: State.lang === 'en'
+                ? 'Biometric account not found in registered users list. Please log in with your registered email.'
+                : 'Akaun biometrik tidak dijumpai dalam senarai pengguna berdaftar. Sila log masuk dengan emel yang sah.'
+            });
+            return;
           }
-          if (!target) target = mock.users[0]; // Lalai kepada pengguna pertama (Ahmad Bakar / Guru aktif)
 
           resolve({
             success: true,
@@ -3373,7 +3407,12 @@
         btnText.textContent = State.lang === 'en' ? 'Send OTP to Official Email' : 'Hantar Kod OTP ke Emel Rasmi';
         submitBtn.classList.remove('opacity-80', 'pointer-events-none');
       }
-      showToast((res && res.message) || (State.lang === 'en' ? 'Failed to send OTP code.' : 'Gagal menghantar kod OTP.'), 'error');
+      if (emailInput) {
+        emailInput.classList.add('border-red-500', 'ring-2', 'ring-red-400');
+        setTimeout(() => emailInput.classList.remove('border-red-500', 'ring-2', 'ring-red-400'), 4000);
+        emailInput.focus();
+      }
+      showToast((res && res.message) || (State.lang === 'en' ? 'Access Denied: Email not registered in UPK system.' : 'Akses Ditolak: Alamat emel tidak berdaftar dalam sistem UPK.'), 'error');
     }
   }
 
