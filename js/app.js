@@ -1277,10 +1277,7 @@
         setTimeout(async () => {
           const res = await api('biometricLogin', { email: email });
           if (res && res.success) {
-            State.token = res.token;
-            State.currentUser = res.user;
-            localStorage.setItem('ceu_tok', res.token);
-            localStorage.setItem('ceu_user', JSON.stringify(res.user));
+            saveActiveSession(res.token, res.user);
             localStorage.setItem('ceu_bio_token', res.token);
             localStorage.setItem('ceu_bio_user', JSON.stringify(res.user));
             showToast((State.lang === 'en' ? 'Biometric verified! Welcome ' : 'Biometrik disahkan! Selamat datang ') + res.user.name, 'success');
@@ -1377,10 +1374,7 @@
     showToast(State.lang === 'en' ? 'Biometric verified. Authenticating...' : 'Biometrik disahkan. Menyemak sesi...', 'info');
     const res = await api('biometricLogin', { token: tokenToVerify });
     if (res && res.success) {
-      State.token = res.token;
-      State.currentUser = res.user;
-      localStorage.setItem('ceu_tok', res.token);
-      localStorage.setItem('ceu_user', JSON.stringify(res.user));
+      saveActiveSession(res.token, res.user);
       // Kemas kini token biometrik yang disegarkan
       localStorage.setItem('ceu_bio_token', res.token);
       localStorage.setItem('ceu_bio_user', JSON.stringify(res.user));
@@ -1800,7 +1794,7 @@
         // Hormati peranan dari pangkalan data (lalai: Guru bagi upk@ds.edu.moe.bn)
         const isAdm = isUserAdmin(State.currentUser);
         State.currentUser.role = isAdm ? 'Admin' : (State.currentUser.role || 'Guru');
-        try { localStorage.setItem('ceu_user', JSON.stringify(State.currentUser)); } catch(e) {}
+        try { sessionStorage.setItem('ceu_user', JSON.stringify(State.currentUser)); } catch(e) {}
       }
       State.events = (res.data.events || []).map(e => {
         if (e.event_date) e.event_date = normalizeDateISOToYMD(e.event_date);
@@ -3323,7 +3317,7 @@
   function switchUserRole(newRole) {
     if (!State.currentUser) return;
     State.currentUser.role = newRole;
-    try { localStorage.setItem('ceu_user', JSON.stringify(State.currentUser)); } catch(e) {}
+    try { sessionStorage.setItem('ceu_user', JSON.stringify(State.currentUser)); } catch(e) {}
 
     const homeGreetingLabel = document.getElementById('home-greeting-label');
     if (homeGreetingLabel) {
@@ -4023,6 +4017,52 @@
     }, 1000);
   }
 
+  // Pengurusan Sesi Aktif (Session Storage - Auto Logout Semasa Aplikasi Ditutup)
+  function saveActiveSession(token, user) {
+    State.token = token;
+    State.currentUser = user;
+    sessionStorage.setItem('ceu_tok', token);
+    sessionStorage.setItem('ceu_user', JSON.stringify(user));
+    // Padam daripada localStorage supaya tiada sesi kekal apabila aplikasi ditutup (auto-logout on dismiss)
+    localStorage.removeItem('ceu_tok');
+    localStorage.removeItem('ceu_user');
+  }
+
+  function clearActiveSession() {
+    State.token = '';
+    State.currentUser = null;
+    sessionStorage.removeItem('ceu_tok');
+    sessionStorage.removeItem('ceu_user');
+    localStorage.removeItem('ceu_tok');
+    localStorage.removeItem('ceu_user');
+  }
+
+  function openExitConfirmModal() {
+    const modal = document.getElementById('modal-exit-confirm');
+    if (!modal) return;
+    const title = document.getElementById('exit-modal-title');
+    const desc = document.getElementById('exit-modal-desc');
+    const btnCancel = document.getElementById('btn-cancel-exit');
+    const btnConfirm = document.getElementById('btn-confirm-exit');
+
+    if (title) title.textContent = State.lang === 'en' ? 'Exit App & Log Out?' : 'Tutup Aplikasi & Log Keluar?';
+    if (desc) desc.textContent = State.lang === 'en'
+      ? 'Are you sure you want to exit? Your login session will be automatically terminated for security.'
+      : 'Adakah Awda pasti ingin keluar? Sesi log masuk Awda akan ditamatkan secara automatik demi keselamatan akaun.';
+    if (btnCancel) btnCancel.textContent = State.lang === 'en' ? 'Stay' : 'Batal';
+    if (btnConfirm) btnConfirm.textContent = State.lang === 'en' ? 'Yes, Log Out' : 'Ya, Log Keluar';
+
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+  }
+
+  function closeExitConfirmModal() {
+    const modal = document.getElementById('modal-exit-confirm');
+    if (!modal) return;
+    modal.classList.add('hidden');
+    modal.classList.remove('flex');
+  }
+
   async function handleVerifyOtpClick() {
     const emailInput = document.getElementById('email') || document.getElementById('auth-email-input');
     const email = (emailInput?.value || '').trim();
@@ -4044,10 +4084,7 @@
 
     const res = await api('verifyOtp', { email: email, otp: otp, device: navigator.userAgent });
     if (res && res.success) {
-      State.token = res.token;
-      State.currentUser = res.user;
-      localStorage.setItem('ceu_tok', res.token);
-      localStorage.setItem('ceu_user', JSON.stringify(res.user));
+      saveActiveSession(res.token, res.user);
 
       localStorage.setItem('ceu_bio_token', res.token);
       localStorage.setItem('ceu_bio_user', JSON.stringify(res.user));
@@ -4062,10 +4099,8 @@
   }
 
   function logout(isManual = false) {
-    State.token = '';
-    State.currentUser = null;
-    localStorage.removeItem('ceu_tok');
-    localStorage.removeItem('ceu_user');
+    clearActiveSession();
+    closeExitConfirmModal();
     setView('auth');
     if (isManual) {
       showToast(State.lang === 'en' ? 'You have successfully logged out.' : 'Awda telah berjaya log keluar dari Portal CEU.', 'info');
@@ -4083,10 +4118,7 @@
     showToast((State.lang === 'en' ? 'Quick logging in as ' : 'Log masuk pantas sebagai ') + email + '...', 'info');
     const res = await api('verifyOtp', { email: email, otp: '124111', device: navigator.userAgent });
     if (res && res.success) {
-      State.token = res.token;
-      State.currentUser = res.user;
-      localStorage.setItem('ceu_tok', res.token);
-      localStorage.setItem('ceu_user', JSON.stringify(res.user));
+      saveActiveSession(res.token, res.user);
       localStorage.setItem('ceu_bio_token', res.token);
       localStorage.setItem('ceu_bio_user', JSON.stringify(res.user));
       updateBiometricUI();
@@ -5231,7 +5263,22 @@
     }
 
     const btnLogout = document.getElementById('btn-logout');
-    if (btnLogout) btnLogout.addEventListener('click', () => logout(true));
+    if (btnLogout) btnLogout.addEventListener('click', () => openExitConfirmModal());
+
+    const btnCancelExit = document.getElementById('btn-cancel-exit');
+    if (btnCancelExit) btnCancelExit.addEventListener('click', closeExitConfirmModal);
+
+    const btnConfirmExit = document.getElementById('btn-confirm-exit');
+    if (btnConfirmExit) btnConfirmExit.addEventListener('click', () => logout(true));
+
+    const modalExit = document.getElementById('modal-exit-confirm');
+    if (modalExit) {
+      modalExit.addEventListener('click', (e) => {
+        if (e.target === modalExit) closeExitConfirmModal();
+      });
+    }
+
+    initNavigationGuard();
 
     const bioSettingToggle = document.getElementById('toggle-bio-setting');
     if (bioSettingToggle) {
@@ -5251,11 +5298,44 @@
   }
 
   // ==========================================================================
-  // 18. BOOTSTRAP APLIKASI
+  // 18. BOOTSTRAP APLIKASI & EXIT HANDLERS
   // ==========================================================================
   window.triggerOtpProcess = handleSendOtpClick;
   window.triggerBiometricScan = triggerBiometricLogin;
   window.handleAuthSubmit = handleVerifyOtpClick;
+
+  // 1. Amaran penutupan pelayar / tab apabila pengguna cuba menutup aplikasi
+  window.addEventListener('beforeunload', (e) => {
+    if (State.currentUser && State.currentView !== 'auth') {
+      e.preventDefault();
+      e.returnValue = '';
+      return '';
+    }
+  });
+
+  // 2. Auto log keluar apabila aplikasi ditutup / didismiss (pagehide)
+  window.addEventListener('pagehide', () => {
+    clearActiveSession();
+  });
+
+  // 3. Pengawal Navigasi Mudah Alih (Intercept Back button pada telefon agar memberi amaran log keluar)
+  function initNavigationGuard() {
+    try {
+      window.history.replaceState({ appPage: 'root' }, '');
+      window.history.pushState({ appPage: 'main' }, '');
+    } catch(e) {}
+
+    window.addEventListener('popstate', () => {
+      if (State.currentUser && State.currentView !== 'auth') {
+        try { window.history.pushState({ appPage: 'main' }, ''); } catch(err) {}
+        if (State.currentView !== 'home') {
+          setView('home');
+        } else {
+          openExitConfirmModal();
+        }
+      }
+    });
+  }
 
   function bootApp() {
     try {
@@ -5271,8 +5351,10 @@
       console.warn('UI init error:', e);
     }
 
-    const savedToken = localStorage.getItem('ceu_tok');
-    const savedUser = localStorage.getItem('ceu_user');
+    // Auto log keluar apabila aplikasi ditutup (dismiss):
+    // Sesi aktif disimpan dalam sessionStorage yang musnah secara automatik sebaik sahaja tab/aplikasi ditutup.
+    const savedToken = sessionStorage.getItem('ceu_tok');
+    const savedUser = sessionStorage.getItem('ceu_user');
     if (savedToken && savedUser) {
       try {
         State.token = savedToken;
@@ -5284,15 +5366,17 @@
             setView('home');
           }
         }).catch(() => {
+          clearActiveSession();
           setView('auth');
         });
         return;
       } catch (e) {
-        localStorage.removeItem('ceu_tok');
-        localStorage.removeItem('ceu_user');
+        clearActiveSession();
       }
     }
 
+    // Tiada sesi aktif (aplikasi baru dibuka semula selepas ditutup): Pengguna bermula dari log masuk
+    clearActiveSession();
     setView('auth');
   }
 
@@ -5316,7 +5400,9 @@
     setRsvpFilter: setRsvpFilter,
     switchUserRole: switchUserRole,
     handleNotificationAction: handleNotificationAction,
-    getEffectiveNotifications: getEffectiveNotifications
+    getEffectiveNotifications: getEffectiveNotifications,
+    openExitConfirmModal: openExitConfirmModal,
+    closeExitConfirmModal: closeExitConfirmModal
   };
 
 })();
