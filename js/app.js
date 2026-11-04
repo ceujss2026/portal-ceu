@@ -1840,14 +1840,58 @@
   }
 
   // ==========================================================================
-  // NOTIFICATION BADGE HELPER
+  // NOTIFIKASI PINTAR & LENCANA (SMART NOTIFICATIONS & BADGE HELPER)
   // ==========================================================================
+  function getEffectiveNotifications() {
+    const rawNotifs = Array.isArray(State.notifications) ? [...State.notifications] : [];
+    const user = State.currentUser;
+    const myEmail = user ? String(user.email || '').toLowerCase().trim() : '';
+
+    // Semak program yang memerlukan RSVP dan pengguna belum memberi maklum balas
+    const pendingEvents = (State.events || [])
+      .filter(e => (e.status || 'Published').toLowerCase() !== 'draft')
+      .filter(e => isUserInvitedToEvent(e, user))
+      .filter(e => {
+        const req = String(e.rsvp_required || e.rsvpRequired || '').toLowerCase();
+        return req === 'true' || req === '1' || req === 'ya';
+      })
+      .filter(e => {
+        const userRsvp = (State.rsvps || []).find(r => r.event_id === e.event_id && String(r.user_email || '').toLowerCase().trim() === myEmail);
+        return !userRsvp;
+      });
+
+    // Cipta kad notifikasi Peringatan Mesra RSVP dinamik bagi program yang masih perlukan tindakan
+    const reminderNotifs = pendingEvents.map(e => {
+      const eventTitle = (State.lang === 'en' && e.title_en) ? e.title_en : (e.title_bm || e.title || 'Program Kerjaya');
+      const eventDate = formatEventDateClean(e.event_date);
+      const timeStr = formatTime12H(e.start_time);
+      return {
+        notif_id: 'REMINDER-' + e.event_id,
+        eventId: e.event_id,
+        title_bm: 'Peringatan Mesra: Tarikh Akhir RSVP ' + (e.title_bm || e.title || eventTitle),
+        title_en: 'Friendly Reminder: RSVP Deadline for ' + (e.title_en || e.title_bm || e.title || eventTitle),
+        content_bm: 'Awda belum mengesahkan kehadiran bagi program ini (' + eventDate + ', ' + timeStr + ' di ' + (e.venue || 'Dalam Talian') + '). Sila buat pengesahan kehadiran atau lantik wakil sekolah Awda segera.',
+        content_en: 'You have not confirmed your attendance for this event (' + eventDate + ', ' + timeStr + ' at ' + (e.venue || 'Online') + '). Please confirm your attendance or appoint a substitute promptly.',
+        type: 'Urgent',
+        sent_at: State.lang === 'en' ? 'Action Required' : 'Tindakan Diperlukan',
+        is_read: false,
+        isPendingRsvpReminder: true
+      };
+    });
+
+    const existingIds = new Set(reminderNotifs.map(r => r.notif_id));
+    const otherNotifs = rawNotifs.filter(n => !existingIds.has(n.notif_id));
+
+    return [...reminderNotifs, ...otherNotifs];
+  }
+
   function updateNotifBadge() {
     let readIds = [];
     try { readIds = JSON.parse(localStorage.getItem('ceu_read_notifs') || '[]'); } catch(e) {}
     let unreadCount = 0;
-    (State.notifications || []).forEach(n => {
-      if (readIds.includes(n.notif_id)) {
+    const notifs = getEffectiveNotifications();
+    notifs.forEach(n => {
+      if (readIds.includes(n.notif_id) && !n.isPendingRsvpReminder) {
         n.is_read = true;
       }
       if (!n.is_read) unreadCount++;
@@ -3114,10 +3158,22 @@
   // 11. RENDER NOTIFIKASI & TINDAKAN INTERAKTIF
   // ==========================================================================
   function handleNotificationAction(notifId) {
-    const notif = (State.notifications || []).find(n => n.notif_id === notifId);
-    const text = notif ? ((notif.title_bm || '') + ' ' + (notif.title_en || '') + ' ' + (notif.content_bm || '') + ' ' + (notif.content_en || '')).toLowerCase() : '';
+    const notifs = getEffectiveNotifications();
+    const notif = notifs.find(n => n.notif_id === notifId);
+    if (!notif) {
+      setView('rsvp');
+      return;
+    }
 
-    if (text.includes('rsvp') || text.includes('kehadiran') || text.includes('peringatan') || (notif && notif.type === 'Urgent')) {
+    if (notif.eventId) {
+      showToast(State.lang === 'en' ? 'Opening RSVP attendance form...' : 'Membuka borang pengesahan kehadiran...', 'info');
+      openRsvpModal(notif.eventId);
+      return;
+    }
+
+    const text = ((notif.title_bm || '') + ' ' + (notif.title_en || '') + ' ' + (notif.content_bm || '') + ' ' + (notif.content_en || '')).toLowerCase();
+
+    if (text.includes('rsvp') || text.includes('kehadiran') || text.includes('peringatan') || notif.type === 'Urgent') {
       showToast(State.lang === 'en' ? 'Opening RSVP attendance form...' : 'Membuka borang pengesahan kehadiran...', 'info');
       // Cari program jemputan yang berkaitan
       const targetEvent = (State.events || []).find(e => {
@@ -3138,12 +3194,16 @@
   }
 
   function renderNotifView() {
-    // Tandakan semua notifikasi telah dibaca serta-merta apabila pengguna melawat paparan ini
+    const notifs = getEffectiveNotifications();
+
+    // Tandakan notifikasi biasa telah dibaca (kecuali peringatan RSVP yang masih belum selesai)
     let readIds = [];
     try { readIds = JSON.parse(localStorage.getItem('ceu_read_notifs') || '[]'); } catch(e) {}
-    (State.notifications || []).forEach(n => {
-      if (!readIds.includes(n.notif_id)) readIds.push(n.notif_id);
-      n.is_read = true;
+    notifs.forEach(n => {
+      if (!n.isPendingRsvpReminder && !readIds.includes(n.notif_id)) {
+        readIds.push(n.notif_id);
+      }
+      if (readIds.includes(n.notif_id)) n.is_read = true;
     });
     localStorage.setItem('ceu_read_notifs', JSON.stringify(readIds));
     updateNotifBadge();
@@ -3151,7 +3211,7 @@
     const container = document.getElementById('notif-list-container');
     if (!container) return;
 
-    if (!State.notifications.length) {
+    if (!notifs.length) {
       container.innerHTML = `
         <div class="bg-surface-container-low rounded-2xl p-8 text-center text-on-surface-variant my-4">
           <span class="material-symbols-outlined text-[48px] text-primary/40 mb-2">notifications_off</span>
@@ -3161,7 +3221,7 @@
       return;
     }
 
-    container.innerHTML = State.notifications.map(n => {
+    container.innerHTML = notifs.map(n => {
       const isUrgent = n.type === 'Urgent';
       const title = (State.lang === 'en' && n.title_en) ? n.title_en : n.title_bm;
       const content = (State.lang === 'en' && n.content_en) ? n.content_en : n.content_bm;
@@ -3707,10 +3767,26 @@
           });
           btn.disabled = false;
           btn.innerHTML = origText;
+          // Tambah notifikasi peringatan setempat ke State.notifications
+          const newReminderNotif = {
+            notif_id: 'REMINDER-MANUAL-' + Date.now(),
+            eventId: _adminSelectedEventId,
+            title_bm: 'Peringatan Mesra: Tarikh Akhir RSVP Program',
+            title_en: 'Friendly Reminder: Event RSVP Deadline',
+            content_bm: 'Peringatan rasmi dihantar kepada ' + email + ' untuk membuat pengesahan kehadiran.',
+            content_en: 'Official reminder was dispatched to ' + email + ' to complete attendance RSVP.',
+            type: 'Urgent',
+            sent_at: State.lang === 'en' ? 'Just now' : 'Baru sahaja',
+            is_read: false
+          };
+          if (!State.notifications) State.notifications = [];
+          State.notifications.unshift(newReminderNotif);
+          updateNotifBadge();
+
           if (res && res.success) {
             showToast(res.message || (State.lang === 'en' ? 'Reminder sent successfully!' : 'Peringatan berjaya dihantar!'), 'success');
           } else {
-            showToast(State.lang === 'en' ? 'Notification reminder sent to ' + email : 'Peringatan notifikasi dihantar ke ' + email, 'success');
+            showToast(State.lang === 'en' ? 'RSVP reminder sent to ' + email : 'Peringatan notifikasi dihantar ke ' + email, 'success');
           }
         } catch(e) {
           btn.disabled = false;
@@ -5239,7 +5315,8 @@
     renderRsvpView: renderRsvpView,
     setRsvpFilter: setRsvpFilter,
     switchUserRole: switchUserRole,
-    handleNotificationAction: handleNotificationAction
+    handleNotificationAction: handleNotificationAction,
+    getEffectiveNotifications: getEffectiveNotifications
   };
 
 })();

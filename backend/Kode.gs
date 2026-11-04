@@ -841,8 +841,30 @@ function handleBoot_(user) {
   const rsvpList = readSheetAsObjects_(CONFIG.SHEET_NAMES.rsvp)
     .filter(r => String(r.user_email).toLowerCase().trim() === user.email);
 
-  const notifList = readSheetAsObjects_(CONFIG.SHEET_NAMES.notif).slice(-10).reverse();
-  const unreadCount = notifList.filter(n => String(n.fcm_status || '').toLowerCase() !== 'read').length;
+  const notifList = readSheetAsObjects_(CONFIG.SHEET_NAMES.notif).slice(-15).reverse();
+
+  // Jana automatik Peringatan Mesra RSVP bagi program yang memerlukan RSVP tetapi belum dijawab oleh pengguna
+  const userPendingEvents = allEvents.filter(e => {
+    const req = String(e.rsvp_required || '').toLowerCase();
+    if (req !== 'true' && req !== '1' && req !== 'ya') return false;
+    const hasRsvp = rsvpList.some(r => r.event_id === e.event_id);
+    return !hasRsvp;
+  });
+
+  const autoReminders = userPendingEvents.map(e => ({
+    notif_id: 'REMINDER-' + e.event_id,
+    eventId: e.event_id,
+    title_bm: 'Peringatan Mesra: Tarikh Akhir RSVP ' + (e.title_bm || e.title),
+    title_en: 'Friendly Reminder: RSVP Deadline for ' + (e.title_en || e.title_bm || e.title),
+    content_bm: 'Sila buat pengesahan kehadiran Awda bagi acara ini sebelum tarikh tutup. Kerjasama Awda amat dihargai.',
+    content_en: 'Please complete your RSVP attendance for this event before the deadline. Your cooperation is greatly appreciated.',
+    type: 'Urgent',
+    sent_at: 'Tindakan Diperlukan',
+    is_read: false
+  }));
+
+  const finalNotifs = [...autoReminders, ...notifList];
+  const unreadCount = finalNotifs.filter(n => String(n.fcm_status || '').toLowerCase() !== 'read').length;
 
   const data = {
     user: {
@@ -855,7 +877,7 @@ function handleBoot_(user) {
     users: userList,
     events: allEvents,
     rsvp: rsvpList,
-    notifications: notifList,
+    notifications: finalNotifs,
     unreadNotifCount: unreadCount,
     config: {
       appName: APP_NAME,
@@ -1105,7 +1127,29 @@ function handleUploadMemoDoc_(user, data) {
 // Senarai Notifikasi
 function handleGetNotifications_(user) {
   const notifs = readSheetAsObjects_(CONFIG.SHEET_NAMES.notif).reverse();
-  return { success: true, data: notifs };
+  const allEvents = handleGetEvents_(user).data || [];
+  const rsvpList = readSheetAsObjects_(CONFIG.SHEET_NAMES.rsvp)
+    .filter(r => String(r.user_email).toLowerCase().trim() === user.email);
+
+  const userPendingEvents = allEvents.filter(e => {
+    const req = String(e.rsvp_required || '').toLowerCase();
+    if (req !== 'true' && req !== '1' && req !== 'ya') return false;
+    return !rsvpList.some(r => r.event_id === e.event_id);
+  });
+
+  const autoReminders = userPendingEvents.map(e => ({
+    notif_id: 'REMINDER-' + e.event_id,
+    eventId: e.event_id,
+    title_bm: 'Peringatan Mesra: Tarikh Akhir RSVP ' + (e.title_bm || e.title),
+    title_en: 'Friendly Reminder: RSVP Deadline for ' + (e.title_en || e.title_bm || e.title),
+    content_bm: 'Sila buat pengesahan kehadiran Awda bagi acara ini sebelum tarikh tutup. Kerjasama Awda amat dihargai.',
+    content_en: 'Please complete your RSVP attendance for this event before the deadline. Your cooperation is greatly appreciated.',
+    type: 'Urgent',
+    sent_at: 'Tindakan Diperlukan',
+    is_read: false
+  }));
+
+  return { success: true, data: [...autoReminders, ...notifs] };
 }
 
 function handleMarkNotifRead_(user, notifId) {
