@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=block" rel="stylesheet" />
 
   <!-- CSS Custom & Tema Rasmi -->
   <link rel="stylesheet" href="css/style.css" />
@@ -109,6 +109,25 @@
       }
     }
     ::-webkit-scrollbar { display: none; }
+
+    /* Wajib untuk render font ikon Material Symbols Outlined */
+    .material-symbols-outlined {
+      font-family: 'Material Symbols Outlined' !important;
+      font-weight: normal;
+      font-style: normal;
+      font-size: 24px;
+      line-height: 1;
+      letter-spacing: normal;
+      text-transform: none;
+      display: inline-block;
+      white-space: nowrap;
+      word-wrap: normal;
+      direction: ltr;
+      font-feature-settings: 'liga';
+      -webkit-font-feature-settings: 'liga';
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+    }
 
     /* Bekas Responsif Portal (Mobile & Desktop) */
     .app-viewport {
@@ -445,7 +464,7 @@
                 </label>
                 <div class="relative flex items-center">
                   <span class="material-symbols-outlined absolute left-3.5 text-outline text-[20px] pointer-events-none">domain</span>
-                  <input class="w-full h-11 pl-11 pr-4 bg-slate-50 border border-slate-200 text-on-surface text-xs rounded-xl focus:outline-none focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all placeholder:text-outline" id="loginUsername" placeholder="cth: agensi_ubd / admin_ceu" required type="text" />
+                  <input class="w-full h-11 pl-11 pr-4 bg-slate-50 border border-slate-200 text-on-surface text-xs rounded-xl focus:outline-none focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all placeholder:text-outline" id="loginUsername" value="agensi_ubd" placeholder="cth: agensi_ubd / admin_ceu" required type="text" />
                 </div>
               </div>
 
@@ -457,7 +476,7 @@
                 </label>
                 <div class="relative flex items-center">
                   <span class="material-symbols-outlined absolute left-3.5 text-outline text-[20px] pointer-events-none">lock</span>
-                  <input class="w-full h-11 pl-11 pr-10 bg-slate-50 border border-slate-200 text-on-surface text-xs rounded-xl focus:outline-none focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all placeholder:text-outline" id="loginPassword" placeholder="••••••••" required type="password" />
+                  <input class="w-full h-11 pl-11 pr-10 bg-slate-50 border border-slate-200 text-on-surface text-xs rounded-xl focus:outline-none focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all placeholder:text-outline" id="loginPassword" value="Agensi@2026" placeholder="••••••••" required type="password" />
                   <button type="button" onclick="const p = document.getElementById('loginPassword'); p.type = p.type === 'password' ? 'text' : 'password';" class="absolute right-3 text-outline hover:text-on-surface">
                     <span class="material-symbols-outlined text-[20px]">visibility</span>
                   </button>
@@ -477,6 +496,21 @@
                 <span>LOG MASUK SISTEM</span>
                 <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
               </button>
+
+              <!-- Akses Pantas Demonstrasi 1-Klik -->
+              <div class="mt-2 pt-3 border-t border-slate-100 flex flex-col gap-2">
+                <span class="text-[10px] text-slate-400 font-semibold uppercase tracking-wider text-center">Log Masuk Pantas (Akses Demonstrasi):</span>
+                <div class="grid grid-cols-2 gap-2">
+                  <button type="button" onclick="quickLoginDemo('agensi_ubd')" class="px-2.5 py-2 rounded-xl bg-slate-50 hover:bg-[#e0f2fe] hover:border-[#0284c7] border border-slate-200 text-slate-700 hover:text-[#006194] text-[11px] font-bold flex items-center justify-center gap-1.5 transition-all shadow-sm">
+                    <span class="material-symbols-outlined text-[16px] text-[#006194]">apartment</span>
+                    <span class="truncate">Agensi: UBD</span>
+                  </button>
+                  <button type="button" onclick="quickLoginDemo('admin_ceu')" class="px-2.5 py-2 rounded-xl bg-slate-50 hover:bg-[#fef3c7] hover:border-[#d97706] border border-slate-200 text-slate-700 hover:text-[#b45309] text-[11px] font-bold flex items-center justify-center gap-1.5 transition-all shadow-sm">
+                    <span class="material-symbols-outlined text-[16px] text-[#d97706]">admin_panel_settings</span>
+                    <span class="truncate">Pentadbir CEU</span>
+                  </button>
+                </div>
+              </div>
             </form>
 
             <div class="text-center text-[10px] text-slate-400 mt-4 md:mt-6">

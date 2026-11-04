@@ -44,11 +44,17 @@ async function apiCall(action, data = {}, isWrite = false) {
       };
 
       // WAJIB: 'Content-Type': 'text/plain;charset=utf-8' mengikut gas-pro-api
+      // Ditambah timeout 6000ms untuk tindak balas pantas jika GAS sedang cold-start
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 6000);
+
       const res = await fetch(CONFIG.GAS_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-        body: JSON.stringify(payload)
+        body: JSON.stringify(payload),
+        signal: controller.signal
       });
+      clearTimeout(timeoutId);
 
       const json = await res.json();
       if (json.code === 'AUTH_EXPIRED') {
@@ -58,8 +64,8 @@ async function apiCall(action, data = {}, isWrite = false) {
       }
       return json;
     } catch (err) {
-      console.warn('API Error:', err);
-      // Fallback offline / local demo data jika URL belum disambung
+      console.warn('API Error / Offline Fallback:', err.message || err);
+      // Fallback offline / local demo data jika URL belum disambung atau perlahan
       return handleOfflineFallback(action, data);
     }
   })();
@@ -228,6 +234,35 @@ window.addEventListener('resize', () => {
 // ============================================
 // 4. AUTENTIKASI: LOG MASUK & KELUAR
 // ============================================
+function quickLoginDemo(userType) {
+  if (userType === 'admin_ceu') {
+    AppState.currentUser = {
+      id: 'ADMIN-CEU',
+      role: 'ADMIN',
+      namaAgensi: 'Unit Pendidikan Kerjaya (Admin CEU)',
+      username: 'admin_ceu'
+    };
+    AppState.token = 'demo-admin-token';
+    localStorage.setItem('ceu_user', JSON.stringify(AppState.currentUser));
+    localStorage.setItem('ceu_token', AppState.token);
+    showToast('Log masuk pantas Pentadbir CEU berjaya!', 'success');
+    navigateTo('admin');
+  } else {
+    AppState.currentUser = {
+      id: 'AG-05',
+      role: 'AGENCY',
+      namaAgensi: 'Universiti Brunei Darussalam',
+      username: 'agensi_ubd',
+      kategori: 'Institusi Pengajian Tinggi (IPT)'
+    };
+    AppState.token = 'demo-agency-token';
+    localStorage.setItem('ceu_user', JSON.stringify(AppState.currentUser));
+    localStorage.setItem('ceu_token', AppState.token);
+    showToast('Log masuk pantas Universiti Brunei Darussalam berjaya!', 'success');
+    navigateTo('home');
+  }
+}
+
 async function handleLoginSubmit(event) {
   event.preventDefault();
   const usernameInput = document.getElementById('loginUsername');
