@@ -454,7 +454,7 @@
               <span class="font-caption text-[11px] text-white/85 truncate" data-i18n="cannotAttendSub">Lantik pegawai pengganti bagi pihak sekolah Awda</span>
             </div>
           </div>
-          <button type="button" onclick="const ev = (State.events||[])[0]; if(ev) openRsvpModal(ev.event_id);" class="bg-surface-container-lowest text-primary px-3.5 py-1.5 rounded-full font-label-md text-xs font-bold shadow-sm active:scale-95 transition-transform shrink-0 cursor-pointer">
+          <button type="button" onclick="const ev = (window.CEU_APP?.State?.events||[])[0]; if(ev) { window.CEU_APP.openRsvpModal(ev.event_id, 'rep'); } else { window.CEU_APP.setView('rsvp'); }" class="bg-surface-container-lowest text-primary px-3.5 py-1.5 rounded-full font-label-md text-xs font-bold shadow-sm active:scale-95 transition-transform shrink-0 cursor-pointer">
             <span data-i18n="appointRepBtn">Lantik</span>
           </button>
         </div>
@@ -2146,8 +2146,8 @@
   </nav>
 
   <!-- Application Logic Scripts -->
-  <script src="js/config.js?v=1.7.2"></script>
-  <script src="js/data-mock.js?v=1.7.2"></script>
-  <script src="js/app.js?v=1.7.2"></script>
+  <script src="js/config.js?v=1.7.3"></script>
+  <script src="js/data-mock.js?v=1.7.3"></script>
+  <script src="js/app.js?v=1.7.3"></script>
 </body>
 </html>

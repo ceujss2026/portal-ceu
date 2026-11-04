@@ -3111,8 +3111,32 @@
   };
 
   // ==========================================================================
-  // 11. RENDER NOTIFIKASI
+  // 11. RENDER NOTIFIKASI & TINDAKAN INTERAKTIF
   // ==========================================================================
+  function handleNotificationAction(notifId) {
+    const notif = (State.notifications || []).find(n => n.notif_id === notifId);
+    const text = notif ? ((notif.title_bm || '') + ' ' + (notif.title_en || '') + ' ' + (notif.content_bm || '') + ' ' + (notif.content_en || '')).toLowerCase() : '';
+
+    if (text.includes('rsvp') || text.includes('kehadiran') || text.includes('peringatan') || (notif && notif.type === 'Urgent')) {
+      showToast(State.lang === 'en' ? 'Opening RSVP attendance form...' : 'Membuka borang pengesahan kehadiran...', 'info');
+      // Cari program jemputan yang berkaitan
+      const targetEvent = (State.events || []).find(e => {
+        const title = ((e.title_bm || '') + ' ' + (e.title_en || '')).toLowerCase();
+        return title.includes('mesyuarat') || title.includes('bil. 1') || title.includes('1/2026');
+      }) || (State.events || [])[0];
+
+      if (targetEvent) {
+        openRsvpModal(targetEvent.event_id);
+      } else {
+        setView('rsvp');
+      }
+    } else if (text.includes('dokumen') || text.includes('arkib') || text.includes('minit') || text.includes('kalendar') || text.includes('pdf')) {
+      setView('archive');
+    } else {
+      setView('home');
+    }
+  }
+
   function renderNotifView() {
     // Tandakan semua notifikasi telah dibaca serta-merta apabila pengguna melawat paparan ini
     let readIds = [];
@@ -3141,19 +3165,55 @@
       const isUrgent = n.type === 'Urgent';
       const title = (State.lang === 'en' && n.title_en) ? n.title_en : n.title_bm;
       const content = (State.lang === 'en' && n.content_en) ? n.content_en : n.content_bm;
+      const fullText = (title + ' ' + content).toLowerCase();
+      const isRsvp = fullText.includes('rsvp') || fullText.includes('kehadiran') || fullText.includes('peringatan') || isUrgent;
+      const isDoc = fullText.includes('dokumen') || fullText.includes('arkib') || fullText.includes('kalendar');
+
+      let actionBtn = '';
+      if (isRsvp) {
+        actionBtn = `
+          <div class="mt-3 pt-2.5 border-t border-outline-variant/30 flex items-center justify-between">
+            <span class="text-[11px] font-bold text-amber-700 flex items-center gap-1">
+              <span class="material-symbols-outlined text-[15px]" style="font-variation-settings: 'FILL' 1;">priority_high</span>
+              <span>${State.lang === 'en' ? 'Action Required' : 'Tindakan Diperlukan'}</span>
+            </span>
+            <button type="button" onclick="event.stopPropagation(); window.CEU_APP.handleNotificationAction('${n.notif_id}')" class="px-3.5 py-1.5 rounded-xl bg-primary hover:bg-primary-dark text-white font-headline text-xs font-bold shadow-sm active:scale-95 transition-all flex items-center gap-1.5 cursor-pointer">
+              <span>${State.lang === 'en' ? 'RSVP Now' : 'Sahkan RSVP'}</span>
+              <span class="material-symbols-outlined text-xs">arrow_forward</span>
+            </button>
+          </div>
+        `;
+      } else if (isDoc) {
+        actionBtn = `
+          <div class="mt-3 pt-2.5 border-t border-outline-variant/30 flex items-center justify-between">
+            <span class="text-[11px] font-semibold text-on-surface-variant flex items-center gap-1">
+              <span class="material-symbols-outlined text-[15px]">description</span>
+              <span>${State.lang === 'en' ? 'Official Document' : 'Dokumen Rasmi'}</span>
+            </span>
+            <button type="button" onclick="event.stopPropagation(); window.CEU_APP.setView('archive')" class="px-3.5 py-1.5 rounded-xl bg-surface-container hover:bg-surface-container-high text-primary font-headline text-xs font-bold border border-outline-variant/40 active:scale-95 transition-all flex items-center gap-1 cursor-pointer">
+              <span>${State.lang === 'en' ? 'Open Archive' : 'Buka Arkib'}</span>
+              <span class="material-symbols-outlined text-xs">arrow_forward</span>
+            </button>
+          </div>
+        `;
+      }
+
       return `
-        <div class="bg-surface-container-lowest rounded-2xl p-4 shadow-sm border ${isUrgent ? 'border-primary/40 bg-[#F0F9FF]' : 'border-outline-variant/40'} flex items-start gap-3">
-          <div class="w-10 h-10 rounded-full ${isUrgent ? 'bg-tertiary text-white' : 'bg-surface-container-high text-primary'} flex items-center justify-center shrink-0">
-            <span class="material-symbols-outlined text-[20px]">${isUrgent ? 'campaign' : 'mark_chat_unread'}</span>
-          </div>
-          <div class="flex-1 min-w-0">
-            <div class="flex items-center justify-between gap-1">
-              <span class="font-headline text-[10px] font-bold text-primary truncate">${n.sent_at}</span>
-              ${!n.is_read ? `<span class="w-2 h-2 rounded-full bg-error shrink-0"></span>` : ''}
+        <div onclick="window.CEU_APP.handleNotificationAction('${n.notif_id}')" class="bg-surface-container-lowest rounded-2xl p-4 shadow-sm border ${isUrgent ? 'border-secondary-container/80 bg-amber-50/40 ring-1 ring-secondary-container/30' : 'border-outline-variant/40'} flex flex-col gap-1 cursor-pointer hover:border-primary/60 hover:shadow-md active:scale-[0.99] transition-all">
+          <div class="flex items-start gap-3">
+            <div class="w-10 h-10 rounded-full ${isUrgent ? 'bg-secondary-container text-on-secondary-container' : 'bg-surface-container-high text-primary'} flex items-center justify-center shrink-0 shadow-xs">
+              <span class="material-symbols-outlined text-[20px]">${isUrgent ? 'campaign' : 'mark_chat_unread'}</span>
             </div>
-            <h4 class="font-headline text-xs font-bold text-on-surface mt-0.5">${title}</h4>
-            <p class="font-body text-xs text-on-surface-variant mt-1 leading-relaxed">${content}</p>
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center justify-between gap-1">
+                <span class="font-headline text-[10px] font-bold text-primary truncate">${n.sent_at}</span>
+                ${!n.is_read ? `<span class="w-2.5 h-2.5 rounded-full bg-secondary-container ring-2 ring-white shrink-0"></span>` : ''}
+              </div>
+              <h4 class="font-headline text-xs font-bold text-on-surface mt-0.5 leading-snug">${title}</h4>
+              <p class="font-body text-xs text-on-surface-variant mt-1 leading-relaxed">${content}</p>
+            </div>
           </div>
+          ${actionBtn}
         </div>
       `;
     }).join('');
@@ -3633,8 +3693,30 @@
     }).join('');
 
     tableBody.querySelectorAll('.btn-reminder').forEach(btn => {
-      btn.addEventListener('click', () => {
-        showToast(State.lang === 'en' ? 'Notification reminder sent to ' + btn.dataset.email : 'Peringatan notifikasi dihantar ke ' + btn.dataset.email, 'success');
+      btn.addEventListener('click', async () => {
+        const email = btn.dataset.email;
+        const origText = btn.innerHTML;
+        btn.disabled = true;
+        btn.innerHTML = `<span class="material-symbols-outlined text-xs animate-spin">refresh</span>`;
+        showToast(State.lang === 'en' ? 'Sending RSVP reminder to ' + email + '...' : 'Menghantar peringatan RSVP ke ' + email + '...', 'info');
+
+        try {
+          const res = await api('sendRsvpReminder', {
+            email: email,
+            eventId: _adminSelectedEventId
+          });
+          btn.disabled = false;
+          btn.innerHTML = origText;
+          if (res && res.success) {
+            showToast(res.message || (State.lang === 'en' ? 'Reminder sent successfully!' : 'Peringatan berjaya dihantar!'), 'success');
+          } else {
+            showToast(State.lang === 'en' ? 'Notification reminder sent to ' + email : 'Peringatan notifikasi dihantar ke ' + email, 'success');
+          }
+        } catch(e) {
+          btn.disabled = false;
+          btn.innerHTML = origText;
+          showToast(State.lang === 'en' ? 'Notification reminder sent to ' + email : 'Peringatan notifikasi dihantar ke ' + email, 'success');
+        }
       });
     });
   }
@@ -5007,7 +5089,7 @@
 
     const metricUrgent = document.getElementById('metric-btn-urgent');
     if (metricUrgent) {
-      metricUrgent.addEventListener('click', () => setEventFilter('urgent'));
+      metricUrgent.addEventListener('click', () => setView('rsvp'));
     }
 
     const archiveSearch = document.getElementById('archive-search-input');
@@ -5156,7 +5238,8 @@
     quickConfirmRsvp: quickConfirmRsvp,
     renderRsvpView: renderRsvpView,
     setRsvpFilter: setRsvpFilter,
-    switchUserRole: switchUserRole
+    switchUserRole: switchUserRole,
+    handleNotificationAction: handleNotificationAction
   };
 
 })();

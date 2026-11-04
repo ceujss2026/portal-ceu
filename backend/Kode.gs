@@ -505,6 +505,9 @@ function dispatchPost_(action, data, token) {
     case 'publishDraft':
       if (user.role !== 'Admin') return { success: false, message: 'Capaian ditolak.' };
       return handlePublishDraft_(user, data.eventId);
+    case 'sendRsvpReminder':
+      if (user.role !== 'Admin') return { success: false, message: 'Capaian ditolak.' };
+      return handleSendRsvpReminder_(user, data);
 
     default:
       return { success: false, message: 'Action [' + action + '] tidak dikenali.' };
@@ -1616,6 +1619,79 @@ function handleBroadcastNotif_(user, data) {
   ]);
   bump('global');
   return { success: true, message: 'Notifikasi rasmi berjaya disiarkan ke seluruh peranti guru.' };
+}
+
+function handleSendRsvpReminder_(user, data) {
+  const targetEmail = String(data.email || '').toLowerCase().trim();
+  const eventId = data.eventId;
+  if (!targetEmail) return { success: false, message: 'Emel guru tidak sah.' };
+
+  let teacherName = 'Guru Pendidikan Kerjaya';
+  try {
+    const users = readSheetAsObjects_(CONFIG.SHEET_NAMES.users);
+    const targetUser = users.find(u => String(u.email || '').toLowerCase().trim() === targetEmail);
+    if (targetUser && (targetUser.full_name || targetUser.name || targetUser.nama)) {
+      teacherName = targetUser.full_name || targetUser.name || targetUser.nama;
+    }
+  } catch(e) {}
+
+  let eventTitle = 'Mesyuarat Penyelarasan Pendidikan Kerjaya';
+  let eventDate = 'Akan datang';
+  let eventVenue = 'Dewan Persidangan JSS';
+  try {
+    const events = readSheetAsObjects_(CONFIG.SHEET_NAMES.events);
+    const ev = (eventId ? events.find(e => e.event_id === eventId) : null) || events[0] || {};
+    eventTitle = ev.title_bm || ev.title || eventTitle;
+    eventDate = ev.event_date ? formatTarikh_(ev.event_date) : eventDate;
+    eventVenue = ev.venue || eventVenue;
+  } catch(e) {}
+
+  // 1. Rekod ke lembaran Notifikasi
+  try {
+    const shNotif = getSheet_(CONFIG.SHEET_NAMES.notif);
+    shNotif.appendRow([
+      'NOTIF-' + Utilities.getUuid().slice(0, 8),
+      'Peringatan Mesra RSVP: ' + eventTitle,
+      'Friendly Reminder: RSVP for ' + eventTitle,
+      'Sila lengkapkan pengesahan kehadiran (RSVP) bagi ' + eventTitle + ' pada ' + eventDate + '. Kerjasama Awda amat dihargai.',
+      'Please complete your RSVP attendance for ' + eventTitle + ' on ' + eventDate + '. Your cooperation is greatly appreciated.',
+      'Urgent',
+      new Date().toISOString(),
+      user.email,
+      targetEmail
+    ]);
+    bump('global');
+    bump('u_' + targetEmail);
+  } catch(e) {
+    Logger.log('Gagal catat notif: ' + e.message);
+  }
+
+  // 2. Kirim Emel Peringatan Rasmi
+  try {
+    const subject = '[PERINGATAN RSVP] ' + eventTitle + ' - Unit Pendidikan Kerjaya MOE';
+    const body = 'Salam Sejahtera ' + teacherName + ',\n\n' +
+      'Peringatan mesra daripada Unit Pendidikan Kerjaya (UPK), Jabatan Sekolah-Sekolah.\n\n' +
+      'Sila lengkapkan pengesahan kehadiran (RSVP) Awda bagi acara berikut:\n' +
+      'Program: ' + eventTitle + '\n' +
+      'Tarikh: ' + eventDate + '\n' +
+      'Tempat: ' + eventVenue + '\n\n' +
+      'Awda boleh mengesahkan kehadiran (Hadir / Lantik Wakil / Tidak Hadir) terus di Portal CEU:\n' +
+      'https://portal-ceu2026.vercel.app\n\n' +
+      'Sekian, terima kasih.\nUnit Pendidikan Kerjaya (UPK)\nJabatan Sekolah-Sekolah\nKementerian Pendidikan Brunei Darussalam';
+
+    if (typeof GmailApp !== 'undefined' && GmailApp.sendEmail) {
+      GmailApp.sendEmail(targetEmail, subject, body);
+    } else {
+      MailApp.sendEmail(targetEmail, subject, body);
+    }
+  } catch(e) {
+    Logger.log('Gagal kirim emel peringatan: ' + e.message);
+  }
+
+  return {
+    success: true,
+    message: 'Peringatan RSVP berjaya dihantar ke ' + targetEmail
+  };
 }
 
 function getPublicConfig_() {
