@@ -2626,6 +2626,7 @@
     }
 
     if (modal) {
+      modal.style.display = 'flex';
       modal.classList.remove('hidden');
       setTimeout(() => {
         const p = modal.querySelector('.bottom-sheet-panel');
@@ -2640,6 +2641,7 @@
     const panel = modal.querySelector('.bottom-sheet-panel');
     if (panel) panel.classList.add('translate-y-full');
     setTimeout(() => {
+      modal.style.display = 'none';
       modal.classList.add('hidden');
     }, 300);
   }
@@ -3117,6 +3119,7 @@
         finalUrl = finalUrl.replace(/\/view(\?usp=sharing)?/, '/preview');
       }
       iframe.src = finalUrl || 'https://drive.google.com/viewerng/viewer?embedded=true&url=https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf';
+      modal.style.display = 'flex';
       modal.classList.remove('hidden');
     }
   }
@@ -3134,12 +3137,16 @@
     const filesizeEl = document.getElementById('upload-pdf-filesize');
     if (filenameEl) filenameEl.textContent = 'Klik untuk memilih fail PDF dari peranti';
     if (filesizeEl) filesizeEl.textContent = 'Format disokong: .pdf (Maksimum 10 MB)';
+    modal.style.display = 'flex';
     modal.classList.remove('hidden');
   };
 
   window.closeUploadPdfModal = function() {
     const modal = document.getElementById('modal-upload-pdf');
-    if (modal) modal.classList.add('hidden');
+    if (modal) {
+      modal.style.display = 'none';
+      modal.classList.add('hidden');
+    }
   };
 
   function initUploadPdfDropzone() {
@@ -4084,12 +4091,16 @@
       qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=140x140&data=${encodeURIComponent(verifyTarget)}`;
     }
 
+    modal.style.display = 'flex';
     modal.classList.remove('hidden');
   }
 
   function closeOfficialPdfReportModal() {
     const modal = document.getElementById('modal-pdf-report');
-    if (modal) modal.classList.add('hidden');
+    if (modal) {
+      modal.style.display = 'none';
+      modal.classList.add('hidden');
+    }
   }
 
   // ==========================================================================
@@ -4210,6 +4221,7 @@
     if (btnCancel) btnCancel.textContent = State.lang === 'en' ? 'Stay' : 'Batal';
     if (btnConfirm) btnConfirm.textContent = State.lang === 'en' ? 'Yes, Log Out' : 'Ya, Log Keluar';
 
+    modal.style.display = 'flex';
     modal.classList.remove('hidden');
     modal.classList.add('flex');
   }
@@ -4217,6 +4229,7 @@
   function closeExitConfirmModal() {
     const modal = document.getElementById('modal-exit-confirm');
     if (!modal) return;
+    modal.style.display = 'none';
     modal.classList.add('hidden');
     modal.classList.remove('flex');
   }
@@ -5379,7 +5392,7 @@
     const btnClosePdf = document.getElementById('btn-close-pdf-viewer');
     if (btnClosePdf) {
       btnClosePdf.addEventListener('click', () => {
-        document.getElementById('modal-pdf-viewer').classList.add('hidden');
+        const pv = document.getElementById('modal-pdf-viewer'); if (pv) { pv.style.display = 'none'; pv.classList.add('hidden'); }
       });
     }
 
