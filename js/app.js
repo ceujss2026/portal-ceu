@@ -3518,8 +3518,9 @@
   }
 
   // ==========================================================================
-  // 16. TOAST NOTIFICATION HELPER
+  // 16. TOAST NOTIFICATION HELPER (SINGLETON FLOATING PILL)
   // ==========================================================================
+  let toastDismissTimer = null;
   function showToast(message, type) {
     if (!message) return;
     type = type || 'info';
@@ -3530,31 +3531,35 @@
       document.body.appendChild(container);
     }
 
-    // Elakkan duplikasi mesej yang sama terpapar serentak
-    const existing = Array.from(container.children);
-    const isDuplicate = existing.some(el => el.textContent && el.textContent.includes(message));
-    if (isDuplicate) return;
-
-    // Hadkan maksimum 2 toast serentak supaya tidak bertindih
-    if (existing.length >= 2) {
-      existing[0].remove();
+    // Bersihkan sebarang toast sedia ada serta-merta (Singleton: hanya 1 notifikasi pada satu masa)
+    if (toastDismissTimer) {
+      clearTimeout(toastDismissTimer);
+      toastDismissTimer = null;
     }
+    container.innerHTML = '';
 
     const toast = document.createElement('div');
-    toast.className = `toast toast-${type}`;
+    toast.className = `toast toast-${type} transform transition-all duration-300 ease-out translate-y-[-12px] opacity-0`;
     const iconName = type === 'success' ? 'check_circle' : (type === 'error' ? 'error' : (type === 'warning' ? 'warning' : 'info'));
 
     toast.innerHTML = `
-      <span class="material-symbols-outlined text-[20px] shrink-0">${iconName}</span>
-      <span class="flex-1">${message}</span>
+      <span class="material-symbols-outlined text-[19px] shrink-0" style="font-variation-settings: 'FILL' 1;">${iconName}</span>
+      <span class="flex-1 leading-snug">${message}</span>
     `;
 
     container.appendChild(toast);
-    setTimeout(() => {
-      toast.style.opacity = '0';
-      toast.style.transform = 'translateY(-10px)';
-      setTimeout(() => toast.remove(), 300);
-    }, 3500);
+    requestAnimationFrame(() => {
+      toast.classList.remove('translate-y-[-12px]', 'opacity-0');
+      toast.classList.add('translate-y-0', 'opacity-100');
+    });
+
+    toastDismissTimer = setTimeout(() => {
+      toast.classList.remove('translate-y-0', 'opacity-100');
+      toast.classList.add('translate-y-[-12px]', 'opacity-0');
+      setTimeout(() => {
+        if (toast.parentElement) toast.remove();
+      }, 300);
+    }, 2800);
   }
 
   // ==========================================================================

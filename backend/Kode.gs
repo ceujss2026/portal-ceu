@@ -580,6 +580,7 @@ function handleSendOtp_(email) {
 
 function kirimEmelOtp_(email, otp, nama) {
   const subject = '🔐 Kod OTP Pengesahan Portal CEU UPK [' + otp + ']';
+  const textBody = 'Salam ' + (nama || 'Pegawai') + ',\n\nKod OTP pengesahan Portal CEU anda ialah: ' + otp + '\n\nKod ini sah selama 10 minit. Jangan kongsikan kod ini kepada sesiapa.\n\nUnit Pendidikan Kerjaya, Jabatan Sekolah-Sekolah Brunei';
   const htmlBody = `
     <div style="font-family: 'Segoe UI', Arial, sans-serif; max-width: 520px; margin: 0 auto; border: 1px solid #89C4F4; border-radius: 16px; overflow: hidden; background: #ffffff;">
       <div style="background: linear-gradient(135deg, #0E5677 0%, #1883B5 100%); padding: 24px; text-align: center; color: #ffffff;">
@@ -601,11 +602,34 @@ function kirimEmelOtp_(email, otp, nama) {
       </div>
     </div>
   `;
-  MailApp.sendEmail({
-    to: email,
-    subject: subject,
-    htmlBody: htmlBody
-  });
+
+  // 1. Cuba hantar menerusi GmailApp (rekod tersimpan dalam Sent Items akaun pentadbir)
+  try {
+    if (typeof GmailApp !== 'undefined' && GmailApp.sendEmail) {
+      GmailApp.sendEmail(email, subject, textBody, {
+        htmlBody: htmlBody,
+        name: 'Portal CEU UPK Brunei'
+      });
+      return true;
+    }
+  } catch (errGmail) {
+    Logger.log('GmailApp sendEmail gagal, menggunakan MailApp: ' + errGmail.message);
+  }
+
+  // 2. Sandaran kepada MailApp
+  try {
+    MailApp.sendEmail({
+      to: email,
+      subject: subject,
+      body: textBody,
+      htmlBody: htmlBody,
+      name: 'Portal CEU UPK Brunei'
+    });
+    return true;
+  } catch (errMail) {
+    Logger.log('MailApp sendEmail gagal: ' + errMail.message);
+    throw errMail;
+  }
 }
 
 // Sahkan Kod OTP
