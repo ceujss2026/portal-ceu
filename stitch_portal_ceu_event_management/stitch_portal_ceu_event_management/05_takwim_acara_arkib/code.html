@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+
+<html class="h-full" lang="ms"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/><meta content="mobile_tab" name="shell-type"/><title>PORTAL CEU - Kementerian Pendidikan</title><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Manrope:wght@600;700;800&amp;family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { "colors": { "tertiary-fixed": "#ffddb8", "secondary-fixed": "#aaefe6", "ocean-dark": "#0369a1", "secondary-fixed-dim": "#8fd3ca", "gold-hover": "#d97706", "outline": "#707881", "ocean-wash": "#e0f2fe", "surface-container-high": "#e2e7ff", "on-tertiary-fixed": "#2a1700", "surface-container-lowest": "#ffffff", "surface-dim": "#d2d9f4", "inverse-surface": "#283044", "surface-bg": "#f8fafc", "surface-bright": "#faf8ff", "on-primary-fixed-variant": "#004b73", "on-secondary-fixed": "#00201d", "on-tertiary-fixed-variant": "#653e00", "on-secondary-fixed-variant": "#00504a", "primary": "#006194", "on-tertiary-container": "#fffbff", "inverse-on-surface": "#eef0ff", "background": "#faf8ff", "secondary": "#206962", "surface-tint": "#006398", "teal-accent": "#167f77", "on-error-container": "#93000a", "on-surface-variant": "#3f4850", "surface-container": "#eaedff", "card-border": "#e2e8f0", "primary-fixed": "#cce5ff", "gold-subtle": "#fef3c7", "surface": "#faf8ff", "on-secondary": "#ffffff", "on-error": "#ffffff", "primary-container": "#007bb9", "tertiary": "#825100", "ocean-light": "#38bdf8", "teal-soft": "#e6f7f5", "surface-container-highest": "#dae2fd", "on-primary-fixed": "#001d31", "on-background": "#131b2e", "secondary-container": "#a8ede3", "tertiary-container": "#a36700", "on-secondary-container": "#266d66", "tertiary-fixed-dim": "#ffb95f", "inverse-primary": "#93ccff", "semantic-error": "#ef4444", "error-container": "#ffdad6", "surface-variant": "#dae2fd", "error": "#ba1a1a", "on-primary-container": "#fdfcff", "outline-variant": "#bfc7d2", "on-primary": "#ffffff", "on-surface": "#131b2e", "primary-fixed-dim": "#93ccff", "surface-container-low": "#f2f3ff", "on-tertiary": "#ffffff" }, "borderRadius": { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" }, "spacing": { "gutter": "1rem", "margin-mobile": "1rem", "space-md": "1rem", "gutter-mobile": "0.75rem", "space-lg": "1.5rem", "space-xl": "2rem", "space-sm": "0.5rem", "space-xs": "0.25rem", "margin": "1.5rem" }, "fontFamily": { "body-md": ["Plus Jakarta Sans"], "headline-lg": ["Manrope"], "body-sm": ["Plus Jakarta Sans"], "label-sm": ["Plus Jakarta Sans"], "label-md": ["Plus Jakarta Sans"], "display-hero-mobile": ["Manrope"], "body-lg": ["Plus Jakarta Sans"], "label-lg": ["Plus Jakarta Sans"], "headline-md": ["Manrope"], "display-hero": ["Manrope"], "headline-sm": ["Manrope"] }, "fontSize": { "body-md": ["14px", { "lineHeight": "20px", "letterSpacing": "0em", "fontWeight": "400" }], "headline-lg": ["26px", { "lineHeight": "34px", "letterSpacing": "-0.015em", "fontWeight": "700" }], "body-sm": ["12px", { "lineHeight": "18px", "letterSpacing": "0.01em", "fontWeight": "400" }], "label-sm": ["11px", { "lineHeight": "14px", "letterSpacing": "0.04em", "fontWeight": "700" }], "label-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "600" }], "display-hero-mobile": ["28px", { "lineHeight": "36px", "letterSpacing": "-0.02em", "fontWeight": "800" }], "body-lg": ["16px", { "lineHeight": "24px", "letterSpacing": "0em", "fontWeight": "400" }], "label-lg": ["14px", { "lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "600" }], "headline-md": ["20px", { "lineHeight": "28px", "letterSpacing": "-0.01em", "fontWeight": "700" }], "display-hero": ["36px", { "lineHeight": "44px", "letterSpacing": "-0.02em", "fontWeight": "800" }], "headline-sm": ["17px", { "lineHeight": "24px", "letterSpacing": "0em", "fontWeight": "600" }] } } } }</script><style>@layer base{html,body{width:100vw;margin:0;padding:0;background-color:#faf8ff;}body{overscroll-behavior-y:none;}.pb-safe{padding-bottom:calc(env(safe-area-inset-bottom,0px) + 5rem);}.pt-safe{padding-top:env(safe-area-inset-top,0px);}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head><body class="bg-surface font-body-md text-on-surface flex flex-col min-h-screen"><header class="fixed top-0 w-full z-50 pt-safe bg-gradient-to-r from-[#0284c7] via-primary to-[#0369a1] text-on-primary shadow-[0_4px_16px_rgba(2,132,199,0.18)]"><div class="h-16 px-margin-mobile flex items-center justify-between"><div class="flex items-center gap-space-sm"><div class="w-10 h-10 rounded-lg bg-surface-container-lowest/15 backdrop-blur-md flex items-center justify-center p-1 shadow-[0_2px_8px_rgba(0,0,0,0.06)]"><span class="material-symbols-outlined text-gold-subtle text-[22px]">account_balance</span></div><div class="flex flex-col"><span class="font-headline-sm text-headline-sm font-bold tracking-tight text-on-primary leading-tight">PORTAL CEU</span><span class="font-label-sm text-label-sm text-ocean-wash/80 font-semibold uppercase tracking-wider">UPK · JSS · MOE</span></div></div><div class="flex items-center gap-space-xs"><div class="flex items-center bg-surface-container-lowest/20 backdrop-blur-md rounded-full p-0.5"><button class="px-2 py-1 rounded-full font-label-sm text-label-sm font-bold bg-tertiary-fixed text-on-tertiary-fixed shadow-sm transition-all" type="button">BM</button><button class="px-2 py-1 rounded-full font-label-sm text-label-sm font-medium text-on-primary/80 hover:text-on-primary transition-all" type="button">EN</button></div><a class="w-11 h-11 flex items-center justify-center rounded-full text-on-primary hover:bg-surface-container-lowest/10 relative transition-colors" data-path="notifikasi" href="#"><span class="material-symbols-outlined text-[22px]">notifications</span><span class="absolute top-2.5 right-2.5 w-2 h-2 rounded-full bg-gold-hover ring-2 ring-primary"></span></a><a class="w-11 h-11 flex items-center justify-center" data-path="profil" href="#"><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center shadow-[0_2px_6px_rgba(0,0,0,0.15)] ring-2 ring-surface-container-lowest/40"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></a></div></div></header><main class="flex flex-col relative w-full pt-16 pb-safe bg-surface min-h-screen"><div class="flex flex-col w-full">
+<!-- Sub-header Title & Stats Strip -->
+<div class="px-margin-mobile pt-space-md pb-space-xs flex flex-col gap-1">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-xs">
+<span class="w-2.5 h-2.5 rounded-full bg-primary animate-pulse"></span>
+<span class="font-label-sm text-label-sm text-primary uppercase font-bold tracking-wider">Kalendar Rasmi 2026</span>
+</div>
+<div class="flex items-center gap-1 bg-surface-container-high px-2 py-0.5 rounded-full">
+<span class="material-symbols-outlined text-ocean-dark text-[14px]">event_available</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant font-semibold">12 Acara Terjadual</span>
+</div>
+</div>
+<h1 class="font-headline-md text-headline-md font-bold text-on-surface">Takwim Tahunan Program</h1>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Jadual penglibatan agensi &amp; pameran pendidikan kementerian</p>
+</div>
+<!-- Interactive Program Filter Tabs (Horizontal Scrollable) -->
+<div class="w-full overflow-x-auto py-space-sm px-margin-mobile flex items-center gap-2 no-scrollbar">
+<button class="filter-btn flex-shrink-0 px-3.5 py-1.5 rounded-full font-label-md text-label-md font-bold bg-primary text-on-primary shadow-sm transition-all" data-category="all" type="button">
+      Semua (12)
+    </button>
+<button class="filter-btn flex-shrink-0 px-3.5 py-1.5 rounded-full font-label-md text-label-md font-medium bg-surface-container text-on-surface-variant hover:bg-surface-container-high transition-all" data-category="halatuju" type="button">
+      Hala Tuju
+    </button>
+<button class="filter-btn flex-shrink-0 px-3.5 py-1.5 rounded-full font-label-md text-label-md font-medium bg-surface-container text-on-surface-variant hover:bg-surface-container-high transition-all" data-category="futurelink" type="button">
+      FutureLink
+    </button>
+<button class="filter-btn flex-shrink-0 px-3.5 py-1.5 rounded-full font-label-md text-label-md font-medium bg-surface-container text-on-surface-variant hover:bg-surface-container-high transition-all" data-category="taklimat" type="button">
+      Taklimat Agensi
+    </button>
+</div>
+<!-- Month Navigation Bar -->
+<div class="px-margin-mobile mt-space-xs mb-space-sm">
+<div class="bg-surface-container-lowest rounded-xl p-space-sm shadow-sm flex items-center justify-between">
+<button class="w-9 h-9 rounded-lg bg-surface-container flex items-center justify-center text-on-surface hover:bg-surface-container-high active:scale-95 transition-all" type="button">
+<span class="material-symbols-outlined text-[20px]">chevron_left</span>
+</button>
+<div class="flex items-center gap-space-xs cursor-pointer select-none">
+<div class="w-7 h-7 rounded-md bg-ocean-wash flex items-center justify-center text-ocean-dark">
+<span class="material-symbols-outlined text-[18px]">calendar_month</span>
+</div>
+<div class="flex flex-col items-center">
+<span class="font-headline-sm text-headline-sm font-bold text-on-surface leading-tight">Mac 2026</span>
+<span class="font-label-sm text-label-sm text-outline">Q1 Penggal Persekolahan</span>
+</div>
+</div>
+<button class="w-9 h-9 rounded-lg bg-surface-container flex items-center justify-center text-on-surface hover:bg-surface-container-high active:scale-95 transition-all" type="button">
+<span class="material-symbols-outlined text-[20px]">chevron_right</span>
+</button>
+</div>
+</div>
+<!-- Mini Calendar Track Carousel -->
+<div class="px-margin-mobile mb-space-md">
+<div class="bg-gradient-to-r from-ocean-wash/40 via-surface-container-low to-ocean-wash/30 rounded-xl p-space-sm flex items-center justify-between gap-1 overflow-x-auto no-scrollbar">
+<div class="flex flex-col items-center py-1 px-2 rounded-lg text-outline">
+<span class="font-label-sm text-label-sm">ISN</span>
+<span class="font-body-md text-body-md font-semibold">12</span>
+</div>
+<div class="flex flex-col items-center py-1 px-2 rounded-lg text-outline">
+<span class="font-label-sm text-label-sm">SEL</span>
+<span class="font-body-md text-body-md font-semibold">13</span>
+</div>
+<div class="flex flex-col items-center py-1 px-2 rounded-lg text-outline">
+<span class="font-label-sm text-label-sm">RAB</span>
+<span class="font-body-md text-body-md font-semibold">14</span>
+</div>
+<!-- Active Event Day 1 -->
+<div class="flex flex-col items-center py-1 px-2.5 rounded-lg bg-primary text-on-primary shadow-sm font-bold scale-105">
+<span class="font-label-sm text-label-sm text-ocean-wash">KHA</span>
+<span class="font-body-md text-body-md">15</span>
+<span class="w-1.5 h-1.5 rounded-full bg-tertiary-fixed mt-0.5"></span>
+</div>
+<div class="flex flex-col items-center py-1 px-2 rounded-lg text-outline">
+<span class="font-label-sm text-label-sm">JUM</span>
+<span class="font-body-md text-body-md font-semibold">16</span>
+</div>
+<div class="flex flex-col items-center py-1 px-2 rounded-lg text-outline">
+<span class="font-label-sm text-label-sm">SAB</span>
+<span class="font-body-md text-body-md font-semibold">17</span>
+</div>
+<!-- Active Event Day 2 -->
+<div class="flex flex-col items-center py-1 px-2 rounded-lg bg-gold-subtle text-tertiary font-bold">
+<span class="font-label-sm text-label-sm">SEL</span>
+<span class="font-body-md text-body-md">24</span>
+<span class="w-1.5 h-1.5 rounded-full bg-gold-hover mt-0.5"></span>
+</div>
+</div>
+</div>
+<!-- Event Timeline Stream -->
+<div class="px-margin-mobile flex flex-col gap-space-md pb-space-lg">
+<!-- Card 1: 15 Mac 2026 (Confirmed) -->
+<div class="event-card group relative bg-surface-container-lowest rounded-xl p-space-md shadow-sm transition-all hover:shadow-md" data-category="halatuju">
+<div class="flex gap-space-sm">
+<!-- Date Column Badge -->
+<div class="flex flex-col items-center justify-start flex-shrink-0 w-14">
+<div class="w-full bg-ocean-wash text-ocean-dark rounded-t-lg py-1 text-center font-label-sm text-label-sm font-bold uppercase tracking-wider">
+            MAC
+          </div>
+<div class="w-full bg-surface-container text-on-surface rounded-b-lg py-1.5 text-center flex flex-col items-center">
+<span class="font-headline-md text-headline-md font-extrabold leading-none text-primary">15</span>
+<span class="font-label-sm text-label-sm text-outline font-medium mt-0.5">Khamis</span>
+</div>
+<div class="w-0.5 bg-secondary-fixed h-full my-1 rounded-full"></div>
+</div>
+<!-- Content Area -->
+<div class="flex flex-col flex-1 min-w-0">
+<!-- Status Tag -->
+<div class="flex items-center justify-between gap-1 mb-1.5">
+<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full font-label-sm text-label-sm font-bold bg-teal-soft text-secondary">
+<span class="material-symbols-outlined text-[13px]">check_circle</span>
+              Disahkan Hadir (RSVP Selesai)
+            </span>
+<span class="material-symbols-outlined text-outline text-[18px]">verified</span>
+</div>
+<!-- Event Title -->
+<h2 class="font-headline-sm text-headline-sm font-bold text-on-surface line-clamp-2 leading-snug">
+            Pameran Pendidikan Hala Tuju 2026 (Zon Belait)
+          </h2>
+<!-- Venue & Target Info -->
+<div class="flex flex-col gap-1 mt-2 text-on-surface-variant font-body-sm text-body-sm">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[16px] text-primary">location_on</span>
+<span class="truncate">Dewan Serbaguna PTE Belait</span>
+</div>
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[16px] text-primary">groups</span>
+<span>Sasaran: <strong>1,200 Pelajar</strong></span>
+</div>
+</div>
+<!-- Logistics & Detail Pills -->
+<div class="mt-space-sm pt-space-xs flex flex-wrap items-center gap-1.5">
+<div class="flex items-center gap-1 px-2 py-1 rounded-md bg-surface-container text-on-surface-variant font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-[14px] text-outline">table_restaurant</span>
+<span>Meja: <strong>2</strong></span>
+</div>
+<div class="flex items-center gap-1 px-2 py-1 rounded-md bg-surface-container text-on-surface-variant font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-[14px] text-outline">chair_alt</span>
+<span>Kerusi: <strong>4</strong></span>
+</div>
+<div class="flex items-center gap-1 px-2 py-1 rounded-md bg-surface-container text-on-surface-variant font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-[14px] text-outline">local_parking</span>
+<span>Next to Hall</span>
+</div>
+</div>
+<!-- Interactive Pass Snippet Drawer -->
+<div class="mt-space-sm flex items-center justify-between bg-surface-container-low p-2 rounded-lg">
+<div class="flex items-center gap-2">
+<div class="w-7 h-7 rounded bg-teal-accent text-on-secondary flex items-center justify-center">
+<span class="material-symbols-outlined text-[16px]">badge</span>
+</div>
+<span class="font-label-sm text-label-sm font-semibold text-on-surface">Pas Booth #B-04 Dikeluarkan</span>
+</div>
+<button class="text-primary font-label-sm text-label-sm font-bold flex items-center hover:underline" type="button">
+              Papar Kod
+              <span class="material-symbols-outlined text-[16px]">chevron_right</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Card 2: 24 Mac 2026 (Action Required / Urgent RSVP) -->
+<div class="event-card relative bg-surface-container-lowest rounded-xl p-space-md shadow-sm transition-all hover:shadow-md" data-category="taklimat">
+<div class="flex gap-space-sm">
+<!-- Date Column Badge -->
+<div class="flex flex-col items-center justify-start flex-shrink-0 w-14">
+<div class="w-full bg-gold-subtle text-tertiary rounded-t-lg py-1 text-center font-label-sm text-label-sm font-bold uppercase tracking-wider">
+            MAC
+          </div>
+<div class="w-full bg-surface-container text-on-surface rounded-b-lg py-1.5 text-center flex flex-col items-center">
+<span class="font-headline-md text-headline-md font-extrabold leading-none text-tertiary">24</span>
+<span class="font-label-sm text-label-sm text-outline font-medium mt-0.5">Selasa</span>
+</div>
+<div class="w-0.5 bg-tertiary-fixed-dim h-full my-1 rounded-full"></div>
+</div>
+<!-- Content Area -->
+<div class="flex flex-col flex-1 min-w-0">
+<!-- Status Tag -->
+<div class="flex items-center justify-between gap-1 mb-1.5">
+<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full font-label-sm text-label-sm font-bold bg-gold-subtle text-tertiary animate-pulse">
+<span class="material-symbols-outlined text-[13px]">notification_important</span>
+              Tindakan Diperlukan
+            </span>
+<span class="font-label-sm text-label-sm text-gold-hover font-bold">Baki 5 Hari</span>
+</div>
+<!-- Event Title -->
+<h2 class="font-headline-sm text-headline-sm font-bold text-on-surface line-clamp-2 leading-snug">
+            Taklimat Tahunan Bersama 52 Agensi Jemputan
+          </h2>
+<!-- Venue & Target Info -->
+<div class="flex flex-col gap-1 mt-2 text-on-surface-variant font-body-sm text-body-sm">
+<div class="flex items-start gap-1.5">
+<span class="material-symbols-outlined text-[16px] text-tertiary mt-0.5 flex-shrink-0">apartment</span>
+<span class="line-clamp-2">Auditorium MOE, Jalan Lapangan Terbang Lama</span>
+</div>
+<div class="flex items-center gap-1.5 text-outline">
+<span class="material-symbols-outlined text-[16px]">schedule</span>
+<span>08:30 PG – 12:00 TGH</span>
+</div>
+</div>
+<!-- Alert box with action -->
+<div class="mt-space-sm bg-tertiary-fixed/30 p-space-sm rounded-lg flex flex-col gap-2">
+<p class="font-body-sm text-body-sm text-on-tertiary-fixed-variant leading-relaxed">
+              Sila kemas kini butiran 2 pegawai wakil bagi pengeluaran pas keselamatan VIP sebelum 20 Mac.
+            </p>
+<button class="w-full h-11 bg-tertiary hover:bg-gold-hover active:scale-[0.99] text-on-tertiary rounded-xl font-label-lg text-label-lg font-bold flex items-center justify-center gap-2 shadow-sm transition-all" type="button">
+<span class="material-symbols-outlined text-[20px]">how_to_reg</span>
+              Sahkan Kehadiran
+            </button>
+</div>
+</div>
+</div>
+</div>
+<!-- Visual Divider & Month Header: April 2026 -->
+<div class="flex items-center gap-space-sm pt-space-xs">
+<span class="font-label-sm text-label-sm font-extrabold uppercase tracking-wider text-ocean-dark bg-ocean-wash px-3 py-1 rounded-full">
+        April 2026
+      </span>
+<div class="h-0.5 flex-1 bg-surface-container"></div>
+</div>
+<!-- Card 3: 10 April 2026 (Upcoming FutureLink) -->
+<div class="event-card relative bg-surface-container-lowest rounded-xl p-space-md shadow-sm transition-all hover:shadow-md" data-category="futurelink">
+<div class="flex gap-space-sm">
+<!-- Date Column Badge -->
+<div class="flex flex-col items-center justify-start flex-shrink-0 w-14">
+<div class="w-full bg-ocean-wash text-ocean-dark rounded-t-lg py-1 text-center font-label-sm text-label-sm font-bold uppercase tracking-wider">
+            APR
+          </div>
+<div class="w-full bg-surface-container text-on-surface rounded-b-lg py-1.5 text-center flex flex-col items-center">
+<span class="font-headline-md text-headline-md font-extrabold leading-none text-primary">10</span>
+<span class="font-label-sm text-label-sm text-outline font-medium mt-0.5">Jumaat</span>
+</div>
+<div class="w-0.5 bg-surface-container-highest h-full my-1 rounded-full"></div>
+</div>
+<!-- Content Area -->
+<div class="flex flex-col flex-1 min-w-0">
+<!-- Status Tag -->
+<div class="flex items-center justify-between gap-1 mb-1.5">
+<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full font-label-sm text-label-sm font-semibold bg-ocean-wash text-ocean-dark">
+<span class="material-symbols-outlined text-[13px]">update</span>
+              Akan Datang
+            </span>
+<span class="font-label-sm text-label-sm text-outline">Siri 1 / 3</span>
+</div>
+<!-- Event Title -->
+<h2 class="font-headline-sm text-headline-sm font-bold text-on-surface line-clamp-2 leading-snug">
+            Program FutureLink Siri 1/2026
+          </h2>
+<!-- Venue & Details -->
+<div class="flex flex-col gap-1 mt-2 text-on-surface-variant font-body-sm text-body-sm">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[16px] text-primary">school</span>
+<span class="truncate">Dewan Serbaguna Maktab Sains PSBS</span>
+</div>
+<div class="flex items-center gap-1.5 text-outline">
+<span class="material-symbols-outlined text-[16px]">info</span>
+<span>Fokus: Sains Data, Kejuruteraan &amp; AI</span>
+</div>
+</div>
+<!-- Secondary Micro Action -->
+<div class="mt-space-sm flex items-center justify-between pt-1">
+<span class="font-label-sm text-label-sm text-outline">Pendaftaran dibuka: 28 Mac</span>
+<button class="px-3 py-1.5 rounded-lg bg-surface-container text-primary font-label-md text-label-md font-bold hover:bg-surface-container-high transition-colors" type="button">
+              Peringatan
+            </button>
+</div>
+</div>
+</div>
+</div>
+<!-- Visual Divider & Month Header: Mei 2026 -->
+<div class="flex items-center gap-space-sm pt-space-xs">
+<span class="font-label-sm text-label-sm font-extrabold uppercase tracking-wider text-outline bg-surface-container px-3 py-1 rounded-full">
+        Mei 2026
+      </span>
+<div class="h-0.5 flex-1 bg-surface-container"></div>
+</div>
+<!-- Card 4: 18 Mei 2026 (Draft Schedule) -->
+<div class="event-card relative bg-surface-container-lowest rounded-xl p-space-md shadow-sm transition-all hover:shadow-md opacity-90" data-category="halatuju">
+<div class="flex gap-space-sm">
+<!-- Date Column Badge -->
+<div class="flex flex-col items-center justify-start flex-shrink-0 w-14">
+<div class="w-full bg-surface-container text-outline rounded-t-lg py-1 text-center font-label-sm text-label-sm font-bold uppercase tracking-wider">
+            MEI
+          </div>
+<div class="w-full bg-surface-container-low text-on-surface rounded-b-lg py-1.5 text-center flex flex-col items-center">
+<span class="font-headline-md text-headline-md font-extrabold leading-none text-outline">18</span>
+<span class="font-label-sm text-label-sm text-outline font-medium mt-0.5">Isnin</span>
+</div>
+</div>
+<!-- Content Area -->
+<div class="flex flex-col flex-1 min-w-0">
+<!-- Status Tag -->
+<div class="flex items-center justify-between gap-1 mb-1.5">
+<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full font-label-sm text-label-sm font-medium bg-surface-container text-outline">
+<span class="material-symbols-outlined text-[13px]">pending</span>
+              Draf Jadual
+            </span>
+<span class="font-label-sm text-label-sm text-outline">Tertakluk Pindaan</span>
+</div>
+<!-- Event Title -->
+<h2 class="font-headline-sm text-headline-sm font-bold text-on-surface-variant line-clamp-2 leading-snug">
+            Pameran Hala Tuju Zon Tutong &amp; Temburong
+          </h2>
+<!-- Venue -->
+<div class="flex flex-col gap-1 mt-2 text-outline font-body-sm text-body-sm">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[16px]">location_on</span>
+<span class="truncate">Pusat Tingkatan Enam Tutong</span>
+</div>
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[16px]">groups</span>
+<span>Sasaran Anggaran: 900 Pelajar</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Arkib & Muat Turun Takwim PDF Module -->
+<div class="mt-space-sm bg-gradient-to-br from-primary via-ocean-dark to-primary-container rounded-xl p-space-md text-on-primary shadow-md flex items-center justify-between">
+<div class="flex items-center gap-space-sm">
+<div class="w-11 h-11 rounded-lg bg-surface-container-lowest/20 flex items-center justify-center flex-shrink-0 backdrop-blur-md">
+<span class="material-symbols-outlined text-gold-subtle text-[26px]">picture_as_pdf</span>
+</div>
+<div class="flex flex-col">
+<span class="font-headline-sm text-headline-sm font-bold leading-tight">Muat Turun Takwim Penuh</span>
+<span class="font-body-sm text-body-sm text-ocean-wash/80">Format PDF rasmi edisi Q1–Q4 2026</span>
+</div>
+</div>
+<button class="w-10 h-10 rounded-full bg-tertiary-fixed text-on-tertiary-fixed flex items-center justify-center hover:bg-gold-subtle active:scale-90 transition-all flex-shrink-0 shadow" type="button">
+<span class="material-symbols-outlined text-[20px]">download</span>
+</button>
+</div>
+</div>
+</div>
+<script>
+  // Dynamic Tab Filtering Micro-interaction
+  document.addEventListener('DOMContentLoaded', () => {
+    const filterButtons = document.querySelectorAll('.filter-btn');
+    const cards = document.querySelectorAll('.event-card');
+
+    filterButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        // Reset button classes
+        filterButtons.forEach(b => {
+          b.classList.remove('bg-primary', 'text-on-primary', 'shadow-sm');
+          b.classList.add('bg-surface-container', 'text-on-surface-variant');
+        });
+
+        // Activate clicked button
+        btn.classList.add('bg-primary', 'text-on-primary', 'shadow-sm');
+        btn.classList.remove('bg-surface-container', 'text-on-surface-variant');
+
+        const cat = btn.getAttribute('data-category');
+
+        cards.forEach(card => {
+          const cardCat = card.getAttribute('data-category');
+          if (cat === 'all' || cardCat === cat) {
+            card.style.display = 'block';
+          } else {
+            card.style.display = 'none';
+          }
+        });
+      });
+    });
+
+    // Mark 'Arkib' active in App Shell bottom navigation safely
+    const navItems = document.querySelectorAll('nav a');
+    navItems.forEach(item => {
+      if (item.getAttribute('data-path') === 'arkib') {
+        item.classList.add('text-primary', 'font-bold');
+        item.classList.remove('text-on-surface-variant');
+        const icon = item.querySelector('.material-symbols-outlined');
+        if (icon) {
+          icon.style.fontVariationSettings = "'FILL' 1";
+        }
+      }
+    });
+  });
+</script></main><nav class="fixed bottom-0 w-full z-50 bg-surface/90 backdrop-blur-xl shadow-[0_-2px_12px_rgba(15,23,42,0.06)]" data-active-classes="text-primary font-bold"><div class="grid grid-cols-5 items-center h-20 px-gutter-mobile"><a class="flex flex-col items-center justify-center gap-0.5 h-full text-on-surface-variant transition-colors" data-path="utama" href="#"><span class="material-symbols-outlined text-[24px]">dashboard</span><span class="font-label-sm text-label-sm">Utama</span></a><a class="flex flex-col items-center justify-center gap-0.5 h-full text-on-surface-variant transition-colors" data-path="rsvp" href="#"><span class="material-symbols-outlined text-[24px]">how_to_reg</span><span class="font-label-sm text-label-sm">RSVP</span></a><a aria-current="page" class="flex flex-col items-center justify-center gap-0.5 h-full transition-colors text-primary font-bold" data-path="arkib" href="#"><span class="material-symbols-outlined text-[24px]">calendar_month</span><span class="font-label-sm text-label-sm">Arkib</span></a><a class="flex flex-col items-center justify-center gap-0.5 h-full text-on-surface-variant transition-colors" data-path="notifikasi" href="#"><span class="material-symbols-outlined text-[24px]">notifications_active</span><span class="font-label-sm text-label-sm">Notifikasi</span></a><a class="flex flex-col items-center justify-center gap-0.5 h-full text-on-surface-variant transition-colors" data-path="profil" href="#"><span class="material-symbols-outlined text-[24px]">domain</span><span class="font-label-sm text-label-sm">Profil</span></a></div></nav></body></html>

@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+
+<html class="h-full" lang="ms"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/><meta content="mobile_tab" name="shell-type"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Manrope:wght@600;700;800&amp;family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { colors: { "surface-tint": "#006398", "teal-soft": "#e6f7f5", "primary-fixed-dim": "#93ccff", "ocean-wash": "#e0f2fe", "surface-dim": "#d2d9f4", "on-secondary-container": "#266d66", "tertiary-container": "#a36700", "surface-bright": "#faf8ff", "secondary-fixed-dim": "#8fd3ca", "background": "#faf8ff", "primary-fixed": "#cce5ff", "surface": "#faf8ff", "primary-container": "#007bb9", "ocean-dark": "#0369a1", "on-surface": "#131b2e", "ocean-light": "#38bdf8", "on-tertiary-container": "#fffbff", "surface-container-high": "#e2e7ff", "surface-container-low": "#f2f3ff", "on-error-container": "#93000a", "on-primary-container": "#fdfcff", "outline": "#707881", "tertiary-fixed-dim": "#ffb95f", "on-secondary-fixed-variant": "#00504a", "on-secondary-fixed": "#00201d", "error-container": "#ffdad6", "on-tertiary-fixed": "#2a1700", "on-tertiary": "#ffffff", "gold-subtle": "#fef3c7", "on-tertiary-fixed-variant": "#653e00", "gold-hover": "#d97706", "outline-variant": "#bfc7d2", "on-secondary": "#ffffff", "teal-accent": "#167f77", "inverse-primary": "#93ccff", "surface-container": "#eaedff", "semantic-error": "#ef4444", "on-primary-fixed-variant": "#004b73", "card-border": "#e2e8f0", "surface-bg": "#f8fafc", "surface-variant": "#dae2fd", "on-primary-fixed": "#001d31", "inverse-surface": "#283044", "secondary-fixed": "#aaefe6", "tertiary": "#825100", "surface-container-lowest": "#ffffff", "secondary-container": "#a8ede3", "secondary": "#206962", "inverse-on-surface": "#eef0ff", "tertiary-fixed": "#ffddb8", "on-background": "#131b2e", "surface-container-highest": "#dae2fd", "error": "#ba1a1a", "on-error": "#ffffff", "on-primary": "#ffffff", "primary": "#006194", "on-surface-variant": "#3f4850" }, borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" }, spacing: { "space-xl": "2rem", "margin-mobile": "1rem", "gutter": "1rem", "margin": "1.5rem", "space-md": "1rem", "gutter-mobile": "0.75rem", "space-xs": "0.25rem", "space-sm": "0.5rem", "space-lg": "1.5rem" }, fontFamily: { "display-hero": ["Manrope"], "body-lg": ["Plus Jakarta Sans"], "headline-md": ["Manrope"], "label-lg": ["Plus Jakarta Sans"], "headline-sm": ["Manrope"], "body-md": ["Plus Jakarta Sans"], "label-md": ["Plus Jakarta Sans"], "headline-lg": ["Manrope"], "display-hero-mobile": ["Manrope"], "body-sm": ["Plus Jakarta Sans"], "label-sm": ["Plus Jakarta Sans"] }, fontSize: { "display-hero": ["36px", { lineHeight: "44px", letterSpacing: "-0.02em", fontWeight: "800" }], "body-lg": ["16px", { lineHeight: "24px", letterSpacing: "0em", fontWeight: "400" }], "headline-md": ["20px", { lineHeight: "28px", letterSpacing: "-0.01em", fontWeight: "700" }], "label-lg": ["14px", { lineHeight: "20px", letterSpacing: "0.01em", fontWeight: "600" }], "headline-sm": ["17px", { lineHeight: "24px", letterSpacing: "0em", fontWeight: "600" }], "body-md": ["14px", { lineHeight: "20px", letterSpacing: "0em", fontWeight: "400" }], "label-md": ["12px", { lineHeight: "16px", letterSpacing: "0.02em", fontWeight: "600" }], "headline-lg": ["26px", { lineHeight: "34px", letterSpacing: "-0.015em", fontWeight: "700" }], "display-hero-mobile": ["28px", { lineHeight: "36px", letterSpacing: "-0.02em", fontWeight: "800" }], "body-sm": ["12px", { lineHeight: "18px", letterSpacing: "0.01em", fontWeight: "400" }], "label-sm": ["11px", { lineHeight: "14px", letterSpacing: "0.04em", fontWeight: "700" }] } } } };</script><style>@layer base{html,body{width:100%;margin:0;padding:0;min-height:100%;}body{overscroll-behavior-y:none;-webkit-tap-highlight-color:transparent;}.pb-safe{padding-bottom:env(safe-area-inset-bottom,0px);}.pt-safe{padding-top:env(safe-area-inset-top,0px);}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head><body class="bg-surface font-body-md text-on-surface antialiased flex flex-col min-h-screen"><header class="fixed top-0 w-full z-50 pt-safe bg-surface/80 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><div class="h-16 px-margin-mobile flex items-center justify-between"><div class="flex items-center gap-space-sm min-w-0 pr-space-sm"><div class="w-9 h-9 rounded-lg bg-primary-container flex items-center justify-center shrink-0"><span class="material-symbols-outlined text-on-primary-container text-[20px]">account_balance</span></div><div class="flex flex-col min-w-0"><span class="font-label-sm text-label-sm text-primary uppercase truncate tracking-wider">UPK · JSS BRUNEI</span><h1 class="font-headline-sm text-headline-sm text-on-surface truncate leading-tight">Profil Agensi Kredensial Pilihan Bahasa</h1></div></div><div class="flex items-center gap-space-xs shrink-0"><button aria-label="Pemberitahuan" class="w-11 h-11 flex items-center justify-center rounded-full text-on-surface-variant hover:text-on-surface hover:bg-surface-container active:bg-surface-container-high transition-colors"><span class="material-symbols-outlined text-[22px]">notifications</span></button><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center shrink-0"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></div></header><main class="flex-1 flex flex-col relative w-full pt-16 pb-24 bg-surface"><div class="flex flex-col w-full px-margin-mobile pb-space-xl gap-space-md">
+<!-- Kad Profil Utama Rasmi -->
+<div class="relative overflow-hidden rounded-xl bg-gradient-to-br from-primary to-ocean-dark text-on-primary shadow-md p-space-md">
+<!-- Corak Lembut Kementerian Geometric Watermark -->
+<div class="absolute -right-10 -bottom-10 w-44 h-44 opacity-10 pointer-events-none">
+<svg class="w-full h-full" fill="currentColor" viewbox="0 0 100 100">
+<polygon points="50 0, 100 25, 100 75, 50 100, 0 75, 0 25"></polygon>
+<polygon fill="none" points="50 15, 85 32, 85 68, 50 85, 15 68, 15 32" stroke="currentColor" stroke-width="4"></polygon>
+<circle cx="50" cy="50" fill="currentColor" r="14"></circle>
+</svg>
+</div>
+<div class="relative z-10 flex flex-col gap-space-sm">
+<!-- Avatar & Crest Badge -->
+<div class="flex items-start justify-between">
+<div class="relative">
+<div class="w-16 h-16 rounded-xl bg-surface-container-lowest shadow-sm flex items-center justify-center overflow-hidden p-1.5">
+<img class="w-full h-full object-contain rounded-lg" data-alt="Official architectural crest insignia of Universiti Brunei Darussalam campus tower with majestic golden emblem on clean modern geometric crest background, prestigious collegiate branding" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCU2VtEnEJhYy7sAjOKooYNp5i89Dqoh1Atzim1FEwsH7mObokh3ghZ7_LK9PPZdMtBuzYGM7L-5unXwMTO8_WOtBYqkyQgvfu36BfwwelGdostk3ck1XA4YHbQyoOCRxciq1HfTfMguobNbuNfmBiCnX33Pj3O3DEUkguXp51TEdDLnsT_JBRAfIpBXBVaKpWmaJmuoHtehWP1MkjfnjsZhFPvDWJuF_MWenKUOkE"/>
+</div>
+<!-- UPK Verified Mini Badge -->
+<div class="absolute -bottom-1 -right-2 bg-secondary-container text-on-secondary-container px-1.5 py-0.5 rounded-full flex items-center gap-0.5 shadow-sm">
+<span class="material-symbols-outlined text-[12px]" style="font-variation-settings: 'FILL' 1;">verified</span>
+<span class="font-label-sm text-[9px] tracking-tight">VERIFIED</span>
+</div>
+</div>
+<!-- Status Lencana Aktif -->
+<div class="inline-flex items-center gap-1.5 bg-teal-soft/90 backdrop-blur-sm text-teal-accent px-2.5 py-1 rounded-full shadow-sm">
+<span class="w-2 h-2 rounded-full bg-teal-accent animate-pulse"></span>
+<span class="font-label-sm text-label-sm font-bold">Akaun Agensi Aktif</span>
+</div>
+</div>
+<!-- Detail Nama Agensi -->
+<div class="pt-1 flex flex-col">
+<h2 class="font-headline-md text-headline-md font-bold tracking-tight text-on-primary">
+          UNIVERSITI BRUNEI DARUSSALAM
+        </h2>
+<div class="flex flex-wrap items-center gap-x-2 gap-y-1 mt-1 text-ocean-wash">
+<span class="font-label-md text-label-md bg-ocean-dark/60 px-2 py-0.5 rounded-md">ID: AG-05</span>
+<span class="text-ocean-light">•</span>
+<span class="font-body-sm text-body-sm text-ocean-wash">Institusi Pengajian Tinggi Awam (IPT)</span>
+</div>
+</div>
+<!-- Akreditasi Jalur Mini -->
+<div class="mt-2 pt-2 bg-white/10 rounded-lg px-3 py-2 flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-gold-subtle text-[18px]">workspace_premium</span>
+<span class="font-label-sm text-label-sm text-white">Akreditasi Rasmi Kementerian</span>
+</div>
+<span class="font-label-sm text-label-sm text-gold-subtle uppercase">2026/2027</span>
+</div>
+</div>
+</div>
+<!-- Kad Maklumat Pegawai & Hubungan Rasmi -->
+<div class="bg-surface-container-lowest rounded-xl shadow-sm p-space-md flex flex-col gap-space-sm">
+<div class="flex items-center gap-2 pb-1">
+<span class="material-symbols-outlined text-primary text-[20px]">corporate_fare</span>
+<h3 class="font-headline-sm text-headline-sm text-on-surface">Maklumat Urusan Agensi</h3>
+</div>
+<div class="flex flex-col gap-2.5 pt-1">
+<!-- Bahagian Penyelarasan -->
+<div class="flex items-start gap-3 bg-surface-container-low p-2.5 rounded-lg">
+<div class="w-8 h-8 rounded-lg bg-primary-fixed flex items-center justify-center text-on-primary-fixed shrink-0 mt-0.5">
+<span class="material-symbols-outlined text-[18px]">hub</span>
+</div>
+<div class="flex flex-col min-w-0">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase">Pusat Tanggungjawab</span>
+<span class="font-label-md text-label-md text-on-surface font-semibold">Pusat Penyelarasan Kerjaya &amp; Hal Ehwal Pelajar UBD</span>
+</div>
+</div>
+<!-- Emel Rasmi -->
+<div class="flex items-center justify-between p-2.5 bg-surface-container-low rounded-lg">
+<div class="flex items-center gap-3 min-w-0">
+<div class="w-8 h-8 rounded-lg bg-ocean-wash flex items-center justify-center text-ocean-dark shrink-0">
+<span class="material-symbols-outlined text-[18px]">mail</span>
+</div>
+<div class="flex flex-col min-w-0">
+<span class="font-label-sm text-label-sm text-on-surface-variant">Emel Rasmi Agensi</span>
+<span class="font-body-md text-body-md text-on-surface font-semibold truncate">fokal@ubd.edu.bn</span>
+</div>
+</div>
+<button aria-label="Hantar Emel" class="w-8 h-8 rounded-full bg-surface-container flex items-center justify-center text-primary hover:bg-surface-container-high transition-colors">
+<span class="material-symbols-outlined text-[16px]">send</span>
+</button>
+</div>
+<!-- No. Telefon Pejabat -->
+<div class="flex items-center justify-between p-2.5 bg-surface-container-low rounded-lg">
+<div class="flex items-center gap-3 min-w-0">
+<div class="w-8 h-8 rounded-lg bg-teal-soft flex items-center justify-center text-teal-accent shrink-0">
+<span class="material-symbols-outlined text-[18px]">call</span>
+</div>
+<div class="flex flex-col min-w-0">
+<span class="font-label-sm text-label-sm text-on-surface-variant">Talian Pejabat / Kaunter</span>
+<span class="font-body-md text-body-md text-on-surface font-semibold">+673 246 3001</span>
+</div>
+</div>
+<button aria-label="Hubungi Telefon" class="w-8 h-8 rounded-full bg-surface-container flex items-center justify-center text-teal-accent hover:bg-surface-container-high transition-colors">
+<span class="material-symbols-outlined text-[16px]">phone_in_talk</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Seksyen Tetapan Sistem & Konfigurasi -->
+<div class="bg-surface-container-lowest rounded-xl shadow-sm p-space-md flex flex-col gap-3">
+<div class="flex items-center justify-between pb-1">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-[20px]">tune</span>
+<h3 class="font-headline-sm text-headline-sm text-on-surface">Tetapan Sistem &amp; Kredensial</h3>
+</div>
+<span class="font-label-sm text-label-sm bg-surface-container-high text-on-surface-variant px-2 py-0.5 rounded-full">Konfigurasi</span>
+</div>
+<!-- Pilihan Bahasa Antaramuka -->
+<div class="flex flex-col gap-1.5 pt-1">
+<span class="font-label-md text-label-md text-on-surface font-medium">Bahasa Antaramuka</span>
+<div class="grid grid-cols-2 p-1 bg-surface-container rounded-lg gap-1">
+<button class="flex items-center justify-center gap-1.5 py-2 px-3 rounded-md bg-surface-container-lowest text-primary shadow-sm font-label-md text-label-md transition-all" id="lang-bm">
+<span class="w-2 h-2 rounded-full bg-primary"></span>
+<span>Melayu Brunei</span>
+</button>
+<button class="flex items-center justify-center gap-1.5 py-2 px-3 rounded-md text-on-surface-variant hover:text-on-surface font-label-md text-label-md transition-all" id="lang-en">
+<span>English (UK)</span>
+</button>
+</div>
+</div>
+<!-- Peringatan Notifikasi Automatik H-1 -->
+<div class="flex items-center justify-between py-2 px-3 bg-surface-container-low rounded-lg mt-1">
+<div class="flex flex-col pr-2">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[18px] text-ocean-dark">notifications_active</span>
+<span class="font-label-md text-label-md text-on-surface font-semibold">Peringatan Automatik H-1</span>
+</div>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Hantar amaran delegasi via Emel &amp; Tolak APK</span>
+</div>
+<!-- Toggle Switch Interactive -->
+<button aria-checked="true" class="w-12 h-6 flex items-center bg-primary rounded-full p-0.5 transition-colors cursor-pointer shrink-0" id="toggle-h1" role="switch">
+<div class="bg-surface-container-lowest w-5 h-5 rounded-full shadow-sm transform translate-x-6 transition-transform" id="toggle-ball"></div>
+</button>
+</div>
+<!-- Keselamatan Kredensial: Tukar Kata Laluan -->
+<button class="w-full flex items-center justify-between p-3 bg-surface-container-low rounded-lg hover:bg-surface-container active:scale-[0.99] transition-all text-left">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-lg bg-surface-container-high flex items-center justify-center text-on-surface shrink-0">
+<span class="material-symbols-outlined text-[18px]">lock_reset</span>
+</div>
+<div class="flex flex-col">
+<span class="font-label-md text-label-md text-on-surface font-semibold">Tukar Kata Laluan Akaun Agensi</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Kemaskini frasa laluan keselamatan portal</span>
+</div>
+</div>
+<span class="material-symbols-outlined text-outline text-[20px]">chevron_right</span>
+</button>
+<!-- Log Audit Akses -->
+<div class="flex items-start gap-2.5 p-3 rounded-lg bg-surface-container-low/70">
+<span class="material-symbols-outlined text-on-surface-variant text-[18px] mt-0.5 shrink-0">history_edu</span>
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm font-semibold text-on-surface">Log Audit Akses Terkini</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">
+          14 Mac 2026, 09:20 Pagi
+        </span>
+<span class="font-label-sm text-[11px] text-primary mt-0.5 flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">smartphone</span>
+          Android Mobile APK Verified (Build 26.3)
+        </span>
+</div>
+</div>
+</div>
+<!-- Seksyen Bantuan Urus Setia CEU -->
+<div class="bg-surface-container-lowest rounded-xl shadow-sm p-space-md flex flex-col gap-2.5">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-tertiary text-[20px]">support_agent</span>
+<h3 class="font-headline-sm text-headline-sm text-on-surface">Urus Setia Pendidikan Kerjaya (CEU)</h3>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant leading-relaxed">
+      Sekiranya memerlukan sokongan pendaftaran delegasi atau bantuan teknikal sesi taklimat:
+    </p>
+<div class="grid grid-cols-1 gap-2 pt-1">
+<a class="flex items-center justify-between p-2.5 bg-surface-container-low rounded-lg hover:bg-surface-container transition-colors" href="tel:+6732381224">
+<div class="flex items-center gap-2.5">
+<span class="material-symbols-outlined text-tertiary text-[18px]">headset_mic</span>
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm text-on-surface-variant">Hotline Meja Bantuan</span>
+<span class="font-label-md text-label-md text-on-surface font-bold">+673 238 1224 <span class="font-body-sm text-body-sm font-normal text-on-surface-variant">(Waktu Pejabat)</span></span>
+</div>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant text-[18px]">call</span>
+</a>
+<a class="flex items-center justify-between p-2.5 bg-surface-container-low rounded-lg hover:bg-surface-container transition-colors" href="mailto:upk.jss@moe.gov.bn">
+<div class="flex items-center gap-2.5">
+<span class="material-symbols-outlined text-tertiary text-[18px]">alternate_email</span>
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm text-on-surface-variant">Emel Rasmi Urus Setia</span>
+<span class="font-label-md text-label-md text-on-surface font-bold">upk.jss@moe.gov.bn</span>
+</div>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant text-[18px]">forward_to_inbox</span>
+</a>
+</div>
+</div>
+<!-- Tindakan Keluar Akaun -->
+<div class="flex flex-col gap-2 pt-1">
+<button class="w-full h-12 rounded-xl bg-error-container text-semantic-error font-headline-sm text-headline-sm font-bold flex items-center justify-center gap-2 shadow-sm active:opacity-90 active:scale-[0.99] transition-all" id="btn-logout">
+<span class="material-symbols-outlined text-[20px]">logout</span>
+<span>Log Keluar Akaun Agensi</span>
+</button>
+</div>
+<!-- Footer Status Sistem & Identiti Kementerian -->
+<div class="pt-2 pb-1 flex flex-col items-center justify-center text-center gap-1 opacity-70">
+<div class="flex items-center gap-1.5 text-on-surface-variant font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-[14px]">shield</span>
+<span>Versi 1.1.0 • Android Studio TWA Container</span>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant">
+      Kementerian Pendidikan Brunei Darussalam
+    </span>
+</div>
+</div>
+<script>
+  // Interaktiviti Pemilihan Bahasa Antaramuka
+  const langBm = document.getElementById('lang-bm');
+  const langEn = document.getElementById('lang-en');
+
+  langBm.addEventListener('click', () => {
+    langBm.className = "flex items-center justify-center gap-1.5 py-2 px-3 rounded-md bg-surface-container-lowest text-primary shadow-sm font-label-md text-label-md transition-all";
+    langEn.className = "flex items-center justify-center gap-1.5 py-2 px-3 rounded-md text-on-surface-variant hover:text-on-surface font-label-md text-label-md transition-all";
+  });
+
+  langEn.addEventListener('click', () => {
+    langEn.className = "flex items-center justify-center gap-1.5 py-2 px-3 rounded-md bg-surface-container-lowest text-primary shadow-sm font-label-md text-label-md transition-all";
+    langBm.className = "flex items-center justify-center gap-1.5 py-2 px-3 rounded-md text-on-surface-variant hover:text-on-surface font-label-md text-label-md transition-all";
+  });
+
+  // Interaktiviti Suis Peringatan Automatik H-1
+  const toggleBtn = document.getElementById('toggle-h1');
+  const toggleBall = document.getElementById('toggle-ball');
+  let isToggled = true;
+
+  toggleBtn.addEventListener('click', () => {
+    isToggled = !isToggled;
+    if (isToggled) {
+      toggleBtn.className = "w-12 h-6 flex items-center bg-primary rounded-full p-0.5 transition-colors cursor-pointer shrink-0";
+      toggleBall.className = "bg-surface-container-lowest w-5 h-5 rounded-full shadow-sm transform translate-x-6 transition-transform";
+      toggleBtn.setAttribute('aria-checked', 'true');
+    } else {
+      toggleBtn.className = "w-12 h-6 flex items-center bg-outline-variant rounded-full p-0.5 transition-colors cursor-pointer shrink-0";
+      toggleBall.className = "bg-surface-container-lowest w-5 h-5 rounded-full shadow-sm transform translate-x-0 transition-transform";
+      toggleBtn.setAttribute('aria-checked', 'false');
+    }
+  });
+
+  // Interaksi Log Keluar Lembut
+  const logoutBtn = document.getElementById('btn-logout');
+  logoutBtn.addEventListener('click', () => {
+    const sah = confirm('Adakah anda pasti untuk log keluar daripada sistem agensi UBD?');
+    if (sah) {
+      logoutBtn.innerHTML = '<span class="material-symbols-outlined animate-spin text-[20px]">progress_activity</span><span>Memproses Log Keluar...</span>';
+      setTimeout(() => {
+        alert('Akaun berjaya dilog keluar.');
+        logoutBtn.innerHTML = '<span class="material-symbols-outlined text-[20px]">logout</span><span>Log Keluar Akaun Agensi</span>';
+      }, 700);
+    }
+  });
+</script></main><nav class="fixed bottom-0 w-full z-50 pb-safe bg-surface/80 backdrop-blur-xl shadow-[0_-2px_12px_rgba(0,0,0,0.04)]" data-active-classes="text-primary font-label-md"><div class="flex justify-around items-center h-16 px-gutter-mobile"><a class="flex flex-col items-center justify-center gap-0.5 min-w-[48px] h-12 px-2 text-on-surface-variant hover:text-on-surface transition-colors" data-path="pusat-notifikasi-peringatan-h-1" href="#"><span class="material-symbols-outlined text-[24px]">notifications_active</span><span class="font-label-md text-label-md">Peringatan</span></a><a aria-current="page" class="flex flex-col items-center justify-center gap-0.5 min-w-[48px] h-12 px-2 transition-colors text-primary font-label-md" data-path="profil-agensi-kredensial-pilihan-bahasa" href="#"><span class="material-symbols-outlined text-[24px]">badge</span><span class="font-label-md text-label-md">Agensi</span></a></div></nav></body></html>

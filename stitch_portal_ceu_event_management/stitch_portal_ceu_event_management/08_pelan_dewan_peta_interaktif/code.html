@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+
+<html class="h-full" lang="ms"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/><meta content="mobile_stack" name="shell-type"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Manrope:wght@600;700;800&amp;family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { colors: { "surface-tint": "#006398", "teal-soft": "#e6f7f5", "primary-fixed-dim": "#93ccff", "ocean-wash": "#e0f2fe", "surface-dim": "#d2d9f4", "on-secondary-container": "#266d66", "tertiary-container": "#a36700", "surface-bright": "#faf8ff", "secondary-fixed-dim": "#8fd3ca", "background": "#faf8ff", "primary-fixed": "#cce5ff", "surface": "#faf8ff", "primary-container": "#007bb9", "ocean-dark": "#0369a1", "on-surface": "#131b2e", "ocean-light": "#38bdf8", "on-tertiary-container": "#fffbff", "surface-container-high": "#e2e7ff", "surface-container-low": "#f2f3ff", "on-error-container": "#93000a", "on-primary-container": "#fdfcff", "outline": "#707881", "tertiary-fixed-dim": "#ffb95f", "on-secondary-fixed-variant": "#00504a", "on-secondary-fixed": "#00201d", "error-container": "#ffdad6", "on-tertiary-fixed": "#2a1700", "on-tertiary": "#ffffff", "gold-subtle": "#fef3c7", "on-tertiary-fixed-variant": "#653e00", "gold-hover": "#d97706", "outline-variant": "#bfc7d2", "on-secondary": "#ffffff", "teal-accent": "#167f77", "inverse-primary": "#93ccff", "surface-container": "#eaedff", "semantic-error": "#ef4444", "on-primary-fixed-variant": "#004b73", "card-border": "#e2e8f0", "surface-bg": "#f8fafc", "surface-variant": "#dae2fd", "on-primary-fixed": "#001d31", "inverse-surface": "#283044", "secondary-fixed": "#aaefe6", "tertiary": "#825100", "surface-container-lowest": "#ffffff", "secondary-container": "#a8ede3", "secondary": "#206962", "inverse-on-surface": "#eef0ff", "tertiary-fixed": "#ffddb8", "on-background": "#131b2e", "surface-container-highest": "#dae2fd", "error": "#ba1a1a", "on-error": "#ffffff", "on-primary": "#ffffff", "primary": "#006194", "on-surface-variant": "#3f4850" }, borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" }, spacing: { "space-xl": "2rem", "margin-mobile": "1rem", "gutter": "1rem", "margin": "1.5rem", "space-md": "1rem", "gutter-mobile": "0.75rem", "space-xs": "0.25rem", "space-sm": "0.5rem", "space-lg": "1.5rem" }, fontFamily: { "display-hero": ["Manrope"], "body-lg": ["Plus Jakarta Sans"], "headline-md": ["Manrope"], "label-lg": ["Plus Jakarta Sans"], "headline-sm": ["Manrope"], "body-md": ["Plus Jakarta Sans"], "label-md": ["Plus Jakarta Sans"], "headline-lg": ["Manrope"], "display-hero-mobile": ["Manrope"], "body-sm": ["Plus Jakarta Sans"], "label-sm": ["Plus Jakarta Sans"] }, fontSize: { "display-hero": ["36px", { lineHeight: "44px", letterSpacing: "-0.02em", fontWeight: "800" }], "body-lg": ["16px", { lineHeight: "24px", letterSpacing: "0em", fontWeight: "400" }], "headline-md": ["20px", { lineHeight: "28px", letterSpacing: "-0.01em", fontWeight: "700" }], "label-lg": ["14px", { lineHeight: "20px", letterSpacing: "0.01em", fontWeight: "600" }], "headline-sm": ["17px", { lineHeight: "24px", letterSpacing: "0em", fontWeight: "600" }], "body-md": ["14px", { lineHeight: "20px", letterSpacing: "0em", fontWeight: "400" }], "label-md": ["12px", { lineHeight: "16px", letterSpacing: "0.02em", fontWeight: "600" }], "headline-lg": ["26px", { lineHeight: "34px", letterSpacing: "-0.015em", fontWeight: "700" }], "display-hero-mobile": ["28px", { lineHeight: "36px", letterSpacing: "-0.02em", fontWeight: "800" }], "body-sm": ["12px", { lineHeight: "18px", letterSpacing: "0.01em", fontWeight: "400" }], "label-sm": ["11px", { lineHeight: "14px", letterSpacing: "0.04em", fontWeight: "700" }] } } } };</script><style>@layer base{html,body{width:100%;margin:0;padding:0;min-height:100%;}body{overscroll-behavior-y:none;-webkit-tap-highlight-color:transparent;}.pb-safe{padding-bottom:env(safe-area-inset-bottom,0px);}.pt-safe{padding-top:env(safe-area-inset-top,0px);}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head><body class="bg-surface font-body-md text-on-surface antialiased flex flex-col min-h-screen"><header class="fixed top-0 w-full z-50 pt-safe bg-surface/80 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><div class="h-16 px-gutter-mobile flex items-center justify-between"><div class="flex items-center gap-space-xs min-w-0 pr-space-sm"><button aria-label="Kembali" class="w-11 h-11 flex items-center justify-center rounded-full text-on-surface hover:bg-surface-container active:bg-surface-container-high transition-colors shrink-0" onclick="history.back()"><span class="material-symbols-outlined text-[24px]">arrow_back</span></button><h1 class="font-headline-sm text-headline-sm text-on-surface truncate">Pelan Lantai Dewan Lokasi Interaktif</h1></div><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center shrink-0"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></header><main class="flex-1 flex flex-col relative w-full pt-16 bg-surface"><div class="flex flex-col w-full relative select-none pb-space-xl">
+<!-- Interactive Viewport Container -->
+<div class="sticky top-0 z-30 flex flex-col bg-surface/95 backdrop-blur-md shadow-sm">
+<!-- Top Action Bar -->
+<div class="flex items-center justify-between px-gutter-mobile py-space-sm bg-surface-container-low">
+<div class="flex items-center gap-space-xs min-w-0">
+<button aria-label="Tutup Paparan" class="w-10 h-10 rounded-full flex items-center justify-center bg-surface-container text-on-surface hover:bg-surface-container-high transition-colors" onclick="history.back()">
+<span class="material-symbols-outlined text-[20px]">close</span>
+</button>
+<div class="min-w-0">
+<div class="font-headline-sm text-headline-sm text-on-surface truncate leading-tight">Pelan Susun Atur &amp; Parking</div>
+<p class="font-body-sm text-body-sm text-outline truncate">Dewan Serbaguna PTE Belait • Zon Belait</p>
+</div>
+</div>
+<button class="flex items-center gap-space-xs px-3 py-2 rounded-xl bg-ocean-wash text-ocean-dark font-label-md text-label-md active:scale-95 transition-all shadow-sm" onclick="triggerPdfNotice()">
+<span class="material-symbols-outlined text-[18px]">download</span>
+<span>PDF</span>
+</button>
+</div>
+<!-- Toggle Segment Tabs -->
+<div class="px-gutter-mobile py-2 bg-surface">
+<div class="grid grid-cols-2 p-1 bg-surface-container-high rounded-xl gap-1">
+<button class="flex items-center justify-center gap-1.5 py-2 px-3 rounded-lg bg-surface-container-lowest text-primary shadow-sm font-label-md text-label-md transition-all" id="tab-floor" onclick="switchView('floor')">
+<span class="material-symbols-outlined text-[18px]">grid_view</span>
+<span class="truncate">Pelan Lantai (52 Meja)</span>
+</button>
+<button class="flex items-center justify-center gap-1.5 py-2 px-3 rounded-lg text-on-surface-variant font-label-md text-label-md hover:bg-surface-container transition-all" id="tab-parking" onclick="switchView('parking')">
+<span class="material-symbols-outlined text-[18px]">local_parking</span>
+<span class="truncate">Peta Kampus &amp; Parking</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Interactive Canvas Section with Pinch & Drag Workspace -->
+<div class="relative w-full overflow-hidden bg-surface-dim" id="canvas-wrapper" style="height: 480px;">
+<!-- Visual Watermark & Compass -->
+<div class="absolute top-3 left-3 z-10 flex items-center gap-1 px-2.5 py-1 rounded-full bg-surface-bright/90 backdrop-blur-md shadow-sm">
+<span class="w-2 h-2 rounded-full bg-teal-accent animate-pulse"></span>
+<span class="font-label-sm text-label-sm text-on-surface font-semibold tracking-wider">LIVE SKEMATIK 2026</span>
+</div>
+<div class="absolute top-3 right-3 z-10 flex flex-col items-center justify-center w-9 h-9 rounded-full bg-surface-bright/90 backdrop-blur-md shadow-sm text-ocean-dark">
+<span class="material-symbols-outlined text-[18px]">explore</span>
+<span class="text-[9px] font-bold -mt-1">U</span>
+</div>
+<!-- Floating Zoom Controls Stack -->
+<div class="absolute right-3 bottom-14 z-20 flex flex-col gap-1.5 p-1 rounded-xl bg-surface-bright/95 backdrop-blur-md shadow-md">
+<button aria-label="Zum Masuk" class="w-10 h-10 rounded-lg flex items-center justify-center text-on-surface hover:bg-ocean-wash hover:text-ocean-dark active:scale-90 transition-all" onclick="adjustZoom(0.2)">
+<span class="material-symbols-outlined text-[20px]">zoom_in</span>
+</button>
+<button aria-label="Zum Keluar" class="w-10 h-10 rounded-lg flex items-center justify-center text-on-surface hover:bg-ocean-wash hover:text-ocean-dark active:scale-90 transition-all" onclick="adjustZoom(-0.2)">
+<span class="material-symbols-outlined text-[20px]">zoom_out</span>
+</button>
+<button aria-label="Set Semula" class="w-10 h-10 rounded-lg flex items-center justify-center text-on-surface hover:bg-ocean-wash hover:text-ocean-dark active:scale-90 transition-all text-[11px] font-bold" onclick="resetZoom()">
+        100%
+      </button>
+<button aria-label="Cari Meja Saya" class="w-10 h-10 rounded-lg flex items-center justify-center bg-gold-subtle text-gold-hover hover:bg-tertiary-fixed active:scale-90 transition-all" onclick="focusMyBooth()">
+<span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 1;">my_location</span>
+</button>
+</div>
+<!-- Zoomable Viewport Frame -->
+<div class="w-full h-full cursor-grab active:cursor-grabbing transition-transform duration-150 origin-center flex items-center justify-center p-2" id="blueprint-content">
+<!-- FLOOR PLAN SVG VIEW -->
+<div class="w-full max-w-[540px] flex items-center justify-center" id="view-floor">
+<svg class="w-full h-auto drop-shadow-md select-none rounded-xl" style="background-color: #faf8ff;" viewbox="0 0 680 720">
+<!-- Grid Background Accent -->
+<defs>
+<pattern height="20" id="smallGrid" patternunits="userSpaceOnUse" width="20">
+<path d="M 20 0 L 0 0 0 20" fill="none" stroke="#e2e7ff" stroke-width="0.8"></path>
+</pattern>
+<radialgradient cx="50%" cy="50%" id="goldGlow" r="50%">
+<stop offset="0%" stop-color="#ffb95f" stop-opacity="0.8"></stop>
+<stop offset="100%" stop-color="#ffb95f" stop-opacity="0"></stop>
+</radialgradient>
+</defs>
+<rect fill="url(#smallGrid)" height="720" rx="12" width="680"></rect>
+<!-- Hall Boundary Outline Visualized as Fill -->
+<rect fill="#f2f3ff" height="670" rx="16" width="630" x="25" y="25"></rect>
+<rect fill="#faf8ff" height="650" rx="12" width="610" x="35" y="35"></rect>
+<!-- PENTAS UTAMA & VIP ROSTRUM -->
+<g>
+<rect fill="#006194" height="65" rx="8" width="380" x="150" y="45"></rect>
+<text fill="#ffffff" font-family="Manrope" font-size="14" font-weight="700" text-anchor="middle" x="340" y="74">PENTAS UTAMA &amp; VIP ROSTRUM</text>
+<text fill="#cce5ff" font-family="Plus Jakarta Sans" font-size="11" font-weight="500" text-anchor="middle" x="340" y="94">Zon Majlis Perasmian Program Hala Tuju 2026</text>
+</g>
+<!-- VIP SEATING ROW -->
+<g>
+<rect fill="#eaedff" height="24" rx="4" width="260" x="210" y="122"></rect>
+<text fill="#004b73" font-family="Plus Jakarta Sans" font-size="10" font-weight="600" text-anchor="middle" x="340" y="138">KERUSI TETAMU KEHORMAT (VIP SEATING)</text>
+</g>
+<!-- MAIN CORRIDOR PATH (3.5M) -->
+<g>
+<rect fill="#e0f2fe" height="420" opacity="0.6" rx="6" width="60" x="310" y="160"></rect>
+<text fill="#0369a1" font-family="Plus Jakarta Sans" font-size="11" font-weight="700" text-anchor="middle" transform="rotate(-90 340 360)" x="340" y="360">LALUAN UTAMA KORIDOR (LEBAR 3.5M)</text>
+</g>
+<!-- SIDE PASSAGES -->
+<rect fill="#eaedff" height="34" opacity="0.5" rx="4" width="580" x="50" y="320"></rect>
+<text fill="#707881" font-family="Plus Jakarta Sans" font-size="9" text-anchor="end" x="590" y="342">LALUAN PEJALAN KAKI</text>
+<!-- BOOTHS GRID: LEFT WING (Col 1 & 2) -->
+<!-- Row 1 Left -->
+<g>
+<!-- Booth 01 -->
+<rect fill="#ffffff" height="54" rx="6" width="105" x="60" y="170"></rect>
+<rect fill="#f2f3ff" height="54" opacity="0.4" rx="6" width="105" x="60" y="170"></rect>
+<text fill="#006194" font-family="Manrope" font-size="12" font-weight="700" x="70" y="190">#01</text>
+<text fill="#3f4850" font-family="Plus Jakarta Sans" font-size="9" x="70" y="208">Kem. Pendidikan</text>
+<!-- Booth 02 -->
+<rect fill="#ffffff" height="54" rx="6" width="105" x="180" y="170"></rect>
+<text fill="#006194" font-family="Manrope" font-size="12" font-weight="700" x="190" y="190">#02</text>
+<text fill="#3f4850" font-family="Plus Jakarta Sans" font-size="9" x="190" y="208">Biasiswa BPP</text>
+</g>
+<!-- Row 2 Left: NEARBY CLUSTER & HIGHLIGHTED BOOTH 05 -->
+<g>
+<!-- Booth 03 -->
+<rect fill="#ffffff" height="54" rx="6" width="105" x="60" y="240"></rect>
+<text fill="#006194" font-family="Manrope" font-size="12" font-weight="700" x="70" y="260">#03</text>
+<text fill="#3f4850" font-family="Plus Jakarta Sans" font-size="9" x="70" y="278">Unit BKP MOE</text>
+<!-- Booth 04: Politeknik Brunei -->
+<rect fill="#e6f7f5" height="54" rx="6" width="105" x="180" y="240"></rect>
+<text fill="#167f77" font-family="Manrope" font-size="12" font-weight="700" x="190" y="260">#04</text>
+<text fill="#206962" font-family="Plus Jakarta Sans" font-size="9" font-weight="600" x="190" y="278">Politeknik Brunei</text>
+</g>
+<!-- BOOTH #05: UNIVERSITI BRUNEI DARUSSALAM (GOLD GLOWING HIGHLIGHT) -->
+<g class="cursor-pointer" id="target-booth" onclick="highlightBoothModal()">
+<!-- Pulsing Halo Circle -->
+<circle cx="232" cy="402" fill="url(#goldGlow)" r="54"></circle>
+<!-- Main Booth Card -->
+<rect fill="#fffdd0" height="60" rx="8" width="115" x="175" y="375"></rect>
+<rect fill="#ffddb8" height="60" opacity="0.3" rx="8" width="115" x="175" y="375"></rect>
+<rect fill="#ffffff" height="56" rx="6" width="111" x="177" y="377"></rect>
+<!-- Gold Accent Strip -->
+<rect fill="#d97706" height="4" rx="2" width="111" x="177" y="377"></rect>
+<text fill="#825100" font-family="Manrope" font-size="13" font-weight="800" x="185" y="396">#05 UBD</text>
+<text fill="#131b2e" font-family="Plus Jakarta Sans" font-size="9" font-weight="700" x="185" y="411">Univ. Brunei Darussalam</text>
+<!-- Badge: Kedudukan Booth Anda -->
+<rect fill="#a36700" height="15" rx="4" width="101" x="182" y="417"></rect>
+<text fill="#ffffff" font-family="Plus Jakarta Sans" font-size="8" font-weight="700" text-anchor="middle" x="232" y="428">★ BOOTH ANDA</text>
+</g>
+<!-- Booth 06, 07, 08 Nearby -->
+<g>
+<!-- Booth 06: UTB -->
+<rect fill="#e6f7f5" height="54" rx="6" width="105" x="60" y="375"></rect>
+<text fill="#167f77" font-family="Manrope" font-size="12" font-weight="700" x="70" y="396">#06</text>
+<text fill="#206962" font-family="Plus Jakarta Sans" font-size="9" font-weight="600" x="70" y="413">UTB Brunei</text>
+<!-- Booth 07: UNISSA -->
+<rect fill="#e6f7f5" height="54" rx="6" width="105" x="60" y="445"></rect>
+<text fill="#167f77" font-family="Manrope" font-size="12" font-weight="700" x="70" y="465">#07</text>
+<text fill="#206962" font-family="Plus Jakarta Sans" font-size="9" font-weight="600" x="70" y="482">UNISSA</text>
+<!-- Booth 08: IBTE -->
+<rect fill="#e6f7f5" height="54" rx="6" width="105" x="180" y="445"></rect>
+<text fill="#167f77" font-family="Manrope" font-size="12" font-weight="700" x="190" y="465">#08</text>
+<text fill="#206962" font-family="Plus Jakarta Sans" font-size="9" font-weight="600" x="190" y="482">IBTE TVET</text>
+</g>
+<!-- BOOTHS GRID: RIGHT WING (Col 3 & 4) -->
+<g>
+<!-- #09 to #16 representative grid -->
+<rect fill="#ffffff" height="54" rx="6" width="105" x="395" y="170"></rect>
+<text fill="#006194" font-family="Manrope" font-size="12" font-weight="700" x="405" y="190">#09</text>
+<text fill="#3f4850" font-family="Plus Jakarta Sans" font-size="9" x="405" y="208">Laksamana College</text>
+<rect fill="#ffffff" height="54" rx="6" width="105" x="515" y="170"></rect>
+<text fill="#006194" font-family="Manrope" font-size="12" font-weight="700" x="525" y="190">#10</text>
+<text fill="#3f4850" font-family="Plus Jakarta Sans" font-size="9" x="525" y="208">Cosmopoint</text>
+<rect fill="#ffffff" height="54" rx="6" width="105" x="395" y="240"></rect>
+<text fill="#006194" font-family="Manrope" font-size="12" font-weight="700" x="405" y="260">#11</text>
+<text fill="#3f4850" font-family="Plus Jakarta Sans" font-size="9" x="405" y="278">Micronet College</text>
+<rect fill="#ffffff" height="54" rx="6" width="105" x="515" y="240"></rect>
+<text fill="#006194" font-family="Manrope" font-size="12" font-weight="700" x="525" y="260">#12</text>
+<text fill="#3f4850" font-family="Plus Jakarta Sans" font-size="9" x="525" y="278">Kem. Pertahanan</text>
+<rect fill="#ffffff" height="54" rx="6" width="105" x="395" y="375"></rect>
+<text fill="#006194" font-family="Manrope" font-size="12" font-weight="700" x="405" y="396">#13</text>
+<text fill="#3f4850" font-family="Plus Jakarta Sans" font-size="9" x="405" y="413">Pusat Belia</text>
+<rect fill="#ffffff" height="54" rx="6" width="105" x="515" y="375"></rect>
+<text fill="#006194" font-family="Manrope" font-size="12" font-weight="700" x="525" y="396">#14</text>
+<text fill="#3f4850" font-family="Plus Jakarta Sans" font-size="9" x="525" y="413">Brunei Shell (BSP)</text>
+<rect fill="#ffffff" height="54" rx="6" width="105" x="395" y="445"></rect>
+<text fill="#006194" font-family="Manrope" font-size="12" font-weight="700" x="405" y="465">#15</text>
+<text fill="#3f4850" font-family="Plus Jakarta Sans" font-size="9" x="405" y="482">Petrokon Utama</text>
+<rect fill="#ffffff" height="54" rx="6" width="105" x="515" y="445"></rect>
+<text fill="#006194" font-family="Manrope" font-size="12" font-weight="700" x="525" y="465">#16</text>
+<text fill="#3f4850" font-family="Plus Jakarta Sans" font-size="9" x="525" y="482">Zon Industri #17-52</text>
+</g>
+<!-- BOTTOM SECTION: REGISTRATION, REFRESHMENTS & MAIN ENTRANCE -->
+<!-- Pendaftaran CEU -->
+<g>
+<rect fill="#eaedff" height="50" rx="8" width="225" x="60" y="525"></rect>
+<text fill="#006194" font-family="Manrope" font-size="11" font-weight="700" text-anchor="middle" x="172" y="546">KAUNTER PENDAFTARAN</text>
+<text fill="#3f4850" font-family="Plus Jakarta Sans" font-size="9" text-anchor="middle" x="172" y="562">Sekretariat Urus Setia CEU</text>
+</g>
+<!-- Kawasan Jamuan Delegasi -->
+<g>
+<rect fill="#e6f7f5" height="50" rx="8" width="225" x="395" y="525"></rect>
+<text fill="#167f77" font-family="Manrope" font-size="11" font-weight="700" text-anchor="middle" x="507" y="546">KAWASAN JAMUAN &amp; REHAT</text>
+<text fill="#206962" font-family="Plus Jakarta Sans" font-size="9" text-anchor="middle" x="507" y="562">Jamuan Pagi &amp; Tengah Hari Delegasi</text>
+</g>
+<!-- PINTU PAGAR B - ENTRANCE GATE -->
+<g>
+<rect fill="#0284c7" height="50" rx="10" width="220" x="230" y="605"></rect>
+<text fill="#ffffff" font-family="Manrope" font-size="12" font-weight="800" text-anchor="middle" x="340" y="627">PINTU PAGAR B (LALUAN AGENSI)</text>
+<text fill="#e0f2fe" font-family="Plus Jakarta Sans" font-size="9" font-weight="600" text-anchor="middle" x="340" y="643">Pintu Masuk Utama VIP &amp; Peserta Pameran</text>
+<!-- Down Indicator Arrow -->
+<polygon fill="#ffffff" points="340,652 334,646 346,646"></polygon>
+</g>
+</svg>
+</div>
+<!-- CAMPUS MAP & PARKING VIEW (Hidden by Default) -->
+<div class="hidden w-full max-w-[540px] flex items-center justify-center" id="view-parking">
+<svg class="w-full h-auto drop-shadow-md select-none rounded-xl" style="background-color: #faf8ff;" viewbox="0 0 680 720">
+<defs>
+<pattern height="24" id="campusGrid" patternunits="userSpaceOnUse" width="24">
+<path d="M 24 0 L 0 0 0 24" fill="none" stroke="#e2e7ff" stroke-width="0.8"></path>
+</pattern>
+</defs>
+<rect fill="url(#campusGrid)" height="720" rx="12" width="680"></rect>
+<!-- Main Campus Boundary -->
+<rect fill="#f8fafc" height="660" rx="16" width="620" x="30" y="30"></rect>
+<!-- Jalan Utama (Road Access) -->
+<path d="M 30 600 Q 340 580 650 600" fill="none" stroke="#bfc7d2" stroke-width="44"></path>
+<path d="M 30 600 Q 340 580 650 600" fill="none" stroke="#ffffff" stroke-dasharray="10 8" stroke-width="3"></path>
+<text fill="#3f4850" font-family="Plus Jakarta Sans" font-size="12" font-weight="700" text-anchor="middle" x="340" y="605">JALAN SEKOLAH / AKSES UTAMA PTE BELAIT</text>
+<!-- Gate Pintu B Access Branch -->
+<rect fill="#dae2fd" height="150" width="100" x="290" y="440"></rect>
+<text fill="#004b73" font-family="Plus Jakarta Sans" font-size="11" font-weight="700" text-anchor="middle" transform="rotate(-90 340 520)" x="340" y="520">LALUAN MASUK PINTU B</text>
+<!-- DEWAN SERBAGUNA MAIN HALL -->
+<g>
+<rect fill="#006194" height="290" rx="12" width="240" x="220" y="140"></rect>
+<text fill="#ffffff" font-family="Manrope" font-size="16" font-weight="800" text-anchor="middle" x="340" y="270">DEWAN SERBAGUNA</text>
+<text fill="#cce5ff" font-family="Plus Jakarta Sans" font-size="12" font-weight="600" text-anchor="middle" x="340" y="292">PTE BELAIT (LOKASI BOOTH)</text>
+<!-- Entry Portal marker -->
+<rect fill="#ffb95f" height="15" rx="3" width="90" x="295" y="415"></rect>
+<text fill="#2a1700" font-family="Plus Jakarta Sans" font-size="9" font-weight="700" text-anchor="middle" x="340" y="426">PINTU MASUK AGENSI</text>
+</g>
+<!-- PARKING ZONE A: VIP & VVIP -->
+<g>
+<rect fill="#e0f2fe" height="130" rx="10" width="145" x="50" y="140"></rect>
+<rect fill="#0369a1" height="30" rx="6" width="145" x="50" y="140"></rect>
+<text fill="#ffffff" font-family="Manrope" font-size="11" font-weight="700" text-anchor="middle" x="122" y="160">PARKING VIP (ZON A)</text>
+<text fill="#0369a1" font-family="Plus Jakarta Sans" font-size="18" font-weight="700" text-anchor="middle" x="122" y="195">KHAS VIP</text>
+<text fill="#3f4850" font-family="Plus Jakarta Sans" font-size="10" text-anchor="middle" x="122" y="220">Tetamu Kehormat &amp; Diplomat</text>
+<text fill="#167f77" font-family="Plus Jakarta Sans" font-size="9" font-weight="600" text-anchor="middle" x="122" y="240">15 Petak Dikhaskan</text>
+</g>
+<!-- PARKING ZONE B: AGENSI / EXHIBITORS (NEXT TO HALL - HIGHLIGHTED) -->
+<g>
+<rect fill="#fef3c7" height="290" rx="10" width="165" x="485" y="140"></rect>
+<rect fill="#f59e0b" height="34" rx="6" width="165" x="485" y="140"></rect>
+<text fill="#0f172a" font-family="Manrope" font-size="11" font-weight="800" text-anchor="middle" x="567" y="162">ZON LETAK KERETA B</text>
+<rect fill="#ffffff" height="38" rx="6" width="145" x="495" y="184"></rect>
+<text fill="#d97706" font-family="Plus Jakarta Sans" font-size="11" font-weight="800" text-anchor="middle" x="567" y="200">AGENSI &amp; PAMERAN</text>
+<text fill="#653e00" font-family="Plus Jakarta Sans" font-size="9" font-weight="700" text-anchor="middle" x="567" y="214">(BERSEBELAHAN DEWAN)</text>
+<!-- Bay Slots Visualized -->
+<line stroke="#ffddb8" stroke-width="2" x1="495" x2="640" y1="240" y2="240"></line>
+<line stroke="#ffddb8" stroke-width="2" x1="495" x2="640" y1="275" y2="275"></line>
+<line stroke="#ffddb8" stroke-width="2" x1="495" x2="640" y1="310" y2="310"></line>
+<line stroke="#ffddb8" stroke-width="2" x1="495" x2="640" y1="345" y2="345"></line>
+<line stroke="#ffddb8" stroke-width="2" x1="495" x2="640" y1="380" y2="380"></line>
+<text fill="#2a1700" font-family="Plus Jakarta Sans" font-size="10" text-anchor="middle" x="567" y="262">Petak Berpelekat Agensi</text>
+<text fill="#2a1700" font-family="Plus Jakarta Sans" font-size="10" text-anchor="middle" x="567" y="297">Kapasiti: 60 Kenderaan</text>
+<text fill="#167f77" font-family="Plus Jakarta Sans" font-size="10" font-weight="700" text-anchor="middle" x="567" y="332">★ Akses Dekat Pintu B</text>
+<text fill="#2a1700" font-family="Plus Jakarta Sans" font-size="10" text-anchor="middle" x="567" y="367">Jarak Jalan Kaki: 30 Saat</text>
+<text fill="#ba1a1a" font-family="Plus Jakarta Sans" font-size="9" font-weight="600" text-anchor="middle" x="567" y="405">Khas Pemegang Pas QR</text>
+</g>
+<!-- PARKING ZONE C: ORANG AWAM & PELAJAR -->
+<g>
+<rect fill="#eaedff" height="130" rx="10" width="145" x="50" y="300"></rect>
+<rect fill="#3f4850" height="30" rx="6" width="145" x="50" y="300"></rect>
+<text fill="#ffffff" font-family="Manrope" font-size="11" font-weight="700" text-anchor="middle" x="122" y="320">PARKING ZON C (AWAM)</text>
+<text fill="#131b2e" font-family="Plus Jakarta Sans" font-size="13" font-weight="700" text-anchor="middle" x="122" y="355">Pelajar &amp; Pelawat</text>
+<text fill="#707881" font-family="Plus Jakarta Sans" font-size="10" text-anchor="middle" x="122" y="375">Padang Terbuka PTE</text>
+<text fill="#167f77" font-family="Plus Jakarta Sans" font-size="9" text-anchor="middle" x="122" y="400">Kapasiti: 120 Kereta</text>
+</g>
+<!-- Security Checkpoint Marker -->
+<circle cx="340" cy="460" fill="#ba1a1a" r="16"></circle>
+<text fill="#ffffff" font-family="Plus Jakarta Sans" font-size="10" font-weight="800" text-anchor="middle" x="340" y="464">POS</text>
+<text fill="#93000a" font-family="Plus Jakarta Sans" font-size="9" font-weight="700" text-anchor="middle" x="340" y="490">Pemeriksaan Keselamatan</text>
+</svg>
+</div>
+</div>
+<!-- Micro Instruction Floating Badge -->
+<div class="absolute bottom-3 left-3 z-10 flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-surface-bright/90 backdrop-blur-md shadow-sm pointer-events-none">
+<span class="material-symbols-outlined text-[16px] text-ocean-dark">touch_app</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Cubit &amp; seret untuk zum terperinci</span>
+</div>
+</div>
+<!-- Legend Bar -->
+<div class="px-gutter-mobile py-2.5 bg-surface-container-lowest flex items-center justify-between overflow-x-auto shadow-sm">
+<div class="flex items-center gap-3 shrink-0">
+<div class="flex items-center gap-1.5">
+<span class="w-3.5 h-3.5 rounded-md bg-gold-hover"></span>
+<span class="font-label-sm text-label-sm text-on-surface">Booth Anda (#05)</span>
+</div>
+<div class="flex items-center gap-1.5">
+<span class="w-3.5 h-3.5 rounded-md bg-teal-accent"></span>
+<span class="font-label-sm text-label-sm text-on-surface">Agensi Pendidikan</span>
+</div>
+<div class="flex items-center gap-1.5">
+<span class="w-3.5 h-3.5 rounded-md bg-primary"></span>
+<span class="font-label-sm text-label-sm text-on-surface">Pentas / Urus Setia</span>
+</div>
+<div class="flex items-center gap-1.5">
+<span class="w-3.5 h-3.5 rounded-md bg-surface-container-high"></span>
+<span class="font-label-sm text-label-sm text-outline">Agensi Lain</span>
+</div>
+</div>
+</div>
+<!-- Bottom Sheet Mini - Detail & Verification Summary -->
+<div class="px-gutter-mobile pt-4 space-y-3">
+<!-- Active Highlight Detail Card -->
+<div class="p-4 rounded-xl bg-surface-container-lowest shadow-sm flex flex-col gap-3">
+<div class="flex items-start justify-between gap-2">
+<div class="flex items-center gap-2.5">
+<div class="w-10 h-10 rounded-xl bg-gold-subtle flex items-center justify-center shrink-0 text-gold-hover font-display-hero text-headline-sm">
+            05
+          </div>
+<div>
+<div class="flex items-center gap-1.5">
+<h2 class="font-headline-sm text-headline-sm text-on-surface font-bold">Universiti Brunei Darussalam</h2>
+<span class="px-2 py-0.5 rounded-full bg-gold-subtle text-gold-hover font-label-sm text-label-sm font-bold">LULUS</span>
+</div>
+<p class="font-body-sm text-body-sm text-outline">Zon Utama Agensi Pengajian Tinggi Awam</p>
+</div>
+</div>
+</div>
+<!-- Specification Badges Grid -->
+<div class="grid grid-cols-3 gap-2 p-2.5 rounded-lg bg-surface-container-low">
+<div class="flex flex-col items-center text-center">
+<span class="material-symbols-outlined text-[20px] text-ocean-dark">table_restaurant</span>
+<span class="font-label-md text-label-md text-on-surface mt-1">2 Meja</span>
+<span class="font-body-sm text-body-sm text-outline">Banquet 6ft</span>
+</div>
+<div class="flex flex-col items-center text-center">
+<span class="material-symbols-outlined text-[20px] text-ocean-dark">chair</span>
+<span class="font-label-md text-label-md text-on-surface mt-1">4 Kerusi</span>
+<span class="font-body-sm text-body-sm text-outline">Bersarung</span>
+</div>
+<div class="flex flex-col items-center text-center">
+<span class="material-symbols-outlined text-[20px] text-ocean-dark">electrical_services</span>
+<span class="font-label-md text-label-md text-on-surface mt-1">1 Soket</span>
+<span class="font-body-sm text-body-sm text-outline">240V / 13A</span>
+</div>
+</div>
+<!-- Parking Notice Box -->
+<div class="flex items-center gap-3 p-3 rounded-lg bg-ocean-wash">
+<span class="material-symbols-outlined text-[22px] text-ocean-dark shrink-0">local_parking</span>
+<div class="min-w-0">
+<p class="font-label-md text-label-md text-ocean-dark font-semibold">Kawasan Letak Kereta Agensi: Zon B</p>
+<p class="font-body-sm text-body-sm text-on-surface-variant truncate">Bersebelahan Dewan (Next to Hall) • Masuk ikut Pintu B</p>
+</div>
+</div>
+</div>
+<!-- Nearby Neighbors Glance -->
+<div class="p-3.5 rounded-xl bg-surface-container-low shadow-sm flex flex-col gap-2">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-outline uppercase tracking-wider font-semibold">Meja Agensi Berdekatan</span>
+<span class="font-body-sm text-body-sm text-ocean-dark font-medium">Lorong Agensi 1</span>
+</div>
+<div class="grid grid-cols-2 gap-2">
+<div class="flex items-center gap-2 p-2 rounded-lg bg-surface-container-lowest">
+<span class="w-6 h-6 rounded-md bg-teal-soft text-teal-accent flex items-center justify-center font-bold text-[11px]">04</span>
+<span class="font-body-sm text-body-sm text-on-surface font-medium truncate">Politeknik Brunei</span>
+</div>
+<div class="flex items-center gap-2 p-2 rounded-lg bg-surface-container-lowest">
+<span class="w-6 h-6 rounded-md bg-teal-soft text-teal-accent flex items-center justify-center font-bold text-[11px]">06</span>
+<span class="font-body-sm text-body-sm text-on-surface font-medium truncate">Univ. Teknologi Brunei</span>
+</div>
+<div class="flex items-center gap-2 p-2 rounded-lg bg-surface-container-lowest">
+<span class="w-6 h-6 rounded-md bg-teal-soft text-teal-accent flex items-center justify-center font-bold text-[11px]">07</span>
+<span class="font-body-sm text-body-sm text-on-surface font-medium truncate">UNISSA</span>
+</div>
+<div class="flex items-center gap-2 p-2 rounded-lg bg-surface-container-lowest">
+<span class="w-6 h-6 rounded-md bg-teal-soft text-teal-accent flex items-center justify-center font-bold text-[11px]">08</span>
+<span class="font-body-sm text-body-sm text-on-surface font-medium truncate">IBTE Belait &amp; Jefri</span>
+</div>
+</div>
+</div>
+<!-- Action Buttons -->
+<div class="flex flex-col gap-2.5 pt-1">
+<!-- Google Maps External Link -->
+<a class="w-full h-12 rounded-xl bg-ocean-dark text-on-primary flex items-center justify-center gap-2 font-label-lg text-label-lg active:scale-[0.98] transition-all shadow-sm" href="https://maps.google.com/?q=Pusat+Tingkatan+Enam+Belait" rel="noopener noreferrer" target="_blank">
+<span class="material-symbols-outlined text-[20px]">directions</span>
+<span>Buka Google Maps ke Dewan</span>
+</a>
+<!-- Close & Continue Action -->
+<button class="w-full h-12 rounded-xl bg-gold-hover text-on-tertiary flex items-center justify-center gap-2 font-label-lg text-label-lg active:scale-[0.98] transition-all shadow-md" onclick="history.back()">
+<span>Tutup &amp; Teruskan ke Borang RSVP</span>
+<span class="material-symbols-outlined text-[20px]">arrow_forward</span>
+</button>
+</div>
+</div>
+<!-- Toast / Popover Notification -->
+<div class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 px-4 py-2.5 rounded-full bg-inverse-surface text-inverse-on-surface shadow-xl flex items-center gap-2 opacity-0 pointer-events-none transition-all duration-300" id="notice-toast">
+<span class="material-symbols-outlined text-[18px] text-tertiary-fixed">info</span>
+<span class="font-body-sm text-body-sm font-medium" id="notice-text">Memuat turun pelan arkitek...</span>
+</div>
+</div>
+<script>
+  let currentZoom = 1;
+  const content = document.getElementById('blueprint-content');
+  const floorView = document.getElementById('view-floor');
+  const parkingView = document.getElementById('view-parking');
+  const tabFloor = document.getElementById('tab-floor');
+  const tabParking = document.getElementById('tab-parking');
+  const toast = document.getElementById('notice-toast');
+  const toastText = document.getElementById('notice-text');
+
+  function adjustZoom(delta) {
+    currentZoom = Math.min(Math.max(currentZoom + delta, 0.8), 2.4);
+    applyTransform();
+  }
+
+  function resetZoom() {
+    currentZoom = 1;
+    applyTransform();
+  }
+
+  function applyTransform() {
+    if (content) {
+      content.style.transform = `scale(${currentZoom})`;
+    }
+  }
+
+  function switchView(type) {
+    if (type === 'floor') {
+      floorView.classList.remove('hidden');
+      parkingView.classList.add('hidden');
+      tabFloor.className = "flex items-center justify-center gap-1.5 py-2 px-3 rounded-lg bg-surface-container-lowest text-primary shadow-sm font-label-md text-label-md transition-all";
+      tabParking.className = "flex items-center justify-center gap-1.5 py-2 px-3 rounded-lg text-on-surface-variant font-label-md text-label-md hover:bg-surface-container transition-all";
+      showNotice("Menukar ke Pelan Lantai Dewan (52 Meja)");
+    } else {
+      floorView.classList.add('hidden');
+      parkingView.classList.remove('hidden');
+      tabParking.className = "flex items-center justify-center gap-1.5 py-2 px-3 rounded-lg bg-surface-container-lowest text-primary shadow-sm font-label-md text-label-md transition-all";
+      tabFloor.className = "flex items-center justify-center gap-1.5 py-2 px-3 rounded-lg text-on-surface-variant font-label-md text-label-md hover:bg-surface-container transition-all";
+      showNotice("Menukar ke Pelan Kampus & Parkir Zon B");
+    }
+    resetZoom();
+  }
+
+  function focusMyBooth() {
+    switchView('floor');
+    currentZoom = 1.6;
+    applyTransform();
+    showNotice("Fokus pada Booth #05: UBD");
+  }
+
+  function highlightBoothModal() {
+    showNotice("Booth #05 (UBD): 2 Meja, 4 Kerusi, 1 Soket 240V");
+  }
+
+  function triggerPdfNotice() {
+    showNotice("Menyediakan dokumen PDF Beresolusi Tinggi...");
+  }
+
+  function showNotice(msg) {
+    if (!toast || !toastText) return;
+    toastText.textContent = msg;
+    toast.classList.remove('opacity-0', 'pointer-events-none');
+    toast.classList.add('opacity-100');
+    setTimeout(() => {
+      toast.classList.add('opacity-0', 'pointer-events-none');
+      toast.classList.remove('opacity-100');
+    }, 2400);
+  }
+</script></main></body></html>

@@ -142,32 +142,88 @@ function navigateTo(viewId, param = null) {
 
 function updateBottomNav(viewId) {
   const bottomNav = document.getElementById('bottomNavBar');
-  if (!bottomNav) return;
+  const desktopNav = document.getElementById('desktopNavBar');
+  const appHeader = document.getElementById('appHeader');
+  const viewport = document.getElementById('appViewport');
 
   if (viewId === 'login' || !AppState.currentUser) {
-    bottomNav.classList.add('hidden');
+    if (bottomNav) bottomNav.style.display = 'none';
+    if (desktopNav) desktopNav.style.display = 'none';
+    if (appHeader) appHeader.style.display = 'none';
+    if (viewport) viewport.classList.remove('admin-mode');
     return;
   }
-  bottomNav.classList.remove('hidden');
 
+  // Tunjukkan Nav yang sesuai mengikut lebar skrin
+  const isDesktop = window.innerWidth >= 768;
+  if (isDesktop) {
+    if (desktopNav) desktopNav.style.display = 'block';
+    if (bottomNav) bottomNav.style.display = 'none';
+    if (appHeader) appHeader.style.display = 'none';
+  } else {
+    if (desktopNav) desktopNav.style.display = 'none';
+    if (bottomNav) bottomNav.style.display = 'block';
+    if (appHeader) appHeader.style.display = (viewId === 'home') ? 'none' : 'block';
+  }
+
+  // Kemaskini nama agensi di desktop nav
+  const desktopAgencyName = document.getElementById('desktopNavAgencyName');
+  if (desktopAgencyName && AppState.currentUser) {
+    desktopAgencyName.innerText = AppState.currentUser.namaAgensi || 'Universiti Brunei Darussalam';
+  }
+
+  // Highlight pautan aktif di desktop top nav
+  document.querySelectorAll('.desktop-nav-link').forEach(btn => {
+    const target = btn.getAttribute('data-nav-target');
+    if (target === viewId) {
+      btn.className = 'desktop-nav-link px-3.5 py-2 rounded-xl text-xs font-bold text-primary bg-primary/10 flex items-center gap-1.5 transition-all';
+    } else {
+      btn.className = 'desktop-nav-link px-3.5 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-100 flex items-center gap-1.5 transition-all';
+    }
+  });
+
+  // Skrin Admin membenarkan paparan maksimum di komputer
+  if (viewport) {
+    if (viewId && viewId.startsWith('admin')) {
+      viewport.classList.add('admin-mode');
+    } else {
+      viewport.classList.remove('admin-mode');
+    }
+  }
+
+  // Kemaskini mobile bottom nav pills
   document.querySelectorAll('.bottom-nav-item').forEach(btn => {
     const target = btn.getAttribute('data-target');
-    const icon = btn.querySelector('.nav-icon');
+    const pill = btn.querySelector('.nav-pill');
     const label = btn.querySelector('.nav-label');
 
     if (target === viewId) {
-      btn.classList.add('text-amber-500');
-      btn.classList.remove('text-slate-400');
-      if (icon) icon.classList.add('font-bold');
-      if (label) label.classList.add('font-bold');
+      if (pill) {
+        pill.classList.add('bg-[#fef3c7]', 'text-[#d97706]');
+        pill.classList.remove('text-slate-400');
+      }
+      if (label) {
+        label.classList.add('font-bold', 'text-[#d97706]');
+        label.classList.remove('font-medium', 'text-slate-400');
+      }
     } else {
-      btn.classList.remove('text-amber-500');
-      btn.classList.add('text-slate-400');
-      if (icon) icon.classList.remove('font-bold');
-      if (label) label.classList.remove('font-bold');
+      if (pill) {
+        pill.classList.remove('bg-[#fef3c7]', 'text-[#d97706]');
+        pill.classList.add('text-slate-400');
+      }
+      if (label) {
+        label.classList.remove('font-bold', 'text-[#d97706]');
+        label.classList.add('font-medium', 'text-slate-400');
+      }
     }
   });
 }
+
+window.addEventListener('resize', () => {
+  if (AppState.currentView) {
+    updateBottomNav(AppState.currentView);
+  }
+});
 
 // ============================================
 // 4. AUTENTIKASI: LOG MASUK & KELUAR
@@ -249,49 +305,74 @@ function renderHomeScreen() {
     const isAttending = AppState.rsvps.some(r => r.Event_ID === primaryEvent.Event_ID && r.Status_RSVP === 'Hadir');
 
     heroCardContainer.innerHTML = `
-      <div class="card-elevated p-4 flex flex-col gap-3 relative overflow-hidden">
-        <div class="flex items-center justify-between">
-          <span class="bg-amber-100 text-amber-800 text-xs font-bold px-2.5 py-1 rounded-full flex items-center gap-1">
-            <span class="material-symbols-outlined text-[14px]">star</span>
-            ${I18N.t('badgeMandatory')}
-          </span>
-          <span class="bg-red-50 text-red-600 text-xs font-semibold px-2.5 py-1 rounded-full">
-            ${primaryEvent.Tarikh_Mula}
-          </span>
-        </div>
-
-        <div class="w-full h-36 bg-slate-100 rounded-xl overflow-hidden relative shadow-inner">
-          <img src="${primaryEvent.Pelan_Sekolah_URL || 'https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=600&q=80'}" class="w-full h-full object-cover" alt="Venue Cover" />
-          <div class="absolute bottom-2 left-2 bg-slate-900/80 backdrop-blur-sm text-white text-[11px] font-medium px-2.5 py-1 rounded-lg flex items-center gap-1">
-            <span class="material-symbols-outlined text-[14px]">apartment</span>
-            ${primaryEvent.Tempat_Venue}
-          </div>
-        </div>
-
-        <div class="flex flex-col">
-          <span class="text-[11px] font-bold text-teal-700 uppercase tracking-wider">JABATAN SEKOLAH-SEKOLAH · UNIT CEU</span>
-          <h3 class="text-base font-bold text-slate-900 leading-snug mt-0.5">${primaryEvent.Nama_Acara}</h3>
-        </div>
-
-        <div class="grid grid-cols-2 gap-2 text-xs text-slate-600 bg-slate-50 p-2.5 rounded-xl border border-slate-100">
+      <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden flex flex-col">
+        <!-- Lencana Atas & Butang Simpan (Bookmark) -->
+        <div class="p-3 pb-2 flex items-center justify-between gap-2">
           <div class="flex items-center gap-1.5">
-            <span class="material-symbols-outlined text-teal-600 text-[16px]">calendar_month</span>
-            <span>${primaryEvent.Tarikh_Mula}</span>
+            <span class="bg-[#fef3c7] text-[#92400e] text-[10px] font-bold px-2.5 py-1 rounded-full flex items-center gap-1">
+              <span class="material-symbols-outlined text-[13px]">settings</span>
+              ${I18N.t('badgeMandatory')}
+            </span>
+            <span class="bg-rose-50 text-rose-600 text-[10px] font-bold px-2.5 py-1 rounded-full">
+              Tamat: 12 Mac 2026
+            </span>
           </div>
-          <div class="flex items-center gap-1.5">
-            <span class="material-symbols-outlined text-teal-600 text-[16px]">schedule</span>
-            <span>${primaryEvent.Masa}</span>
+          <button class="text-slate-400 hover:text-slate-700 transition-colors" title="Simpan Program">
+            <span class="material-symbols-outlined text-[19px]">bookmark</span>
+          </button>
+        </div>
+
+        <!-- Imej Dewan berserta Lencana Lokasi Khas -->
+        <div class="relative w-full h-36 md:h-52 bg-slate-100 px-3">
+          <div class="w-full h-full rounded-xl overflow-hidden relative shadow-inner">
+            <img src="${primaryEvent.Pelan_Sekolah_URL || 'https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=600&q=80'}" class="w-full h-full object-cover" alt="Venue Cover" />
+            <div class="absolute bottom-2 left-2 bg-slate-900/80 backdrop-blur-sm text-white text-[10px] font-semibold px-2.5 py-1 rounded-lg flex items-center gap-1 shadow-md">
+              <span class="material-symbols-outlined text-[13px] text-amber-400">apartment</span>
+              <span>${primaryEvent.Tempat_Venue || 'Dewan Serbaguna PTE Belait'}</span>
+            </div>
           </div>
         </div>
 
-        <div class="flex items-center gap-2 pt-1">
-          <button onclick="navigateTo('rsvpForm', '${primaryEvent.Event_ID}')" class="flex-1 bg-amber-500 hover:bg-amber-600 text-white font-bold py-2.5 px-4 rounded-xl shadow-md shadow-amber-500/20 btn-pressable flex items-center justify-center gap-1.5 text-sm">
-            <span class="material-symbols-outlined text-[18px]">how_to_reg</span>
-            <span>${isAttending ? 'Kemaskini RSVP' : I18N.t('btnConfirmRSVP')}</span>
-          </button>
-          <button onclick="navigateTo('eventDetails', '${primaryEvent.Event_ID}')" class="p-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl btn-pressable flex items-center justify-center" title="Butiran Acara">
-            <span class="material-symbols-outlined text-[20px]">info</span>
-          </button>
+        <!-- Maklumat Acara & Butang Aksi -->
+        <div class="p-3.5 flex flex-col gap-2">
+          <span class="text-[10px] font-bold text-[#148e82] uppercase tracking-wider">
+            JABATAN SEKOLAH-SEKOLAH • UNIT CEU
+          </span>
+          <h2 class="text-sm font-bold text-slate-900 leading-snug">
+            ${primaryEvent.Nama_Acara}
+          </h2>
+          <p class="text-[11px] text-slate-500 leading-relaxed">
+            Penyelarasan garis panduan penilaian psikometrik dan persediaan takwim pameran kerjaya peringkat sekolah-sekolah kerajaan.
+          </p>
+
+          <!-- Kotak Tarikh & Masa -->
+          <div class="grid grid-cols-2 gap-2 pt-1 text-xs">
+            <div class="flex items-center gap-1.5 p-2 rounded-xl bg-slate-50 border border-slate-100">
+              <span class="material-symbols-outlined text-[#148e82] text-[18px]">calendar_month</span>
+              <div class="flex flex-col min-w-0">
+                <span class="text-[9px] text-slate-400 font-medium">Tarikh</span>
+                <span class="text-[11px] font-bold text-slate-800 truncate">${primaryEvent.Tarikh_Mula}</span>
+              </div>
+            </div>
+            <div class="flex items-center gap-1.5 p-2 rounded-xl bg-slate-50 border border-slate-100">
+              <span class="material-symbols-outlined text-[#148e82] text-[18px]">schedule</span>
+              <div class="flex flex-col min-w-0">
+                <span class="text-[9px] text-slate-400 font-medium">Masa</span>
+                <span class="text-[11px] font-bold text-slate-800 truncate">${primaryEvent.Masa}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Butang Pengesahan Kehadiran (RSVP) & Muat Turun Surat -->
+          <div class="flex items-center gap-2 pt-2">
+            <button onclick="navigateTo('rsvpForm', '${primaryEvent.Event_ID}')" class="flex-1 h-11 bg-gradient-to-r from-[#f59e0b] to-[#d97706] text-white font-bold text-xs rounded-xl shadow-md hover:shadow-lg flex items-center justify-center gap-1.5 transition-all">
+              <span class="material-symbols-outlined text-[18px]">check_circle</span>
+              <span>${isAttending ? 'Kemaskini RSVP' : 'Sahkan Kehadiran (RSVP)'}</span>
+            </button>
+            <button onclick="openDocumentGeneratorModal()" class="w-11 h-11 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 flex items-center justify-center transition-colors shadow-sm" title="Muat Turun Surat Rasmi Ber-QR">
+              <span class="material-symbols-outlined text-[20px]">download</span>
+            </button>
+          </div>
         </div>
       </div>
     `;
