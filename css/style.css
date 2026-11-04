@@ -1,0 +1,201 @@
+/**
+ * ============================================================================
+ * STIL & TEMA VISUAL (css/style.css)
+ * Identiti Visual Kementerian Pendidikan Brunei & Unit Pendidikan Kerjaya (UPK)
+ * Dioptimumkan untuk Skrin Telefon Pintar & Paparan Android Studio APK
+ * ============================================================================
+ */
+
+:root {
+  --color-primary: #006194;
+  --color-primary-dark: #004b73;
+  --color-teal: #167f77;
+  --color-teal-soft: #e6f7f5;
+  --color-amber: #f59e0b;
+  --color-amber-dark: #d97706;
+  --color-surface: #faf8ff;
+  --color-card: #ffffff;
+  --color-text: #0f172a;
+  --color-muted: #64748b;
+  --color-border: #e2e8f0;
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+/* Penyesuaian Asas & Safe Area */
+html, body {
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  background-color: var(--color-surface);
+  color: var(--color-text);
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
+
+/* Mengelakkan herotan zum input pada pelayar telefon */
+input, select, textarea {
+  font-size: 16px !important;
+  user-select: auto;
+}
+
+/* Bar Skrol Halus & Bersih */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(100, 116, 139, 0.2);
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(100, 116, 139, 0.4);
+}
+
+/* Safe Area Inset Padding */
+.pt-safe {
+  padding-top: calc(var(--safe-top));
+}
+.pb-safe {
+  padding-bottom: calc(var(--safe-bottom) + 4.75rem);
+}
+
+/* Transisi Halaman Pantas (Zero Latency) */
+.view-screen {
+  display: none;
+  opacity: 0;
+  transform: translateY(4px);
+  transition: opacity 0.15s ease-out, transform 0.15s ease-out;
+}
+.view-screen.active {
+  display: block;
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Kad Efek Tekstur & Bayang */
+.card-elevated {
+  background: #ffffff;
+  border-radius: 1rem;
+  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.05);
+  border: 1px solid var(--color-border);
+}
+
+.card-hero {
+  background: linear-gradient(135deg, #0284c7 0%, #006194 50%, #0369a1 100%);
+  color: #ffffff;
+  border-radius: 1.25rem;
+  box-shadow: 0 8px 24px rgba(2, 132, 199, 0.22);
+}
+
+/* Butang Sentuh Responsif */
+.btn-pressable {
+  transition: transform 0.08s ease, filter 0.08s ease;
+}
+.btn-pressable:active {
+  transform: scale(0.97);
+  filter: brightness(0.95);
+}
+
+/* Modal Pelan Dewan & Peta Zum Penuh */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(15, 23, 42, 0.75);
+  backdrop-filter: blur(4px);
+  z-index: 100;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+.modal-overlay.active {
+  display: flex;
+}
+
+.modal-content {
+  background: #ffffff;
+  border-radius: 1.25rem;
+  width: 100%;
+  max-width: 600px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
+  animation: modalPop 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes modalPop {
+  from {
+    opacity: 0;
+    transform: scale(0.94);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Toast Notifikasi Terapung */
+#appToast {
+  position: fixed;
+  bottom: calc(var(--safe-bottom) + 5.5rem);
+  left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  background: #0f172a;
+  color: #ffffff;
+  padding: 0.75rem 1.25rem;
+  border-radius: 9999px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  z-index: 999;
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+#appToast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* Kotak Pelan Dewan Vektor Interaktif */
+.booth-box {
+  border: 1.5px dashed #cbd5e1;
+  border-radius: 0.5rem;
+  padding: 0.5rem;
+  text-align: center;
+  transition: all 0.15s ease;
+  cursor: pointer;
+  background: #f8fafc;
+}
+.booth-box:hover, .booth-box.selected {
+  border-color: var(--color-amber);
+  background: #fef3c7;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.15);
+}
+
+/* Mod Cetak Rasmi (Print Style) */
+@media print {
+  body {
+    background: #ffffff !important;
+    color: #000000 !important;
+  }
+  header, footer, nav, .no-print, #appToast, .modal-overlay {
+    display: none !important;
+  }
+  .print-area {
+    display: block !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+}
