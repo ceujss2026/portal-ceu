@@ -1688,6 +1688,7 @@
 
     if (viewName === 'auth') updateBiometricUI();
     if (viewName === 'home') renderHomeView();
+    if (viewName === 'calendar') renderCalendarView();
     if (viewName === 'archive') renderArchiveView();
     if (viewName === 'notif') renderNotifView();
     if (viewName === 'profile') renderProfileView();
@@ -1731,9 +1732,9 @@
       const tab = btn.dataset.tab;
       let isActive = false;
       if (tab === 'home') {
-        isActive = (State.currentView === 'home' && !isUrgent && !State.selectedCalendarDate) || (State.currentView === 'admin-dashboard');
+        isActive = (State.currentView === 'home' && !isUrgent) || (State.currentView === 'admin-dashboard');
       } else if (tab === 'takwim' || tab === 'calendar') {
-        isActive = State.currentView === 'home' && Boolean(State.selectedCalendarDate);
+        isActive = State.currentView === 'calendar';
       } else if (tab === 'rsvp') {
         isActive = State.currentView === 'admin-rsvp' || (State.currentView === 'home' && isUrgent);
       } else if (tab === 'archive') {
@@ -2048,29 +2049,169 @@
   const renderMonthlyCalendar = renderCalendar;
 
   // ==========================================================================
-  // 8. RENDER PAPARAN HOME (TAKWIN GURU)
+  // 8. RENDER PAPARAN HOME (BERANDA UTAMA GURU)
   // ==========================================================================
   function setEventFilter(filterName) {
     State.activeEventFilter = filterName;
-    State.selectedCalendarDate = null; // Buka kunci tarikh kalendar jika pengguna menukar penapis utama
     updateNavActiveTabs();
 
     // Selaraskan gaya pil penapis
     document.querySelectorAll('.event-filter-pill').forEach(pill => {
       const isMatch = pill.dataset.filter === filterName;
-      pill.classList.toggle('bg-primary', isMatch);
-      pill.classList.toggle('text-white', isMatch);
-      pill.classList.toggle('bg-surface-container', !isMatch);
+      pill.classList.toggle('bg-primary-container', isMatch);
+      pill.classList.toggle('text-on-primary', isMatch);
+      pill.classList.toggle('bg-surface-container-lowest', !isMatch);
       pill.classList.toggle('text-on-surface-variant', !isMatch);
     });
 
     renderHomeView();
   }
 
-  function renderHomeView() {
-    renderMonthlyCalendar();
+  function renderEventCardHtml(ev) {
+    const userRsvp = State.rsvps.find(r => r.event_id === ev.event_id);
+    const isPending = !userRsvp;
+    let statusBadge = '';
+    if (userRsvp) {
+      const st = (userRsvp.response_status || '').toLowerCase();
+      if (st.includes('hadir') && !st.includes('tidak')) {
+        statusBadge = `<span class="bg-primary-container text-on-primary px-3 py-1 rounded-full font-label-pill text-[11px] font-bold flex items-center gap-1.5 shadow-sm"><span class="w-1.5 h-1.5 rounded-full bg-white"></span>${I18N[State.lang].badgeAttending}</span>`;
+      } else if (st.includes('wakil')) {
+        statusBadge = `<span class="bg-surface-container-high text-on-surface px-3 py-1 rounded-full font-label-pill text-[11px] font-bold flex items-center gap-1.5"><span class="material-symbols-outlined text-[15px] text-secondary">sync_alt</span>${I18N[State.lang].badgeRep}</span>`;
+      } else {
+        statusBadge = `<span class="bg-error-container text-on-error-container px-3 py-1 rounded-full font-label-pill text-[11px] font-bold">${I18N[State.lang].badgeAbsent}</span>`;
+      }
+    } else {
+      statusBadge = `<span class="bg-secondary-container text-on-secondary-container px-3 py-1 rounded-full font-label-pill text-[11px] font-bold flex items-center gap-1 shadow-sm"><span class="material-symbols-outlined text-[14px]" style="font-variation-settings: 'FILL' 1;">priority_high</span>${I18N[State.lang].badgePending}</span>`;
+    }
 
-    // Selaraskan nama dan jawatan pengguna pada pengepala utama (Elakkan nama salah/kekal Noraini)
+    const title = (State.lang === 'en' && ev.title_en) ? ev.title_en : ev.title_bm;
+    return `
+      <article class="bg-surface-container-lowest rounded-2xl p-4 shadow-[0_8px_24px_rgba(29,120,120,0.08)] flex flex-col gap-3 relative border border-outline-variant/30 transition-all hover:shadow-md">
+        <!-- Header row of Card -->
+        <div class="flex items-start justify-between gap-2">
+          <div class="flex flex-wrap items-center gap-1.5">
+            ${statusBadge}
+            ${ev.rsvp_deadline && isPending ? `
+              <span class="bg-error-container text-on-error-container px-2.5 py-0.5 rounded-full font-caption text-[10px] font-semibold">
+                ${I18N[State.lang].deadline}: ${ev.rsvp_deadline.replace('T', ' ')}
+              </span>
+            ` : ''}
+          </div>
+          <span class="font-label-sm text-xs text-on-surface-variant font-medium flex items-center gap-1">
+            <span class="material-symbols-outlined text-sm text-primary">event</span>
+            ${formatEventDateClean(ev.event_date)}
+          </span>
+        </div>
+
+        <!-- Event Details & Title -->
+        <div class="flex flex-col gap-0.5">
+          <span class="font-caption text-[11px] uppercase tracking-wider text-primary font-bold">
+            ${ev.summary || 'Jabatan Sekolah-Sekolah • Unit CEU'}
+          </span>
+          <h2 class="font-headline-md text-base sm:text-lg font-bold text-on-surface leading-snug">
+            ${title}
+          </h2>
+        </div>
+
+        <!-- Schedule Micro-Info Strip (Gaya 16061) -->
+        <div class="grid grid-cols-2 gap-2 bg-surface-container-low p-2.5 rounded-xl text-on-surface text-xs">
+          <div class="flex items-center gap-2">
+            <div class="w-7 h-7 rounded-full bg-surface-container-lowest flex items-center justify-center text-primary shadow-xs shrink-0">
+              <span class="material-symbols-outlined text-[16px]">schedule</span>
+            </div>
+            <div class="flex flex-col min-w-0">
+              <span class="font-caption text-[10px] text-on-surface-variant">${I18N[State.lang].timeLabel}</span>
+              <span class="font-label-md font-semibold truncate">${formatTime12H(ev.start_time)} - ${formatTime12H(ev.end_time)}</span>
+            </div>
+          </div>
+          <div class="flex items-center gap-2">
+            <div class="w-7 h-7 rounded-full bg-surface-container-lowest flex items-center justify-center text-secondary shadow-xs shrink-0">
+              <span class="material-symbols-outlined text-[16px]">location_on</span>
+            </div>
+            <div class="flex flex-col min-w-0">
+              <span class="font-caption text-[10px] text-on-surface-variant">${I18N[State.lang].venueLabel}</span>
+              ${ev.venue && !ev.venue.toLowerCase().includes('talian') && !ev.venue.toLowerCase().includes('online') && !ev.venue.toLowerCase().includes('meet') ? `
+                <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(ev.venue)}" target="_blank" rel="noopener noreferrer" class="font-label-md font-semibold truncate text-primary hover:underline flex items-center gap-1 group/map" title="${State.lang === 'en' ? 'Open in Google Maps' : 'Buka di Google Maps'}">
+                  <span class="truncate">${ev.venue}</span>
+                  <span class="material-symbols-outlined text-[13px] opacity-70 group-hover/map:opacity-100 shrink-0">open_in_new</span>
+                </a>
+              ` : `
+                <span class="font-label-md font-semibold truncate">${ev.venue || I18N[State.lang].onlineVenue}</span>
+              `}
+            </div>
+          </div>
+        </div>
+
+        <!-- Call to Action Controls -->
+        <div class="flex items-center gap-2 pt-1">
+          <button class="btn-open-rsvp flex-1 h-12 bg-secondary-container hover:bg-secondary-fixed text-on-secondary-container rounded-full font-label-lg text-xs sm:text-sm font-bold flex items-center justify-center gap-2 shadow-[0_6px_16px_rgba(252,183,38,0.35)] transition-all active:scale-[0.98] cursor-pointer" data-id="${ev.event_id}">
+            <span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+            <span>${userRsvp ? I18N[State.lang].updateRsvpBtn : I18N[State.lang].respondRsvpBtn}</span>
+          </button>
+          ${ev.meeting_link ? `
+            <a href="${ev.meeting_link}" target="_blank" class="h-12 px-4 rounded-full bg-surface-container-high hover:bg-surface-variant text-primary font-bold text-xs sm:text-sm flex items-center justify-center gap-1.5 transition-colors cursor-pointer">
+              <span class="material-symbols-outlined text-[18px]">videocam</span>
+              <span>Meet</span>
+            </a>
+          ` : ''}
+          ${(State.currentUser && State.currentUser.role === 'Admin') ? `
+            <button type="button" class="btn-edit-event w-12 h-12 rounded-full bg-surface-container-low text-primary hover:bg-primary hover:text-white flex items-center justify-center transition-all cursor-pointer" data-id="${ev.event_id}" title="Sunting Acara">
+              <span class="material-symbols-outlined text-[18px]">edit</span>
+            </button>
+            <button type="button" class="btn-delete-event w-12 h-12 rounded-full bg-surface-container-low text-error hover:bg-error hover:text-white flex items-center justify-center transition-all cursor-pointer" data-id="${ev.event_id}" title="Padam Acara">
+              <span class="material-symbols-outlined text-[18px]">delete</span>
+            </button>
+          ` : ''}
+        </div>
+      </article>
+    `;
+  }
+
+  function attachEventCardListeners(container) {
+    if (!container) return;
+    container.querySelectorAll('.btn-open-rsvp').forEach(btn => {
+      btn.addEventListener('click', () => {
+        openRsvpModal(btn.dataset.id);
+      });
+    });
+
+    container.querySelectorAll('.btn-edit-event').forEach(btn => {
+      btn.addEventListener('click', () => {
+        window.editEvent(btn.dataset.id);
+      });
+    });
+
+    container.querySelectorAll('.btn-delete-event').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const eventId = btn.dataset.id;
+        const conf = confirm(State.lang === 'en' ? 'Are you sure you want to delete this event? This action cannot be undone.' : 'Adakah Awda pasti ingin memadamkan acara ini? Tindakan ini tidak boleh diundur.');
+        if (!conf) return;
+
+        showToast(State.lang === 'en' ? 'Deleting event...' : 'Memadamkan acara...', 'info');
+        const res = await api('deleteEvent', { eventId });
+        if (res && res.success) {
+          showToast(res.message, 'success');
+          await loadAppBoot();
+          renderHomeView();
+          renderCalendarView();
+          renderAdminDashboardView();
+        } else {
+          showToast((res && res.message) || 'Gagal memadamkan acara.', 'error');
+        }
+      });
+    });
+  }
+
+  function renderHomeView() {
+    // Tarikh hari ini pada kad ringkasan Utama
+    const todayEl = document.getElementById('home-today-date-text');
+    if (todayEl) {
+      const now = new Date();
+      const options = { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' };
+      todayEl.textContent = now.toLocaleDateString(State.lang === 'en' ? 'en-GB' : 'ms-BN', options);
+    }
+
+    // Selaraskan nama dan jawatan pengguna pada pengepala utama
     if (State.currentUser) {
       const homeGreetingName = document.getElementById('home-greeting-name');
       const homeGreetingLabel = document.getElementById('home-greeting-label');
@@ -2130,24 +2271,15 @@
       filtered = filtered.filter(e => myAttendedIds.includes(e.event_id));
     }
 
-    if (State.selectedCalendarDate) {
-      filtered = filtered.filter(e => e.event_date === State.selectedCalendarDate);
-    }
-
     const container = document.getElementById('events-card-list');
     if (!container) return;
 
     if (!filtered.length) {
-      const isDateFiltered = !!State.selectedCalendarDate;
       const isUrgentFiltered = State.activeEventFilter === 'urgent';
       const isAttendedFiltered = State.activeEventFilter === 'attended';
 
       let msg = I18N[State.lang].noEventsFound;
-      if (isDateFiltered) {
-        msg = State.lang === 'en'
-          ? `No events scheduled on ${State.selectedCalendarDate}.`
-          : `Tiada program dijadualkan pada ${State.selectedCalendarDate}.`;
-      } else if (isUrgentFiltered) {
+      if (isUrgentFiltered) {
         msg = State.lang === 'en'
           ? `All events have been responded to! Great job.`
           : `Alhamdulillah, semua tindakan RSVP telah selesai dijawab!`;
@@ -2171,151 +2303,92 @@
       `;
 
       document.getElementById('btn-show-all-events-empty')?.addEventListener('click', () => {
-        State.selectedCalendarDate = null;
         State.activeEventFilter = 'all';
         document.querySelectorAll('.event-filter-pill').forEach(p => {
           const isAll = p.dataset.filter === 'all';
-          p.classList.toggle('bg-primary', isAll);
-          p.classList.toggle('text-white', isAll);
-          p.classList.toggle('bg-surface-container', !isAll);
+          p.classList.toggle('bg-primary-container', isAll);
+          p.classList.toggle('text-on-primary', isAll);
+          p.classList.toggle('bg-surface-container-lowest', !isAll);
           p.classList.toggle('text-on-surface-variant', !isAll);
         });
-        renderMonthlyCalendar();
         renderHomeView();
       });
       return;
     }
 
-    container.innerHTML = filtered.map(ev => {
-      const userRsvp = State.rsvps.find(r => r.event_id === ev.event_id);
-      const isPending = !userRsvp;
-      let statusBadge = '';
-      if (userRsvp) {
-        const st = (userRsvp.response_status || '').toLowerCase();
-        if (st.includes('hadir') && !st.includes('tidak')) {
-          statusBadge = `<span class="bg-primary-container text-on-primary px-3 py-1 rounded-full font-label-pill text-[11px] font-bold flex items-center gap-1.5 shadow-sm"><span class="w-1.5 h-1.5 rounded-full bg-white"></span>${I18N[State.lang].badgeAttending}</span>`;
-        } else if (st.includes('wakil')) {
-          statusBadge = `<span class="bg-surface-container-high text-on-surface px-3 py-1 rounded-full font-label-pill text-[11px] font-bold flex items-center gap-1.5"><span class="material-symbols-outlined text-[15px] text-secondary">sync_alt</span>${I18N[State.lang].badgeRep}</span>`;
-        } else {
-          statusBadge = `<span class="bg-error-container text-on-error-container px-3 py-1 rounded-full font-label-pill text-[11px] font-bold">${I18N[State.lang].badgeAbsent}</span>`;
-        }
-      } else {
-        statusBadge = `<span class="bg-secondary-container text-on-secondary-container px-3 py-1 rounded-full font-label-pill text-[11px] font-bold flex items-center gap-1 shadow-sm"><span class="material-symbols-outlined text-[14px]" style="font-variation-settings: 'FILL' 1;">priority_high</span>${I18N[State.lang].badgePending}</span>`;
+    container.innerHTML = filtered.map(ev => renderEventCardHtml(ev)).join('');
+    attachEventCardListeners(container);
+  }
+
+  // ==========================================================================
+  // 8B. RENDER PAPARAN KALENDAR (TAKWIM & JADUAL BULANAN / MINGGUAN DEDIKASI)
+  // ==========================================================================
+  function renderCalendarView() {
+    renderMonthlyCalendar();
+
+    const titleEl = document.getElementById('calendar-view-title');
+    const subtitleEl = document.getElementById('calendar-view-subtitle');
+    const badgeEl = document.getElementById('calendar-events-count-badge');
+    const container = document.getElementById('calendar-events-card-list');
+    if (!container) return;
+
+    const publishedEvents = (State.events || [])
+      .filter(e => (e.status || 'Published').toLowerCase() !== 'draft')
+      .filter(e => isUserInvitedToEvent(e, State.currentUser));
+
+    let eventsForView = publishedEvents;
+    if (State.selectedCalendarDate) {
+      eventsForView = publishedEvents.filter(e => e.event_date === State.selectedCalendarDate);
+      if (titleEl) {
+        titleEl.textContent = (State.lang === 'en' ? 'Schedule for ' : 'Jadual: ') + formatEventDateClean(State.selectedCalendarDate);
       }
+      if (subtitleEl) {
+        subtitleEl.textContent = State.lang === 'en' ? 'Programs scheduled on selected date' : 'Program yang dijadualkan pada tarikh yang dipilih';
+      }
+    } else {
+      if (titleEl) {
+        titleEl.textContent = State.lang === 'en' ? 'All Scheduled Programs' : 'Semua Program Berjadual';
+      }
+      if (subtitleEl) {
+        subtitleEl.textContent = State.lang === 'en' ? 'Tap any date in the calendar above to filter' : 'Ketik mana-mana tarikh di atas untuk melihat jadual harian';
+      }
+    }
 
-      const title = (State.lang === 'en' && ev.title_en) ? ev.title_en : ev.title_bm;
-      return `
-        <article class="bg-surface-container-lowest rounded-2xl p-4 shadow-[0_8px_24px_rgba(29,120,120,0.08)] flex flex-col gap-3 relative border border-outline-variant/30 transition-all hover:shadow-md">
-          <!-- Header row of Card -->
-          <div class="flex items-start justify-between gap-2">
-            <div class="flex flex-wrap items-center gap-1.5">
-              ${statusBadge}
-              ${ev.rsvp_deadline && isPending ? `
-                <span class="bg-error-container text-on-error-container px-2.5 py-0.5 rounded-full font-caption text-[10px] font-semibold">
-                  ${I18N[State.lang].deadline}: ${ev.rsvp_deadline.replace('T', ' ')}
-                </span>
-              ` : ''}
-            </div>
-            <span class="font-label-sm text-xs text-on-surface-variant font-medium flex items-center gap-1">
-              <span class="material-symbols-outlined text-sm text-primary">event</span>
-              ${formatEventDateClean(ev.event_date)}
-            </span>
+    if (badgeEl) {
+      badgeEl.textContent = `${eventsForView.length} ` + (State.lang === 'en' ? 'Events' : 'Acara');
+    }
+
+    if (!eventsForView.length) {
+      container.innerHTML = `
+        <div class="bg-surface-container-low rounded-2xl p-8 text-center text-on-surface-variant my-4 border border-outline-variant/30 flex flex-col items-center">
+          <div class="w-16 h-16 rounded-full bg-surface-container flex items-center justify-center text-primary mb-3 shadow-inner">
+            <span class="material-symbols-outlined text-[36px]">event_busy</span>
           </div>
-
-          <!-- Event Details & Title -->
-          <div class="flex flex-col gap-0.5">
-            <span class="font-caption text-[11px] uppercase tracking-wider text-primary font-bold">
-              ${ev.summary || 'Jabatan Sekolah-Sekolah • Unit CEU'}
-            </span>
-            <h2 class="font-headline-md text-base sm:text-lg font-bold text-on-surface leading-snug">
-              ${title}
-            </h2>
-          </div>
-
-          <!-- Schedule Micro-Info Strip (Gaya 16061) -->
-          <div class="grid grid-cols-2 gap-2 bg-surface-container-low p-2.5 rounded-xl text-on-surface text-xs">
-            <div class="flex items-center gap-2">
-              <div class="w-7 h-7 rounded-full bg-surface-container-lowest flex items-center justify-center text-primary shadow-xs shrink-0">
-                <span class="material-symbols-outlined text-[16px]">schedule</span>
-              </div>
-              <div class="flex flex-col min-w-0">
-                <span class="font-caption text-[10px] text-on-surface-variant">${I18N[State.lang].timeLabel}</span>
-                <span class="font-label-md font-semibold truncate">${formatTime12H(ev.start_time)} - ${formatTime12H(ev.end_time)}</span>
-              </div>
-            </div>
-            <div class="flex items-center gap-2">
-              <div class="w-7 h-7 rounded-full bg-surface-container-lowest flex items-center justify-center text-secondary shadow-xs shrink-0">
-                <span class="material-symbols-outlined text-[16px]">location_on</span>
-              </div>
-              <div class="flex flex-col min-w-0">
-                <span class="font-caption text-[10px] text-on-surface-variant">${I18N[State.lang].venueLabel}</span>
-                ${ev.venue && !ev.venue.toLowerCase().includes('talian') && !ev.venue.toLowerCase().includes('online') && !ev.venue.toLowerCase().includes('meet') ? `
-                  <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(ev.venue)}" target="_blank" rel="noopener noreferrer" class="font-label-md font-semibold truncate text-primary hover:underline flex items-center gap-1 group/map" title="${State.lang === 'en' ? 'Open in Google Maps' : 'Buka di Google Maps'}">
-                    <span class="truncate">${ev.venue}</span>
-                    <span class="material-symbols-outlined text-[13px] opacity-70 group-hover/map:opacity-100 shrink-0">open_in_new</span>
-                  </a>
-                ` : `
-                  <span class="font-label-md font-semibold truncate">${ev.venue || I18N[State.lang].onlineVenue}</span>
-                `}
-              </div>
-            </div>
-          </div>
-
-          <!-- Call to Action Controls -->
-          <div class="flex items-center gap-2 pt-1">
-            <button class="btn-open-rsvp flex-1 h-12 bg-secondary-container hover:bg-secondary-fixed text-on-secondary-container rounded-full font-label-lg text-xs sm:text-sm font-bold flex items-center justify-center gap-2 shadow-[0_6px_16px_rgba(252,183,38,0.35)] transition-all active:scale-[0.98] cursor-pointer" data-id="${ev.event_id}">
-              <span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 1;">check_circle</span>
-              <span>${userRsvp ? I18N[State.lang].updateRsvpBtn : I18N[State.lang].respondRsvpBtn}</span>
+          <p class="font-headline text-xs font-semibold max-w-[300px] leading-relaxed">
+            ${State.selectedCalendarDate 
+              ? (State.lang === 'en' ? `No programs scheduled on ${formatEventDateClean(State.selectedCalendarDate)}.` : `Tiada program dijadualkan pada ${formatEventDateClean(State.selectedCalendarDate)}. Sila pilih tarikh bertanda titik di atas.`)
+              : (State.lang === 'en' ? 'No programs scheduled for this period.' : 'Tiada program dijadualkan bagi tempoh ini.')}
+          </p>
+          ${State.selectedCalendarDate ? `
+            <button id="btn-cal-view-show-all" type="button" class="mt-4 px-4 py-2 bg-primary text-white rounded-xl text-xs font-bold shadow-md hover:bg-primary-dark active:scale-95 transition-all flex items-center gap-1.5 cursor-pointer">
+              <span class="material-symbols-outlined text-sm">visibility</span>
+              <span>${State.lang === 'en' ? 'Show All Programs' : 'Tunjuk Semua Program'}</span>
             </button>
-            ${ev.meeting_link ? `
-              <a href="${ev.meeting_link}" target="_blank" class="h-12 px-4 rounded-full bg-surface-container-high hover:bg-surface-variant text-primary font-bold text-xs sm:text-sm flex items-center justify-center gap-1.5 transition-colors cursor-pointer">
-                <span class="material-symbols-outlined text-[18px]">videocam</span>
-                <span>Meet</span>
-              </a>
-            ` : ''}
-            ${(State.currentUser && State.currentUser.role === 'Admin') ? `
-              <button type="button" class="btn-edit-event w-12 h-12 rounded-full bg-surface-container-low text-primary hover:bg-primary hover:text-white flex items-center justify-center transition-all cursor-pointer" data-id="${ev.event_id}" title="Sunting Acara">
-                <span class="material-symbols-outlined text-[18px]">edit</span>
-              </button>
-              <button type="button" class="btn-delete-event w-12 h-12 rounded-full bg-surface-container-low text-error hover:bg-error hover:text-white flex items-center justify-center transition-all cursor-pointer" data-id="${ev.event_id}" title="Padam Acara">
-                <span class="material-symbols-outlined text-[18px]">delete</span>
-              </button>
-            ` : ''}
-          </div>
-        </article>
+          ` : ''}
+        </div>
       `;
-    }).join('');
+      const btnShowAll = document.getElementById('btn-cal-view-show-all');
+      if (btnShowAll) {
+        btnShowAll.addEventListener('click', () => {
+          State.selectedCalendarDate = null;
+          renderCalendarView();
+        });
+      }
+      return;
+    }
 
-    container.querySelectorAll('.btn-open-rsvp').forEach(btn => {
-      btn.addEventListener('click', () => {
-        openRsvpModal(btn.dataset.id);
-      });
-    });
-
-    container.querySelectorAll('.btn-edit-event').forEach(btn => {
-      btn.addEventListener('click', () => {
-        window.editEvent(btn.dataset.id);
-      });
-    });
-
-    container.querySelectorAll('.btn-delete-event').forEach(btn => {
-      btn.addEventListener('click', async () => {
-        const eventId = btn.dataset.id;
-        const conf = confirm(State.lang === 'en' ? 'Are you sure you want to delete this event? This action cannot be undone.' : 'Adakah Awda pasti ingin memadamkan acara ini? Tindakan ini tidak boleh diundur.');
-        if (!conf) return;
-
-        showToast(State.lang === 'en' ? 'Deleting event...' : 'Memadamkan acara...', 'info');
-        const res = await api('deleteEvent', { eventId });
-        if (res && res.success) {
-          showToast(res.message, 'success');
-          await loadAppBoot();
-          renderHomeView();
-          renderAdminDashboardView();
-        } else {
-          showToast((res && res.message) || 'Gagal memadamkan acara.', 'error');
-        }
-      });
-    });
+    container.innerHTML = eventsForView.map(ev => renderEventCardHtml(ev)).join('');
+    attachEventCardListeners(container);
   }
 
   // ==========================================================================
@@ -4434,10 +4507,7 @@
             setEventFilter('urgent');
           }
         } else if (tab === 'takwim' || tab === 'calendar') {
-          setView('home');
-          setEventFilter('all');
-          const cal = document.getElementById('calendar-grid') || document.getElementById('calendar-month-label');
-          if (cal) cal.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          setView('calendar');
         } else if (tab === 'home') {
           if (State.currentUser && State.currentUser.role === 'Admin') {
             setView('admin-dashboard');
@@ -4489,6 +4559,7 @@
       btnCalWeekly.addEventListener('click', () => {
         State.calendarMode = 'weekly';
         renderMonthlyCalendar();
+        if (State.currentView === 'calendar') renderCalendarView();
       });
     }
 
@@ -4497,6 +4568,7 @@
       btnCalMonthly.addEventListener('click', () => {
         State.calendarMode = 'monthly';
         renderMonthlyCalendar();
+        if (State.currentView === 'calendar') renderCalendarView();
       });
     }
 
@@ -4511,6 +4583,7 @@
         }
         State.calendarDate = cur;
         renderMonthlyCalendar();
+        if (State.currentView === 'calendar') renderCalendarView();
       });
     }
 
@@ -4525,6 +4598,7 @@
         }
         State.calendarDate = cur;
         renderMonthlyCalendar();
+        if (State.currentView === 'calendar') renderCalendarView();
       });
     }
 
@@ -4534,7 +4608,8 @@
         State.calendarDate = new Date();
         State.selectedCalendarDate = null;
         renderMonthlyCalendar();
-        renderHomeView();
+        if (State.currentView === 'calendar') renderCalendarView();
+        else renderHomeView();
       });
     }
 
@@ -4543,7 +4618,8 @@
       btnClearDateFilter.addEventListener('click', () => {
         State.selectedCalendarDate = null;
         renderMonthlyCalendar();
-        renderHomeView();
+        if (State.currentView === 'calendar') renderCalendarView();
+        else renderHomeView();
       });
     }
 
