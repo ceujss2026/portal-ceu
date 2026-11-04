@@ -65,7 +65,7 @@
       navRsvp: 'RSVP',
       navArchive: 'Minit & Persuratan',
       navNotif: 'Notifikasi',
-      navAdmin: 'UPK',
+      navAdmin: 'Pentadbir',
       navProfile: 'Profil',
 
       // Home
@@ -633,11 +633,17 @@
   };
 
   // ==========================================================================
-  // HELPER: PENENTUAN JEMPUTAN ACARA (MOD KUMPULAN VS INDIVIDU)
+  // HELPER: PENENTUAN PERANAN PENTADBIR & JEMPUTAN ACARA
   // ==========================================================================
+  function isUserAdmin(user) {
+    if (!user) return false;
+    const em = String(user.email || '').toLowerCase().trim();
+    return user.role === 'Admin' || em === 'upk@ds.edu.moe.bn' || em.startsWith('upk@') || em.startsWith('pegawai.upk@') || em.includes('admin');
+  }
+
   function isUserInvitedToEvent(event, user) {
     if (!user) return false;
-    if (user.role === 'Admin') return true;
+    if (isUserAdmin(user)) return true;
     const myEmail = String(user.email || '').toLowerCase().trim();
     const mode = String(event.target_mode || event.targetMode || 'group').toLowerCase();
 
@@ -1732,11 +1738,11 @@
       const tab = btn.dataset.tab;
       let isActive = false;
       if (tab === 'home') {
-        isActive = (State.currentView === 'home' && !isUrgent) || (State.currentView === 'admin-dashboard');
+        isActive = State.currentView === 'home';
       } else if (tab === 'takwim' || tab === 'calendar') {
         isActive = State.currentView === 'calendar';
-      } else if (tab === 'rsvp') {
-        isActive = State.currentView === 'admin-rsvp' || (State.currentView === 'home' && isUrgent);
+      } else if (tab === 'admin' || tab === 'rsvp') {
+        isActive = State.currentView === 'admin-dashboard' || State.currentView === 'admin-rsvp' || State.currentView === 'admin-events';
       } else if (tab === 'archive') {
         isActive = State.currentView === 'archive';
       } else if (tab === 'notif') {
@@ -1772,6 +1778,10 @@
     const res = await api('boot', {});
     if (res && res.success && res.data) {
       State.currentUser = res.data.user || State.currentUser;
+      if (State.currentUser && isUserAdmin(State.currentUser)) {
+        State.currentUser.role = 'Admin';
+        try { localStorage.setItem('ceu_user', JSON.stringify(State.currentUser)); } catch(e) {}
+      }
       State.events = (res.data.events || []).map(e => {
         if (e.event_date) e.event_date = normalizeDateISOToYMD(e.event_date);
         return e;
@@ -4499,22 +4509,13 @@
     document.querySelectorAll('.nav-tab-btn').forEach(btn => {
       btn.addEventListener('click', () => {
         const tab = btn.dataset.tab;
-        if (tab === 'rsvp') {
-          if (State.currentUser && State.currentUser.role === 'Admin') {
-            setView('admin-rsvp');
-          } else {
-            setView('home');
-            setEventFilter('urgent');
-          }
+        if (tab === 'admin' || tab === 'rsvp') {
+          setView('admin-dashboard');
         } else if (tab === 'takwim' || tab === 'calendar') {
           setView('calendar');
         } else if (tab === 'home') {
-          if (State.currentUser && State.currentUser.role === 'Admin') {
-            setView('admin-dashboard');
-          } else {
-            setView('home');
-            setEventFilter('all');
-          }
+          setView('home');
+          setEventFilter('all');
         } else if (tab === 'archive') {
           setView('archive');
         } else if (tab === 'notif') {
