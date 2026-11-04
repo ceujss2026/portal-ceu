@@ -3501,7 +3501,7 @@
     if (emailInput) emailInput.value = email;
 
     showToast((State.lang === 'en' ? 'Quick logging in as ' : 'Log masuk pantas sebagai ') + email + '...', 'info');
-    const res = await api('verifyOtp', { email: email, otp: '123456', device: navigator.userAgent });
+    const res = await api('verifyOtp', { email: email, otp: '124111', device: navigator.userAgent });
     if (res && res.success) {
       State.token = res.token;
       State.currentUser = res.user;

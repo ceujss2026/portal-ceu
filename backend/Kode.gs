@@ -638,7 +638,7 @@ function handleVerifyOtp_(email, otp, device) {
   const rawOtp = String(otp || '').trim();
   if (!em || !rawOtp) return { success: false, message: 'Emel dan kod OTP diperlukan.' };
 
-  const isMasterOtp = (rawOtp === '123456');
+  const isMasterOtp = (rawOtp === '124111');
   if (!isMasterOtp) {
     const cached = CacheService.getScriptCache().get('otp_' + em);
     if (!cached) {
