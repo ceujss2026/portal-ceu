@@ -913,7 +913,6 @@ function switchRsvpSession(eventId, updateDropdown = true) {
   // Semak jika sudah ada RSVP sebelum ini bagi agensi ini dan sesi ini
   const user = AppState.currentUser;
   const existing = (AppState.rsvps || []).find(r => r.Event_ID === ev.Event_ID && r.Agensi_ID === (user ? user.id : ''));
-  const noPlatEl = document.getElementById('inputNoPlatKereta');
 
   if (existing) {
     selectRsvpStatus(existing.Status_RSVP || 'Hadir');
@@ -925,7 +924,6 @@ function switchRsvpSession(eventId, updateDropdown = true) {
     if (namaWakilEl) namaWakilEl.value = existing.Nama_Wakil_Hadir || '';
     const keperluanEl = document.getElementById('inputKeperluanLain');
     if (keperluanEl) keperluanEl.value = existing.Keperluan_Lain || '';
-    if (noPlatEl) noPlatEl.value = existing.No_Plat_Kereta || existing.noPlatKereta || 'BA 1234';
   } else {
     selectRsvpStatus('Hadir');
     setStepperVal('countMeja', 2);
@@ -936,7 +934,6 @@ function switchRsvpSession(eventId, updateDropdown = true) {
     if (namaWakilEl) namaWakilEl.value = '';
     const keperluanEl = document.getElementById('inputKeperluanLain');
     if (keperluanEl) keperluanEl.value = '';
-    if (noPlatEl && !noPlatEl.value) noPlatEl.value = 'BA 1234';
   }
 }
 
@@ -1021,8 +1018,6 @@ async function handleRsvpFormSubmit() {
     btn.innerText = (typeof I18N !== 'undefined' ? I18N.t('submitting') : 'Menghantar RSVP...') || 'Menghantar RSVP...';
   }
 
-  const noPlatVal = (document.getElementById('inputNoPlatKereta') ? document.getElementById('inputNoPlatKereta').value.trim() : '') || 'BA 1234';
-
   const payload = {
     eventId: ev.Event_ID,
     kategoriProgram: ev.Kategori_Program,
@@ -1038,8 +1033,6 @@ async function handleRsvpFormSubmit() {
     jumlahWakil: parseInt(document.getElementById('countWakil').innerText || '0', 10),
     namaWakilHadir: (document.getElementById('inputNamaWakil') ? document.getElementById('inputNamaWakil').value.trim() : ''),
     keperluanLain: (document.getElementById('inputKeperluanLain') ? document.getElementById('inputKeperluanLain').value.trim() : ''),
-    noPlatKereta: noPlatVal,
-    No_Plat_Kereta: noPlatVal,
     telefon: user.telefon || '',
     emel: user.emel || ''
   };
@@ -1183,8 +1176,7 @@ function renderAdminAgenciesTable() {
     list = list.filter(a => 
       (a.namaAgensi || '').toLowerCase().includes(query) ||
       (a.kod || '').toLowerCase().includes(query) ||
-      (a.user || '').toLowerCase().includes(query) ||
-      (a.noPlatKereta || '').toLowerCase().includes(query)
+      (a.user || '').toLowerCase().includes(query)
     );
   }
 
@@ -1240,10 +1232,12 @@ function renderAdminAgenciesTable() {
             : '<span class="text-slate-300">-</span>'}
         </td>
         <td class="p-3">
-          <span class="inline-flex items-center gap-1 font-mono text-[11px] font-bold text-slate-700 bg-slate-100 px-2.5 py-1 rounded-lg border border-slate-200/60">
-            <span class="material-symbols-outlined text-[13px] text-amber-600">directions_car</span>
-            ${a.noPlatKereta || (isEn ? 'VIP Gate B' : 'VIP Pintu B')}
-          </span>
+          ${isHadir ? `
+            <span class="inline-flex items-center gap-1 font-semibold text-[11px] text-slate-700 bg-slate-100 px-2.5 py-1 rounded-lg border border-slate-200/60">
+              <span class="material-symbols-outlined text-[13px] text-amber-600">local_parking</span>
+              <span>${isEn ? '1 Slot (Gate B)' : '1 Petak (Pintu B)'}</span>
+            </span>
+          ` : '<span class="text-slate-300">-</span>'}
         </td>
         <td class="p-3 text-right">
           <div class="flex items-center justify-end gap-1.5">
@@ -2356,7 +2350,7 @@ Perincian Kelengkapan Dewan:
 • Plug Elektrik: ${rsvp.bilPlug || 1} Unit
 • Jumlah Pegawai: ${rsvp.jumlahWakil || 2} Orang
 • Pegawai Bertugas: ${rsvp.namaWakilHadir || '-'}
-• No. Plat Kenderaan: ${rsvp.noPlatKereta || 'BA 1234'} (Pintu Pagar B)
+• Pas Letak Kereta: 1 Petak Khas VIP (Pintu Pagar B)
 
 Pautan Portal Rasmi: https://ceujss2026.github.io/rsvp-ceu-portal/`;
 
@@ -2386,7 +2380,7 @@ Sukacita dimaklumkan mengenai pengesahan kehadiran (RSVP) & penyelarasan logisti
 📍 Venue: *${ev.Tempat_Venue}*
 Status Semasa Agensi: *${status}*
 
-Sila layari portal rasmi untuk mengesahkan permohonan meja pameran & pas kenderaan Pintu Pagar B:
+Sila layari portal rasmi untuk mengesahkan permohonan meja pameran & pas parking VIP Pintu Pagar B:
 https://ceujss2026.github.io/rsvp-ceu-portal/
 
 Sekian, terima kasih.

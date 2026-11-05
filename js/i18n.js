@@ -113,7 +113,7 @@ const I18N = {
       // Right Sidebar Cards
       cardActionRequired: 'Tindakan Diperlukan',
       cardActionTitle: 'Pengesahan RSVP Sesi Takwim',
-      cardActionDesc: 'Sila sahkan kehadiran & butiran delegasi agensi bagi penyediaan pelekat meja pameran & pas masuk kenderaan Pintu Pagar B.',
+      cardActionDesc: 'Sila sahkan kehadiran & butiran delegasi agensi bagi penyediaan pelekat meja pameran & pas parking VIP Pintu Pagar B.',
       cardActionBtn: 'Isi Borang RSVP Sesi Terpilih',
       cardAmenitiesHeader: 'Kemudahan Disediakan',
       amenityTable: '1 Meja Pameran standard (beralas)',
@@ -148,9 +148,9 @@ const I18N = {
       labelStaffCount: 'Jumlah Wakil Hadir',
       labelStaffNames: 'Nama Pegawai Bertugas (Pilihan)',
       placeholderStaffNames: 'cth: 1. Awang Mohd Azmi, 2. Dayang Hjh Siti...',
-      labelCarPlate: 'No. Plat Kenderaan Rasmi (Pas Pintu Pagar B)',
-      badgeVipCar: '1 Petak VIP',
-      hintCarPlate: 'Nombor ini akan dipaparkan pada pas masuk keselamatan pengawal sekolah Pintu Pagar B.',
+      labelVipParkingInfo: 'Pas Letak Kereta VIP (Pintu Pagar B)',
+      badgeVipCar: '1 Petak Disediakan',
+      hintVipParkingInfo: '1 petak letak kereta khas disediakan di Pintu Pagar B bagi agensi anda tanpa perlu mendaftar nombor plat.',
       labelAdditionalNotes: 'Keperluan Logistik Tambahan (Pilihan)',
       placeholderAdditionalNotes: 'cth: Perlukan ruang tambahan untuk bunting berdiri...',
       declarationText: 'Pihak agensi mengesahkan maklumat permohonan logistik ini adalah muktamad.',
@@ -171,7 +171,7 @@ const I18N = {
       adminPlugsAndParking: 'Soket Plug & Parking VIP',
       adminGateBVip: 'Pintu Pagar B (VIP)',
       adminTableTitle: 'Status Pengesahan RSVP 50 Agensi Jemputan',
-      adminTableDesc: 'Semak status delegasi, keperluan logistik, dan nombor kenderaan pintu pagar B.',
+      adminTableDesc: 'Semak status delegasi, keperluan logistik, dan pas parking VIP Pintu Pagar B.',
       adminSearchPlaceholder: 'Cari agensi...',
       adminFilterAll: 'Semua (50)',
       adminFilterAttending: 'Hadir',
@@ -182,13 +182,13 @@ const I18N = {
       colStatus: 'STATUS RSVP',
       colTables: 'MEJA / KERUSI',
       colPlug: 'PLUG',
-      colParking: 'PAS PARKING (PINTU PAGAR B)',
+      colParking: 'PARKING VIP (PINTU B)',
       colAction: 'AKSI',
 
       // Parking & Floor Plan
       parkingTitle: 'Panduan & Lokasi Parking Agensi',
       parkingGateGuide: 'Laluan Masuk: Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi & VIP). Zon parking dikhaskan di Blok C.',
-      parkingPassHeader: 'PAS MASUK KENDERAAN AGENSI',
+      parkingPassHeader: 'PAS PARKING VIP AGENSI (PINTU B)',
       floorPlanTitle: 'Pelan Susun Atur Dewan & Meja Pameran',
       floorPlanZoom: 'Besarkan Pelan Dewan (Fullscreen / Pinch-to-Zoom)',
       gpsNavigation: 'Pandu Arah GPS ke Tempat Letak Kereta Agensi'
@@ -297,7 +297,7 @@ const I18N = {
       // Right Sidebar Cards
       cardActionRequired: 'Action Required',
       cardActionTitle: 'Calendar Session RSVP Confirmation',
-      cardActionDesc: 'Please confirm agency attendance & delegation details for exhibition booth labelling & Gate B vehicle entry passes.',
+      cardActionDesc: 'Please confirm agency attendance & delegation details for exhibition booth labelling & Gate B VIP parking passes.',
       cardActionBtn: 'Fill RSVP Form for Selected Session',
       cardAmenitiesHeader: 'Provided Amenities',
       amenityTable: '1 Standard Exhibition Table (covered)',
@@ -332,9 +332,9 @@ const I18N = {
       labelStaffCount: 'Number of Attending Staff',
       labelStaffNames: 'Officers On Duty Names (Optional)',
       placeholderStaffNames: 'e.g., 1. Awang Mohd Azmi, 2. Dayang Hjh Siti...',
-      labelCarPlate: 'Official Vehicle Plate No. (Gate B Pass)',
-      badgeVipCar: '1 VIP Slot',
-      hintCarPlate: 'This number will be displayed on the Gate B school security guard entry pass.',
+      labelVipParkingInfo: 'VIP Parking Pass (Gate B)',
+      badgeVipCar: '1 Slot Reserved',
+      hintVipParkingInfo: '1 reserved parking slot is provided at Gate B for your agency without requiring vehicle license plate registration.',
       labelAdditionalNotes: 'Special Logistics Requests / Notes (Optional)',
       placeholderAdditionalNotes: 'e.g., Require extra space for roll-up banners...',
       declarationText: 'The agency confirms that this logistics request is final and accurate.',
@@ -355,7 +355,7 @@ const I18N = {
       adminPlugsAndParking: 'Power Plugs & VIP Parking',
       adminGateBVip: 'Gate B (VIP Access)',
       adminTableTitle: 'RSVP Confirmation Status of 50 Invited Agencies',
-      adminTableDesc: 'Review delegation status, logistics requests, and Gate B vehicle plate numbers.',
+      adminTableDesc: 'Review delegation status, logistics requests, and Gate B VIP parking passes.',
       adminSearchPlaceholder: 'Search agency...',
       adminFilterAll: 'All (50)',
       adminFilterAttending: 'Attending',
@@ -366,13 +366,13 @@ const I18N = {
       colStatus: 'RSVP STATUS',
       colTables: 'TABLES / CHAIRS',
       colPlug: 'PLUG',
-      colParking: 'PARKING PASS (GATE B)',
+      colParking: 'VIP PARKING (GATE B)',
       colAction: 'ACTION',
 
       // Parking & Floor Plan
       parkingTitle: 'Agency Parking Guide & Location',
       parkingGateGuide: 'Access Route: Please enter via Gate B (Designated Agency & VIP Gate). Parking is designated at Block C.',
-      parkingPassHeader: 'OFFICIAL AGENCY VEHICLE ENTRY PASS',
+      parkingPassHeader: 'AGENCY VIP PARKING PASS (GATE B)',
       floorPlanTitle: 'Hall Floor Plan & Exhibition Booth Layout',
       floorPlanZoom: 'Expand Floor Plan (Fullscreen / Pinch-to-Zoom)',
       gpsNavigation: 'GPS Navigation to Agency Parking Lot'
@@ -571,7 +571,7 @@ const I18N = {
     const sCard1Title = document.getElementById('sidebarCard1Title');
     if (sCard1Title) sCard1Title.innerText = isEn ? 'Calendar Session RSVP Confirmation' : 'Pengesahan RSVP Sesi Takwim';
     const sCard1Desc = document.getElementById('sidebarCard1Desc');
-    if (sCard1Desc) sCard1Desc.innerText = isEn ? 'Please confirm agency attendance & delegation details for exhibition booth labelling & Gate B vehicle entry passes.' : 'Sila sahkan kehadiran & butiran delegasi agensi bagi penyediaan pelekat meja pameran & pas masuk kenderaan Pintu Pagar B.';
+    if (sCard1Desc) sCard1Desc.innerText = isEn ? 'Please confirm agency attendance & delegation details for exhibition booth labelling & Gate B VIP parking passes.' : 'Sila sahkan kehadiran & butiran delegasi agensi bagi penyediaan pelekat meja pameran & pas parking VIP Pintu Pagar B.';
     const sCard1Btn = document.getElementById('sidebarCard1BtnText');
     if (sCard1Btn) sCard1Btn.innerText = isEn ? 'Fill RSVP Form for Selected Session' : 'Isi Borang RSVP Sesi Terpilih';
 
@@ -646,12 +646,12 @@ const I18N = {
     const inNamaWakil = document.getElementById('inputNamaWakil');
     if (inNamaWakil) inNamaWakil.placeholder = isEn ? 'e.g., 1. Awang Mohd Azmi, 2. Dayang Hjh Siti...' : 'cth: 1. Awang Mohd Azmi, 2. Dayang Hjh Siti...';
 
-    const lCarPlate = document.getElementById('labelCarPlate');
-    if (lCarPlate) lCarPlate.innerText = isEn ? 'Official Vehicle Plate No. (Gate B Pass)' : 'No. Plat Kenderaan Rasmi (Pas Pintu Pagar B)';
+    const lVipPark = document.getElementById('labelVipParkingInfo');
+    if (lVipPark) lVipPark.innerText = isEn ? 'VIP Parking Pass (Gate B)' : 'Pas Letak Kereta VIP (Pintu Pagar B)';
     const bVipCar = document.getElementById('badgeVipCar');
-    if (bVipCar) bVipCar.innerText = isEn ? '1 VIP Slot' : '1 Petak VIP';
-    const hCarPlate = document.getElementById('hintCarPlate');
-    if (hCarPlate) hCarPlate.innerText = isEn ? 'This number will be displayed on the Gate B school security guard entry pass.' : 'Nombor ini akan dipaparkan pada pas masuk keselamatan pengawal sekolah Pintu Pagar B.';
+    if (bVipCar) bVipCar.innerText = isEn ? '1 Slot Reserved' : '1 Petak Disediakan';
+    const hVipPark = document.getElementById('hintVipParkingInfo');
+    if (hVipPark) hVipPark.innerText = isEn ? '1 reserved parking slot is provided at Gate B for your agency without requiring vehicle license plate registration.' : '1 petak letak kereta khas disediakan di Pintu Pagar B bagi agensi anda tanpa perlu mendaftar nombor plat.';
 
     const lKepLain = document.getElementById('labelInputKeperluanLain');
     if (lKepLain) lKepLain.innerText = isEn ? 'Special Logistics Requests / Notes (Optional)' : 'Keperluan Logistik Tambahan (Pilihan)';
@@ -672,6 +672,9 @@ const I18N = {
     if (btnSubmitRsvp) {
       btnSubmitRsvp.innerText = isEn ? 'Submit RSVP Confirmation' : 'Hantar Pengesahan (Submit RSVP)';
     }
+
+    const lParkPass = document.getElementById('labelParkingPassHeader');
+    if (lParkPass) lParkPass.innerText = isEn ? 'AGENCY VIP PARKING PASS (GATE B)' : 'PAS PARKING VIP AGENSI (PINTU B)';
 
     // --- Skrin Papan Pemuka Pentadbir ---
     const aHeadUnit = document.getElementById('adminHeaderUnitBadge');
@@ -711,7 +714,7 @@ const I18N = {
     if (aTTitle) aTTitle.innerHTML = `<span class="w-2.5 h-2.5 rounded-full bg-[#148e82]"></span>${isEn ? 'RSVP Confirmation Status of 50 Invited Agencies' : 'Status Pengesahan RSVP 50 Agensi Jemputan'}`;
 
     const aTDesc = document.getElementById('adminTableDesc');
-    if (aTDesc) aTDesc.innerText = isEn ? 'Review delegation status, logistics requests, and Gate B vehicle plate numbers.' : 'Semak status delegasi, keperluan logistik, dan nombor kenderaan pintu pagar B.';
+    if (aTDesc) aTDesc.innerText = isEn ? 'Review delegation status, logistics requests, and Gate B VIP parking passes.' : 'Semak status delegasi, keperluan logistik, dan pas parking VIP Pintu Pagar B.';
 
     const aHeadRow = document.getElementById('adminTableHeaderRow');
     if (aHeadRow) {
@@ -722,7 +725,7 @@ const I18N = {
         <th class="p-3">${isEn ? 'RSVP STATUS' : 'STATUS RSVP'}</th>
         <th class="p-3 text-center">${isEn ? 'TABLES / CHAIRS' : 'MEJA / KERUSI'}</th>
         <th class="p-3 text-center">${isEn ? 'PLUG' : 'PLUG'}</th>
-        <th class="p-3">${isEn ? 'PARKING PASS (GATE B)' : 'PAS PARKING (PINTU PAGAR B)'}</th>
+        <th class="p-3">${isEn ? 'VIP PARKING (GATE B)' : 'PARKING VIP (PINTU B)'}</th>
         <th class="p-3 text-right">${isEn ? 'ACTION' : 'AKSI'}</th>
       `;
     }

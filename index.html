@@ -748,7 +748,7 @@
               </div>
               <div class="p-3 bg-amber-50 border border-amber-200/80 rounded-xl text-xs text-amber-900 flex flex-col gap-1">
                 <span id="sidebarCard1Title" class="font-bold">Pengesahan RSVP Sesi Takwim</span>
-                <span id="sidebarCard1Desc" class="text-[11px] text-amber-800">Sila sahkan kehadiran &amp; butiran delegasi agensi bagi penyediaan pelekat meja pameran &amp; pas masuk kenderaan Pintu Pagar B.</span>
+                <span id="sidebarCard1Desc" class="text-[11px] text-amber-800">Sila sahkan kehadiran &amp; butiran delegasi agensi bagi penyediaan pelekat meja pameran &amp; pas parking VIP Pintu Pagar B.</span>
               </div>
               <button onclick="navigateTo('rsvpForm', AppState.activeEvent ? AppState.activeEvent.Event_ID : null)" class="w-full py-2.5 px-4 bg-[#f59e0b] hover:bg-[#d97706] text-slate-900 font-bold text-xs rounded-xl shadow-sm transition-all flex items-center justify-center gap-1.5">
                 <span class="material-symbols-outlined text-[16px]">edit_document</span>
@@ -1018,14 +1018,16 @@
               <textarea id="inputNamaWakil" rows="2" class="w-full p-2.5 rounded-xl border border-slate-200 text-xs outline-none focus:border-primary" placeholder="cth: 1. Awang Mohd Azmi, 2. Dayang Hjh Siti..."></textarea>
             </div>
 
-            <!-- Input No Plat Kereta bagi Pas Masuk Pintu Pagar B -->
-            <div>
-              <label class="block text-xs font-bold text-on-surface mb-1 flex items-center justify-between">
-                <span id="labelCarPlate">No. Plat Kenderaan Rasmi (Pas Pintu Pagar B)</span>
-                <span id="badgeVipCar" class="text-[10px] text-amber-700 font-semibold bg-amber-50 px-2 py-0.5 rounded-full">1 Petak VIP</span>
-              </label>
-              <input type="text" id="inputNoPlatKereta" class="w-full h-10 px-3 rounded-xl border border-slate-200 text-xs outline-none focus:border-primary font-mono uppercase font-bold text-slate-800" placeholder="cth: BA 1234 / BG 9988" />
-              <p id="hintCarPlate" class="text-[10px] text-slate-500 mt-1">Nombor ini akan dipaparkan pada pas masuk keselamatan pengawal sekolah Pintu Pagar B.</p>
+            <!-- Makluman Pas Letak Kereta VIP Pintu Pagar B (Tanpa perlu daftar no plat) -->
+            <div class="p-3 rounded-xl bg-amber-50/70 border border-amber-200/60 flex items-start gap-2.5">
+              <span class="material-symbols-outlined text-amber-600 text-[20px] mt-0.5 shrink-0">local_parking</span>
+              <div class="flex-1">
+                <div class="flex items-center justify-between">
+                  <span id="labelVipParkingInfo" class="text-xs font-bold text-slate-800">Pas Letak Kereta VIP (Pintu Pagar B)</span>
+                  <span id="badgeVipCar" class="text-[10px] text-amber-800 font-bold bg-amber-100/80 px-2 py-0.5 rounded-full border border-amber-300/40">1 Petak Disediakan</span>
+                </div>
+                <p id="hintVipParkingInfo" class="text-[11px] text-slate-600 mt-0.5">1 petak letak kereta khas disediakan di Pintu Pagar B bagi agensi anda tanpa perlu mendaftar nombor plat.</p>
+              </div>
             </div>
 
             <!-- Input Keperluan Tambahan -->
@@ -1089,7 +1091,7 @@
           <!-- Pas Masuk Digital Ber-QR -->
           <div class="border-2 border-dashed border-tertiary bg-gold-subtle/30 p-3 rounded-xl flex items-center justify-between gap-3">
             <div class="flex flex-col min-w-0">
-              <span class="text-[10px] font-bold text-tertiary uppercase tracking-wider">PAS MASUK KENDERAAN AGENSI</span>
+              <span id="labelParkingPassHeader" class="text-[10px] font-bold text-tertiary uppercase tracking-wider">PAS PARKING VIP AGENSI (PINTU B)</span>
               <span id="parkingPassAgencyName" class="text-xs font-extrabold text-on-surface truncate mt-0.5">UNIVERSITI BRUNEI DARUSSALAM</span>
               <span class="text-[10px] text-slate-500 mt-0.5">Status: Sah Berdaftar · Petak Rezab</span>
             </div>
@@ -1351,7 +1353,7 @@
                   <th class="p-3">STATUS RSVP</th>
                   <th class="p-3 text-center">MEJA / KERUSI</th>
                   <th class="p-3 text-center">PLUG</th>
-                  <th class="p-3">PAS PARKING (PINTU PAGAR B)</th>
+                  <th class="p-3">PARKING VIP (PINTU B)</th>
                   <th class="p-3 text-right">AKSI</th>
                 </tr>
               </thead>
