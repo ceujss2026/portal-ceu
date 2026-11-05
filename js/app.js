@@ -413,9 +413,61 @@ function logoutUser() {
 }
 
 // ============================================
-// 5. RENDERING SKRIN 02: PAPAN PEMUKA AGENSI
+// 5. RENDERING SKRIN 02: INFO PROGRAM AGENSI & TAKWIM 32 SESI
 // ============================================
-function renderHomeScreen() {
+let homeCategoryFilter = 'ALL';
+let homeDistrictFilter = 'ALL';
+
+function selectActiveEvent(eventId) {
+  const ev = (AppState.events || []).find(e => e.Event_ID === eventId);
+  if (ev) {
+    AppState.activeEvent = ev;
+    const dropdown = document.getElementById('homeSessionDropdown');
+    if (dropdown) dropdown.value = eventId;
+    const rsvpSelector = document.getElementById('rsvpSessionSelector');
+    if (rsvpSelector) rsvpSelector.value = eventId;
+    if (AppState.currentView === 'home') {
+      renderHomeScreen(false);
+    }
+  }
+}
+
+function setHomeCategoryFilter(cat) {
+  homeCategoryFilter = cat;
+  const btnAll = document.getElementById('filterCat_ALL');
+  const btnPht = document.getElementById('filterCat_PHT');
+  const btnFl = document.getElementById('filterCat_FL');
+  [btnAll, btnPht, btnFl].forEach(b => {
+    if (b) b.className = 'px-3 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 shrink-0 transition-all';
+  });
+  const activeBtn = cat === 'ALL' ? btnAll : (cat === 'Program Hala Tuju' ? btnPht : btnFl);
+  if (activeBtn) {
+    activeBtn.className = 'px-3 py-1 rounded-full text-xs font-bold bg-[#148e82] text-white shadow-sm shrink-0 transition-all';
+  }
+  renderHomeScheduleList();
+}
+
+function setHomeDistrictFilter(dist) {
+  homeDistrictFilter = dist;
+  const ids = ['filterDist_ALL', 'filterDist_BM', 'filterDist_Tutong', 'filterDist_Belait', 'filterDist_Temburong'];
+  ids.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.className = 'px-2.5 py-1 rounded-lg text-[11px] font-medium text-slate-600 hover:bg-slate-100 shrink-0 transition-all';
+  });
+  let activeId = 'filterDist_ALL';
+  if (dist === 'Brunei Muara') activeId = 'filterDist_BM';
+  else if (dist === 'Tutong') activeId = 'filterDist_Tutong';
+  else if (dist === 'Belait') activeId = 'filterDist_Belait';
+  else if (dist === 'Temburong') activeId = 'filterDist_Temburong';
+
+  const activeEl = document.getElementById(activeId);
+  if (activeEl) {
+    activeEl.className = 'px-2.5 py-1 rounded-lg text-[11px] font-bold bg-slate-200 text-slate-800 shrink-0 transition-all';
+  }
+  renderHomeScheduleList();
+}
+
+function renderHomeScreen(populateDropdown = true) {
   const user = AppState.currentUser;
   if (!user) return;
 
@@ -425,41 +477,62 @@ function renderHomeScreen() {
     agencyNameEl.innerText = user.namaAgensi || 'UNIVERSITI BRUNEI DARUSSALAM';
   }
 
-  // 2. Metrik Pantas daripada Cache
-  const evList = AppState.events.length ? AppState.events : getFallbackEvents();
-  const primaryEvent = evList[0];
-  AppState.activeEvent = primaryEvent;
+  // 2. Metrik Pantas daripada Cache (Pastikan 32 Sesi)
+  if (!AppState.events || AppState.events.length < 32) {
+    AppState.events = getFallbackEvents();
+    localStorage.setItem('ceu_cache_events', JSON.stringify(AppState.events));
+  }
 
-  // 3. Render Hero Event Card
+  if (!AppState.activeEvent) {
+    AppState.activeEvent = AppState.events[0];
+  }
+  const primaryEvent = AppState.activeEvent;
+
+  // 3. Dropdown Pemilih 32 Sesi
+  const dropdown = document.getElementById('homeSessionDropdown');
+  if (dropdown && populateDropdown) {
+    dropdown.innerHTML = AppState.events.map(ev => {
+      const isSelected = ev.Event_ID === primaryEvent.Event_ID ? 'selected' : '';
+      const prefix = ev.Kategori_Program === 'Program FutureLink' ? '[FutureLink]' : '[Hala Tuju]';
+      return `<option value="${ev.Event_ID}" ${isSelected}>${prefix} ${ev.Tarikh_Paparan || ev.Tarikh_Mula} - ${ev.Sekolah || ev.Nama_Acara} (${ev.Daerah})</option>`;
+    }).join('');
+  } else if (dropdown) {
+    dropdown.value = primaryEvent.Event_ID;
+  }
+
+  // 4. Render Hero Event Card
   const heroCardContainer = document.getElementById('homeHeroCardArea');
   if (heroCardContainer && primaryEvent) {
-    const isAttending = AppState.rsvps.some(r => r.Event_ID === primaryEvent.Event_ID && r.Status_RSVP === 'Hadir');
+    const isAttending = (AppState.rsvps || []).some(r => r.Event_ID === primaryEvent.Event_ID && r.Status_RSVP === 'Hadir');
+    const isBelait = primaryEvent.Daerah === 'Belait';
 
     heroCardContainer.innerHTML = `
       <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden flex flex-col">
         <!-- Lencana Atas & Butang Simpan (Bookmark) -->
         <div class="p-3 pb-2 flex items-center justify-between gap-2">
-          <div class="flex items-center gap-1.5">
+          <div class="flex items-center gap-1.5 flex-wrap">
             <span class="bg-[#fef3c7] text-[#92400e] text-[10px] font-bold px-2.5 py-1 rounded-full flex items-center gap-1">
-              <span class="material-symbols-outlined text-[13px]">settings</span>
-              ${I18N.t('badgeMandatory')}
+              <span class="material-symbols-outlined text-[13px]">verified</span>
+              ${primaryEvent.Kategori_Program}
             </span>
-            <span class="bg-rose-50 text-rose-600 text-[10px] font-bold px-2.5 py-1 rounded-full">
-              Tamat: 12 Mac 2026
+            <span class="bg-slate-100 text-slate-700 text-[10px] font-bold px-2.5 py-1 rounded-full">
+              Daerah ${primaryEvent.Daerah}
             </span>
+            ${isAttending ? '<span class="bg-emerald-100 text-emerald-800 text-[10px] font-bold px-2.5 py-1 rounded-full flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-emerald-600"></span>RSVP Disahkan</span>' : '<span class="bg-rose-50 text-rose-600 text-[10px] font-bold px-2.5 py-1 rounded-full">Perlu Pengesahan</span>'}
           </div>
-          <button class="text-slate-400 hover:text-slate-700 transition-colors" title="Simpan Program">
-            <span class="material-symbols-outlined text-[19px]">bookmark</span>
-          </button>
+          <span class="text-[10px] font-mono font-bold text-slate-400 bg-slate-50 px-2 py-0.5 rounded">${primaryEvent.Event_ID}</span>
         </div>
 
         <!-- Imej Dewan berserta Lencana Lokasi Khas -->
-        <div class="relative w-full h-36 md:h-52 bg-slate-100 px-3">
+        <div class="relative w-full h-40 md:h-56 bg-slate-100 px-3">
           <div class="w-full h-full rounded-xl overflow-hidden relative shadow-inner">
             <img src="${primaryEvent.Pelan_Sekolah_URL || 'https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=600&q=80'}" class="w-full h-full object-cover" alt="Venue Cover" />
-            <div class="absolute bottom-2 left-2 bg-slate-900/80 backdrop-blur-sm text-white text-[10px] font-semibold px-2.5 py-1 rounded-lg flex items-center gap-1 shadow-md">
-              <span class="material-symbols-outlined text-[13px] text-amber-400">apartment</span>
-              <span>${primaryEvent.Tempat_Venue || 'Dewan Serbaguna PTE Belait'}</span>
+            <div class="absolute bottom-2 left-2 right-2 bg-slate-900/85 backdrop-blur-sm text-white text-[11px] font-semibold px-3 py-1.5 rounded-lg flex items-center justify-between shadow-md">
+              <div class="flex items-center gap-1.5 truncate">
+                <span class="material-symbols-outlined text-[14px] text-amber-400">apartment</span>
+                <span class="truncate">${primaryEvent.Tempat_Venue}</span>
+              </div>
+              <span class="text-[10px] text-teal-300 font-bold shrink-0">Pintu B VIP</span>
             </div>
           </div>
         </div>
@@ -467,47 +540,130 @@ function renderHomeScreen() {
         <!-- Maklumat Acara & Butang Aksi -->
         <div class="p-3.5 flex flex-col gap-2">
           <span class="text-[10px] font-bold text-[#148e82] uppercase tracking-wider">
-            JABATAN SEKOLAH-SEKOLAH • UNIT CEU
+            JABATAN SEKOLAH-SEKOLAH • UNIT PENDIDIKAN KERJAYA
           </span>
-          <h2 class="text-sm font-bold text-slate-900 leading-snug">
-            ${primaryEvent.Nama_Acara}
+          <h2 class="text-sm md:text-base font-bold text-slate-900 leading-snug">
+            ${primaryEvent.Sekolah || primaryEvent.Nama_Acara}
           </h2>
           <p class="text-[11px] text-slate-500 leading-relaxed">
-            Penyelarasan garis panduan penilaian psikometrik dan persediaan takwim pameran kerjaya peringkat sekolah-sekolah kerajaan.
+            ${primaryEvent.Catatan_Khas || 'Penyelarasan garis panduan penilaian kerjaya dan persediaan meja pameran agensi.'}
           </p>
 
-          <!-- Kotak Tarikh & Masa -->
+          <!-- Kotak Tarikh, Masa & Venue -->
           <div class="grid grid-cols-2 gap-2 pt-1 text-xs">
             <div class="flex items-center gap-1.5 p-2 rounded-xl bg-slate-50 border border-slate-100">
               <span class="material-symbols-outlined text-[#148e82] text-[18px]">calendar_month</span>
               <div class="flex flex-col min-w-0">
                 <span class="text-[9px] text-slate-400 font-medium">Tarikh</span>
-                <span class="text-[11px] font-bold text-slate-800 truncate">${primaryEvent.Tarikh_Mula}</span>
+                <span class="text-[11px] font-bold text-slate-800 truncate">${primaryEvent.Tarikh_Paparan || primaryEvent.Tarikh_Mula}</span>
               </div>
             </div>
             <div class="flex items-center gap-1.5 p-2 rounded-xl bg-slate-50 border border-slate-100">
               <span class="material-symbols-outlined text-[#148e82] text-[18px]">schedule</span>
               <div class="flex flex-col min-w-0">
-                <span class="text-[9px] text-slate-400 font-medium">Masa</span>
-                <span class="text-[11px] font-bold text-slate-800 truncate">${primaryEvent.Masa}</span>
+                <span class="text-[9px] text-slate-400 font-medium">Masa Sesi</span>
+                <span class="text-[11px] font-bold ${isBelait ? 'text-amber-800' : 'text-slate-800'} truncate">${primaryEvent.Masa}</span>
               </div>
             </div>
           </div>
 
           <!-- Butang Pengesahan Kehadiran (RSVP) & Muat Turun Surat -->
           <div class="flex items-center gap-2 pt-2">
-            <button onclick="navigateTo('rsvpForm', '${primaryEvent.Event_ID}')" class="flex-1 h-11 bg-gradient-to-r from-[#f59e0b] to-[#d97706] text-white font-bold text-xs rounded-xl shadow-md hover:shadow-lg flex items-center justify-center gap-1.5 transition-all">
-              <span class="material-symbols-outlined text-[18px]">check_circle</span>
-              <span>${isAttending ? 'Kemaskini RSVP' : 'Sahkan Kehadiran (RSVP)'}</span>
+            <button onclick="navigateTo('rsvpForm', '${primaryEvent.Event_ID}')" class="flex-1 h-11 bg-gradient-to-r from-[#f59e0b] to-[#d97706] hover:from-[#d97706] hover:to-[#b45309] text-white font-bold text-xs rounded-xl shadow-md hover:shadow-lg flex items-center justify-center gap-1.5 transition-all">
+              <span class="material-symbols-outlined text-[18px]">how_to_reg</span>
+              <span>${isAttending ? 'Kemaskini RSVP Sesi Ini' : 'Sahkan Kehadiran (RSVP)'}</span>
             </button>
-            <button onclick="openDocumentGeneratorModal()" class="w-11 h-11 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 flex items-center justify-center transition-colors shadow-sm" title="Muat Turun Surat Rasmi Ber-QR">
-              <span class="material-symbols-outlined text-[20px]">download</span>
+            <button onclick="openDocumentGeneratorModal()" class="w-11 h-11 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 flex items-center justify-center transition-colors shadow-sm shrink-0" title="Muat Turun Surat Rasmi Ber-QR">
+              <span class="material-symbols-outlined text-[20px]">description</span>
             </button>
           </div>
         </div>
       </div>
     `;
   }
+
+  // 5. Render Takwim Penuh 32 Sesi
+  renderHomeScheduleList();
+}
+
+function renderHomeScheduleList() {
+  const container = document.getElementById('homeScheduleListContainer');
+  if (!container) return;
+
+  const searchInput = document.getElementById('homeScheduleSearch');
+  const query = searchInput ? searchInput.value.toLowerCase().trim() : '';
+
+  let list = AppState.events.length ? AppState.events : getFallbackEvents();
+
+  if (homeCategoryFilter && homeCategoryFilter !== 'ALL') {
+    list = list.filter(e => e.Kategori_Program === homeCategoryFilter);
+  }
+  if (homeDistrictFilter && homeDistrictFilter !== 'ALL') {
+    list = list.filter(e => e.Daerah === homeDistrictFilter);
+  }
+  if (query) {
+    list = list.filter(e => 
+      (e.Nama_Acara || '').toLowerCase().includes(query) ||
+      (e.Sekolah || '').toLowerCase().includes(query) ||
+      (e.Tempat_Venue || '').toLowerCase().includes(query) ||
+      (e.Daerah || '').toLowerCase().includes(query) ||
+      (e.Tarikh_Paparan || '').toLowerCase().includes(query)
+    );
+  }
+
+  if (list.length === 0) {
+    container.innerHTML = `
+      <div class="bg-white p-6 rounded-2xl border border-slate-200/80 text-center text-slate-400">
+        <span class="material-symbols-outlined text-[32px] block mb-1">event_busy</span>
+        <p class="text-xs">Tiada sesi sekolah ditemui padanan tapisan ini.</p>
+      </div>
+    `;
+    return;
+  }
+
+  container.innerHTML = list.map(ev => {
+    const isCurrentActive = AppState.activeEvent && AppState.activeEvent.Event_ID === ev.Event_ID;
+    const isAttending = (AppState.rsvps || []).some(r => r.Event_ID === ev.Event_ID && r.Status_RSVP === 'Hadir');
+    const isBelait = ev.Daerah === 'Belait';
+
+    return `
+      <div class="bg-white p-3.5 rounded-2xl border ${isCurrentActive ? 'border-[#148e82] ring-2 ring-[#148e82]/20' : 'border-slate-200/80'} shadow-sm hover:border-slate-300 transition-all flex flex-col md:flex-row md:items-center justify-between gap-3">
+        <div class="flex items-start gap-3 flex-1 min-w-0">
+          <div class="w-12 h-12 rounded-xl ${ev.Kategori_Program === 'Program FutureLink' ? 'bg-amber-50 text-amber-800' : 'bg-teal-50 text-[#148e82]'} flex flex-col items-center justify-center font-bold text-center shrink-0 border border-slate-100">
+            <span class="text-[9px] uppercase tracking-tighter">${(ev.Tarikh_Mula || '').slice(5, 7) === '01' ? 'JAN' : (ev.Tarikh_Mula || '').slice(5, 7) === '02' ? 'FEB' : (ev.Tarikh_Mula || '').slice(5, 7) === '03' ? 'MAC' : (ev.Tarikh_Mula || '').slice(5, 7) === '04' ? 'APR' : (ev.Tarikh_Mula || '').slice(5, 7) === '05' ? 'MEI' : (ev.Tarikh_Mula || '').slice(5, 7) === '06' ? 'JUN' : 'JUL'}</span>
+            <span class="text-base leading-none font-black">${(ev.Tarikh_Mula || '').slice(8, 10)}</span>
+          </div>
+          <div class="flex flex-col min-w-0">
+            <div class="flex items-center gap-1.5 flex-wrap">
+              <span class="text-[10px] font-bold px-2 py-0.5 rounded-full ${ev.Kategori_Program === 'Program FutureLink' ? 'bg-amber-100 text-amber-800' : 'bg-teal-100 text-teal-800'}">${ev.Kategori_Program}</span>
+              <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-slate-100 text-slate-700">Daerah ${ev.Daerah}</span>
+              ${isAttending ? '<span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-emerald-600"></span>RSVP Hadir</span>' : ''}
+            </div>
+            <h4 class="text-xs md:text-sm font-bold text-slate-900 mt-1 leading-snug truncate">${ev.Sekolah || ev.Nama_Acara}</h4>
+            <div class="flex items-center gap-2 text-[11px] text-slate-500 mt-0.5 flex-wrap">
+              <span>📅 ${ev.Tarikh_Paparan || ev.Tarikh_Mula}</span>
+              <span class="${isBelait ? 'font-bold text-amber-800' : ''}">🕒 ${ev.Masa}</span>
+            </div>
+            <span class="text-[11px] text-slate-600 truncate flex items-center gap-1 mt-0.5">
+              <span class="material-symbols-outlined text-[13px] text-slate-400">location_on</span>
+              ${ev.Tempat_Venue}
+            </span>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-2 shrink-0 pt-2 md:pt-0 border-t md:border-t-0 border-slate-100">
+          <button onclick="selectActiveEvent('${ev.Event_ID}'); window.scrollTo({top: 0, behavior: 'smooth'});" class="px-3 py-1.5 rounded-xl border border-slate-200 text-slate-700 font-bold text-xs hover:bg-slate-50 transition-all flex items-center gap-1">
+            <span class="material-symbols-outlined text-[15px]">visibility</span>
+            <span>Pilih</span>
+          </button>
+          <button onclick="navigateTo('rsvpForm', '${ev.Event_ID}')" class="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-[#f59e0b] to-[#d97706] text-white font-bold text-xs shadow-sm hover:shadow transition-all flex items-center gap-1">
+            <span class="material-symbols-outlined text-[15px]">how_to_reg</span>
+            <span>RSVP Sesi Ini</span>
+          </button>
+        </div>
+      </div>
+    `;
+  }).join('');
 }
 
 // ============================================
@@ -524,9 +680,9 @@ function renderEventDetailsScreen(eventId) {
   const notesEl = document.getElementById('detailsEventNotes');
   const gpsBtn = document.getElementById('btnOpenGpsMaps');
 
-  if (titleEl) titleEl.innerText = ev.Nama_Acara;
+  if (titleEl) titleEl.innerText = ev.Sekolah || ev.Nama_Acara;
   if (venueEl) venueEl.innerText = ev.Tempat_Venue;
-  if (dateEl) dateEl.innerText = ev.Tarikh_Mula;
+  if (dateEl) dateEl.innerText = ev.Tarikh_Paparan || ev.Tarikh_Mula;
   if (timeEl) timeEl.innerText = ev.Masa;
   if (notesEl) notesEl.innerText = ev.Catatan_Khas || 'Pakaian rasmi pejabat / kot. Meja pameran disediakan oleh sekolah.';
 
@@ -542,26 +698,44 @@ function renderEventDetailsScreen(eventId) {
 // ============================================
 let currentRsvpStatus = 'Hadir';
 
-function renderRsvpFormScreen(eventId) {
-  const ev = (AppState.events.find(e => e.Event_ID === eventId) || AppState.activeEvent) || getFallbackEvents()[0];
+function switchRsvpSession(eventId, updateDropdown = true) {
+  const ev = (AppState.events || []).find(e => e.Event_ID === eventId) || AppState.activeEvent || getFallbackEvents()[0];
+  AppState.activeEvent = ev;
+
+  if (updateDropdown) {
+    const rsvpSelector = document.getElementById('rsvpSessionSelector');
+    if (rsvpSelector) rsvpSelector.value = ev.Event_ID;
+  }
+
+  const catEl = document.getElementById('rsvpSelectedEventCategory');
+  const distEl = document.getElementById('rsvpSelectedEventDistrict');
+  const nameEl = document.getElementById('rsvpFormEventName');
+  const dateEl = document.getElementById('rsvpSelectedEventDate');
+  const timeEl = document.getElementById('rsvpSelectedEventTime');
+  const venueEl = document.getElementById('rsvpSelectedEventVenue');
+
+  if (catEl) catEl.innerText = ev.Kategori_Program;
+  if (distEl) distEl.innerText = 'Daerah ' + ev.Daerah;
+  if (nameEl) nameEl.innerText = ev.Sekolah || ev.Nama_Acara;
+  if (dateEl) dateEl.innerText = '📅 ' + (ev.Tarikh_Paparan || ev.Tarikh_Mula);
+  if (timeEl) timeEl.innerText = '🕒 ' + ev.Masa;
+  if (venueEl) venueEl.innerHTML = `<span class="material-symbols-outlined text-[13px] text-slate-400">location_on</span> ${ev.Tempat_Venue}`;
+
+  // Semak jika sudah ada RSVP sebelum ini bagi agensi ini dan sesi ini
   const user = AppState.currentUser;
-
-  const evNameEl = document.getElementById('rsvpFormEventName');
-  const agencyBadge = document.getElementById('rsvpFormAgencyBadge');
-  if (evNameEl) evNameEl.innerText = ev.Nama_Acara;
-  if (agencyBadge && user) agencyBadge.innerText = user.namaAgensi || 'Universiti Brunei Darussalam';
-
-  // Semak jika sudah ada RSVP sebelum ini
-  const existing = AppState.rsvps.find(r => r.Event_ID === ev.Event_ID && r.Agensi_ID === (user ? user.id : ''));
+  const existing = (AppState.rsvps || []).find(r => r.Event_ID === ev.Event_ID && r.Agensi_ID === (user ? user.id : ''));
   const noPlatEl = document.getElementById('inputNoPlatKereta');
+
   if (existing) {
     selectRsvpStatus(existing.Status_RSVP || 'Hadir');
-    setStepperVal('countMeja', existing.Bil_Meja || 2);
-    setStepperVal('countKerusi', existing.Bil_Kerusi || 4);
-    setStepperVal('countPlug', existing.Bil_Plug || 1);
-    setStepperVal('countWakil', existing.Jumlah_Wakil || 3);
-    document.getElementById('inputNamaWakil').value = existing.Nama_Wakil_Hadir || '';
-    document.getElementById('inputKeperluanLain').value = existing.Keperluan_Lain || '';
+    setStepperVal('countMeja', existing.Bil_Meja !== undefined ? existing.Bil_Meja : 2);
+    setStepperVal('countKerusi', existing.Bil_Kerusi !== undefined ? existing.Bil_Kerusi : 4);
+    setStepperVal('countPlug', existing.Bil_Plug !== undefined ? existing.Bil_Plug : 1);
+    setStepperVal('countWakil', existing.Jumlah_Wakil !== undefined ? existing.Jumlah_Wakil : 3);
+    const namaWakilEl = document.getElementById('inputNamaWakil');
+    if (namaWakilEl) namaWakilEl.value = existing.Nama_Wakil_Hadir || '';
+    const keperluanEl = document.getElementById('inputKeperluanLain');
+    if (keperluanEl) keperluanEl.value = existing.Keperluan_Lain || '';
     if (noPlatEl) noPlatEl.value = existing.No_Plat_Kereta || existing.noPlatKereta || 'BA 1234';
   } else {
     selectRsvpStatus('Hadir');
@@ -569,8 +743,39 @@ function renderRsvpFormScreen(eventId) {
     setStepperVal('countKerusi', 4);
     setStepperVal('countPlug', 1);
     setStepperVal('countWakil', 3);
-    if (noPlatEl) noPlatEl.value = 'BA 1234';
+    const namaWakilEl = document.getElementById('inputNamaWakil');
+    if (namaWakilEl) namaWakilEl.value = '';
+    const keperluanEl = document.getElementById('inputKeperluanLain');
+    if (keperluanEl) keperluanEl.value = '';
+    if (noPlatEl && !noPlatEl.value) noPlatEl.value = 'BA 1234';
   }
+}
+
+function renderRsvpFormScreen(eventId) {
+  if (eventId) {
+    const found = (AppState.events || []).find(e => e.Event_ID === eventId);
+    if (found) AppState.activeEvent = found;
+  }
+  const ev = AppState.activeEvent || getFallbackEvents()[0];
+  AppState.activeEvent = ev;
+
+  const user = AppState.currentUser;
+  const agencyBadge = document.getElementById('rsvpFormAgencyBadge');
+  if (agencyBadge && user) agencyBadge.innerText = user.namaAgensi || 'Universiti Brunei Darussalam';
+
+  // Isikan dropdown pemilih 32 sesi
+  const rsvpSelector = document.getElementById('rsvpSessionSelector');
+  if (rsvpSelector) {
+    rsvpSelector.innerHTML = (AppState.events || []).map(e => {
+      const isSelected = e.Event_ID === ev.Event_ID ? 'selected' : '';
+      const prefix = e.Kategori_Program === 'Program FutureLink' ? '[FutureLink]' : '[Hala Tuju]';
+      return `<option value="${e.Event_ID}" ${isSelected}>${prefix} ${e.Tarikh_Paparan || e.Tarikh_Mula} - ${e.Sekolah || e.Nama_Acara} (${e.Daerah})</option>`;
+    }).join('');
+    rsvpSelector.value = ev.Event_ID;
+  }
+
+  // Kemaskini kad butiran sesi
+  switchRsvpSession(ev.Event_ID, false);
 }
 
 function selectRsvpStatus(status) {
@@ -628,8 +833,8 @@ async function handleRsvpFormSubmit() {
     bilKerusi: parseInt(document.getElementById('countKerusi').innerText || '0', 10),
     bilPlug: parseInt(document.getElementById('countPlug').innerText || '0', 10),
     jumlahWakil: parseInt(document.getElementById('countWakil').innerText || '0', 10),
-    namaWakilHadir: document.getElementById('inputNamaWakil').value.trim(),
-    keperluanLain: document.getElementById('inputKeperluanLain').value.trim(),
+    namaWakilHadir: (document.getElementById('inputNamaWakil') ? document.getElementById('inputNamaWakil').value.trim() : ''),
+    keperluanLain: (document.getElementById('inputKeperluanLain') ? document.getElementById('inputKeperluanLain').value.trim() : ''),
     noPlatKereta: noPlatVal,
     No_Plat_Kereta: noPlatVal,
     telefon: user.telefon || '',
@@ -645,7 +850,7 @@ async function handleRsvpFormSubmit() {
 
     // Kemaskini cache tempatan
     const idx = AppState.rsvps.findIndex(r => r.Event_ID === ev.Event_ID && r.Agensi_ID === user.id);
-    const updatedRecord = Object.assign({}, payload, { Agensi_ID: user.id, Nama_Agensi: user.namaAgensi });
+    const updatedRecord = Object.assign({}, payload, { Agensi_ID: user.id, Nama_Agensi: user.namaAgensi, Status_RSVP: currentRsvpStatus });
     if (idx > -1) {
       AppState.rsvps[idx] = updatedRecord;
     } else {
@@ -877,44 +1082,113 @@ async function handleAdminResetAgencyPassword(agencyId) {
 // ============================================
 // URUS PROGRAM & PETA SEKOLAH (MOD PENTADBIR)
 // ============================================
+let adminEventsFilterCat = 'ALL';
+let adminEventsFilterDist = 'ALL';
+
+function setAdminEventsCategoryFilter(cat) {
+  adminEventsFilterCat = cat;
+  const btnAll = document.getElementById('adminFilterCat_ALL');
+  const btnPht = document.getElementById('adminFilterCat_PHT');
+  const btnFl = document.getElementById('adminFilterCat_FL');
+  [btnAll, btnPht, btnFl].forEach(b => {
+    if (b) b.className = 'px-3 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 shrink-0 transition-all';
+  });
+  const activeBtn = cat === 'ALL' ? btnAll : (cat === 'Program Hala Tuju' ? btnPht : btnFl);
+  if (activeBtn) {
+    activeBtn.className = 'px-3 py-1 rounded-full text-xs font-bold bg-[#006194] text-white shadow-sm shrink-0 transition-all';
+  }
+  renderAdminEventsList();
+}
+
+function setAdminEventsDistrictFilter(dist) {
+  adminEventsFilterDist = dist;
+  const ids = ['adminFilterDist_ALL', 'adminFilterDist_BM', 'adminFilterDist_Tutong', 'adminFilterDist_Belait', 'adminFilterDist_Temburong'];
+  ids.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.className = 'px-2.5 py-1 rounded-lg text-[11px] font-medium text-slate-600 hover:bg-slate-100 shrink-0 transition-all';
+  });
+  let activeId = 'adminFilterDist_ALL';
+  if (dist === 'Brunei Muara') activeId = 'adminFilterDist_BM';
+  else if (dist === 'Tutong') activeId = 'adminFilterDist_Tutong';
+  else if (dist === 'Belait') activeId = 'adminFilterDist_Belait';
+  else if (dist === 'Temburong') activeId = 'adminFilterDist_Temburong';
+
+  const activeEl = document.getElementById(activeId);
+  if (activeEl) {
+    activeEl.className = 'px-2.5 py-1 rounded-lg text-[11px] font-bold bg-slate-200 text-slate-800 shrink-0 transition-all';
+  }
+  renderAdminEventsList();
+}
+
 function renderAdminEventsList() {
   const container = document.getElementById('adminEventsListContainer');
-  const list = AppState.events.length ? AppState.events : getFallbackEvents();
+  if (!container) return;
 
-  if (container) {
-    container.innerHTML = list.map(ev => {
-      return `
-        <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col justify-between gap-3">
-          <div class="flex flex-col gap-1">
-            <div class="flex items-center justify-between">
-              <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-teal-50 text-teal-800 border border-teal-100">${ev.Kategori_Program}</span>
-              <span class="font-mono text-[10px] font-bold text-slate-400">${ev.Event_ID}</span>
-            </div>
-            <h4 class="text-xs font-bold text-slate-900 mt-1 leading-snug">${ev.Nama_Acara}</h4>
-            <div class="flex items-center gap-2 text-[11px] text-slate-500 mt-0.5">
-              <span>📅 ${ev.Tarikh_Mula}</span>
-              <span>🕒 ${ev.Masa}</span>
-            </div>
-            <span class="text-[11px] text-slate-600 truncate flex items-center gap-1 mt-0.5">
-              <span class="material-symbols-outlined text-[13px] text-slate-400">location_on</span>
-              ${ev.Tempat_Venue}
-            </span>
-          </div>
+  const searchInput = document.getElementById('adminEventsSearchInput');
+  const query = searchInput ? searchInput.value.toLowerCase().trim() : '';
 
-          <div class="flex items-center justify-between pt-2 border-t border-slate-100">
-            <span class="text-[10px] font-bold ${ev.Status_Acara === 'Aktif' ? 'text-emerald-600' : 'text-slate-400'}">● ${ev.Status_Acara || 'Aktif'}</span>
-            <button onclick="populateAdminEventForm('${ev.Event_ID}')" class="px-3 py-1.5 bg-[#006194] hover:bg-[#004b73] text-white font-bold text-[11px] rounded-xl flex items-center gap-1 transition-all">
-              <span class="material-symbols-outlined text-[14px]">edit</span>
-              <span>Kemaskini &amp; Peta</span>
-            </button>
-          </div>
-        </div>
-      `;
-    }).join('');
+  let list = AppState.events.length ? AppState.events : getFallbackEvents();
+
+  if (adminEventsFilterCat && adminEventsFilterCat !== 'ALL') {
+    list = list.filter(e => e.Kategori_Program === adminEventsFilterCat);
+  }
+  if (adminEventsFilterDist && adminEventsFilterDist !== 'ALL') {
+    list = list.filter(e => e.Daerah === adminEventsFilterDist);
+  }
+  if (query) {
+    list = list.filter(e => 
+      (e.Nama_Acara || '').toLowerCase().includes(query) ||
+      (e.Sekolah || '').toLowerCase().includes(query) ||
+      (e.Tempat_Venue || '').toLowerCase().includes(query) ||
+      (e.Daerah || '').toLowerCase().includes(query) ||
+      (e.Tarikh_Paparan || '').toLowerCase().includes(query)
+    );
   }
 
-  // Pre-fill borang dengan acara pertama
-  if (list.length > 0) {
+  if (list.length === 0) {
+    container.innerHTML = `
+      <div class="col-span-full bg-white p-6 rounded-2xl border border-slate-200/80 text-center text-slate-400">
+        <span class="material-symbols-outlined text-[32px] block mb-1">search_off</span>
+        <p class="text-xs">Tiada program ditemui padanan carian ini.</p>
+      </div>
+    `;
+    return;
+  }
+
+  container.innerHTML = list.map(ev => {
+    const isBelait = ev.Daerah === 'Belait';
+    return `
+      <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col justify-between gap-3 hover:border-slate-300 transition-all">
+        <div class="flex flex-col gap-1">
+          <div class="flex items-center justify-between">
+            <span class="text-[10px] font-bold px-2 py-0.5 rounded-full ${ev.Kategori_Program === 'Program FutureLink' ? 'bg-amber-50 text-amber-800 border border-amber-200' : 'bg-teal-50 text-teal-800 border border-teal-100'}">${ev.Kategori_Program}</span>
+            <span class="font-mono text-[10px] font-bold text-slate-400">${ev.Event_ID}</span>
+          </div>
+          <h4 class="text-xs font-bold text-slate-900 mt-1 leading-snug">${ev.Sekolah || ev.Nama_Acara}</h4>
+          <div class="flex items-center gap-2 text-[11px] text-slate-500 mt-0.5 flex-wrap">
+            <span>📅 ${ev.Tarikh_Paparan || ev.Tarikh_Mula}</span>
+            <span class="${isBelait ? 'font-bold text-amber-800' : ''}">🕒 ${ev.Masa}</span>
+            <span class="text-[10px] font-semibold bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded">Daerah ${ev.Daerah}</span>
+          </div>
+          <span class="text-[11px] text-slate-600 truncate flex items-center gap-1 mt-0.5">
+            <span class="material-symbols-outlined text-[13px] text-slate-400">location_on</span>
+            ${ev.Tempat_Venue}
+          </span>
+        </div>
+
+        <div class="flex items-center justify-between pt-2 border-t border-slate-100">
+          <span class="text-[10px] font-bold ${ev.Status_Acara === 'Aktif' ? 'text-emerald-600' : 'text-slate-400'}">● ${ev.Status_Acara || 'Aktif'}</span>
+          <button onclick="populateAdminEventForm('${ev.Event_ID}')" class="px-3 py-1.5 bg-[#006194] hover:bg-[#004b73] text-white font-bold text-[11px] rounded-xl flex items-center gap-1 transition-all shadow-sm">
+            <span class="material-symbols-outlined text-[14px]">edit</span>
+            <span>Kemaskini &amp; Peta</span>
+          </button>
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  // Pre-fill borang dengan acara pertama jika belum ada
+  if (list.length > 0 && !AppState.activeAdminEditId) {
     populateAdminEventForm(list[0].Event_ID);
   }
 }
@@ -922,11 +1196,12 @@ function renderAdminEventsList() {
 function populateAdminEventForm(eventId) {
   const ev = (AppState.events.find(e => e.Event_ID === eventId) || AppState.activeEvent) || getFallbackEvents()[0];
   if (!ev) return;
+  AppState.activeAdminEditId = eventId;
 
   const idBadge = document.getElementById('adminEventIdBadge');
   const formTitle = document.getElementById('adminEventFormTitle');
   if (idBadge) idBadge.innerText = ev.Event_ID;
-  if (formTitle) formTitle.innerText = 'Kemaskini: ' + ev.Nama_Acara;
+  if (formTitle) formTitle.innerText = 'Kemaskini: ' + (ev.Sekolah || ev.Nama_Acara);
 
   const setVal = (id, val) => {
     const el = document.getElementById(id);
@@ -1168,41 +1443,583 @@ function fetchInitialDataSilently() {
 
 function getFallbackEvents() {
   return [
+    // --- PROGRAM HALA TUJU (27 SESI) ---
     {
-      Event_ID: 'EVT-2026-01',
+      Event_ID: 'EVT-PHT-01',
       Kategori_Program: 'Program Hala Tuju',
-      Nama_Acara: 'Pameran Pendidikan Hala Tuju 2026 (Zon Belait)',
-      Tarikh_Mula: '2026-03-15',
-      Masa: '08:00 - 16:30',
+      Nama_Acara: 'Program Hala Tuju - SM Tanjong Maya',
+      Sekolah: 'Sekolah Menengah Tanjong Maya',
+      Daerah: 'Tutong',
+      Tarikh_Mula: '2027-01-25',
+      Tarikh_Paparan: '25/01/2027 (Isnin)',
+      Hari: 'Isnin',
+      Masa: '09:00 - 11:30',
+      Tempat_Venue: 'Dewan Sekolah Menengah Tanjong Maya',
+      Pautan_GPS_Maps: 'https://maps.google.com/?q=Sekolah+Menengah+Tanjong+Maya+Brunei',
+      Pelan_Sekolah_URL: 'https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=600&q=80',
+      Pelan_Parking_URL: 'https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=600&q=80',
+      Panduan_Parking: 'Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi & VIP). Zon parking dikhaskan di Blok C.',
+      Catatan_Khas: 'Pakaian rasmi pejabat / kot. Meja pameran disediakan oleh pihak sekolah di dewan.',
+      Status_Acara: 'Aktif'
+    },
+    {
+      Event_ID: 'EVT-PHT-02',
+      Kategori_Program: 'Program Hala Tuju',
+      Nama_Acara: 'Program Hala Tuju - SM Sayyidina ‘Othman',
+      Sekolah: 'Sekolah Menengah Sayyidina ‘Othman',
+      Daerah: 'Tutong',
+      Tarikh_Mula: '2027-01-26',
+      Tarikh_Paparan: '26/01/2027 (Selasa)',
+      Hari: 'Selasa',
+      Masa: '09:00 - 11:30',
+      Tempat_Venue: 'Dewan Sekolah Menengah Sayyidina ‘Othman',
+      Pautan_GPS_Maps: 'https://maps.google.com/?q=Sekolah+Menengah+Sayyidina+Othman+Brunei',
+      Pelan_Sekolah_URL: 'https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=600&q=80',
+      Pelan_Parking_URL: 'https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=600&q=80',
+      Panduan_Parking: 'Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi & VIP).',
+      Catatan_Khas: 'Pakaian rasmi pejabat / kot. Meja pameran disediakan di dewan.',
+      Status_Acara: 'Aktif'
+    },
+    {
+      Event_ID: 'EVT-PHT-03',
+      Kategori_Program: 'Program Hala Tuju',
+      Nama_Acara: 'Program Hala Tuju - SM Sayyidina Husain',
+      Sekolah: 'Sekolah Menengah Sayyidina Husain',
+      Daerah: 'Brunei Muara',
+      Tarikh_Mula: '2027-01-28',
+      Tarikh_Paparan: '28/01/2027 (Khamis)',
+      Hari: 'Khamis',
+      Masa: '09:00 - 11:30',
+      Tempat_Venue: 'Dewan Sekolah Menengah Sayyidina Husain',
+      Pautan_GPS_Maps: 'https://maps.google.com/?q=Sekolah+Menengah+Sayyidina+Husain+Brunei',
+      Pelan_Sekolah_URL: 'https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=600&q=80',
+      Pelan_Parking_URL: 'https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=600&q=80',
+      Panduan_Parking: 'Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi & VIP).',
+      Catatan_Khas: 'Pakaian rasmi pejabat / kot.',
+      Status_Acara: 'Aktif'
+    },
+    {
+      Event_ID: 'EVT-PHT-04',
+      Kategori_Program: 'Program Hala Tuju',
+      Nama_Acara: 'Program Hala Tuju - SM Katok',
+      Sekolah: 'Sekolah Menengah Katok',
+      Daerah: 'Brunei Muara',
+      Tarikh_Mula: '2027-02-01',
+      Tarikh_Paparan: '01/02/2027 (Isnin)',
+      Hari: 'Isnin',
+      Masa: '09:00 - 11:30',
+      Tempat_Venue: 'Dewan Sekolah Menengah Katok',
+      Pautan_GPS_Maps: 'https://maps.google.com/?q=Sekolah+Menengah+Katok+Brunei',
+      Pelan_Sekolah_URL: 'https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=600&q=80',
+      Pelan_Parking_URL: 'https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=600&q=80',
+      Panduan_Parking: 'Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi & VIP).',
+      Catatan_Khas: 'Pakaian rasmi pejabat / kot.',
+      Status_Acara: 'Aktif'
+    },
+    {
+      Event_ID: 'EVT-PHT-05',
+      Kategori_Program: 'Program Hala Tuju',
+      Nama_Acara: 'Program Hala Tuju - SM PAP Hajah Rashidah + Maktab Anthony Abell',
+      Sekolah: 'Sekolah Menengah Pengiran Anak Puteri Hajah Rashidah + Maktab Anthony Abell',
+      Daerah: 'Belait',
+      Tarikh_Mula: '2027-02-02',
+      Tarikh_Paparan: '02/02/2027 (Selasa)',
+      Hari: 'Selasa',
+      Masa: '09:00 - 12:00',
+      Tempat_Venue: 'Dewan Sekolah Menengah Pengiran Anak Puteri Hajah Rashidah',
+      Pautan_GPS_Maps: 'https://maps.google.com/?q=SMPAPH+Rashidah+Lumut+Brunei',
+      Pelan_Sekolah_URL: 'https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=600&q=80',
+      Pelan_Parking_URL: 'https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=600&q=80',
+      Panduan_Parking: 'Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi & VIP Daerah Belait).',
+      Catatan_Khas: 'Penyertaan gabungan bersama Maktab Anthony Abell. Masa sesi Daerah Belait: 09:00 - 12:00.',
+      Status_Acara: 'Aktif'
+    },
+    {
+      Event_ID: 'EVT-PHT-06',
+      Kategori_Program: 'Program Hala Tuju',
+      Nama_Acara: 'Program Hala Tuju - SM Sultan Sharif Ali',
+      Sekolah: 'Sekolah Menengah Sultan Sharif Ali',
+      Daerah: 'Brunei Muara',
+      Tarikh_Mula: '2027-02-04',
+      Tarikh_Paparan: '04/02/2027 (Khamis)',
+      Hari: 'Khamis',
+      Masa: '09:00 - 11:30',
+      Tempat_Venue: 'Dewan Sekolah Menengah Sultan Sharif Ali',
+      Pautan_GPS_Maps: 'https://maps.google.com/?q=Sekolah+Menengah+Sultan+Sharif+Ali+Brunei',
+      Pelan_Sekolah_URL: 'https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=600&q=80',
+      Pelan_Parking_URL: 'https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=600&q=80',
+      Panduan_Parking: 'Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi & VIP).',
+      Catatan_Khas: 'Pakaian rasmi pejabat / kot.',
+      Status_Acara: 'Aktif'
+    },
+    {
+      Event_ID: 'EVT-PHT-07',
+      Kategori_Program: 'Program Hala Tuju',
+      Nama_Acara: 'Program Hala Tuju - SM Pengiran Isteri Hajjah Mariam Serasa',
+      Sekolah: 'Sekolah Menengah Pengiran Isteri Hajjah Mariam Serasa',
+      Daerah: 'Brunei Muara',
+      Tarikh_Mula: '2027-03-22',
+      Tarikh_Paparan: '22/03/2027 (Isnin)',
+      Hari: 'Isnin',
+      Masa: '09:00 - 11:30',
+      Tempat_Venue: 'Dewan Sekolah Menengah Pengiran Isteri Hajjah Mariam Serasa',
+      Pautan_GPS_Maps: 'https://maps.google.com/?q=SMPIHM+Serasa+Muara+Brunei',
+      Pelan_Sekolah_URL: 'https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=600&q=80',
+      Pelan_Parking_URL: 'https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=600&q=80',
+      Panduan_Parking: 'Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi & VIP).',
+      Catatan_Khas: 'Pakaian rasmi pejabat / kot.',
+      Status_Acara: 'Aktif'
+    },
+    {
+      Event_ID: 'EVT-PHT-08',
+      Kategori_Program: 'Program Hala Tuju',
+      Nama_Acara: 'Program Hala Tuju - SM Masin',
+      Sekolah: 'Sekolah Menengah Masin',
+      Daerah: 'Brunei Muara',
+      Tarikh_Mula: '2027-03-23',
+      Tarikh_Paparan: '23/03/2027 (Selasa)',
+      Hari: 'Selasa',
+      Masa: '09:00 - 11:30',
+      Tempat_Venue: 'Dewan Sekolah Menengah Masin',
+      Pautan_GPS_Maps: 'https://maps.google.com/?q=Sekolah+Menengah+Masin+Brunei',
+      Pelan_Sekolah_URL: 'https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=600&q=80',
+      Pelan_Parking_URL: 'https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=600&q=80',
+      Panduan_Parking: 'Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi & VIP).',
+      Catatan_Khas: 'Pakaian rasmi pejabat / kot.',
+      Status_Acara: 'Aktif'
+    },
+    {
+      Event_ID: 'EVT-PHT-09',
+      Kategori_Program: 'Program Hala Tuju',
+      Nama_Acara: 'Program Hala Tuju - SM PJN PH Abu Bakar + SM Perdana Wazir',
+      Sekolah: 'Sekolah Menengah Pengiran Jaya Negara Pengiran Haji Abu Bakar + Sekolah Menengah Perdana Wazir',
+      Daerah: 'Belait',
+      Tarikh_Mula: '2027-03-25',
+      Tarikh_Paparan: '25/03/2027 (Khamis)',
+      Hari: 'Khamis',
+      Masa: '09:00 - 12:00',
+      Tempat_Venue: 'Dewan Sekolah Menengah Pengiran Jaya Negara Pengiran Haji Abu Bakar',
+      Pautan_GPS_Maps: 'https://maps.google.com/?q=SMPJN+PH+Abu+Bakar+Kuala+Belait',
+      Pelan_Sekolah_URL: 'https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=600&q=80',
+      Pelan_Parking_URL: 'https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=600&q=80',
+      Panduan_Parking: 'Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi & VIP Daerah Belait).',
+      Catatan_Khas: 'Penyertaan gabungan bersama SM Perdana Wazir. Masa sesi Daerah Belait: 09:00 - 12:00.',
+      Status_Acara: 'Aktif'
+    },
+    {
+      Event_ID: 'EVT-PHT-10',
+      Kategori_Program: 'Program Hala Tuju',
+      Nama_Acara: 'Program Hala Tuju - SM Rimba II',
+      Sekolah: 'Sekolah Menengah Rimba II',
+      Daerah: 'Brunei Muara',
+      Tarikh_Mula: '2027-03-29',
+      Tarikh_Paparan: '29/03/2027 (Isnin)',
+      Hari: 'Isnin',
+      Masa: '09:00 - 11:30',
+      Tempat_Venue: 'Dewan Sekolah Menengah Rimba II',
+      Pautan_GPS_Maps: 'https://maps.google.com/?q=Sekolah+Menengah+Rimba+II+Brunei',
+      Pelan_Sekolah_URL: 'https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=600&q=80',
+      Pelan_Parking_URL: 'https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=600&q=80',
+      Panduan_Parking: 'Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi & VIP).',
+      Catatan_Khas: 'Pakaian rasmi pejabat / kot.',
+      Status_Acara: 'Aktif'
+    },
+    {
+      Event_ID: 'EVT-PHT-11',
+      Kategori_Program: 'Program Hala Tuju',
+      Nama_Acara: 'Program Hala Tuju - Maktab SOASC',
+      Sekolah: 'Maktab Sultan Omar Ali Saifuddien',
+      Daerah: 'Brunei Muara',
+      Tarikh_Mula: '2027-03-30',
+      Tarikh_Paparan: '30/03/2027 (Selasa)',
+      Hari: 'Selasa',
+      Masa: '09:00 - 11:30',
+      Tempat_Venue: 'Dewan Maktab Sultan Omar Ali Saifuddien',
+      Pautan_GPS_Maps: 'https://maps.google.com/?q=Maktab+SOAS+Bandar+Seri+Begawan',
+      Pelan_Sekolah_URL: 'https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=600&q=80',
+      Pelan_Parking_URL: 'https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=600&q=80',
+      Panduan_Parking: 'Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi & VIP).',
+      Catatan_Khas: 'Pakaian rasmi pejabat / kot.',
+      Status_Acara: 'Aktif'
+    },
+    {
+      Event_ID: 'EVT-PHT-12',
+      Kategori_Program: 'Program Hala Tuju',
+      Nama_Acara: 'Program Hala Tuju - Sekolah Sukan',
+      Sekolah: 'Sekolah Sukan',
+      Daerah: 'Brunei Muara',
+      Tarikh_Mula: '2027-04-05',
+      Tarikh_Paparan: '05/04/2027 (Isnin)',
+      Hari: 'Isnin',
+      Masa: '09:00 - 11:30',
+      Tempat_Venue: 'Atrium Sekolah Sukan',
+      Pautan_GPS_Maps: 'https://maps.google.com/?q=Sekolah+Sukan+Brunei',
+      Pelan_Sekolah_URL: 'https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=600&q=80',
+      Pelan_Parking_URL: 'https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=600&q=80',
+      Panduan_Parking: 'Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi & VIP ke Atrium Sekolah Sukan).',
+      Catatan_Khas: 'Lokasi bertempat di Atrium Sekolah Sukan.',
+      Status_Acara: 'Aktif'
+    },
+    {
+      Event_ID: 'EVT-PHT-13',
+      Kategori_Program: 'Program Hala Tuju',
+      Nama_Acara: 'Program Hala Tuju - SM Berakas',
+      Sekolah: 'Sekolah Menengah Berakas',
+      Daerah: 'Brunei Muara',
+      Tarikh_Mula: '2027-04-06',
+      Tarikh_Paparan: '06/04/2027 (Selasa)',
+      Hari: 'Selasa',
+      Masa: '09:00 - 11:30',
+      Tempat_Venue: 'Dewan Sekolah Menengah Berakas',
+      Pautan_GPS_Maps: 'https://maps.google.com/?q=Sekolah+Menengah+Berakas+Brunei',
+      Pelan_Sekolah_URL: 'https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=600&q=80',
+      Pelan_Parking_URL: 'https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=600&q=80',
+      Panduan_Parking: 'Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi & VIP).',
+      Catatan_Khas: 'Pakaian rasmi pejabat / kot.',
+      Status_Acara: 'Aktif'
+    },
+    {
+      Event_ID: 'EVT-PHT-14',
+      Kategori_Program: 'Program Hala Tuju',
+      Nama_Acara: 'Program Hala Tuju - SM Sayyidina Hasan',
+      Sekolah: 'Sekolah Menengah Sayyidina Hasan',
+      Daerah: 'Brunei Muara',
+      Tarikh_Mula: '2027-04-12',
+      Tarikh_Paparan: '12/04/2027 (Isnin)',
+      Hari: 'Isnin',
+      Masa: '09:00 - 11:30',
+      Tempat_Venue: 'Dewan Sekolah Menengah Sayyidina Hasan',
+      Pautan_GPS_Maps: 'https://maps.google.com/?q=Sekolah+Menengah+Sayyidina+Hasan+Kilanas',
+      Pelan_Sekolah_URL: 'https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=600&q=80',
+      Pelan_Parking_URL: 'https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=600&q=80',
+      Panduan_Parking: 'Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi & VIP).',
+      Catatan_Khas: 'Pakaian rasmi pejabat / kot.',
+      Status_Acara: 'Aktif'
+    },
+    {
+      Event_ID: 'EVT-PHT-15',
+      Kategori_Program: 'Program Hala Tuju',
+      Nama_Acara: 'Program Hala Tuju - SM SMJA',
+      Sekolah: 'Sekolah Menengah Sultan Muhammad Jamalul Alam',
+      Daerah: 'Brunei Muara',
+      Tarikh_Mula: '2027-04-13',
+      Tarikh_Paparan: '13/04/2027 (Selasa)',
+      Hari: 'Selasa',
+      Masa: '09:00 - 11:30',
+      Tempat_Venue: 'Dewan Sekolah Menengah Sultan Muhammad Jamalul Alam',
+      Pautan_GPS_Maps: 'https://maps.google.com/?q=SMJA+School+Bandar+Seri+Begawan',
+      Pelan_Sekolah_URL: 'https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=600&q=80',
+      Pelan_Parking_URL: 'https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=600&q=80',
+      Panduan_Parking: 'Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi & VIP).',
+      Catatan_Khas: 'Pakaian rasmi pejabat / kot.',
+      Status_Acara: 'Aktif'
+    },
+    {
+      Event_ID: 'EVT-PHT-16',
+      Kategori_Program: 'Program Hala Tuju',
+      Nama_Acara: 'Program Hala Tuju - SM Muda Hashim, Tutong',
+      Sekolah: 'Sekolah Menengah Muda Hashim, Tutong',
+      Daerah: 'Tutong',
+      Tarikh_Mula: '2027-04-15',
+      Tarikh_Paparan: '15/04/2027 (Khamis)',
+      Hari: 'Khamis',
+      Masa: '09:00 - 11:30',
+      Tempat_Venue: 'Dewan Sekolah Menengah Muda Hashim, Tutong',
+      Pautan_GPS_Maps: 'https://maps.google.com/?q=Sekolah+Menengah+Muda+Hashim+Tutong',
+      Pelan_Sekolah_URL: 'https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=600&q=80',
+      Pelan_Parking_URL: 'https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=600&q=80',
+      Panduan_Parking: 'Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi & VIP).',
+      Catatan_Khas: 'Pakaian rasmi pejabat / kot.',
+      Status_Acara: 'Aktif'
+    },
+    {
+      Event_ID: 'EVT-PHT-17',
+      Kategori_Program: 'Program Hala Tuju',
+      Nama_Acara: 'Program Hala Tuju - SM Sayyidina Umar Al Khattab',
+      Sekolah: 'Sekolah Menengah Sayyidina Umar Al Khattab',
+      Daerah: 'Brunei Muara',
+      Tarikh_Mula: '2027-04-19',
+      Tarikh_Paparan: '19/04/2027 (Isnin)',
+      Hari: 'Isnin',
+      Masa: '09:00 - 11:30',
+      Tempat_Venue: 'Dewan Sekolah Menengah Sayyidina Umar Al Khattab',
+      Pautan_GPS_Maps: 'https://maps.google.com/?q=Sekolah+Menengah+Sayyidina+Umar+Al+Khattab',
+      Pelan_Sekolah_URL: 'https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=600&q=80',
+      Pelan_Parking_URL: 'https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=600&q=80',
+      Panduan_Parking: 'Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi & VIP).',
+      Catatan_Khas: 'Pakaian rasmi pejabat / kot.',
+      Status_Acara: 'Aktif'
+    },
+    {
+      Event_ID: 'EVT-PHT-18',
+      Kategori_Program: 'Program Hala Tuju',
+      Nama_Acara: 'Program Hala Tuju - SM Rimba',
+      Sekolah: 'Sekolah Menengah Rimba',
+      Daerah: 'Brunei Muara',
+      Tarikh_Mula: '2027-04-20',
+      Tarikh_Paparan: '20/04/2027 (Selasa)',
+      Hari: 'Selasa',
+      Masa: '09:00 - 11:30',
+      Tempat_Venue: 'Dewan Sekolah Menengah Rimba',
+      Pautan_GPS_Maps: 'https://maps.google.com/?q=Sekolah+Menengah+Rimba+I+Brunei',
+      Pelan_Sekolah_URL: 'https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=600&q=80',
+      Pelan_Parking_URL: 'https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=600&q=80',
+      Panduan_Parking: 'Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi & VIP).',
+      Catatan_Khas: 'Pakaian rasmi pejabat / kot.',
+      Status_Acara: 'Aktif'
+    },
+    {
+      Event_ID: 'EVT-PHT-19',
+      Kategori_Program: 'Program Hala Tuju',
+      Nama_Acara: 'Program Hala Tuju - SM Sayyidina Abu Bakar',
+      Sekolah: 'Sekolah Menengah Sayyidina Abu Bakar',
+      Daerah: 'Brunei Muara',
+      Tarikh_Mula: '2027-05-04',
+      Tarikh_Paparan: '04/05/2027 (Selasa)',
+      Hari: 'Selasa',
+      Masa: '09:00 - 11:30',
+      Tempat_Venue: 'Dewan Sekolah Menengah Sayyidina Abu Bakar',
+      Pautan_GPS_Maps: 'https://maps.google.com/?q=Sekolah+Menengah+Sayyidina+Abu+Bakar+Lambak+Kanan',
+      Pelan_Sekolah_URL: 'https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=600&q=80',
+      Pelan_Parking_URL: 'https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=600&q=80',
+      Panduan_Parking: 'Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi & VIP).',
+      Catatan_Khas: 'Pakaian rasmi pejabat / kot.',
+      Status_Acara: 'Aktif'
+    },
+    {
+      Event_ID: 'EVT-PHT-20',
+      Kategori_Program: 'Program Hala Tuju',
+      Nama_Acara: 'Program Hala Tuju - SM Awang Semaun',
+      Sekolah: 'Sekolah Menengah Awang Semaun',
+      Daerah: 'Brunei Muara',
+      Tarikh_Mula: '2027-05-06',
+      Tarikh_Paparan: '06/05/2027 (Khamis)',
+      Hari: 'Khamis',
+      Masa: '09:00 - 11:30',
+      Tempat_Venue: 'Dewan Sekolah Menengah Awang Semaun',
+      Pautan_GPS_Maps: 'https://maps.google.com/?q=Sekolah+Menengah+Awang+Semaun+Sungai+Kebun',
+      Pelan_Sekolah_URL: 'https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=600&q=80',
+      Pelan_Parking_URL: 'https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=600&q=80',
+      Panduan_Parking: 'Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi & VIP).',
+      Catatan_Khas: 'Pakaian rasmi pejabat / kot.',
+      Status_Acara: 'Aktif'
+    },
+    {
+      Event_ID: 'EVT-PHT-21',
+      Kategori_Program: 'Program Hala Tuju',
+      Nama_Acara: 'Program Hala Tuju - SM Sufri Bolkiah',
+      Sekolah: 'Sekolah Menengah Sufri Bolkiah',
+      Daerah: 'Tutong',
+      Tarikh_Mula: '2027-06-03',
+      Tarikh_Paparan: '03/06/2027 (Khamis)',
+      Hari: 'Khamis',
+      Masa: '09:00 - 11:30',
+      Tempat_Venue: 'Dewan Sekolah Menengah Sufri Bolkiah',
+      Pautan_GPS_Maps: 'https://maps.google.com/?q=Sekolah+Menengah+Sufri+Bolkiah+Tutong',
+      Pelan_Sekolah_URL: 'https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=600&q=80',
+      Pelan_Parking_URL: 'https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=600&q=80',
+      Panduan_Parking: 'Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi & VIP).',
+      Catatan_Khas: 'Pakaian rasmi pejabat / kot.',
+      Status_Acara: 'Aktif'
+    },
+    {
+      Event_ID: 'EVT-PHT-22',
+      Kategori_Program: 'Program Hala Tuju',
+      Nama_Acara: 'Program Hala Tuju - SM PAP Hajah Masna',
+      Sekolah: 'Sekolah Menengah Pengiran Anak Puteri Hajah Masna',
+      Daerah: 'Brunei Muara',
+      Tarikh_Mula: '2027-06-10',
+      Tarikh_Paparan: '10/06/2027 (Selasa)',
+      Hari: 'Selasa',
+      Masa: '09:00 - 11:30',
+      Tempat_Venue: 'Dewan Sekolah Menengah Pengiran Anak Puteri Hajah Masna',
+      Pautan_GPS_Maps: 'https://maps.google.com/?q=SMPAPH+Masna+Sungai+Akar+Brunei',
+      Pelan_Sekolah_URL: 'https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=600&q=80',
+      Pelan_Parking_URL: 'https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=600&q=80',
+      Panduan_Parking: 'Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi & VIP).',
+      Catatan_Khas: 'Pakaian rasmi pejabat / kot.',
+      Status_Acara: 'Aktif'
+    },
+    {
+      Event_ID: 'EVT-PHT-23',
+      Kategori_Program: 'Program Hala Tuju',
+      Nama_Acara: 'Program Hala Tuju - SM Lambak Kiri',
+      Sekolah: 'Sekolah Menengah Lambak Kiri',
+      Daerah: 'Brunei Muara',
+      Tarikh_Mula: '2027-06-21',
+      Tarikh_Paparan: '21/06/2027 (Isnin)',
+      Hari: 'Isnin',
+      Masa: '09:00 - 11:30',
+      Tempat_Venue: 'Dewan Sekolah Menengah Lambak Kiri',
+      Pautan_GPS_Maps: 'https://maps.google.com/?q=Sekolah+Menengah+Lambak+Kiri+Brunei',
+      Pelan_Sekolah_URL: 'https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=600&q=80',
+      Pelan_Parking_URL: 'https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=600&q=80',
+      Panduan_Parking: 'Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi & VIP).',
+      Catatan_Khas: 'Pakaian rasmi pejabat / kot.',
+      Status_Acara: 'Aktif'
+    },
+    {
+      Event_ID: 'EVT-PHT-24',
+      Kategori_Program: 'Program Hala Tuju',
+      Nama_Acara: 'Program Hala Tuju - SM RIPAS Tutong',
+      Sekolah: 'Sekolah Menengah Raja Isteri Pengiran Anak Saleha, Tutong',
+      Daerah: 'Tutong',
+      Tarikh_Mula: '2027-06-24',
+      Tarikh_Paparan: '24/06/2027 (Khamis)',
+      Hari: 'Khamis',
+      Masa: '09:00 - 11:30',
+      Tempat_Venue: 'Dewan Sekolah Menengah Raja Isteri Pengiran Anak Saleha, Tutong',
+      Pautan_GPS_Maps: 'https://maps.google.com/?q=SM+RIPAS+Tutong+Brunei',
+      Pelan_Sekolah_URL: 'https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=600&q=80',
+      Pelan_Parking_URL: 'https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=600&q=80',
+      Panduan_Parking: 'Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi & VIP).',
+      Catatan_Khas: 'Pakaian rasmi pejabat / kot.',
+      Status_Acara: 'Aktif'
+    },
+    {
+      Event_ID: 'EVT-PHT-25',
+      Kategori_Program: 'Program Hala Tuju',
+      Nama_Acara: 'Program Hala Tuju - SM PDHM Mentiri',
+      Sekolah: 'Sekolah Menengah Pehin Datu Seri Maharaja Mentiri',
+      Daerah: 'Brunei Muara',
+      Tarikh_Mula: '2027-06-28',
+      Tarikh_Paparan: '28/06/2027 (Isnin)',
+      Hari: 'Isnin',
+      Masa: '09:00 - 11:30',
+      Tempat_Venue: 'Dewan Sekolah Menengah Pehin Datu Seri Maharaja Mentiri',
+      Pautan_GPS_Maps: 'https://maps.google.com/?q=SM+Pehin+Datu+Seri+Maharaja+Mentiri',
+      Pelan_Sekolah_URL: 'https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=600&q=80',
+      Pelan_Parking_URL: 'https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=600&q=80',
+      Panduan_Parking: 'Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi & VIP).',
+      Catatan_Khas: 'Pakaian rasmi pejabat / kot.',
+      Status_Acara: 'Aktif'
+    },
+    {
+      Event_ID: 'EVT-PHT-26',
+      Kategori_Program: 'Program Hala Tuju',
+      Nama_Acara: 'Program Hala Tuju - STPRI',
+      Sekolah: 'Sekolah Tinggi Perempuan Raja Isteri',
+      Daerah: 'Brunei Muara',
+      Tarikh_Mula: '2027-07-01',
+      Tarikh_Paparan: '01/07/2027 (Khamis)',
+      Hari: 'Khamis',
+      Masa: '09:00 - 11:30',
+      Tempat_Venue: 'Dewan Sekolah Tinggi Perempuan Raja Isteri',
+      Pautan_GPS_Maps: 'https://maps.google.com/?q=STPRI+School+Bandar+Seri+Begawan',
+      Pelan_Sekolah_URL: 'https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=600&q=80',
+      Pelan_Parking_URL: 'https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=600&q=80',
+      Panduan_Parking: 'Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi & VIP).',
+      Catatan_Khas: 'Pakaian rasmi pejabat / kot.',
+      Status_Acara: 'Aktif'
+    },
+    {
+      Event_ID: 'EVT-PHT-27',
+      Kategori_Program: 'Program Hala Tuju',
+      Nama_Acara: 'Program Hala Tuju - SM Sultan Hassan, Temburong',
+      Sekolah: 'Sekolah Menengah Sultan Hassan, Temburong',
+      Daerah: 'Temburong',
+      Tarikh_Mula: '2027-07-06',
+      Tarikh_Paparan: '06/07/2027 (Selasa)',
+      Hari: 'Selasa',
+      Masa: '09:00 - 11:30',
+      Tempat_Venue: 'Dewan Sekolah Menengah Sultan Hassan, Temburong',
+      Pautan_GPS_Maps: 'https://maps.google.com/?q=Sekolah+Menengah+Sultan+Hassan+Bangar+Temburong',
+      Pelan_Sekolah_URL: 'https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=600&q=80',
+      Pelan_Parking_URL: 'https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=600&q=80',
+      Panduan_Parking: 'Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi & VIP Daerah Temburong).',
+      Catatan_Khas: 'Sesi khas Daerah Temburong. Pakaian rasmi pejabat / kot.',
+      Status_Acara: 'Aktif'
+    },
+
+    // --- PROGRAM FUTURELINK (5 SESI) ---
+    {
+      Event_ID: 'EVT-FL-01',
+      Kategori_Program: 'Program FutureLink',
+      Nama_Acara: 'Program FutureLink - Maktab Sains PSBS',
+      Sekolah: 'Maktab Sains Paduka Seri Begawan Sultan',
+      Daerah: 'Brunei Muara',
+      Tarikh_Mula: '2027-04-01',
+      Tarikh_Paparan: '01/04/2027 (Khamis)',
+      Hari: 'Khamis',
+      Masa: '09:00 - 11:30',
+      Tempat_Venue: 'Dewan Maktab Sains Paduka Seri Begawan Sultan',
+      Pautan_GPS_Maps: 'https://maps.google.com/?q=Maktab+Sains+Paduka+Seri+Begawan+Sultan',
+      Pelan_Sekolah_URL: 'https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=600&q=80',
+      Pelan_Parking_URL: 'https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=600&q=80',
+      Panduan_Parking: 'Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi & VIP).',
+      Catatan_Khas: 'Program FutureLink - Orientasi dan pendedahan kerjaya peringkat pra-universiti.',
+      Status_Acara: 'Aktif'
+    },
+    {
+      Event_ID: 'EVT-FL-02',
+      Kategori_Program: 'Program FutureLink',
+      Nama_Acara: 'Program FutureLink - PTE Belait + SM Sayyidina Ali',
+      Sekolah: 'Pusat Tingkatan Enam Belait + Sekolah Menengah Sayyidina Ali',
+      Daerah: 'Belait',
+      Tarikh_Mula: '2027-04-08',
+      Tarikh_Paparan: '08/04/2027 (Khamis)',
+      Hari: 'Khamis',
+      Masa: '09:00 - 12:00',
       Tempat_Venue: 'Dewan Serbaguna Pusat Tingkatan Enam Belait',
       Pautan_GPS_Maps: 'https://maps.google.com/?q=Pusat+Tingkatan+Enam+Belait',
       Pelan_Sekolah_URL: 'https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=600&q=80',
-      Panduan_Parking: 'Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi & VIP). Zon parking dikhaskan di Blok C, bersebelahan padang.',
-      Catatan_Khas: 'Pakaian rasmi pejabat / kot. Meja pameran disediakan oleh sekolah.',
+      Pelan_Parking_URL: 'https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=600&q=80',
+      Panduan_Parking: 'Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi & VIP Daerah Belait).',
+      Catatan_Khas: 'Penyertaan gabungan bersama SM Sayyidina Ali. Masa sesi Daerah Belait: 09:00 - 12:00.',
       Status_Acara: 'Aktif'
     },
     {
-      Event_ID: 'EVT-2026-02',
-      Kategori_Program: 'Taklimat Tahunan Agensi',
-      Nama_Acara: 'Taklimat Tahunan Bersama 52 Agensi Jemputan',
-      Tarikh_Mula: '2026-03-24',
-      Masa: '08:30 - 11:30',
-      Tempat_Venue: 'Auditorium Utama MOE, Blok A, Lapangan Terbang Lama',
-      Pautan_GPS_Maps: 'https://maps.google.com/?q=Ministry+of+Education+Brunei',
-      Panduan_Parking: 'Parking pelawat aras bawah dan bertingkat Blok A.',
-      Catatan_Khas: 'Penyelarasan SOP kehadiran dan agihan kalendar acara.',
-      Status_Acara: 'Aktif'
-    },
-    {
-      Event_ID: 'EVT-2026-03',
+      Event_ID: 'EVT-FL-03',
       Kategori_Program: 'Program FutureLink',
-      Nama_Acara: 'Program FutureLink Siri 1 (Zon Brunei Muara)',
-      Tarikh_Mula: '2026-04-10',
-      Masa: '08:00 - 15:30',
-      Tempat_Venue: 'Dewan Auditorium Maktab Sains Paduka Seri Begawan Sultan',
-      Pautan_GPS_Maps: 'https://maps.google.com/?q=Maktab+Sains+Brunei',
-      Panduan_Parking: 'Pintu pagar utama Maktab Sains.',
-      Catatan_Khas: 'Orientasi kerjaya STEM dan pendidikan vokasional.',
+      Nama_Acara: 'Program FutureLink - PTE Tutong',
+      Sekolah: 'Pusat Tingkatan Enam Tutong',
+      Daerah: 'Tutong',
+      Tarikh_Mula: '2027-04-22',
+      Tarikh_Paparan: '22/04/2027 (Khamis)',
+      Hari: 'Khamis',
+      Masa: '09:00 - 11:30',
+      Tempat_Venue: 'Foyer Pusat Tingkatan Enam Tutong',
+      Pautan_GPS_Maps: 'https://maps.google.com/?q=Pusat+Tingkatan+Enam+Tutong',
+      Pelan_Sekolah_URL: 'https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=600&q=80',
+      Pelan_Parking_URL: 'https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=600&q=80',
+      Panduan_Parking: 'Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi & VIP ke Foyer PTE Tutong).',
+      Catatan_Khas: 'Lokasi bertempat di Foyer Pusat Tingkatan Enam Tutong.',
+      Status_Acara: 'Aktif'
+    },
+    {
+      Event_ID: 'EVT-FL-04',
+      Kategori_Program: 'Program FutureLink',
+      Nama_Acara: 'Program FutureLink - PTE Meragang',
+      Sekolah: 'Pusat Tingkatan Enam Meragang',
+      Daerah: 'Brunei Muara',
+      Tarikh_Mula: '2027-06-22',
+      Tarikh_Paparan: '22/06/2027 (Selasa)',
+      Hari: 'Selasa',
+      Masa: '09:00 - 11:30',
+      Tempat_Venue: 'Dewan Pusat Tingkatan Enam Meragang',
+      Pautan_GPS_Maps: 'https://maps.google.com/?q=Pusat+Tingkatan+Enam+Meragang+Brunei',
+      Pelan_Sekolah_URL: 'https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=600&q=80',
+      Pelan_Parking_URL: 'https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=600&q=80',
+      Panduan_Parking: 'Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi & VIP).',
+      Catatan_Khas: 'Program FutureLink - Sesi pra-universiti.',
+      Status_Acara: 'Aktif'
+    },
+    {
+      Event_ID: 'EVT-FL-05',
+      Kategori_Program: 'Program FutureLink',
+      Nama_Acara: 'Program FutureLink - Maktab Duli (Taklimat sahaja)',
+      Sekolah: 'Maktab Duli Pengiran Muda Al-Muhtadee Billah',
+      Daerah: 'Brunei Muara',
+      Tarikh_Mula: '2027-06-29',
+      Tarikh_Paparan: '29/06/2027 (Selasa)',
+      Hari: 'Selasa',
+      Masa: '09:00 - 11:30',
+      Tempat_Venue: 'Dewan Auditorium Maktab Duli Pengiran Muda Al-Muhtadee Billah',
+      Pautan_GPS_Maps: 'https://maps.google.com/?q=Maktab+Duli+Pengiran+Muda+Al-Muhtadee+Billah',
+      Pelan_Sekolah_URL: 'https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=600&q=80',
+      Pelan_Parking_URL: 'https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=600&q=80',
+      Panduan_Parking: 'Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi & VIP).',
+      Catatan_Khas: 'Taklimat sahaja',
       Status_Acara: 'Aktif'
     }
   ];
@@ -1300,8 +2117,17 @@ function handleOfflineFallback(action, data) {
 window.addEventListener('DOMContentLoaded', () => {
   I18N.applyToDOM();
 
+  // Pastikan data 32 sesi takwim rasmi terkini sentiasa aktif
+  if (!AppState.events || AppState.events.length < 32) {
+    AppState.events = getFallbackEvents();
+    localStorage.setItem('ceu_cache_events', JSON.stringify(AppState.events));
+  }
+  if (!AppState.activeEvent && AppState.events.length > 0) {
+    AppState.activeEvent = AppState.events[0];
+  }
+
   // Tangani hash navigation awal
-  const hash = window.location.hash.replace('#', '') || (AppState.currentUser ? 'home' : 'login');
+  const hash = window.location.hash.replace('#', '') || (AppState.currentUser ? (AppState.currentUser.role === 'ADMIN' ? 'admin' : 'home') : 'login');
   navigateTo(hash);
 
   // Ambil data senyap jika ada sesi aktif

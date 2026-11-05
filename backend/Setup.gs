@@ -178,57 +178,49 @@ function setupSheets_(ss) {
       'Panduan_Parking', 'Catatan_Khas', 'Status_Acara', 'Dibuat_Pada'
     ]);
 
-    // Masukkan 3 Acara Contoh Realistik Brunei
-    shEvents.appendRow([
-      'EVT-2026-01',
-      'Program Hala Tuju',
-      'Pameran Pendidikan Hala Tuju 2026 (Zon Belait)',
-      '2026-03-15',
-      '2026-03-15',
-      '08:00 - 16:30',
-      'Dewan Serbaguna Pusat Tingkatan Enam Belait',
-      'https://maps.google.com/?q=Pusat+Tingkatan+Enam+Belait',
-      '',
-      '',
-      'Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi & VIP). Zon parking dikhaskan di Blok C, bersebelahan padang.',
-      'Pakaian rasmi pejabat / kot. Meja pameran boleh diatur seawal jam 06:45 pagi. Sarapan & makan tengah hari disediakan.',
-      'Aktif',
-      Utilities.formatDate(new Date(), 'GMT+8', 'yyyy-MM-dd HH:mm:ss')
-    ]);
+    // Masukkan 32 Sesi Takwim Rasmi (27 Program Hala Tuju + 5 Program FutureLink)
+    var officialEvents = [
+      // Program Hala Tuju (27 Sesi)
+      ['EVT-PHT-01', 'Program Hala Tuju', 'Program Hala Tuju - SM Tanjong Maya', '2027-01-25', '2027-01-25', '09:00 - 11:30', 'Dewan Sekolah Menengah Tanjong Maya', 'https://maps.google.com/?q=Sekolah+Menengah+Tanjong+Maya', '', '', 'Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi & VIP).', 'Pakaian rasmi pejabat / kot. Meja pameran disediakan oleh sekolah di dewan.', 'Aktif'],
+      ['EVT-PHT-02', 'Program Hala Tuju', 'Program Hala Tuju - SM Sayyidina ‘Othman', '2027-01-26', '2027-01-26', '09:00 - 11:30', 'Dewan Sekolah Menengah Sayyidina ‘Othman', 'https://maps.google.com/?q=Sekolah+Menengah+Sayyidina+Othman', '', '', 'Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi & VIP).', 'Pakaian rasmi pejabat / kot.', 'Aktif'],
+      ['EVT-PHT-03', 'Program Hala Tuju', 'Program Hala Tuju - SM Sayyidina Husain', '2027-01-28', '2027-01-28', '09:00 - 11:30', 'Dewan Sekolah Menengah Sayyidina Husain', 'https://maps.google.com/?q=Sekolah+Menengah+Sayyidina+Husain', '', '', 'Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi & VIP).', 'Pakaian rasmi pejabat / kot.', 'Aktif'],
+      ['EVT-PHT-04', 'Program Hala Tuju', 'Program Hala Tuju - SM Katok', '2027-02-01', '2027-02-01', '09:00 - 11:30', 'Dewan Sekolah Menengah Katok', 'https://maps.google.com/?q=Sekolah+Menengah+Katok', '', '', 'Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi & VIP).', 'Pakaian rasmi pejabat / kot.', 'Aktif'],
+      ['EVT-PHT-05', 'Program Hala Tuju', 'Program Hala Tuju - SM PAP Hajah Rashidah + Maktab Anthony Abell', '2027-02-02', '2027-02-02', '09:00 - 12:00', 'Dewan Sekolah Menengah Pengiran Anak Puteri Hajah Rashidah', 'https://maps.google.com/?q=SMPAPH+Rashidah+Lumut', '', '', 'Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi & VIP Daerah Belait).', 'Penyertaan gabungan bersama Maktab Anthony Abell. Masa sesi Daerah Belait: 09:00 - 12:00.', 'Aktif'],
+      ['EVT-PHT-06', 'Program Hala Tuju', 'Program Hala Tuju - SM Sultan Sharif Ali', '2027-02-04', '2027-02-04', '09:00 - 11:30', 'Dewan Sekolah Menengah Sultan Sharif Ali', 'https://maps.google.com/?q=Sekolah+Menengah+Sultan+Sharif+Ali', '', '', 'Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi & VIP).', 'Pakaian rasmi pejabat / kot.', 'Aktif'],
+      ['EVT-PHT-07', 'Program Hala Tuju', 'Program Hala Tuju - SM PIHM Serasa', '2027-03-22', '2027-03-22', '09:00 - 11:30', 'Dewan Sekolah Menengah Pengiran Isteri Hajjah Mariam Serasa', 'https://maps.google.com/?q=SMPIHM+Serasa', '', '', 'Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi & VIP).', 'Pakaian rasmi pejabat / kot.', 'Aktif'],
+      ['EVT-PHT-08', 'Program Hala Tuju', 'Program Hala Tuju - SM Masin', '2027-03-23', '2027-03-23', '09:00 - 11:30', 'Dewan Sekolah Menengah Masin', 'https://maps.google.com/?q=Sekolah+Menengah+Masin', '', '', 'Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi & VIP).', 'Pakaian rasmi pejabat / kot.', 'Aktif'],
+      ['EVT-PHT-09', 'Program Hala Tuju', 'Program Hala Tuju - SM PJN PH Abu Bakar + SM Perdana Wazir', '2027-03-25', '2027-03-25', '09:00 - 12:00', 'Dewan Sekolah Menengah Pengiran Jaya Negara Pengiran Haji Abu Bakar', 'https://maps.google.com/?q=SMPJN+PH+Abu+Bakar', '', '', 'Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi & VIP Daerah Belait).', 'Penyertaan gabungan bersama SM Perdana Wazir. Masa sesi Daerah Belait: 09:00 - 12:00.', 'Aktif'],
+      ['EVT-PHT-10', 'Program Hala Tuju', 'Program Hala Tuju - SM Rimba II', '2027-03-29', '2027-03-29', '09:00 - 11:30', 'Dewan Sekolah Menengah Rimba II', 'https://maps.google.com/?q=Sekolah+Menengah+Rimba+II', '', '', 'Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi & VIP).', 'Pakaian rasmi pejabat / kot.', 'Aktif'],
+      ['EVT-PHT-11', 'Program Hala Tuju', 'Program Hala Tuju - Maktab SOASC', '2027-03-30', '2027-03-30', '09:00 - 11:30', 'Dewan Maktab Sultan Omar Ali Saifuddien', 'https://maps.google.com/?q=Maktab+SOAS+Bandar+Seri+Begawan', '', '', 'Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi & VIP).', 'Pakaian rasmi pejabat / kot.', 'Aktif'],
+      ['EVT-PHT-12', 'Program Hala Tuju', 'Program Hala Tuju - Sekolah Sukan', '2027-04-05', '2027-04-05', '09:00 - 11:30', 'Atrium Sekolah Sukan', 'https://maps.google.com/?q=Sekolah+Sukan+Brunei', '', '', 'Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi & VIP ke Atrium).', 'Lokasi bertempat di Atrium Sekolah Sukan.', 'Aktif'],
+      ['EVT-PHT-13', 'Program Hala Tuju', 'Program Hala Tuju - SM Berakas', '2027-04-06', '2027-04-06', '09:00 - 11:30', 'Dewan Sekolah Menengah Berakas', 'https://maps.google.com/?q=Sekolah+Menengah+Berakas', '', '', 'Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi & VIP).', 'Pakaian rasmi pejabat / kot.', 'Aktif'],
+      ['EVT-PHT-14', 'Program Hala Tuju', 'Program Hala Tuju - SM Sayyidina Hasan', '2027-04-12', '2027-04-12', '09:00 - 11:30', 'Dewan Sekolah Menengah Sayyidina Hasan', 'https://maps.google.com/?q=Sekolah+Menengah+Sayyidina+Hasan', '', '', 'Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi & VIP).', 'Pakaian rasmi pejabat / kot.', 'Aktif'],
+      ['EVT-PHT-15', 'Program Hala Tuju', 'Program Hala Tuju - SM SMJA', '2027-04-13', '2027-04-13', '09:00 - 11:30', 'Dewan Sekolah Menengah Sultan Muhammad Jamalul Alam', 'https://maps.google.com/?q=SMJA+School', '', '', 'Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi & VIP).', 'Pakaian rasmi pejabat / kot.', 'Aktif'],
+      ['EVT-PHT-16', 'Program Hala Tuju', 'Program Hala Tuju - SM Muda Hashim, Tutong', '2027-04-15', '2027-04-15', '09:00 - 11:30', 'Dewan Sekolah Menengah Muda Hashim, Tutong', 'https://maps.google.com/?q=Sekolah+Menengah+Muda+Hashim', '', '', 'Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi & VIP).', 'Pakaian rasmi pejabat / kot.', 'Aktif'],
+      ['EVT-PHT-17', 'Program Hala Tuju', 'Program Hala Tuju - SM Sayyidina Umar Al Khattab', '2027-04-19', '2027-04-19', '09:00 - 11:30', 'Dewan Sekolah Menengah Sayyidina Umar Al Khattab', 'https://maps.google.com/?q=Sekolah+Menengah+Sayyidina+Umar+Al+Khattab', '', '', 'Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi & VIP).', 'Pakaian rasmi pejabat / kot.', 'Aktif'],
+      ['EVT-PHT-18', 'Program Hala Tuju', 'Program Hala Tuju - SM Rimba', '2027-04-20', '2027-04-20', '09:00 - 11:30', 'Dewan Sekolah Menengah Rimba', 'https://maps.google.com/?q=Sekolah+Menengah+Rimba', '', '', 'Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi & VIP).', 'Pakaian rasmi pejabat / kot.', 'Aktif'],
+      ['EVT-PHT-19', 'Program Hala Tuju', 'Program Hala Tuju - SM Sayyidina Abu Bakar', '2027-05-04', '2027-05-04', '09:00 - 11:30', 'Dewan Sekolah Menengah Sayyidina Abu Bakar', 'https://maps.google.com/?q=Sekolah+Menengah+Sayyidina+Abu+Bakar', '', '', 'Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi & VIP).', 'Pakaian rasmi pejabat / kot.', 'Aktif'],
+      ['EVT-PHT-20', 'Program Hala Tuju', 'Program Hala Tuju - SM Awang Semaun', '2027-05-06', '2027-05-06', '09:00 - 11:30', 'Dewan Sekolah Menengah Awang Semaun', 'https://maps.google.com/?q=Sekolah+Menengah+Awang+Semaun', '', '', 'Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi & VIP).', 'Pakaian rasmi pejabat / kot.', 'Aktif'],
+      ['EVT-PHT-21', 'Program Hala Tuju', 'Program Hala Tuju - SM Sufri Bolkiah', '2027-06-03', '2027-06-03', '09:00 - 11:30', 'Dewan Sekolah Menengah Sufri Bolkiah', 'https://maps.google.com/?q=Sekolah+Menengah+Sufri+Bolkiah', '', '', 'Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi & VIP).', 'Pakaian rasmi pejabat / kot.', 'Aktif'],
+      ['EVT-PHT-22', 'Program Hala Tuju', 'Program Hala Tuju - SM PAP Hajah Masna', '2027-06-10', '2027-06-10', '09:00 - 11:30', 'Dewan Sekolah Menengah Pengiran Anak Puteri Hajah Masna', 'https://maps.google.com/?q=SMPAPH+Masna', '', '', 'Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi & VIP).', 'Pakaian rasmi pejabat / kot.', 'Aktif'],
+      ['EVT-PHT-23', 'Program Hala Tuju', 'Program Hala Tuju - SM Lambak Kiri', '2027-06-21', '2027-06-21', '09:00 - 11:30', 'Dewan Sekolah Menengah Lambak Kiri', 'https://maps.google.com/?q=Sekolah+Menengah+Lambak+Kiri', '', '', 'Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi & VIP).', 'Pakaian rasmi pejabat / kot.', 'Aktif'],
+      ['EVT-PHT-24', 'Program Hala Tuju', 'Program Hala Tuju - SM RIPAS Tutong', '2027-06-24', '2027-06-24', '09:00 - 11:30', 'Dewan Sekolah Menengah Raja Isteri Pengiran Anak Saleha, Tutong', 'https://maps.google.com/?q=SM+RIPAS+Tutong', '', '', 'Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi & VIP).', 'Pakaian rasmi pejabat / kot.', 'Aktif'],
+      ['EVT-PHT-25', 'Program Hala Tuju', 'Program Hala Tuju - SM PDHM Mentiri', '2027-06-28', '2027-06-28', '09:00 - 11:30', 'Dewan Sekolah Menengah Pehin Datu Seri Maharaja Mentiri', 'https://maps.google.com/?q=SM+Pehin+Datu+Seri+Maharaja+Mentiri', '', '', 'Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi & VIP).', 'Pakaian rasmi pejabat / kot.', 'Aktif'],
+      ['EVT-PHT-26', 'Program Hala Tuju', 'Program Hala Tuju - STPRI', '2027-07-01', '2027-07-01', '09:00 - 11:30', 'Dewan Sekolah Tinggi Perempuan Raja Isteri', 'https://maps.google.com/?q=STPRI+School', '', '', 'Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi & VIP).', 'Pakaian rasmi pejabat / kot.', 'Aktif'],
+      ['EVT-PHT-27', 'Program Hala Tuju', 'Program Hala Tuju - SM Sultan Hassan, Temburong', '2027-07-06', '2027-07-06', '09:00 - 11:30', 'Dewan Sekolah Menengah Sultan Hassan, Temburong', 'https://maps.google.com/?q=Sekolah+Menengah+Sultan+Hassan+Temburong', '', '', 'Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi & VIP Daerah Temburong).', 'Sesi khas Daerah Temburong. Pakaian rasmi pejabat / kot.', 'Aktif'],
 
-    shEvents.appendRow([
-      'EVT-2026-02',
-      'Taklimat Tahunan Agensi',
-      'Taklimat Tahunan Bersama 52 Agensi Jemputan',
-      '2026-03-24',
-      '2026-03-24',
-      '08:30 - 11:30',
-      'Auditorium Utama MOE, Blok A, Lapangan Terbang Lama',
-      'https://maps.google.com/?q=Ministry+of+Education+Brunei',
-      '',
-      '',
-      'Kawasan parking bertingkat Blok A dikhaskan untuk jemputan rasmi.',
-      'Membincangkan penyelarasan kalendar pameran kerjaya dan prosedur standard penyediaan logistik sekolah.',
-      'Aktif',
-      Utilities.formatDate(new Date(), 'GMT+8', 'yyyy-MM-dd HH:mm:ss')
-    ]);
+      // Program FutureLink (5 Sesi)
+      ['EVT-FL-01', 'Program FutureLink', 'Program FutureLink - Maktab Sains PSBS', '2027-04-01', '2027-04-01', '09:00 - 11:30', 'Dewan Maktab Sains Paduka Seri Begawan Sultan', 'https://maps.google.com/?q=Maktab+Sains+Paduka+Seri+Begawan+Sultan', '', '', 'Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi & VIP).', 'Program FutureLink - Orientasi dan pendedahan kerjaya peringkat pra-universiti.', 'Aktif'],
+      ['EVT-FL-02', 'Program FutureLink', 'Program FutureLink - PTE Belait + SM Sayyidina Ali', '2027-04-08', '2027-04-08', '09:00 - 12:00', 'Dewan Serbaguna Pusat Tingkatan Enam Belait', 'https://maps.google.com/?q=Pusat+Tingkatan+Enam+Belait', '', '', 'Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi & VIP Daerah Belait).', 'Penyertaan gabungan bersama SM Sayyidina Ali. Masa sesi Daerah Belait: 09:00 - 12:00.', 'Aktif'],
+      ['EVT-FL-03', 'Program FutureLink', 'Program FutureLink - PTE Tutong', '2027-04-22', '2027-04-22', '09:00 - 11:30', 'Foyer Pusat Tingkatan Enam Tutong', 'https://maps.google.com/?q=Pusat+Tingkatan+Enam+Tutong', '', '', 'Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi & VIP ke Foyer PTE Tutong).', 'Lokasi bertempat di Foyer Pusat Tingkatan Enam Tutong.', 'Aktif'],
+      ['EVT-FL-04', 'Program FutureLink', 'Program FutureLink - PTE Meragang', '2027-06-22', '2027-06-22', '09:00 - 11:30', 'Dewan Pusat Tingkatan Enam Meragang', 'https://maps.google.com/?q=Pusat+Tingkatan+Enam+Meragang', '', '', 'Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi & VIP).', 'Program FutureLink - Sesi pra-universiti.', 'Aktif'],
+      ['EVT-FL-05', 'Program FutureLink', 'Program FutureLink - Maktab Duli (Taklimat sahaja)', '2027-06-29', '2027-06-29', '09:00 - 11:30', 'Dewan Auditorium Maktab Duli Pengiran Muda Al-Muhtadee Billah', 'https://maps.google.com/?q=Maktab+Duli+Pengiran+Muda+Al-Muhtadee+Billah', '', '', 'Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi & VIP).', 'Taklimat sahaja', 'Aktif']
+    ];
 
-    shEvents.appendRow([
-      'EVT-2026-03',
-      'Program FutureLink',
-      'Program FutureLink Siri 1 (Zon Brunei Muara)',
-      '2026-04-10',
-      '2026-04-10',
-      '08:00 - 15:30',
-      'Dewan Auditorium Maktab Sains Paduka Seri Begawan Sultan',
-      'https://maps.google.com/?q=Maktab+Sains+Paduka+Seri+Begawan+Sultan',
-      '',
-      '',
-      'Sila gunakan Pintu Pagar Utama dan ikuti papan tanda ke Dewan Auditorium.',
-      'Program orientasi kerjaya bidang STEM dan industri berkemahiran tinggi.',
-      'Aktif',
-      Utilities.formatDate(new Date(), 'GMT+8', 'yyyy-MM-dd HH:mm:ss')
-    ]);
+    officialEvents.forEach(function(row) {
+      row.push(Utilities.formatDate(new Date(), 'GMT+8', 'yyyy-MM-dd HH:mm:ss'));
+      shEvents.appendRow(row);
+    });
   }
 
   // C. Sheet RSVP_Logistik
