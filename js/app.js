@@ -165,6 +165,7 @@ function updateBottomNav(viewId) {
   }
 
   const isAdmin = AppState.currentUser.role === 'ADMIN';
+  const isEn = typeof I18N !== 'undefined' && I18N.currentLang === 'EN';
 
   // Desktop Navbar elements
   const desktopNavLinks = document.getElementById('desktopNavLinks');
@@ -173,18 +174,22 @@ function updateBottomNav(viewId) {
   const desktopUserRole = document.getElementById('desktopNavUserRole');
 
   if (desktopNavModeBadge) {
-    desktopNavModeBadge.innerText = isAdmin ? 'MOD PENTADBIR' : 'MOD AGENSI';
+    desktopNavModeBadge.innerText = isAdmin 
+      ? (isEn ? 'ADMIN MODE' : 'MOD PENTADBIR') 
+      : (isEn ? 'AGENCY MODE' : 'MOD AGENSI');
     desktopNavModeBadge.className = isAdmin 
       ? 'text-[9px] bg-amber-100 text-amber-800 font-bold px-2 py-0.5 rounded-full uppercase' 
       : 'text-[9px] bg-teal-100 text-teal-800 font-bold px-2 py-0.5 rounded-full uppercase';
   }
 
   if (desktopAgencyName) {
-    desktopAgencyName.innerText = AppState.currentUser.namaAgensi || (isAdmin ? 'Unit Pendidikan Kerjaya' : 'Universiti Brunei Darussalam');
+    desktopAgencyName.innerText = AppState.currentUser.namaAgensi || (isAdmin ? (isEn ? 'Career Education Unit' : 'Unit Pendidikan Kerjaya') : 'Universiti Brunei Darussalam');
   }
 
   if (desktopUserRole) {
-    desktopUserRole.innerText = isAdmin ? 'Pentadbir CEU' : 'Agensi Jemputan';
+    desktopUserRole.innerText = isAdmin 
+      ? (isEn ? 'CEU Administrator' : 'Pentadbir CEU') 
+      : (isEn ? 'Invited Agency' : 'Agensi Jemputan');
   }
 
   // 1. Render Desktop Navigation Links (HANYA 2 ITEM SAHAJA)
@@ -193,22 +198,22 @@ function updateBottomNav(viewId) {
       desktopNavLinks.innerHTML = `
         <button onclick="navigateTo('admin')" class="px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${viewId === 'admin' ? 'bg-[#006194] text-white shadow-sm' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'}">
           <span class="material-symbols-outlined text-[18px]">dashboard</span>
-          <span>Papan Pemuka</span>
+          <span>${isEn ? 'Dashboard' : 'Papan Pemuka'}</span>
         </button>
         <button onclick="navigateTo('adminEvents')" class="px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${viewId === 'adminEvents' ? 'bg-[#006194] text-white shadow-sm' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'}">
           <span class="material-symbols-outlined text-[18px]">edit_calendar</span>
-          <span>Urus Program &amp; Peta</span>
+          <span>${isEn ? 'Manage Events &amp; Maps' : 'Urus Program &amp; Peta'}</span>
         </button>
       `;
     } else {
       desktopNavLinks.innerHTML = `
         <button onclick="navigateTo('home')" class="px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${viewId === 'home' ? 'bg-[#148e82] text-white shadow-sm' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'}">
           <span class="material-symbols-outlined text-[18px]">info</span>
-          <span>Info Program</span>
+          <span>${isEn ? 'Program Info' : 'Info Program'}</span>
         </button>
         <button onclick="navigateTo('rsvpForm')" class="px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${viewId === 'rsvpForm' ? 'bg-[#f59e0b] text-slate-900 shadow-sm' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'}">
           <span class="material-symbols-outlined text-[18px]">how_to_reg</span>
-          <span>Borang RSVP</span>
+          <span>${isEn ? 'RSVP Form' : 'Borang RSVP'}</span>
         </button>
       `;
     }
@@ -223,21 +228,21 @@ function updateBottomNav(viewId) {
           <div class="px-4 py-1 rounded-full flex items-center justify-center ${viewId === 'admin' ? 'bg-sky-100' : ''}">
             <span class="material-symbols-outlined text-[20px]">dashboard</span>
           </div>
-          <span class="text-[10px] mt-0.5">Papan Pemuka</span>
+          <span class="text-[10px] mt-0.5">${isEn ? 'Dashboard' : 'Papan Pemuka'}</span>
         </button>
 
         <button onclick="navigateTo('adminEvents')" class="flex flex-col items-center justify-center transition-all ${viewId === 'adminEvents' ? 'text-[#006194] font-bold' : 'text-slate-400 font-medium'}">
           <div class="px-4 py-1 rounded-full flex items-center justify-center ${viewId === 'adminEvents' ? 'bg-sky-100' : ''}">
             <span class="material-symbols-outlined text-[20px]">edit_calendar</span>
           </div>
-          <span class="text-[10px] mt-0.5">Urus Program</span>
+          <span class="text-[10px] mt-0.5">${isEn ? 'Manage Events' : 'Urus Program'}</span>
         </button>
 
         <button onclick="logoutUser()" class="flex flex-col items-center justify-center text-rose-500 font-medium transition-all">
           <div class="px-4 py-1 rounded-full flex items-center justify-center">
             <span class="material-symbols-outlined text-[20px]">logout</span>
           </div>
-          <span class="text-[10px] mt-0.5">Keluar</span>
+          <span class="text-[10px] mt-0.5">${isEn ? 'Sign Out' : 'Keluar'}</span>
         </button>
       `;
     } else {
@@ -246,21 +251,21 @@ function updateBottomNav(viewId) {
           <div class="px-4 py-1 rounded-full flex items-center justify-center ${viewId === 'home' ? 'bg-teal-50' : ''}">
             <span class="material-symbols-outlined text-[20px]">info</span>
           </div>
-          <span class="text-[10px] mt-0.5">Info Program</span>
+          <span class="text-[10px] mt-0.5">${isEn ? 'Event Info' : 'Info Program'}</span>
         </button>
 
         <button onclick="navigateTo('rsvpForm')" class="flex flex-col items-center justify-center transition-all ${viewId === 'rsvpForm' ? 'text-[#d97706] font-bold' : 'text-slate-400 font-medium'}">
           <div class="px-4 py-1 rounded-full flex items-center justify-center ${viewId === 'rsvpForm' ? 'bg-amber-100' : ''}">
             <span class="material-symbols-outlined text-[20px]">how_to_reg</span>
           </div>
-          <span class="text-[10px] mt-0.5">Borang RSVP</span>
+          <span class="text-[10px] mt-0.5">${isEn ? 'RSVP Form' : 'Borang RSVP'}</span>
         </button>
 
         <button onclick="logoutUser()" class="flex flex-col items-center justify-center text-rose-500 font-medium transition-all">
           <div class="px-4 py-1 rounded-full flex items-center justify-center">
             <span class="material-symbols-outlined text-[20px]">logout</span>
           </div>
-          <span class="text-[10px] mt-0.5">Keluar</span>
+          <span class="text-[10px] mt-0.5">${isEn ? 'Sign Out' : 'Keluar'}</span>
         </button>
       `;
     }
@@ -306,41 +311,70 @@ function switchLoginMode(mode) {
   const subtitle = document.getElementById('loginModeSubtitle');
   const btnSubmit = document.getElementById('btnLoginSubmit');
   const defaultHint = document.getElementById('loginDefaultHint');
+  const isEn = typeof I18N !== 'undefined' && I18N.currentLang === 'EN';
 
   if (mode === 'ADMIN') {
-    if (tabAdmin) tabAdmin.className = 'flex-1 py-2 text-xs font-bold rounded-lg bg-[#006194] text-white shadow-sm flex items-center justify-center gap-1.5 transition-all';
-    if (tabAgency) tabAgency.className = 'flex-1 py-2 text-xs font-semibold rounded-lg text-slate-600 hover:text-slate-900 flex items-center justify-center gap-1.5 transition-all';
+    if (tabAdmin) {
+      tabAdmin.className = 'flex-1 py-2 text-xs font-bold rounded-lg bg-[#006194] text-white shadow-sm flex items-center justify-center gap-1.5 transition-all';
+      tabAdmin.innerHTML = `<span class="material-symbols-outlined text-[17px]">shield_person</span><span>${isEn ? 'CEU Admin Mode' : 'Mod Pentadbir CEU'}</span>`;
+    }
+    if (tabAgency) {
+      tabAgency.className = 'flex-1 py-2 text-xs font-semibold rounded-lg text-slate-600 hover:text-slate-900 flex items-center justify-center gap-1.5 transition-all';
+      tabAgency.innerHTML = `<span class="material-symbols-outlined text-[17px]">domain</span><span>${isEn ? 'Invited Agency Mode' : 'Mod Agensi Jemputan'}</span>`;
+    }
     
     if (usernameInput) {
-      usernameInput.placeholder = 'cth: admin_ceu';
+      usernameInput.placeholder = isEn ? 'e.g., admin_ceu' : 'cth: admin_ceu';
     }
     if (passwordInput) {
-      passwordInput.placeholder = 'Masukkan kata laluan pentadbir...';
+      passwordInput.placeholder = isEn ? 'Enter administrator password...' : 'Masukkan kata laluan pentadbir...';
     }
-    if (labelUsername) labelUsername.innerHTML = '<span>ID Pentadbir CEU</span><span class="text-[11px] text-primary font-medium">Urus Acara</span>';
-    if (subtitle) subtitle.innerText = 'Log masuk pentadbir untuk memantau papan pemuka dan mengurus takwim program.';
+    if (labelUsername) {
+      labelUsername.innerHTML = `<span>${isEn ? 'CEU Admin ID' : 'ID Pentadbir CEU'}</span><span class="text-[11px] text-primary font-medium">${isEn ? 'Manage Events' : 'Urus Acara'}</span>`;
+    }
+    if (subtitle) {
+      subtitle.innerText = isEn 
+        ? 'Administrator log in to monitor dashboard and manage event calendar.'
+        : 'Log masuk pentadbir untuk memantau papan pemuka dan mengurus takwim program.';
+    }
     if (btnSubmit) {
       btnSubmit.className = 'w-full h-12 mt-1 rounded-xl bg-gradient-to-r from-[#006194] to-[#0284c7] text-white font-bold text-xs tracking-wider uppercase shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2';
-      btnSubmit.innerHTML = '<span>LOG MASUK PENTADBIR</span><span class="material-symbols-outlined text-[18px]">arrow_forward</span>';
+      btnSubmit.innerHTML = `<span>${isEn ? 'ADMINISTRATOR LOG IN' : 'LOG MASUK PENTADBIR'}</span><span class="material-symbols-outlined text-[18px]">arrow_forward</span>`;
     }
-    if (defaultHint) defaultHint.innerText = 'Unit Pendidikan Kerjaya · JSS · MOE';
+    if (defaultHint) {
+      defaultHint.innerText = isEn ? 'Career Education Unit · JSS · MOE' : 'Unit Pendidikan Kerjaya · JSS · MOE';
+    }
   } else {
-    if (tabAgency) tabAgency.className = 'flex-1 py-2 text-xs font-bold rounded-lg bg-[#148e82] text-white shadow-sm flex items-center justify-center gap-1.5 transition-all';
-    if (tabAdmin) tabAdmin.className = 'flex-1 py-2 text-xs font-semibold rounded-lg text-slate-600 hover:text-slate-900 flex items-center justify-center gap-1.5 transition-all';
+    if (tabAgency) {
+      tabAgency.className = 'flex-1 py-2 text-xs font-bold rounded-lg bg-[#148e82] text-white shadow-sm flex items-center justify-center gap-1.5 transition-all';
+      tabAgency.innerHTML = `<span class="material-symbols-outlined text-[17px]">domain</span><span>${isEn ? 'Invited Agency Mode' : 'Mod Agensi Jemputan'}</span>`;
+    }
+    if (tabAdmin) {
+      tabAdmin.className = 'flex-1 py-2 text-xs font-semibold rounded-lg text-slate-600 hover:text-slate-900 flex items-center justify-center gap-1.5 transition-all';
+      tabAdmin.innerHTML = `<span class="material-symbols-outlined text-[17px]">shield_person</span><span>${isEn ? 'CEU Admin Mode' : 'Mod Pentadbir CEU'}</span>`;
+    }
     
     if (usernameInput) {
-      usernameInput.placeholder = 'cth: agensi_ubd';
+      usernameInput.placeholder = isEn ? 'e.g., agensi_ubd' : 'cth: agensi_ubd';
     }
     if (passwordInput) {
-      passwordInput.placeholder = 'Masukkan kata laluan rasmi...';
+      passwordInput.placeholder = isEn ? 'Enter official password...' : 'Masukkan kata laluan rasmi...';
     }
-    if (labelUsername) labelUsername.innerHTML = '<span>Nama Pengguna Agensi</span><span class="text-[11px] text-primary font-medium">ID Institusi</span>';
-    if (subtitle) subtitle.innerText = 'Log masuk agensi untuk melihat maklumat program, pelan dewan, parking &amp; pengesahan RSVP.';
+    if (labelUsername) {
+      labelUsername.innerHTML = `<span>${isEn ? 'Agency Username' : 'Nama Pengguna Agensi'}</span><span class="text-[11px] text-primary font-medium">${isEn ? 'Institution ID' : 'ID Institusi'}</span>`;
+    }
+    if (subtitle) {
+      subtitle.innerText = isEn 
+        ? 'Agency log in to view event details, floor plan, parking & RSVP confirmation.'
+        : 'Log masuk agensi untuk melihat maklumat program, pelan dewan, parking & pengesahan RSVP.';
+    }
     if (btnSubmit) {
       btnSubmit.className = 'w-full h-12 mt-1 rounded-xl bg-gradient-to-r from-tertiary-container via-tertiary to-gold-hover text-on-primary font-bold text-xs tracking-wider uppercase shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2';
-      btnSubmit.innerHTML = '<span>LOG MASUK AGENSI</span><span class="material-symbols-outlined text-[18px]">arrow_forward</span>';
+      btnSubmit.innerHTML = `<span>${isEn ? 'AGENCY LOG IN' : 'LOG MASUK AGENSI'}</span><span class="material-symbols-outlined text-[18px]">arrow_forward</span>`;
     }
-    if (defaultHint) defaultHint.innerText = 'Portal Rasmi UPK · JSS · MOE';
+    if (defaultHint) {
+      defaultHint.innerText = isEn ? 'Official Portal UPK · JSS · MOE' : 'Portal Rasmi UPK · JSS · MOE';
+    }
   }
 }
 
@@ -455,6 +489,7 @@ function setHomeDistrictFilter(dist) {
 function renderHomeScreen(populateDropdown = true) {
   const user = AppState.currentUser;
   if (!user) return;
+  const isEn = typeof I18N !== 'undefined' && I18N.currentLang === 'EN';
 
   // 1. Sapaan mengikut NAMA AGENSI (Bukan nama individu)
   const agencyNameEl = document.getElementById('homeAgencyName');
@@ -494,6 +529,14 @@ function renderHomeScreen(populateDropdown = true) {
     const isAttending = (AppState.rsvps || []).some(r => r.Event_ID === primaryEvent.Event_ID && r.Status_RSVP === 'Hadir');
     const isBelait = primaryEvent.Daerah === 'Belait';
 
+    const confirmedBadge = isEn 
+      ? '<span class="bg-emerald-100 text-emerald-800 text-[10px] font-bold px-2.5 py-1 rounded-full flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-emerald-600"></span>RSVP Confirmed</span>' 
+      : '<span class="bg-emerald-100 text-emerald-800 text-[10px] font-bold px-2.5 py-1 rounded-full flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-emerald-600"></span>RSVP Disahkan</span>';
+    
+    const neededBadge = isEn
+      ? '<span class="bg-rose-50 text-rose-600 text-[10px] font-bold px-2.5 py-1 rounded-full">Confirmation Required</span>'
+      : '<span class="bg-rose-50 text-rose-600 text-[10px] font-bold px-2.5 py-1 rounded-full">Perlu Pengesahan</span>';
+
     heroCardContainer.innerHTML = `
       <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden flex flex-col">
         <!-- Lencana Atas & Butang Simpan (Bookmark) -->
@@ -504,9 +547,9 @@ function renderHomeScreen(populateDropdown = true) {
               ${primaryEvent.Kategori_Program}
             </span>
             <span class="bg-slate-100 text-slate-700 text-[10px] font-bold px-2.5 py-1 rounded-full">
-              Daerah ${primaryEvent.Daerah}
+              ${isEn ? `${primaryEvent.Daerah} District` : `Daerah ${primaryEvent.Daerah}`}
             </span>
-            ${isAttending ? '<span class="bg-emerald-100 text-emerald-800 text-[10px] font-bold px-2.5 py-1 rounded-full flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-emerald-600"></span>RSVP Disahkan</span>' : '<span class="bg-rose-50 text-rose-600 text-[10px] font-bold px-2.5 py-1 rounded-full">Perlu Pengesahan</span>'}
+            ${isAttending ? confirmedBadge : neededBadge}
           </div>
           <span class="text-[10px] font-mono font-bold text-slate-400 bg-slate-50 px-2 py-0.5 rounded">${primaryEvent.Event_ID}</span>
         </div>
@@ -520,7 +563,7 @@ function renderHomeScreen(populateDropdown = true) {
                 <span class="material-symbols-outlined text-[14px] text-amber-400">apartment</span>
                 <span class="truncate">${primaryEvent.Tempat_Venue}</span>
               </div>
-              <span class="text-[10px] text-teal-300 font-bold shrink-0">Pintu B VIP</span>
+              <span class="text-[10px] text-teal-300 font-bold shrink-0">${isEn ? 'Gate B VIP' : 'Pintu B VIP'}</span>
             </div>
           </div>
         </div>
@@ -528,13 +571,13 @@ function renderHomeScreen(populateDropdown = true) {
         <!-- Maklumat Acara & Butang Aksi -->
         <div class="p-3.5 flex flex-col gap-2">
           <span class="text-[10px] font-bold text-[#148e82] uppercase tracking-wider">
-            JABATAN SEKOLAH-SEKOLAH • UNIT PENDIDIKAN KERJAYA
+            ${isEn ? 'DEPARTMENT OF SCHOOLS • CAREER EDUCATION UNIT' : 'JABATAN SEKOLAH-SEKOLAH • UNIT PENDIDIKAN KERJAYA'}
           </span>
           <h2 class="text-sm md:text-base font-bold text-slate-900 leading-snug">
             ${primaryEvent.Sekolah || primaryEvent.Nama_Acara}
           </h2>
           <p class="text-[11px] text-slate-500 leading-relaxed">
-            ${primaryEvent.Catatan_Khas || 'Penyelarasan garis panduan penilaian kerjaya dan persediaan meja pameran agensi.'}
+            ${primaryEvent.Catatan_Khas || (isEn ? 'Coordination of career assessment guidelines and agency exhibition booth setup.' : 'Penyelarasan garis panduan penilaian kerjaya dan persediaan meja pameran agensi.')}
           </p>
 
           <!-- Kotak Tarikh, Masa & Venue -->
@@ -542,14 +585,14 @@ function renderHomeScreen(populateDropdown = true) {
             <div class="flex items-center gap-1.5 p-2 rounded-xl bg-slate-50 border border-slate-100">
               <span class="material-symbols-outlined text-[#148e82] text-[18px]">calendar_month</span>
               <div class="flex flex-col min-w-0">
-                <span class="text-[9px] text-slate-400 font-medium">Tarikh</span>
+                <span class="text-[9px] text-slate-400 font-medium">${isEn ? 'Date' : 'Tarikh'}</span>
                 <span class="text-[11px] font-bold text-slate-800 truncate">${primaryEvent.Tarikh_Paparan || primaryEvent.Tarikh_Mula}</span>
               </div>
             </div>
             <div class="flex items-center gap-1.5 p-2 rounded-xl bg-slate-50 border border-slate-100">
               <span class="material-symbols-outlined text-[#148e82] text-[18px]">schedule</span>
               <div class="flex flex-col min-w-0">
-                <span class="text-[9px] text-slate-400 font-medium">Masa Sesi</span>
+                <span class="text-[9px] text-slate-400 font-medium">${isEn ? 'Session Time' : 'Masa Sesi'}</span>
                 <span class="text-[11px] font-bold ${isBelait ? 'text-amber-800' : 'text-slate-800'} truncate">${primaryEvent.Masa}</span>
               </div>
             </div>
@@ -559,7 +602,7 @@ function renderHomeScreen(populateDropdown = true) {
           <div class="flex items-center gap-2 pt-2 flex-wrap">
             <button onclick="navigateTo('rsvpForm', '${primaryEvent.Event_ID}')" class="flex-1 h-11 bg-gradient-to-r from-[#f59e0b] to-[#d97706] hover:from-[#d97706] hover:to-[#b45309] text-white font-bold text-xs rounded-xl shadow-md hover:shadow-lg flex items-center justify-center gap-1.5 transition-all">
               <span class="material-symbols-outlined text-[18px]">how_to_reg</span>
-              <span>${isAttending ? 'Kemaskini RSVP Sesi Ini' : 'Sahkan Kehadiran (RSVP)'}</span>
+              <span>${isAttending ? (isEn ? 'Update RSVP for this Session' : 'Kemaskini RSVP Sesi Ini') : (isEn ? 'Confirm Attendance (RSVP)' : 'Sahkan Kehadiran (RSVP)')}</span>
             </button>
             <button onclick="openDocumentGeneratorModal()" class="w-11 h-11 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 flex items-center justify-center transition-colors shadow-sm shrink-0" title="Muat Turun Surat Rasmi Ber-QR">
               <span class="material-symbols-outlined text-[20px]">description</span>
@@ -619,11 +662,14 @@ function setHomeCalendarMonth(monthStr) {
 }
 
 function renderEventCardHtml(ev) {
+  const isEn = typeof I18N !== 'undefined' && I18N.currentLang === 'EN';
   const isCurrentActive = AppState.activeEvent && AppState.activeEvent.Event_ID === ev.Event_ID;
   const isAttending = (AppState.rsvps || []).some(r => r.Event_ID === ev.Event_ID && r.Status_RSVP === 'Hadir');
   const isBelait = ev.Daerah === 'Belait';
   const monthCode = (ev.Tarikh_Mula || '').slice(5, 7);
-  const monthNames = { '01': 'JAN', '02': 'FEB', '03': 'MAC', '04': 'APR', '05': 'MEI', '06': 'JUN', '07': 'JUL' };
+  const monthNames = isEn 
+    ? { '01': 'JAN', '02': 'FEB', '03': 'MAR', '04': 'APR', '05': 'MAY', '06': 'JUN', '07': 'JUL' }
+    : { '01': 'JAN', '02': 'FEB', '03': 'MAC', '04': 'APR', '05': 'MEI', '06': 'JUN', '07': 'JUL' };
 
   return `
     <div class="bg-white p-3.5 rounded-2xl border ${isCurrentActive ? 'border-[#148e82] ring-2 ring-[#148e82]/20' : 'border-slate-200/80'} shadow-sm hover:border-slate-300 transition-all flex flex-col md:flex-row md:items-center justify-between gap-3">
@@ -635,8 +681,8 @@ function renderEventCardHtml(ev) {
         <div class="flex flex-col min-w-0">
           <div class="flex items-center gap-1.5 flex-wrap">
             <span class="text-[10px] font-bold px-2 py-0.5 rounded-full ${ev.Kategori_Program === 'Program FutureLink' ? 'bg-amber-100 text-amber-800' : 'bg-teal-100 text-teal-800'}">${ev.Kategori_Program}</span>
-            <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-slate-100 text-slate-700">Daerah ${ev.Daerah}</span>
-            ${isAttending ? '<span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-emerald-600"></span>RSVP Hadir</span>' : ''}
+            <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-slate-100 text-slate-700">${isEn ? `${ev.Daerah} District` : `Daerah ${ev.Daerah}`}</span>
+            ${isAttending ? `<span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-emerald-600"></span>${isEn ? 'Attending' : 'RSVP Hadir'}</span>` : ''}
           </div>
           <h4 class="text-xs md:text-sm font-bold text-slate-900 mt-1 leading-snug truncate">${ev.Sekolah || ev.Nama_Acara}</h4>
           <div class="flex items-center gap-2 text-[11px] text-slate-500 mt-0.5 flex-wrap">
@@ -653,11 +699,11 @@ function renderEventCardHtml(ev) {
       <div class="flex items-center gap-2 shrink-0 pt-2 md:pt-0 border-t md:border-t-0 border-slate-100 flex-wrap">
         <button onclick="selectActiveEvent('${ev.Event_ID}'); window.scrollTo({top: 0, behavior: 'smooth'});" class="px-3 py-1.5 rounded-xl border border-slate-200 text-slate-700 font-bold text-xs hover:bg-slate-50 transition-all flex items-center gap-1">
           <span class="material-symbols-outlined text-[15px]">visibility</span>
-          <span>Pilih</span>
+          <span>${isEn ? 'Select' : 'Pilih'}</span>
         </button>
         <button onclick="navigateTo('rsvpForm', '${ev.Event_ID}')" class="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-[#f59e0b] to-[#d97706] text-white font-bold text-xs shadow-sm hover:shadow transition-all flex items-center gap-1">
           <span class="material-symbols-outlined text-[15px]">how_to_reg</span>
-          <span>${isAttending ? 'Kemaskini' : 'RSVP Sesi Ini'}</span>
+          <span>${isAttending ? (isEn ? 'Update' : 'Kemaskini') : (isEn ? 'RSVP Now' : 'RSVP Sesi Ini')}</span>
         </button>
         ${isAttending ? `
           <button onclick="shareRsvpWhatsApp('${ev.Event_ID}')" class="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-700 hover:bg-emerald-100 flex items-center justify-center transition-all shadow-sm" title="Kongsi RSVP ke WhatsApp">
@@ -672,6 +718,7 @@ function renderEventCardHtml(ev) {
 function renderHomeScheduleList() {
   const container = document.getElementById('homeScheduleListContainer');
   if (!container) return;
+  const isEn = typeof I18N !== 'undefined' && I18N.currentLang === 'EN';
 
   const searchInput = document.getElementById('homeScheduleSearch');
   const query = searchInput ? searchInput.value.toLowerCase().trim() : '';
@@ -704,7 +751,7 @@ function renderHomeScheduleList() {
     container.innerHTML = `
       <div class="bg-white p-6 rounded-2xl border border-slate-200/80 text-center text-slate-400">
         <span class="material-symbols-outlined text-[32px] block mb-1">event_busy</span>
-        <p class="text-xs">Tiada sesi sekolah ditemui padanan tapisan ini.</p>
+        <p class="text-xs">${isEn ? 'No school sessions found matching this filter.' : 'Tiada sesi sekolah ditemui padanan tapisan ini.'}</p>
       </div>
     `;
     return;
@@ -712,7 +759,14 @@ function renderHomeScheduleList() {
 
   // 1. PAPARAN BULANAN (MONTHLY VIEW)
   if (homeCalendarView === 'MONTHLY') {
-    const monthMap = [
+    const monthMap = isEn ? [
+      { code: '01', name: 'January 2027' },
+      { code: '02', name: 'February 2027' },
+      { code: '03', name: 'March 2027' },
+      { code: '04', name: 'April 2027' },
+      { code: '06', name: 'June 2027' },
+      { code: '07', name: 'July 2027' }
+    ] : [
       { code: '01', name: 'Januari 2027' },
       { code: '02', name: 'Februari 2027' },
       { code: '03', name: 'Mac 2027' },
@@ -732,7 +786,7 @@ function renderHomeScheduleList() {
                 <span class="material-symbols-outlined text-[18px] text-[#148e82]">calendar_month</span>
                 <span class="text-xs font-bold text-slate-800 uppercase tracking-wide">${m.name}</span>
               </div>
-              <span class="text-[10px] font-bold bg-white text-slate-700 px-2.5 py-0.5 rounded-full shadow-xs border border-slate-200/50">${monthEvents.length} Sesi Sekolah</span>
+              <span class="text-[10px] font-bold bg-white text-slate-700 px-2.5 py-0.5 rounded-full shadow-xs border border-slate-200/50">${monthEvents.length} ${isEn ? 'School Sessions' : 'Sesi Sekolah'}</span>
             </div>
             <div class="flex flex-col gap-2">
               ${monthEvents.map(renderEventCardHtml).join('')}
@@ -741,16 +795,16 @@ function renderHomeScheduleList() {
         `;
       }
     });
-    container.innerHTML = html || `<div class="bg-white p-6 rounded-2xl border border-slate-200 text-center text-slate-400"><p class="text-xs">Tiada sesi untuk bulan ini.</p></div>`;
+    container.innerHTML = html || `<div class="bg-white p-6 rounded-2xl border border-slate-200 text-center text-slate-400"><p class="text-xs">${isEn ? 'No sessions for this month.' : 'Tiada sesi untuk bulan ini.'}</p></div>`;
     return;
   }
 
   // 2. PAPARAN MINGGUAN (WEEKLY VIEW)
   if (homeCalendarView === 'WEEKLY') {
     const getWeekKey = (dateStr) => {
-      if (!dateStr) return 'Lain-lain';
+      if (!dateStr) return isEn ? 'Other' : 'Lain-lain';
       const parts = dateStr.split('-');
-      if (parts.length < 3) return 'Lain-lain';
+      if (parts.length < 3) return isEn ? 'Other' : 'Lain-lain';
       const year = parseInt(parts[0], 10);
       const month = parseInt(parts[1], 10) - 1;
       const day = parseInt(parts[2], 10);
@@ -781,9 +835,9 @@ function renderHomeScheduleList() {
           <div class="flex items-center justify-between bg-teal-50/90 px-3.5 py-2 rounded-xl border border-teal-100 shadow-xs">
             <div class="flex items-center gap-2">
               <span class="material-symbols-outlined text-[18px] text-[#148e82]">date_range</span>
-              <span class="text-xs font-bold text-teal-950 uppercase tracking-wide">Minggu ${weekIndex} (${wKey})</span>
+              <span class="text-xs font-bold text-teal-950 uppercase tracking-wide">${isEn ? `Week ${weekIndex}` : `Minggu ${weekIndex}`} (${wKey})</span>
             </div>
-            <span class="text-[10px] font-bold bg-[#148e82] text-white px-2.5 py-0.5 rounded-full shadow-xs">${wEvents.length} Sesi Sekolah</span>
+            <span class="text-[10px] font-bold bg-[#148e82] text-white px-2.5 py-0.5 rounded-full shadow-xs">${wEvents.length} ${isEn ? 'School Sessions' : 'Sesi Sekolah'}</span>
           </div>
           <div class="flex flex-col gap-2">
             ${wEvents.map(renderEventCardHtml).join('')}
@@ -841,6 +895,7 @@ function switchRsvpSession(eventId, updateDropdown = true) {
     if (rsvpSelector) rsvpSelector.value = ev.Event_ID;
   }
 
+  const isEn = typeof I18N !== 'undefined' && I18N.currentLang === 'EN';
   const catEl = document.getElementById('rsvpSelectedEventCategory');
   const distEl = document.getElementById('rsvpSelectedEventDistrict');
   const nameEl = document.getElementById('rsvpFormEventName');
@@ -849,7 +904,7 @@ function switchRsvpSession(eventId, updateDropdown = true) {
   const venueEl = document.getElementById('rsvpSelectedEventVenue');
 
   if (catEl) catEl.innerText = ev.Kategori_Program;
-  if (distEl) distEl.innerText = 'Daerah ' + ev.Daerah;
+  if (distEl) distEl.innerText = isEn ? `${ev.Daerah} District` : 'Daerah ' + ev.Daerah;
   if (nameEl) nameEl.innerText = ev.Sekolah || ev.Nama_Acara;
   if (dateEl) dateEl.innerText = '📅 ' + (ev.Tarikh_Paparan || ev.Tarikh_Mula);
   if (timeEl) timeEl.innerText = '🕒 ' + ev.Masa;
@@ -892,12 +947,18 @@ function renderRsvpFormScreen(eventId) {
   }
   const ev = AppState.activeEvent || getFallbackEvents()[0];
   AppState.activeEvent = ev;
+  const isEn = typeof I18N !== 'undefined' && I18N.currentLang === 'EN';
 
   const user = AppState.currentUser;
   const agencyBadge = document.getElementById('rsvpFormAgencyBadge');
   if (agencyBadge && user) agencyBadge.innerText = user.namaAgensi || 'Universiti Brunei Darussalam';
 
-  // Isikan dropdown pemilih 32 sesi
+  const onBehalfLabel = document.querySelector('#screen_rsvpForm .text-ocean-wash');
+  if (onBehalfLabel) {
+    onBehalfLabel.innerText = isEn ? 'Official Request on behalf of:' : 'Permohonan Rasmi bagi pihak:';
+  }
+
+  // Isikan dropdown pemilih 31 sesi
   const rsvpSelector = document.getElementById('rsvpSessionSelector');
   if (rsvpSelector) {
     rsvpSelector.innerHTML = (AppState.events || []).map(e => {
@@ -1103,6 +1164,7 @@ async function renderAdminDashboard() {
 function renderAdminAgenciesTable() {
   const container = document.getElementById('adminAgenciesTableBody');
   if (!container) return;
+  const isEn = typeof I18N !== 'undefined' && I18N.currentLang === 'EN';
 
   const searchInput = document.getElementById('adminAgencySearchInput');
   const query = searchInput ? searchInput.value.toLowerCase().trim() : '';
@@ -1131,7 +1193,7 @@ function renderAdminAgenciesTable() {
       <tr>
         <td colspan="8" class="p-8 text-center text-slate-400">
           <span class="material-symbols-outlined text-[32px] block mb-1">search_off</span>
-          Tiada agensi ditemui padanan tapisan ini.
+          ${isEn ? 'No agencies found matching this filter.' : 'Tiada agensi ditemui padanan tapisan ini.'}
         </td>
       </tr>
     `;
@@ -1143,14 +1205,14 @@ function renderAdminAgenciesTable() {
     const isTidakHadir = a.statusRsvp === 'Tidak Hadir';
     
     let badgeClass = 'bg-amber-100 text-amber-800 border border-amber-200';
-    let statusLabel = 'Belum Sah';
+    let statusLabel = isEn ? 'Pending' : 'Belum Sah';
 
     if (isHadir) {
       badgeClass = 'bg-emerald-100 text-emerald-800 border border-emerald-200';
-      statusLabel = 'Hadir';
+      statusLabel = isEn ? 'Attending' : 'Hadir';
     } else if (isTidakHadir) {
       badgeClass = 'bg-rose-100 text-rose-800 border border-rose-200';
-      statusLabel = 'Tidak Hadir';
+      statusLabel = isEn ? 'Not Attending' : 'Tidak Hadir';
     }
 
     return `
@@ -1160,7 +1222,7 @@ function renderAdminAgenciesTable() {
         <td class="p-3">
           <div class="flex flex-col">
             <span class="font-bold text-slate-900 leading-tight">${a.namaAgensi}</span>
-            <span class="text-[10px] text-slate-400 font-mono mt-0.5">${a.user} • ${a.kategori || 'Agensi Rasmi'}</span>
+            <span class="text-[10px] text-slate-400 font-mono mt-0.5">${a.user} • ${a.kategori || (isEn ? 'Official Agency' : 'Agensi Rasmi')}</span>
           </div>
         </td>
         <td class="p-3">
@@ -1170,30 +1232,30 @@ function renderAdminAgenciesTable() {
           </span>
         </td>
         <td class="p-3 text-center font-semibold text-slate-700">
-          ${isHadir ? (a.bilMeja + ' M / ' + a.bilKerusi + ' K') : '-'}
+          ${isHadir ? (a.bilMeja + (isEn ? ' T / ' : ' M / ') + a.bilKerusi + (isEn ? ' C' : ' K')) : '-'}
         </td>
         <td class="p-3 text-center">
           ${isHadir && a.bilPlug > 0 
-            ? '<span class="inline-flex items-center gap-0.5 text-emerald-700 font-bold bg-emerald-50 px-2 py-0.5 rounded-full text-[10px]"><span class="material-symbols-outlined text-[13px]">bolt</span>' + a.bilPlug + ' Soket</span>'
+            ? '<span class="inline-flex items-center gap-0.5 text-emerald-700 font-bold bg-emerald-50 px-2 py-0.5 rounded-full text-[10px]"><span class="material-symbols-outlined text-[13px]">bolt</span>' + a.bilPlug + (isEn ? ' Sockets' : ' Soket') + '</span>'
             : '<span class="text-slate-300">-</span>'}
         </td>
         <td class="p-3">
           <span class="inline-flex items-center gap-1 font-mono text-[11px] font-bold text-slate-700 bg-slate-100 px-2.5 py-1 rounded-lg border border-slate-200/60">
             <span class="material-symbols-outlined text-[13px] text-amber-600">directions_car</span>
-            ${a.noPlatKereta || 'VIP Pintu B'}
+            ${a.noPlatKereta || (isEn ? 'VIP Gate B' : 'VIP Pintu B')}
           </span>
         </td>
         <td class="p-3 text-right">
           <div class="flex items-center justify-end gap-1.5">
-            <button onclick="adminSendAgencyWhatsApp('${a.kod}')" class="px-2 py-1 text-[11px] bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-bold rounded-lg transition-colors flex items-center gap-1" title="Hantar Peringatan WhatsApp">
+            <button onclick="adminSendAgencyWhatsApp('${a.kod}')" class="px-2 py-1 text-[11px] bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-bold rounded-lg transition-colors flex items-center gap-1" title="${isEn ? 'Send WhatsApp Reminder' : 'Hantar Peringatan WhatsApp'}">
               <span class="material-symbols-outlined text-[14px]">chat</span>
               <span>WA</span>
             </button>
-            <button onclick="openDocumentGeneratorModal('${a.kod}')" class="px-2.5 py-1 text-[11px] bg-teal-50 hover:bg-teal-100 text-teal-800 font-bold rounded-lg transition-colors flex items-center gap-1" title="Surat Perakuan Rasmi">
+            <button onclick="openDocumentGeneratorModal('${a.kod}')" class="px-2.5 py-1 text-[11px] bg-teal-50 hover:bg-teal-100 text-teal-800 font-bold rounded-lg transition-colors flex items-center gap-1" title="${isEn ? 'Official Logistics Letter' : 'Surat Perakuan Rasmi'}">
               <span class="material-symbols-outlined text-[14px]">description</span>
-              <span>Surat</span>
+              <span>${isEn ? 'Letter' : 'Surat'}</span>
             </button>
-            <button onclick="handleAdminResetAgencyPassword('${a.kod}')" class="px-2 py-1 text-[11px] bg-slate-100 hover:bg-amber-100 hover:text-amber-800 text-slate-600 font-semibold rounded-lg transition-colors" title="Reset Kata Laluan">
+            <button onclick="handleAdminResetAgencyPassword('${a.kod}')" class="px-2 py-1 text-[11px] bg-slate-100 hover:bg-amber-100 hover:text-amber-800 text-slate-600 font-semibold rounded-lg transition-colors" title="${isEn ? 'Reset Password' : 'Reset Kata Laluan'}">
               <span>Reset</span>
             </button>
           </div>
@@ -1427,50 +1489,51 @@ function openMapModal(type) {
   const area = document.getElementById('mapModalContentArea');
   if (!modal || !area) return;
 
+  const isEn = typeof I18N !== 'undefined' && I18N.currentLang === 'EN';
   const ev = AppState.activeEvent || getFallbackEvents()[0];
 
   if (type === 'floorPlan') {
     if (icon) icon.innerText = 'view_quilt';
-    if (title) title.innerText = 'Pelan Dewan Sekolah (Susunan Meja Agensi)';
+    if (title) title.innerText = isEn ? 'School Hall Floor Plan (Booth Layout)' : 'Pelan Dewan Sekolah (Susunan Meja Agensi)';
     area.innerHTML = `
       <div class="flex flex-col gap-3">
         <div class="p-3 bg-teal-50 rounded-xl border border-teal-100 text-xs text-teal-900 flex items-center gap-2">
           <span class="material-symbols-outlined text-teal-700">info</span>
-          <span>Setiap agensi diperuntukkan 1 meja pameran &amp; 2 kerusi. Soket elektrik disediakan atas permohonan rasmi.</span>
+          <span>${isEn ? 'Each agency is allocated 1 exhibition table & 2 chairs. Power sockets are available upon request.' : 'Setiap agensi diperuntukkan 1 meja pameran &amp; 2 kerusi. Soket elektrik disediakan atas permohonan rasmi.'}</span>
         </div>
         <div class="rounded-xl overflow-hidden border border-slate-200 bg-slate-100 p-2 text-center">
           <img src="${ev.Pelan_Sekolah_URL || 'https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=600&q=80'}" class="w-full max-h-64 object-cover rounded-lg shadow-sm mx-auto" alt="Pelan Dewan" />
-          <p class="text-[10px] text-slate-500 mt-2 font-mono">Pelan Susun Atur Meja Pameran Agensi • ${ev.Tempat_Venue}</p>
+          <p class="text-[10px] text-slate-500 mt-2 font-mono">${isEn ? 'Agency Exhibition Booth Layout • ' : 'Pelan Susun Atur Meja Pameran Agensi • '}${ev.Tempat_Venue}</p>
         </div>
         <div class="grid grid-cols-2 gap-2 text-xs">
           <div class="p-2.5 rounded-lg bg-slate-50 border border-slate-100">
-            <span class="text-[10px] text-slate-400 block uppercase">Waktu Masuk Booth</span>
-            <span class="font-bold text-slate-800">07:00 Pagi</span>
+            <span class="text-[10px] text-slate-400 block uppercase">${isEn ? 'Booth Entry Time' : 'Waktu Masuk Booth'}</span>
+            <span class="font-bold text-slate-800">${isEn ? '07:00 AM' : '07:00 Pagi'}</span>
           </div>
           <div class="p-2.5 rounded-lg bg-slate-50 border border-slate-100">
-            <span class="text-[10px] text-slate-400 block uppercase">Pintu Masuk Agensi</span>
-            <span class="font-bold text-slate-800">Pintu Sisi Kanan (Foyer)</span>
+            <span class="text-[10px] text-slate-400 block uppercase">${isEn ? 'Agency Entry Gate' : 'Pintu Masuk Agensi'}</span>
+            <span class="font-bold text-slate-800">${isEn ? 'Right Side Door (Foyer)' : 'Pintu Sisi Kanan (Foyer)'}</span>
           </div>
         </div>
       </div>
     `;
   } else {
     if (icon) icon.innerText = 'directions_car';
-    if (title) title.innerText = 'Peta & Lokasi Parking Agensi (Pintu Pagar B)';
+    if (title) title.innerText = isEn ? 'Agency Parking Guide & Map (Gate B)' : 'Peta & Lokasi Parking Agensi (Pintu Pagar B)';
     area.innerHTML = `
       <div class="flex flex-col gap-3">
         <div class="p-3 bg-amber-50 rounded-xl border border-amber-100 text-xs text-amber-900 flex items-center gap-2">
           <span class="material-symbols-outlined text-amber-700">security</span>
-          <span>Pas masuk VIP Pintu Pagar B adalah terhad kepada kenderaan rasmi agensi yang berdaftar.</span>
+          <span>${isEn ? 'Gate B VIP entry pass is restricted to registered official agency vehicles.' : 'Pas masuk VIP Pintu Pagar B adalah terhad kepada kenderaan rasmi agensi yang berdaftar.'}</span>
         </div>
         <div class="rounded-xl overflow-hidden border border-slate-200 bg-slate-100 p-2 text-center">
           <img src="${ev.Pelan_Parking_URL || 'https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=600&q=80'}" class="w-full max-h-64 object-cover rounded-lg shadow-sm mx-auto" alt="Peta Parking" />
-          <p class="text-[10px] text-slate-500 mt-2 font-mono">${ev.Panduan_Parking || 'Sila masuk melalui Pintu Pagar B (Blok C VIP)'}</p>
+          <p class="text-[10px] text-slate-500 mt-2 font-mono">${ev.Panduan_Parking || (isEn ? 'Please enter via Gate B (Block C VIP)' : 'Sila masuk melalui Pintu Pagar B (Blok C VIP)')}</p>
         </div>
         <div class="flex flex-col gap-2">
           <a href="${ev.Pautan_GPS_Maps || 'https://maps.google.com/?q=Brunei'}" target="_blank" class="w-full py-2.5 bg-[#006194] hover:bg-[#004b73] text-white font-bold rounded-xl text-xs flex items-center justify-center gap-2 shadow-sm transition-all">
             <span class="material-symbols-outlined text-[18px]">near_me</span>
-            <span>Buka Navigasi Google Maps (Pintu Pagar B)</span>
+            <span>${isEn ? 'Open Google Maps Navigation (Gate B)' : 'Buka Navigasi Google Maps (Pintu Pagar B)'}</span>
           </a>
         </div>
       </div>

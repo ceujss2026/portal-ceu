@@ -1,7 +1,7 @@
 /**
  * ============================================================================
  * MODUL DWIBAHASA (js/i18n.js)
- * Sokongan Bahasa Melayu Brunei Standard (BM) & English (EN)
+ * Sokongan Penuh Bahasa Melayu Brunei Standard (BM) & English (EN)
  * Penukaran Serta-Merta di Sisi Klien Tanpa Muat Semula Halaman (Zero Reload)
  * ============================================================================
  */
@@ -13,158 +13,369 @@ const I18N = {
     BM: {
       appName: 'PORTAL CEU',
       appSubtext: 'UPK · JSS · MOE',
+      ministryEmblem: 'KEMENTERIAN PENDIDIKAN',
+      ministryTitle: 'Kementerian Pendidikan, Negara Brunei Darussalam · v2.1.0',
+      systemTitle: 'Unit Pendidikan Kerjaya • Jabatan Sekolah-Sekolah',
+      systemCountry: 'Negara Brunei Darussalam',
+      systemSubtitle: 'Sistem Pengurusan Acara Hala Tuju & FutureLink 2026',
+      
+      // Login
+      loginAgencyAccess: 'AKSES AGENSI JEMPUTAN RASMI',
+      loginAdminAccess: 'AKSES PENTADBIR CEU',
+      tabModeAgency: 'Mod Agensi Jemputan',
+      tabModeAdmin: 'Mod Pentadbir CEU',
       loginTitle: 'Selamat Datang',
-      loginSubtitle: 'Sila log masuk menggunakan akaun agensi anda',
-      usernameLabel: 'Nama Pengguna Agensi',
-      usernamePlaceholder: 'cth: agensi_ubd atau admin_ceu',
-      passwordLabel: 'Kata Laluan',
-      passwordPlaceholder: '••••••••',
-      forgotPasswordLink: 'Perlu Bantuan Kredensial? Hubungi Unit CEU',
-      loginBtn: 'LOG MASUK SISTEM',
+      loginSubtitleAgency: 'Log masuk agensi untuk melihat maklumat program, pelan dewan, parking & pengesahan RSVP.',
+      loginSubtitleAdmin: 'Log masuk pentadbir untuk memantau papan pemuka dan mengurus takwim program.',
+      labelAgencyUsername: 'Nama Pengguna Agensi',
+      sublabelAgencyUsername: 'ID Institusi',
+      placeholderAgencyUsername: 'cth: agensi_ubd',
+      labelAdminUsername: 'ID Pentadbir CEU',
+      sublabelAdminUsername: 'Urus Acara',
+      placeholderAdminUsername: 'cth: admin_ceu',
+      labelPassword: 'Kata Laluan Rasmi',
+      sublabelPassword: 'Kredensial',
+      placeholderPassword: 'Masukkan kata laluan rasmi...',
+      hintOfficial: 'Portal Rasmi UPK · JSS · MOE',
+      hintAdmin: 'Unit Pendidikan Kerjaya · JSS · MOE',
+      helpCredentials: 'Bantuan Kredensial?',
+      btnLoginAgency: 'LOG MASUK AGENSI',
+      btnLoginAdmin: 'LOG MASUK PENTADBIR',
       loggingIn: 'Mengesahkan Kredensial...',
-      footerMinistry: 'Kementerian Pendidikan, Negara Brunei Darussalam · v2.1.0',
-      welcomeAgency: 'Selamat Datang · Agensi Jemputan Rasmi',
-      belaitZone: 'Zon Belait',
-      metricProgramMonth: 'Program Mac',
-      metricCompleted: 'Selesai Hadir',
-      metricPendingRsvp: 'Perlu RSVP',
-      btnShortcutFloorPlan: 'Pelan Dewan & Meja',
-      subShortcutFloorPlan: 'Lihat susun atur booth',
-      btnShortcutParking: 'Lokasi Parking Agensi',
-      subShortcutParking: 'Pintu Pagar B & Laluan Masuk',
-      badgeMandatory: 'MANDATORI HADIR',
-      badgeDeadline: 'Tamat: 12 Mac 2026',
-      btnConfirmRSVP: 'Sahkan Kehadiran (RSVP)',
-      btnDownloadPass: 'Muat Turun Pas',
-      upcomingEvents: 'Program Akan Datang',
-      viewAll: 'Lihat Semua >',
-      navHome: 'Utama',
-      navRsvp: 'RSVP',
-      navArchive: 'Arkib',
-      navNotif: 'Notifikasi',
-      navProfile: 'Profil',
-      navAdmin: 'Pentadbir',
+
+      // Desktop Left Features
+      featureRsvp: 'Pengesahan Delegasi & Kehadiran (RSVP)',
+      featureTables: 'Tempahan Meja Dewan & Soket Elektrik',
+      featureParking: 'Tempat Letak Kereta Khusus Pintu Pagar B',
+      featureLetters: 'Surat Jemputan Rasmi Ber-QR Keselamatan',
+
+      // Navbar
+      navProgramInfo: 'Info Program',
+      navRsvpForm: 'Borang RSVP',
+      navAdminDashboard: 'Papan Pemuka',
+      navAdminEvents: 'Urus Program & Peta',
+      navSignOut: 'Keluar',
+      navRoleAgency: 'Agensi Jemputan',
+      navRoleAdmin: 'Pentadbir CEU',
+      modeBadgeAgency: 'MOD AGENSI',
+      modeBadgeAdmin: 'MOD PENTADBIR',
+
+      // Home Screen - Hero & Metrics
+      welcomeAgencyHeader: 'SELAMAT DATANG • AGENSI JEMPUTAN',
+      welcomeBrunei: 'Negara Brunei Darussalam',
+      welcomeDesc: 'Sesi Penyelarasan Takwim & Logistik Program Hala Tuju & FutureLink.',
+      metricMonth: 'Program Mac 2026',
+      metricAttended: 'Selesai Hadir',
+      metricPendingRsvp: 'Perlu Tindakan RSVP',
+      
+      // Shortcuts & Selector
+      selectSessionLabel: 'Pilih Sesi Sekolah / Program (31 Sesi)',
+      tagOfficial2027: 'Takwim Rasmi 2027',
+      shortcutFloorPlan: 'Pelan Dewan',
+      shortcutFloorPlanSub: 'Susun atur meja pameran & dewan',
+      shortcutParking: 'Peta Parking',
+      shortcutParkingSub: 'Pintu Pagar B (Khusus Agensi)',
+      
+      // Filters
+      filterAll: 'Semua',
+      filterAllCount: 'Semua (31)',
+      filterPhtCount: 'Hala Tuju (27)',
+      filterFlCount: 'FutureLink (4)',
+      filterDistAll: 'Semua Daerah',
+      filterDistBM: 'Brunei Muara (21)',
+      filterDistTutong: 'Tutong (6)',
+      filterDistBelait: 'Belait (3)',
+      filterDistTemburong: 'Temburong (1)',
+
+      // Hero Card
+      heroMinistryUnit: 'JABATAN SEKOLAH-SEKOLAH • UNIT PENDIDIKAN KERJAYA',
+      heroGateB: 'Pintu B VIP',
+      heroDate: 'Tarikh',
+      heroTime: 'Masa Sesi',
+      heroBtnUpdate: 'Kemaskini RSVP Sesi Ini',
+      heroBtnConfirm: 'Sahkan Kehadiran (RSVP)',
+      rsvpConfirmed: 'RSVP Disahkan',
+      rsvpNeeded: 'Perlu Pengesahan',
+
+      // Takwim Schedule
+      scheduleHeader: 'Jadual Takwim 31 Sesi Sekolah (2027)',
+      viewAll: 'Semua',
+      viewMonthly: 'Bulanan',
+      viewWeekly: 'Mingguan',
+      allMonths: 'Semua Bulan',
+      searchPlaceholder: 'Cari sekolah, venue, tarikh...',
+      btnSelect: 'Pilih',
+      btnUpdate: 'Kemaskini',
+      btnRsvpSession: 'RSVP Sesi Ini',
+      districtPrefix: 'Daerah ',
+      schoolSessionsSuffix: 'Sesi Sekolah',
+
+      // Right Sidebar Cards
+      cardActionRequired: 'Tindakan Diperlukan',
+      cardActionTitle: 'Pengesahan RSVP Sesi Takwim',
+      cardActionDesc: 'Sila sahkan kehadiran & butiran delegasi agensi bagi penyediaan pelekat meja pameran & pas masuk kenderaan Pintu Pagar B.',
+      cardActionBtn: 'Isi Borang RSVP Sesi Terpilih',
+      cardAmenitiesHeader: 'Kemudahan Disediakan',
+      amenityTable: '1 Meja Pameran standard (beralas)',
+      amenityChairs: '2 Kerusi pegawai pempamer agensi',
+      amenityPlug: '1 Soket plug elektrik (atas permintaan)',
+      amenityParking: '1 Petak letak kereta VIP (Pintu Pagar B)',
+      amenityFloorPlanLink: 'Pelan Meja Booth →',
+      amenityParkingLink: 'Peta Parking Pintu B →',
+      cardHelpTitle: 'Ada Kekangan Kehadiran?',
+      cardHelpSub: 'Hubungi Urus Setia UPK',
+      cardHelpPhone: 'Talian CEU:',
+      cardHelpEmail: 'Emel Rasmi:',
+      cardHelpBtn: 'Borang RSVP & Lantik Wakil',
+
+      // RSVP Form Screen
       rsvpFormTitle: 'Pengesahan RSVP & Permohonan Logistik',
-      rsvpStatusLabel: 'Status Kehadiran Agensi *',
-      statusAttending: 'Hadir (Attending)',
-      statusNotAttending: 'Tidak Hadir (Not Attending)',
-      statusRepresentative: 'Lantik Wakil Rasmi (Appoint Representative)',
-      logisticsHeader: 'Keperluan Logistik Dewan Sekolah',
-      logisticsSubtext: 'Pihak penganjur akan menyediakan kelengkapan berikut di dewan:',
-      labelTables: 'Bilangan Meja (Tables)',
-      labelChairs: 'Bilangan Kerusi (Chairs)',
-      labelPlugs: 'Penyambung Elektrik (Extension Plugs)',
-      labelStaffCount: 'Jumlah Wakil Agensi Yang Hadir (Staff)',
-      labelStaffNames: 'Nama Pegawai Bertugas',
-      labelCustomRequests: 'Keperluan Logistik Khas / Catatan Tambahan',
-      checkboxDeclaration: 'Pihak agensi mengesahkan maklumat permohonan logistik ini adalah muktamad.',
+      rsvpOfficialOnBehalf: 'Permohonan Rasmi bagi pihak:',
+      rsvpSessionSelectLabel: 'Pilih Sesi Sekolah / Program *',
+      rsvp31SessionsBadge: '31 Sesi Takwim',
+      rsvpStatusHeader: 'Status Kehadiran Agensi *',
+      rsvpAttending: 'Hadir (Attending)',
+      rsvpAttendingSub: 'Menyertai Pameran Booth',
+      rsvpNotAttending: 'Tidak Hadir (Not Attending)',
+      rsvpNotAttendingSub: 'Kekangan jadual',
+      rsvpRep: 'Lantik Wakil Rasmi',
+      rsvpRepSub: 'Wakil menggantikan',
+      rsvpLogisticsTitle: 'Keperluan Logistik Dewan Sekolah',
+      rsvpLogisticsSub: 'Pihak penganjur akan menyediakan kelengkapan berikut di dewan:',
+      labelTables: 'Bilangan Meja',
+      labelChairs: 'Bilangan Kerusi',
+      labelPlugs: 'Penyambung Elektrik (Plug)',
+      labelStaffCount: 'Jumlah Wakil Hadir',
+      labelStaffNames: 'Nama Pegawai Bertugas (Pilihan)',
+      placeholderStaffNames: 'cth: 1. Awang Mohd Azmi, 2. Dayang Hjh Siti...',
+      labelCarPlate: 'No. Plat Kenderaan Rasmi (Pas Pintu Pagar B)',
+      badgeVipCar: '1 Petak VIP',
+      hintCarPlate: 'Nombor ini akan dipaparkan pada pas masuk keselamatan pengawal sekolah Pintu Pagar B.',
+      labelAdditionalNotes: 'Keperluan Logistik Tambahan (Pilihan)',
+      placeholderAdditionalNotes: 'cth: Perlukan ruang tambahan untuk bunting berdiri...',
+      declarationText: 'Pihak agensi mengesahkan maklumat permohonan logistik ini adalah muktamad.',
       btnCancel: 'Batal',
       btnSubmitRsvp: 'Hantar Pengesahan (Submit RSVP)',
-      submitting: 'Menghantar...',
-      parkingTitle: 'Panduan & Lokasi Parking Agensi',
-      parkingGateGuide: 'Laluan Masuk: Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi & VIP).',
-      parkingTimeGuide: 'Waktu Pelepasan: Kawasan letak kereta dibuka mulai 06:45 pagi bagi urusan persediaan booth.',
-      parkingPassHeader: 'PAS MASUK KENDERAAN AGENSI JEMPUTAN',
-      btnGpsNavigation: 'Pandu Arah GPS ke Tempat Letak Kereta Agensi',
-      floorPlanTitle: 'Pelan Susun Atur Dewan & Meja Pameran',
-      btnZoomFloorPlan: 'Besarkan Pelan Dewan (Fullscreen / Pinch-to-Zoom)',
-      btnGpsVenue: 'Buka Peta GPS Dewan di Google Maps',
-      archiveTitle: 'Takwim Tahunan Program',
-      tabAll: 'Semua',
-      tabHalaTuju: 'Hala Tuju',
-      tabFutureLink: 'FutureLink',
-      tabBriefing: 'Taklimat Agensi',
-      notifTitle: 'Notifikasi & Peringatan Acara',
-      profileTitle: 'Profil Agensi & Tetapan',
-      btnLogout: 'Log Keluar daripada Sistem',
+
+      // Admin Dashboard
       adminTitle: 'Papan Pemuka Pentadbir CEU',
-      adminAgenciesCount: '50 Agensi Jemputan',
-      adminKadarRsvp: 'Kadar Maklum Balas',
-      adminTablesTotal: 'Jumlah Meja Sekolah',
-      adminPlugsTotal: 'Jumlah Extension Plug',
-      adminExportCsv: 'Eksport CSV',
-      adminExportExcel: 'Eksport Excel (.xlsx)',
-      adminPrintPdf: 'Cetak Laporan PDF Ber-QR',
-      adminSuratJemputan: 'Surat Menyurat Rasmi',
-      adminBroadcastWa: 'Broadcast WhatsApp'
+      adminDesc: 'Pemantauan masa nyata pengesahan RSVP, keperluan meja dewan & logistik 50 agensi jemputan.',
+      adminPrintPdf: 'Cetak Laporan PDF',
+      adminManageEvents: 'Urus Program & Peta',
+      adminAgenciesTotal: '50 Agensi Jemputan',
+      adminAgenciesNationwide: 'Seluruh Negara Brunei',
+      adminResponseRate: 'Kadar Maklum Balas',
+      adminStatusConfirmed: 'Status Kehadiran Disahkan',
+      adminTablesAndChairs: 'Meja & Kerusi Sekolah',
+      adminHallNeeds: 'Keperluan Dewan Pameran',
+      adminPlugsAndParking: 'Soket Plug & Parking VIP',
+      adminGateBVip: 'Pintu Pagar B (VIP)',
+      adminTableTitle: 'Status Pengesahan RSVP 50 Agensi Jemputan',
+      adminTableDesc: 'Semak status delegasi, keperluan logistik, dan nombor kenderaan pintu pagar B.',
+      adminSearchPlaceholder: 'Cari agensi...',
+      adminFilterAll: 'Semua (50)',
+      adminFilterAttending: 'Hadir',
+      adminFilterPending: 'Belum Sah',
+      colNo: 'NO',
+      colCode: 'KOD',
+      colAgency: 'NAMA AGENSI JEMPUTAN',
+      colStatus: 'STATUS RSVP',
+      colTables: 'MEJA / KERUSI',
+      colPlug: 'PLUG',
+      colParking: 'PAS PARKING (PINTU PAGAR B)',
+      colAction: 'AKSI',
+
+      // Parking & Floor Plan
+      parkingTitle: 'Panduan & Lokasi Parking Agensi',
+      parkingGateGuide: 'Laluan Masuk: Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi & VIP). Zon parking dikhaskan di Blok C.',
+      parkingPassHeader: 'PAS MASUK KENDERAAN AGENSI',
+      floorPlanTitle: 'Pelan Susun Atur Dewan & Meja Pameran',
+      floorPlanZoom: 'Besarkan Pelan Dewan (Fullscreen / Pinch-to-Zoom)',
+      gpsNavigation: 'Pandu Arah GPS ke Tempat Letak Kereta Agensi'
     },
+
     EN: {
       appName: 'PORTAL CEU',
       appSubtext: 'UPK · JSS · MOE',
+      ministryEmblem: 'MINISTRY OF EDUCATION',
+      ministryTitle: 'Ministry of Education, Brunei Darussalam · v2.1.0',
+      systemTitle: 'Career Education Unit • Department of Schools',
+      systemCountry: 'Brunei Darussalam',
+      systemSubtitle: 'Hala Tuju & FutureLink 2026 Event Management System',
+
+      // Login
+      loginAgencyAccess: 'OFFICIAL INVITED AGENCY ACCESS',
+      loginAdminAccess: 'CEU ADMINISTRATOR ACCESS',
+      tabModeAgency: 'Invited Agency Mode',
+      tabModeAdmin: 'CEU Admin Mode',
       loginTitle: 'Welcome Back',
-      loginSubtitle: 'Please log in using your agency credentials',
-      usernameLabel: 'Agency Username',
-      usernamePlaceholder: 'e.g., agensi_ubd or admin_ceu',
-      passwordLabel: 'Password',
-      passwordPlaceholder: '••••••••',
-      forgotPasswordLink: 'Need Credential Assistance? Contact CEU Unit',
-      loginBtn: 'SYSTEM LOG IN',
+      loginSubtitleAgency: 'Agency log in to view event details, floor plan, parking & RSVP confirmation.',
+      loginSubtitleAdmin: 'Administrator log in to monitor dashboard and manage event calendar.',
+      labelAgencyUsername: 'Agency Username',
+      sublabelAgencyUsername: 'Institution ID',
+      placeholderAgencyUsername: 'e.g., agensi_ubd',
+      labelAdminUsername: 'CEU Admin ID',
+      sublabelAdminUsername: 'Manage Events',
+      placeholderAdminUsername: 'e.g., admin_ceu',
+      labelPassword: 'Official Password',
+      sublabelPassword: 'Credentials',
+      placeholderPassword: 'Enter official password...',
+      hintOfficial: 'Official Portal UPK · JSS · MOE',
+      hintAdmin: 'Career Education Unit · JSS · MOE',
+      helpCredentials: 'Need Credential Help?',
+      btnLoginAgency: 'AGENCY LOG IN',
+      btnLoginAdmin: 'ADMINISTRATOR LOG IN',
       loggingIn: 'Verifying Credentials...',
-      footerMinistry: 'Ministry of Education, Brunei Darussalam · v2.1.0',
-      welcomeAgency: 'Welcome · Official Invited Agency',
-      belaitZone: 'Belait District',
-      metricProgramMonth: 'March Events',
-      metricCompleted: 'Attended',
-      metricPendingRsvp: 'Pending RSVP',
-      btnShortcutFloorPlan: 'Hall & Booth Plan',
-      subShortcutFloorPlan: 'View booth setup layout',
-      btnShortcutParking: 'Agency Parking Location',
-      subShortcutParking: 'Gate B & Access Route',
-      badgeMandatory: 'MANDATORY ATTENDANCE',
-      badgeDeadline: 'Deadline: 12 March 2026',
-      btnConfirmRSVP: 'Confirm Attendance (RSVP)',
-      btnDownloadPass: 'Download Pass',
-      upcomingEvents: 'Upcoming Events',
-      viewAll: 'View All >',
-      navHome: 'Home',
-      navRsvp: 'RSVP',
-      navArchive: 'Archive',
-      navNotif: 'Alerts',
-      navProfile: 'Profile',
-      navAdmin: 'Admin',
+
+      // Desktop Left Features
+      featureRsvp: 'Delegation & Attendance Confirmation (RSVP)',
+      featureTables: 'Hall Exhibition Tables & Power Sockets',
+      featureParking: 'Designated Gate B Parking Lots',
+      featureLetters: 'Official Invitation Letters with QR Security',
+
+      // Navbar
+      navProgramInfo: 'Program Info',
+      navRsvpForm: 'RSVP Form',
+      navAdminDashboard: 'Dashboard',
+      navAdminEvents: 'Manage Events & Maps',
+      navSignOut: 'Sign Out',
+      navRoleAgency: 'Invited Agency',
+      navRoleAdmin: 'CEU Administrator',
+      modeBadgeAgency: 'AGENCY MODE',
+      modeBadgeAdmin: 'ADMIN MODE',
+
+      // Home Screen - Hero & Metrics
+      welcomeAgencyHeader: 'WELCOME • INVITED AGENCY',
+      welcomeBrunei: 'Brunei Darussalam',
+      welcomeDesc: 'Calendar & Logistics Coordination Session for Program Hala Tuju & FutureLink.',
+      metricMonth: 'March 2026 Events',
+      metricAttended: 'Attended',
+      metricPendingRsvp: 'Action Required (RSVP)',
+
+      // Shortcuts & Selector
+      selectSessionLabel: 'Select School Session / Program (31 Sessions)',
+      tagOfficial2027: 'Official 2027 Calendar',
+      shortcutFloorPlan: 'Hall Floor Plan',
+      shortcutFloorPlanSub: 'Exhibition & booth layout',
+      shortcutParking: 'Parking Map',
+      shortcutParkingSub: 'Gate B (Agency Designated)',
+
+      // Filters
+      filterAll: 'All',
+      filterAllCount: 'All (31)',
+      filterPhtCount: 'Hala Tuju (27)',
+      filterFlCount: 'FutureLink (4)',
+      filterDistAll: 'All Districts',
+      filterDistBM: 'Brunei Muara (21)',
+      filterDistTutong: 'Tutong (6)',
+      filterDistBelait: 'Belait (3)',
+      filterDistTemburong: 'Temburong (1)',
+
+      // Hero Card
+      heroMinistryUnit: 'DEPARTMENT OF SCHOOLS • CAREER EDUCATION UNIT',
+      heroGateB: 'Gate B VIP',
+      heroDate: 'Date',
+      heroTime: 'Session Time',
+      heroBtnUpdate: 'Update RSVP for this Session',
+      heroBtnConfirm: 'Confirm Attendance (RSVP)',
+      rsvpConfirmed: 'RSVP Confirmed',
+      rsvpNeeded: 'Confirmation Required',
+
+      // Takwim Schedule
+      scheduleHeader: '31 School Sessions Schedule (2027)',
+      viewAll: 'All',
+      viewMonthly: 'Monthly',
+      viewWeekly: 'Weekly',
+      allMonths: 'All Months',
+      searchPlaceholder: 'Search school, venue, date...',
+      btnSelect: 'Select',
+      btnUpdate: 'Update',
+      btnRsvpSession: 'RSVP Now',
+      districtPrefix: '',
+      schoolSessionsSuffix: 'School Sessions',
+
+      // Right Sidebar Cards
+      cardActionRequired: 'Action Required',
+      cardActionTitle: 'Calendar Session RSVP Confirmation',
+      cardActionDesc: 'Please confirm agency attendance & delegation details for exhibition booth labelling & Gate B vehicle entry passes.',
+      cardActionBtn: 'Fill RSVP Form for Selected Session',
+      cardAmenitiesHeader: 'Provided Amenities',
+      amenityTable: '1 Standard Exhibition Table (covered)',
+      amenityChairs: '2 Agency exhibitor chairs',
+      amenityPlug: '1 Electrical extension plug (upon request)',
+      amenityParking: '1 VIP Parking slot (Gate B)',
+      amenityFloorPlanLink: 'Booth Layout Plan →',
+      amenityParkingLink: 'Gate B Parking Map →',
+      cardHelpTitle: 'Attendance Constraints?',
+      cardHelpSub: 'Contact CEU Secretariat',
+      cardHelpPhone: 'CEU Hotline:',
+      cardHelpEmail: 'Official Email:',
+      cardHelpBtn: 'RSVP Form & Appoint Rep',
+
+      // RSVP Form Screen
       rsvpFormTitle: 'RSVP Confirmation & Logistics Request',
-      rsvpStatusLabel: 'Agency Attendance Status *',
-      statusAttending: 'Attending',
-      statusNotAttending: 'Not Attending',
-      statusRepresentative: 'Appoint Representative',
-      logisticsHeader: 'School Hall Equipment Requirements',
-      logisticsSubtext: 'The host school will prepare the following items at your booth:',
+      rsvpOfficialOnBehalf: 'Official Request on behalf of:',
+      rsvpSessionSelectLabel: 'Select School / Program Session *',
+      rsvp31SessionsBadge: '31 Calendar Sessions',
+      rsvpStatusHeader: 'Agency Attendance Status *',
+      rsvpAttending: 'Attending',
+      rsvpAttendingSub: 'Participating in Exhibition Booth',
+      rsvpNotAttending: 'Not Attending',
+      rsvpNotAttendingSub: 'Schedule constraints',
+      rsvpRep: 'Appoint Official Representative',
+      rsvpRepSub: 'Representative will attend',
+      rsvpLogisticsTitle: 'School Hall Logistics Requirements',
+      rsvpLogisticsSub: 'The host school will prepare the following items at your booth:',
       labelTables: 'Number of Tables',
       labelChairs: 'Number of Chairs',
       labelPlugs: 'Electrical Extension Plugs',
-      labelStaffCount: 'Number of Agency Representatives Attending',
-      labelStaffNames: 'Names of Officers On Duty',
-      labelCustomRequests: 'Special Logistics Requests / Notes',
-      checkboxDeclaration: 'The agency confirms that this logistics request is final and accurate.',
+      labelStaffCount: 'Number of Attending Staff',
+      labelStaffNames: 'Officers On Duty Names (Optional)',
+      placeholderStaffNames: 'e.g., 1. Awang Mohd Azmi, 2. Dayang Hjh Siti...',
+      labelCarPlate: 'Official Vehicle Plate No. (Gate B Pass)',
+      badgeVipCar: '1 VIP Slot',
+      hintCarPlate: 'This number will be displayed on the Gate B school security guard entry pass.',
+      labelAdditionalNotes: 'Special Logistics Requests / Notes (Optional)',
+      placeholderAdditionalNotes: 'e.g., Require extra space for roll-up banners...',
+      declarationText: 'The agency confirms that this logistics request is final and accurate.',
       btnCancel: 'Cancel',
       btnSubmitRsvp: 'Submit RSVP Confirmation',
-      submitting: 'Submitting...',
-      parkingTitle: 'Agency Parking Guide & Location',
-      parkingGateGuide: 'Access Route: Please enter via Gate B (Designated Agency & VIP Gate).',
-      parkingTimeGuide: 'Access Time: Parking opens at 06:45 AM for booth setup and unloading.',
-      parkingPassHeader: 'OFFICIAL AGENCY VEHICLE ENTRY PASS',
-      btnGpsNavigation: 'GPS Navigation to Agency Parking Lot',
-      floorPlanTitle: 'Hall Floor Plan & Exhibition Booth Layout',
-      btnZoomFloorPlan: 'Expand Floor Plan (Fullscreen / Pinch-to-Zoom)',
-      btnGpsVenue: 'Open Hall GPS Location in Google Maps',
-      archiveTitle: 'Annual Event Calendar',
-      tabAll: 'All',
-      tabHalaTuju: 'Hala Tuju',
-      tabFutureLink: 'FutureLink',
-      tabBriefing: 'Agency Briefing',
-      notifTitle: 'Notifications & Event Alerts',
-      profileTitle: 'Agency Profile & Settings',
-      btnLogout: 'Sign Out of System',
+
+      // Admin Dashboard
       adminTitle: 'CEU Administrator Dashboard',
-      adminAgenciesCount: '50 Invited Agencies',
-      adminKadarRsvp: 'Response Rate',
-      adminTablesTotal: 'Total School Tables',
-      adminPlugsTotal: 'Total Extension Plugs',
-      adminExportCsv: 'Export CSV',
-      adminExportExcel: 'Export Excel (.xlsx)',
-      adminPrintPdf: 'Print QR Official PDF',
-      adminSuratJemputan: 'Official Letters & Certs',
-      adminBroadcastWa: 'WhatsApp Broadcast'
+      adminDesc: 'Real-time monitoring of RSVP confirmations, hall tables & logistics for 50 invited agencies.',
+      adminPrintPdf: 'Print PDF Report',
+      adminManageEvents: 'Manage Events & Maps',
+      adminAgenciesTotal: '50 Invited Agencies',
+      adminAgenciesNationwide: 'Nationwide Brunei',
+      adminResponseRate: 'Response Rate',
+      adminStatusConfirmed: 'Confirmed Attendance Status',
+      adminTablesAndChairs: 'School Tables & Chairs',
+      adminHallNeeds: 'Exhibition Hall Requirements',
+      adminPlugsAndParking: 'Power Plugs & VIP Parking',
+      adminGateBVip: 'Gate B (VIP Access)',
+      adminTableTitle: 'RSVP Confirmation Status of 50 Invited Agencies',
+      adminTableDesc: 'Review delegation status, logistics requests, and Gate B vehicle plate numbers.',
+      adminSearchPlaceholder: 'Search agency...',
+      adminFilterAll: 'All (50)',
+      adminFilterAttending: 'Attending',
+      adminFilterPending: 'Pending',
+      colNo: 'NO',
+      colCode: 'CODE',
+      colAgency: 'INVITED AGENCY NAME',
+      colStatus: 'RSVP STATUS',
+      colTables: 'TABLES / CHAIRS',
+      colPlug: 'PLUG',
+      colParking: 'PARKING PASS (GATE B)',
+      colAction: 'ACTION',
+
+      // Parking & Floor Plan
+      parkingTitle: 'Agency Parking Guide & Location',
+      parkingGateGuide: 'Access Route: Please enter via Gate B (Designated Agency & VIP Gate). Parking is designated at Block C.',
+      parkingPassHeader: 'OFFICIAL AGENCY VEHICLE ENTRY PASS',
+      floorPlanTitle: 'Hall Floor Plan & Exhibition Booth Layout',
+      floorPlanZoom: 'Expand Floor Plan (Fullscreen / Pinch-to-Zoom)',
+      gpsNavigation: 'GPS Navigation to Agency Parking Lot'
     }
   },
 
@@ -180,18 +391,68 @@ const I18N = {
     if (lang !== 'BM' && lang !== 'EN') return;
     this.currentLang = lang;
     localStorage.setItem('ceu_lang', lang);
+    
+    // Kemaskini atribut lang HTML
+    document.documentElement.lang = (lang === 'EN' ? 'en' : 'ms');
+
+    // Terapkan ke semua elemen statik DOM
     this.applyToDOM();
-    if (typeof AppState !== 'undefined' && AppState.currentUser) {
-      if (AppState.currentView === 'home' && typeof renderHomeScreen === 'function') renderHomeScreen(false);
-      if (AppState.currentView === 'admin' && typeof renderAdminDashboard === 'function') renderAdminDashboard();
-      if (AppState.currentView === 'adminEvents' && typeof renderAdminEventsList === 'function') renderAdminEventsList();
-      if (AppState.currentView === 'rsvpForm' && typeof renderRsvpScreen === 'function') renderRsvpScreen();
+
+    // Kemaskini navigasi (desktop & mobile)
+    if (typeof updateBottomNav === 'function' && typeof AppState !== 'undefined') {
+      updateBottomNav(AppState.currentView || (AppState.currentUser ? (AppState.currentUser.role === 'ADMIN' ? 'admin' : 'home') : 'login'));
+    }
+
+    // Jika di skrin log masuk, kemaskini mod log masuk aktif
+    if (typeof AppState === 'undefined' || !AppState.currentUser) {
+      const isAgencyTab = document.getElementById('tabModeAgency') && document.getElementById('tabModeAgency').classList.contains('bg-[#148e82]');
+      if (typeof switchLoginMode === 'function') {
+        switchLoginMode(isAgencyTab ? 'AGENCY' : 'ADMIN');
+      }
+      return;
+    }
+
+    // Jika pengguna sudah log masuk, render semula skrin aktif secara reaktif
+    if (AppState.currentUser) {
+      if (AppState.currentView === 'home' && typeof renderHomeScreen === 'function') {
+        renderHomeScreen(false);
+      } else if (AppState.currentView === 'admin' && typeof renderAdminDashboard === 'function') {
+        renderAdminDashboard();
+      } else if (AppState.currentView === 'adminEvents' && typeof renderAdminEventsList === 'function') {
+        renderAdminEventsList();
+      } else if (AppState.currentView === 'rsvpForm' && typeof renderRsvpFormScreen === 'function') {
+        renderRsvpFormScreen(AppState.activeEvent ? AppState.activeEvent.Event_ID : null);
+      }
     }
   },
 
   applyToDOM: function() {
-    const elements = document.querySelectorAll('[data-i18n]');
-    elements.forEach(el => {
+    const isEn = this.currentLang === 'EN';
+
+    // 1. Kemaskini atribut lang HTML
+    document.documentElement.lang = isEn ? 'en' : 'ms';
+
+    // 2. Kemaskini semua Butang Togol Bahasa (.btn-lang-toggle)
+    document.querySelectorAll('.btn-lang-toggle').forEach(btn => {
+      const targetLang = btn.getAttribute('data-lang');
+      if (targetLang === this.currentLang) {
+        btn.classList.add('bg-[#f59e0b]', 'text-slate-900', 'font-bold', 'shadow-sm');
+        btn.classList.remove('text-slate-600', 'text-white/80', 'text-on-primary/80', 'font-medium', 'bg-tertiary', 'bg-tertiary-fixed', 'text-on-tertiary-fixed');
+      } else {
+        btn.classList.remove('bg-[#f59e0b]', 'text-slate-900', 'font-bold', 'shadow-sm', 'bg-tertiary', 'bg-tertiary-fixed', 'text-on-tertiary-fixed');
+        btn.classList.add('font-medium');
+        if (btn.closest('#desktopNavBar') || btn.closest('#screen_login .md\\:flex')) {
+          btn.classList.add('text-slate-600');
+          btn.classList.remove('text-white/80');
+        } else {
+          btn.classList.add('text-white/80');
+          btn.classList.remove('text-slate-600');
+        }
+      }
+    });
+
+    // 3. Elemen dengan atribut [data-i18n]
+    document.querySelectorAll('[data-i18n]').forEach(el => {
       const key = el.getAttribute('data-i18n');
       const text = this.t(key);
       if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') {
@@ -201,16 +462,292 @@ const I18N = {
       }
     });
 
-    // Kemaskini toggle button aktif
-    document.querySelectorAll('.btn-lang-toggle').forEach(btn => {
-      const targetLang = btn.getAttribute('data-lang');
-      if (targetLang === this.currentLang) {
-        btn.classList.add('bg-tertiary-fixed', 'text-on-tertiary-fixed', 'font-bold');
-        btn.classList.remove('text-on-primary/80', 'font-medium');
-      } else {
-        btn.classList.remove('bg-tertiary-fixed', 'text-on-tertiary-fixed', 'font-bold');
-        btn.classList.add('text-on-primary/80', 'font-medium');
-      }
-    });
+    // 4. Penterjemahan Elemen Statik Khusus Mengikut ID DOM
+
+    // --- Skrin Log Masuk ---
+    const tabAgency = document.getElementById('tabModeAgency');
+    if (tabAgency) {
+      const span = tabAgency.querySelector('span:last-child') || tabAgency;
+      span.innerText = isEn ? 'Invited Agency Mode' : 'Mod Agensi Jemputan';
+    }
+    const tabAdmin = document.getElementById('tabModeAdmin');
+    if (tabAdmin) {
+      const span = tabAdmin.querySelector('span:last-child') || tabAdmin;
+      span.innerText = isEn ? 'CEU Admin Mode' : 'Mod Pentadbir CEU';
+    }
+
+    const helpLink = document.querySelector('#formLogin a[onclick*="alert"]');
+    if (helpLink) helpLink.innerText = isEn ? 'Need Credential Help?' : 'Bantuan Kredensial?';
+
+    // --- Home Screen: Header, Mini Kalendar & Metrik ---
+    const hWelcome = document.getElementById('homeWelcomeBadge');
+    if (hWelcome) hWelcome.innerText = isEn ? 'WELCOME • INVITED AGENCY' : 'SELAMAT DATANG • AGENSI JEMPUTAN';
+
+    const hCountry = document.getElementById('homeCountryBadge');
+    if (hCountry) hCountry.innerText = isEn ? 'Brunei Darussalam' : 'Negara Brunei Darussalam';
+
+    const hDesc = document.getElementById('homeWelcomeDesc');
+    if (hDesc) hDesc.innerText = isEn ? 'Calendar & Logistics Coordination Session for Program Hala Tuju & FutureLink.' : 'Sesi Penyelarasan Takwim & Logistik Program Hala Tuju & FutureLink.';
+
+    const hMiniMonth = document.getElementById('homeMiniCalMonth');
+    if (hMiniMonth) hMiniMonth.innerText = isEn ? 'March 2026' : 'Mac 2026';
+
+    const hMiniWeek = document.getElementById('homeMiniCalWeek');
+    if (hMiniWeek) hMiniWeek.innerText = isEn ? 'Week 2' : 'Minggu Ke-2';
+
+    const mLabel1 = document.getElementById('homeMetricLabel1');
+    if (mLabel1) mLabel1.innerText = isEn ? 'March 2026 Events' : 'Program Mac 2026';
+
+    const mLabel2 = document.getElementById('homeMetricLabel2');
+    if (mLabel2) mLabel2.innerText = isEn ? 'Attended' : 'Selesai Hadir';
+
+    const mLabel3 = document.getElementById('homeMetricLabel3');
+    if (mLabel3) mLabel3.innerText = isEn ? 'Action Required (RSVP)' : 'Perlu Tindakan RSVP';
+
+    const sSelectText = document.getElementById('homeSessionSelectorText');
+    if (sSelectText) sSelectText.innerText = isEn ? 'Select School Session / Program (31 Sessions)' : 'Pilih Sesi Sekolah / Program (31 Sesi)';
+
+    const sTakwimBadge = document.getElementById('homeOfficialTakwimBadge');
+    if (sTakwimBadge) sTakwimBadge.innerText = isEn ? 'Official 2027 Calendar' : 'Takwim Rasmi 2027';
+
+    // --- Home Screen: Penapis Kategori & Daerah ---
+    const fCatAll = document.getElementById('filterCat_ALL');
+    if (fCatAll) fCatAll.innerText = isEn ? 'All (31)' : 'Semua (31)';
+    const fCatPht = document.getElementById('filterCat_PHT');
+    if (fCatPht) fCatPht.innerText = isEn ? 'Hala Tuju (27)' : 'Hala Tuju (27)';
+    const fCatFl = document.getElementById('filterCat_FL');
+    if (fCatFl) fCatFl.innerText = isEn ? 'FutureLink (4)' : 'FutureLink (4)';
+
+    const fDistAll = document.getElementById('filterDist_ALL');
+    if (fDistAll) fDistAll.innerText = isEn ? 'All Districts' : 'Semua Daerah';
+
+    // --- Home Screen: 2 Kad Pintasan ---
+    const shortcutButtons = document.querySelectorAll('#screen_home .grid.grid-cols-2 button');
+    if (shortcutButtons.length >= 2) {
+      const btnFloor = shortcutButtons[0];
+      const titleF = btnFloor.querySelector('.font-bold');
+      const subF = btnFloor.querySelector('.text-slate-500');
+      if (titleF) titleF.innerText = isEn ? 'Hall Floor Plan' : 'Pelan Dewan';
+      if (subF) subF.innerText = isEn ? 'Exhibition & booth layout' : 'Susun atur meja pameran & dewan';
+
+      const btnPark = shortcutButtons[1];
+      const titleP = btnPark.querySelector('.font-bold');
+      const subP = btnPark.querySelector('.text-slate-500');
+      if (titleP) titleP.innerText = isEn ? 'Parking Map' : 'Peta Parking';
+      if (subP) subP.innerText = isEn ? 'Gate B (Agency Designated)' : 'Pintu Pagar B (Khusus Agensi)';
+    }
+
+    // --- Home Screen: Takwim Schedule Header & Views ---
+    const sHeader = document.getElementById('homeScheduleHeaderTitle');
+    if (sHeader) sHeader.innerText = isEn ? '31 School Sessions Schedule (2027)' : 'Jadual Takwim 31 Sesi Sekolah (2027)';
+
+    const vAll = document.getElementById('viewMode_ALL');
+    if (vAll) {
+      const sp = vAll.querySelector('span:last-child');
+      if (sp) sp.innerText = isEn ? 'All' : 'Semua';
+    }
+    const vMonthly = document.getElementById('viewMode_MONTHLY');
+    if (vMonthly) {
+      const sp = vMonthly.querySelector('span:last-child');
+      if (sp) sp.innerText = isEn ? 'Monthly' : 'Bulanan';
+    }
+    const vWeekly = document.getElementById('viewMode_WEEKLY');
+    if (vWeekly) {
+      const sp = vWeekly.querySelector('span:last-child');
+      if (sp) sp.innerText = isEn ? 'Weekly' : 'Mingguan';
+    }
+
+    const pillMonthAll = document.getElementById('pillMonth_ALL');
+    if (pillMonthAll) pillMonthAll.innerText = isEn ? 'All Months' : 'Semua Bulan';
+    const pillMonth03 = document.getElementById('pillMonth_03');
+    if (pillMonth03) pillMonth03.innerText = isEn ? 'Mar (5)' : 'Mac (5)';
+
+    const homeSearch = document.getElementById('homeScheduleSearch');
+    if (homeSearch) homeSearch.placeholder = isEn ? 'Search school, venue, date...' : 'Cari sekolah, venue, tarikh...';
+
+    // --- Home Screen: 3 Kad Sidebar Kanan ---
+    const sCard1Header = document.getElementById('sidebarCard1Header');
+    if (sCard1Header) sCard1Header.innerText = isEn ? 'Action Required' : 'Tindakan Diperlukan';
+    const sCard1Title = document.getElementById('sidebarCard1Title');
+    if (sCard1Title) sCard1Title.innerText = isEn ? 'Calendar Session RSVP Confirmation' : 'Pengesahan RSVP Sesi Takwim';
+    const sCard1Desc = document.getElementById('sidebarCard1Desc');
+    if (sCard1Desc) sCard1Desc.innerText = isEn ? 'Please confirm agency attendance & delegation details for exhibition booth labelling & Gate B vehicle entry passes.' : 'Sila sahkan kehadiran & butiran delegasi agensi bagi penyediaan pelekat meja pameran & pas masuk kenderaan Pintu Pagar B.';
+    const sCard1Btn = document.getElementById('sidebarCard1BtnText');
+    if (sCard1Btn) sCard1Btn.innerText = isEn ? 'Fill RSVP Form for Selected Session' : 'Isi Borang RSVP Sesi Terpilih';
+
+    const sCard2Header = document.getElementById('sidebarCard2Header');
+    if (sCard2Header) sCard2Header.innerText = isEn ? 'Provided Amenities' : 'Kemudahan Disediakan';
+    const aLi1 = document.getElementById('amenityLi1');
+    if (aLi1) aLi1.innerText = isEn ? '1 Standard Exhibition Table (covered)' : '1 Meja Pameran standard (beralas)';
+    const aLi2 = document.getElementById('amenityLi2');
+    if (aLi2) aLi2.innerText = isEn ? '2 Agency exhibitor chairs' : '2 Kerusi pegawai pempamer agensi';
+    const aLi3 = document.getElementById('amenityLi3');
+    if (aLi3) aLi3.innerText = isEn ? '1 Electrical extension plug (upon request)' : '1 Soket plug elektrik (atas permintaan)';
+    const aLi4 = document.getElementById('amenityLi4');
+    if (aLi4) aLi4.innerText = isEn ? '1 VIP Parking slot (Gate B)' : '1 Petak letak kereta VIP (Pintu Pagar B)';
+    const aFloorBtn = document.getElementById('amenityFloorBtnText');
+    if (aFloorBtn) aFloorBtn.innerText = isEn ? 'Booth Layout Plan →' : 'Pelan Meja Booth →';
+    const aParkingBtn = document.getElementById('amenityParkingBtnText');
+    if (aParkingBtn) aParkingBtn.innerText = isEn ? 'Gate B Parking Map →' : 'Peta Parking Pintu B →';
+
+    const sCard3Title = document.getElementById('sidebarCard3Title');
+    if (sCard3Title) sCard3Title.innerText = isEn ? 'Attendance Constraints?' : 'Ada Kekangan Kehadiran?';
+    const sCard3Sub = document.getElementById('sidebarCard3Sub');
+    if (sCard3Sub) sCard3Sub.innerText = isEn ? 'Contact CEU Secretariat' : 'Hubungi Urus Setia UPK';
+    const sCard3Phone = document.getElementById('sidebarCard3PhoneLabel');
+    if (sCard3Phone) sCard3Phone.innerText = isEn ? 'CEU Hotline:' : 'Talian CEU:';
+    const sCard3Email = document.getElementById('sidebarCard3EmailLabel');
+    if (sCard3Email) sCard3Email.innerText = isEn ? 'Official Email:' : 'Emel Rasmi:';
+    const sCard3Btn = document.getElementById('sidebarCard3BtnText');
+    if (sCard3Btn) sCard3Btn.innerText = isEn ? 'RSVP Form & Appoint Rep' : 'Borang RSVP & Lantik Wakil';
+
+    // --- Skrin Borang RSVP ---
+    const rHeaderTitle = document.getElementById('rsvpFormHeaderTitle');
+    if (rHeaderTitle) rHeaderTitle.innerText = isEn ? 'RSVP Confirmation & Logistics Request' : 'Pengesahan RSVP & Permohonan Logistik';
+
+    const optAttending = document.getElementById('optStatusAttending');
+    if (optAttending) {
+      const title = optAttending.querySelector('.font-bold');
+      const sub = optAttending.querySelector('.text-on-surface-variant');
+      if (title) title.innerText = isEn ? 'Attending' : 'Hadir (Attending)';
+      if (sub) sub.innerText = isEn ? 'Participating in Exhibition Booth' : 'Menyertai Pameran Booth';
+    }
+    const optNotAttending = document.getElementById('optStatusNotAttending');
+    if (optNotAttending) {
+      const title = optNotAttending.querySelector('.font-bold');
+      const sub = optNotAttending.querySelector('.text-on-surface-variant');
+      if (title) title.innerText = isEn ? 'Not Attending' : 'Tidak Hadir (Not Attending)';
+      if (sub) sub.innerText = isEn ? 'Schedule constraint' : 'Kekangan jadual';
+    }
+    const optRep = document.getElementById('optStatusRep');
+    if (optRep) {
+      const title = optRep.querySelector('.font-bold');
+      const sub = optRep.querySelector('.text-on-surface-variant');
+      if (title) title.innerText = isEn ? 'Appoint Official Representative' : 'Lantik Wakil Rasmi';
+      if (sub) sub.innerText = isEn ? 'Representative will attend' : 'Wakil menggantikan';
+    }
+
+    const rLogisticsHead = document.getElementById('rsvpLogisticsHeader');
+    if (rLogisticsHead) rLogisticsHead.innerText = isEn ? 'School Hall Logistics Requirements' : 'Keperluan Logistik Dewan Sekolah';
+    const rLogisticsSub = document.getElementById('rsvpLogisticsSubtext');
+    if (rLogisticsSub) rLogisticsSub.innerText = isEn ? 'The host school will prepare the following items at your booth:' : 'Pihak penganjur akan menyediakan kelengkapan berikut di dewan:';
+
+    const lMeja = document.getElementById('labelStepperMeja');
+    if (lMeja) lMeja.innerText = isEn ? 'Number of Tables' : 'Bilangan Meja';
+    const lKerusi = document.getElementById('labelStepperKerusi');
+    if (lKerusi) lKerusi.innerText = isEn ? 'Number of Chairs' : 'Bilangan Kerusi';
+    const lPlug = document.getElementById('labelStepperPlug');
+    if (lPlug) lPlug.innerText = isEn ? 'Electrical Extension Plug' : 'Penyambung Elektrik (Plug)';
+    const lWakil = document.getElementById('labelStepperWakil');
+    if (lWakil) lWakil.innerText = isEn ? 'Number of Attending Staff' : 'Jumlah Wakil Hadir';
+
+    const lNamaWakil = document.getElementById('labelInputNamaWakil');
+    if (lNamaWakil) lNamaWakil.innerText = isEn ? 'Officers On Duty Names (Optional)' : 'Nama Pegawai Bertugas (Pilihan)';
+    const inNamaWakil = document.getElementById('inputNamaWakil');
+    if (inNamaWakil) inNamaWakil.placeholder = isEn ? 'e.g., 1. Awang Mohd Azmi, 2. Dayang Hjh Siti...' : 'cth: 1. Awang Mohd Azmi, 2. Dayang Hjh Siti...';
+
+    const lCarPlate = document.getElementById('labelCarPlate');
+    if (lCarPlate) lCarPlate.innerText = isEn ? 'Official Vehicle Plate No. (Gate B Pass)' : 'No. Plat Kenderaan Rasmi (Pas Pintu Pagar B)';
+    const bVipCar = document.getElementById('badgeVipCar');
+    if (bVipCar) bVipCar.innerText = isEn ? '1 VIP Slot' : '1 Petak VIP';
+    const hCarPlate = document.getElementById('hintCarPlate');
+    if (hCarPlate) hCarPlate.innerText = isEn ? 'This number will be displayed on the Gate B school security guard entry pass.' : 'Nombor ini akan dipaparkan pada pas masuk keselamatan pengawal sekolah Pintu Pagar B.';
+
+    const lKepLain = document.getElementById('labelInputKeperluanLain');
+    if (lKepLain) lKepLain.innerText = isEn ? 'Special Logistics Requests / Notes (Optional)' : 'Keperluan Logistik Tambahan (Pilihan)';
+    const inKepLain = document.getElementById('inputKeperluanLain');
+    if (inKepLain) inKepLain.placeholder = isEn ? 'e.g., Require extra space for roll-up banners...' : 'cth: Perlukan ruang tambahan untuk bunting berdiri...';
+
+    const checkDeclLabel = document.getElementById('labelDeclaration') || document.querySelector('label[for="checkDeclaration"]');
+    if (checkDeclLabel) {
+      checkDeclLabel.innerText = isEn 
+        ? 'The agency confirms that this logistics request is final and accurate.'
+        : 'Pihak agensi mengesahkan maklumat permohonan logistik ini adalah muktamad.';
+    }
+
+    const btnCancelR = document.getElementById('btnCancelRsvp');
+    if (btnCancelR) btnCancelR.innerText = isEn ? 'Cancel' : 'Batal';
+
+    const btnSubmitRsvp = document.getElementById('btnSubmitRsvpAction');
+    if (btnSubmitRsvp) {
+      btnSubmitRsvp.innerText = isEn ? 'Submit RSVP Confirmation' : 'Hantar Pengesahan (Submit RSVP)';
+    }
+
+    // --- Skrin Papan Pemuka Pentadbir ---
+    const aHeadUnit = document.getElementById('adminHeaderUnitBadge');
+    if (aHeadUnit) aHeadUnit.innerText = isEn ? 'CAREER EDUCATION UNIT • JSS' : 'UNIT PENDIDIKAN KERJAYA • JSS';
+    const aHeadMode = document.getElementById('adminHeaderModeBadge');
+    if (aHeadMode) aHeadMode.innerText = isEn ? 'ADMIN MODE' : 'MOD PENTADBIR';
+    const aDashTitle = document.getElementById('adminDashboardHeaderTitle');
+    if (aDashTitle) aDashTitle.innerText = isEn ? 'CEU Administrator Dashboard' : 'Papan Pemuka Pentadbir CEU';
+    const aDashDesc = document.getElementById('adminDashboardHeaderDesc');
+    if (aDashDesc) aDashDesc.innerText = isEn ? 'Real-time monitoring of RSVP confirmations, hall tables & logistics for 50 invited agencies.' : 'Pemantauan masa nyata pengesahan RSVP, keperluan meja dewan & logistik 50 agensi jemputan.';
+    const aBtnPrint = document.getElementById('adminBtnPrintPdf');
+    if (aBtnPrint) aBtnPrint.innerText = isEn ? 'Print PDF Report' : 'Cetak Laporan PDF';
+    const aBtnManage = document.getElementById('adminBtnManageEvents');
+    if (aBtnManage) aBtnManage.innerText = isEn ? 'Manage Events & Maps' : 'Urus Program & Peta';
+
+    const aStatL1 = document.getElementById('adminStatLabel1');
+    if (aStatL1) aStatL1.innerText = isEn ? '50 Invited Agencies' : '50 Agensi Jemputan';
+    const aStatS1 = document.getElementById('adminStatSub1');
+    if (aStatS1) aStatS1.innerText = isEn ? 'Nationwide Brunei' : 'Seluruh Negara Brunei';
+
+    const aStatL2 = document.getElementById('adminStatLabel2');
+    if (aStatL2) aStatL2.innerText = isEn ? 'Response Rate' : 'Kadar Maklum Balas';
+    const aStatS2 = document.getElementById('adminStatSub2');
+    if (aStatS2) aStatS2.innerText = isEn ? 'Confirmed Attendance Status' : 'Status Kehadiran Disahkan';
+
+    const aStatL3 = document.getElementById('adminStatLabel3');
+    if (aStatL3) aStatL3.innerText = isEn ? 'School Tables & Chairs' : 'Meja & Kerusi Sekolah';
+    const aStatS3 = document.getElementById('adminStatSub3');
+    if (aStatS3) aStatS3.innerText = isEn ? 'Exhibition Hall Requirements' : 'Keperluan Dewan Pameran';
+
+    const aStatL4 = document.getElementById('adminStatLabel4');
+    if (aStatL4) aStatL4.innerText = isEn ? 'Power Plugs & VIP Parking' : 'Soket Plug & Parking VIP';
+    const aStatS4 = document.getElementById('adminStatSub4');
+    if (aStatS4) aStatS4.innerText = isEn ? 'Gate B (VIP Access)' : 'Pintu Pagar B (VIP)';
+
+    const aTTitle = document.getElementById('adminTableTitle');
+    if (aTTitle) aTTitle.innerHTML = `<span class="w-2.5 h-2.5 rounded-full bg-[#148e82]"></span>${isEn ? 'RSVP Confirmation Status of 50 Invited Agencies' : 'Status Pengesahan RSVP 50 Agensi Jemputan'}`;
+
+    const aTDesc = document.getElementById('adminTableDesc');
+    if (aTDesc) aTDesc.innerText = isEn ? 'Review delegation status, logistics requests, and Gate B vehicle plate numbers.' : 'Semak status delegasi, keperluan logistik, dan nombor kenderaan pintu pagar B.';
+
+    const aHeadRow = document.getElementById('adminTableHeaderRow');
+    if (aHeadRow) {
+      aHeadRow.innerHTML = `
+        <th class="p-3">NO</th>
+        <th class="p-3">${isEn ? 'CODE' : 'KOD'}</th>
+        <th class="p-3">${isEn ? 'INVITED AGENCY NAME' : 'NAMA AGENSI JEMPUTAN'}</th>
+        <th class="p-3">${isEn ? 'RSVP STATUS' : 'STATUS RSVP'}</th>
+        <th class="p-3 text-center">${isEn ? 'TABLES / CHAIRS' : 'MEJA / KERUSI'}</th>
+        <th class="p-3 text-center">${isEn ? 'PLUG' : 'PLUG'}</th>
+        <th class="p-3">${isEn ? 'PARKING PASS (GATE B)' : 'PAS PARKING (PINTU PAGAR B)'}</th>
+        <th class="p-3 text-right">${isEn ? 'ACTION' : 'AKSI'}</th>
+      `;
+    }
+
+    const adminSearch = document.getElementById('adminAgencySearchInput');
+    if (adminSearch) adminSearch.placeholder = isEn ? 'Search agency...' : 'Cari agensi...';
+    const filterAllBtn = document.getElementById('filterBtn_ALL');
+    if (filterAllBtn) filterAllBtn.innerText = isEn ? 'All (50)' : 'Semua (50)';
+    const filterHadirBtn = document.getElementById('filterBtn_Hadir');
+    if (filterHadirBtn) filterHadirBtn.innerText = isEn ? 'Attending' : 'Hadir';
+    const filterBelumBtn = document.getElementById('filterBtn_Belum');
+    if (filterBelumBtn) filterBelumBtn.innerText = isEn ? 'Pending' : 'Belum Sah';
+
+    // --- Skrin Profil ---
+    const pOptTitle = document.getElementById('profileSysOptionsTitle');
+    if (pOptTitle) pOptTitle.innerText = isEn ? 'System Preferences' : 'Pilihan Sistem';
+    const pLangChoice = document.getElementById('profileLangChoiceLabel');
+    if (pLangChoice) pLangChoice.innerText = isEn ? 'Language Selection' : 'Pilihan Bahasa';
+    const pDocLetter = document.getElementById('profileDocLetterLabel');
+    if (pDocLetter) pDocLetter.innerText = isEn ? 'Logistics Confirmation Letter' : 'Surat Perakuan Logistik';
+    const pBtnPdf = document.getElementById('profileBtnPdf');
+    if (pBtnPdf) pBtnPdf.innerText = isEn ? 'Generate PDF Letter' : 'Jana Surat PDF';
+    const pBtnLogout = document.getElementById('profileBtnLogout');
+    if (pBtnLogout) {
+      pBtnLogout.innerHTML = `<span class="material-symbols-outlined text-[18px]">logout</span><span>${isEn ? 'Sign Out of System' : 'Log Keluar daripada Sistem'}</span>`;
+    }
   }
 };
