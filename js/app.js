@@ -334,7 +334,7 @@ function switchLoginMode(mode) {
     if (passwordInput) {
       passwordInput.placeholder = 'Masukkan kata laluan rasmi...';
     }
-    if (labelUsername) labelUsername.innerHTML = '<span>Nama Pengguna Agensi</span><span class="text-[11px] text-primary font-medium">52 Agensi</span>';
+    if (labelUsername) labelUsername.innerHTML = '<span>Nama Pengguna Agensi</span><span class="text-[11px] text-primary font-medium">ID Institusi</span>';
     if (subtitle) subtitle.innerText = 'Log masuk agensi untuk melihat maklumat program, pelan dewan, parking &amp; pengesahan RSVP.';
     if (btnSubmit) {
       btnSubmit.className = 'w-full h-12 mt-1 rounded-xl bg-gradient-to-r from-tertiary-container via-tertiary to-gold-hover text-on-primary font-bold text-xs tracking-wider uppercase shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2';
@@ -1075,9 +1075,9 @@ function renderArchiveScreen() {
 let adminCurrentFilter = 'ALL';
 
 async function renderAdminDashboard() {
-  const agencies = (AppState.agenciesList && AppState.agenciesList.length === 52) 
+  const agencies = (AppState.agenciesList && AppState.agenciesList.length === 50) 
     ? AppState.agenciesList 
-    : getPreseeded52Agencies();
+    : getPreseededAgencies();
   AppState.agenciesList = agencies;
 
   // Kiraan metrik agregat
@@ -1107,7 +1107,7 @@ function renderAdminAgenciesTable() {
   const searchInput = document.getElementById('adminAgencySearchInput');
   const query = searchInput ? searchInput.value.toLowerCase().trim() : '';
 
-  let list = AppState.agenciesList || getPreseeded52Agencies();
+  let list = AppState.agenciesList || getPreseededAgencies();
 
   // 1. Penapis Status
   if (adminCurrentFilter === 'Hadir') {
@@ -1440,7 +1440,7 @@ function openMapModal(type) {
         </div>
         <div class="rounded-xl overflow-hidden border border-slate-200 bg-slate-100 p-2 text-center">
           <img src="${ev.Pelan_Sekolah_URL || 'https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=600&q=80'}" class="w-full max-h-64 object-cover rounded-lg shadow-sm mx-auto" alt="Pelan Dewan" />
-          <p class="text-[10px] text-slate-500 mt-2 font-mono">Pelan Susun Atur Booth Meja 1 - 52 • ${ev.Tempat_Venue}</p>
+          <p class="text-[10px] text-slate-500 mt-2 font-mono">Pelan Susun Atur Meja Pameran Agensi • ${ev.Tempat_Venue}</p>
         </div>
         <div class="grid grid-cols-2 gap-2 text-xs">
           <div class="p-2.5 rounded-lg bg-slate-50 border border-slate-100">
@@ -2210,62 +2210,62 @@ function getFallbackEvents() {
   ];
 }
 
-function getPreseeded52Agencies() {
+function getPreseededAgencies() {
   return [
-    { kod: 'AG-01', namaAgensi: 'Jabatan Pengurusan Biasiswa', user: 'agensi_biasiswa', kategori: 'Kementerian & Jabatan Kerajaan', statusRsvp: 'Hadir', bilMeja: 2, bilKerusi: 4, bilPlug: 1, noPlatKereta: 'BA 1101', jumlahWakil: 3 },
-    { kod: 'AG-02', namaAgensi: 'Majlis Kebangsaan Pengiktirafan Kelulusan', user: 'agensi_mkpk', kategori: 'Kementerian & Jabatan Kerajaan', statusRsvp: 'Hadir', bilMeja: 1, bilKerusi: 2, bilPlug: 0, noPlatKereta: 'BA 1102', jumlahWakil: 2 },
-    { kod: 'AG-03', namaAgensi: 'Jabatan Pengajian Tinggi', user: 'agensi_jpt', kategori: 'Kementerian & Jabatan Kerajaan', statusRsvp: 'Hadir', bilMeja: 2, bilKerusi: 4, bilPlug: 1, noPlatKereta: 'BA 1103', jumlahWakil: 3 },
-    { kod: 'AG-04', namaAgensi: 'Jabatan Pengurusan Pendidik', user: 'agensi_jpp', kategori: 'Kementerian & Jabatan Kerajaan', statusRsvp: 'Belum Sah', bilMeja: 1, bilKerusi: 2, bilPlug: 0, noPlatKereta: 'BA 1104', jumlahWakil: 2 },
-    { kod: 'AG-05', namaAgensi: 'Universiti Brunei Darussalam', user: 'agensi_ubd', kategori: 'Institusi Pengajian Tinggi (IPT)', statusRsvp: 'Hadir', bilMeja: 2, bilKerusi: 4, bilPlug: 1, noPlatKereta: 'BA 1234', jumlahWakil: 4 },
-    { kod: 'AG-06', namaAgensi: 'Universiti Teknologi Brunei', user: 'agensi_utb', kategori: 'Institusi Pengajian Tinggi (IPT)', statusRsvp: 'Hadir', bilMeja: 2, bilKerusi: 4, bilPlug: 1, noPlatKereta: 'BG 5566', jumlahWakil: 3 },
-    { kod: 'AG-07', namaAgensi: 'Universiti Islam Sultan Sharif Ali', user: 'agensi_unissa', kategori: 'Institusi Pengajian Tinggi (IPT)', statusRsvp: 'Hadir', bilMeja: 2, bilKerusi: 3, bilPlug: 1, noPlatKereta: 'BA 7788', jumlahWakil: 3 },
-    { kod: 'AG-08', namaAgensi: 'Kolej Universiti Perguruan Ugama Seri Begawan', user: 'agensi_kupusb', kategori: 'Institusi Pengajian Tinggi (IPT)', statusRsvp: 'Hadir', bilMeja: 1, bilKerusi: 2, bilPlug: 0, noPlatKereta: 'BB 9911', jumlahWakil: 2 },
-    { kod: 'AG-09', namaAgensi: 'Politeknik Brunei', user: 'agensi_pb', kategori: 'Institusi Pengajian Tinggi (IPT)', statusRsvp: 'Hadir', bilMeja: 2, bilKerusi: 4, bilPlug: 1, noPlatKereta: 'KA 3322', jumlahWakil: 4 },
-    { kod: 'AG-10', namaAgensi: 'Institut Pendidikan Teknikal Brunei (IBTE)', user: 'agensi_ibte', kategori: 'Institusi Pendidikan Teknikal', statusRsvp: 'Hadir', bilMeja: 2, bilKerusi: 4, bilPlug: 1, noPlatKereta: 'KB 4433', jumlahWakil: 4 },
-    { kod: 'AG-11', namaAgensi: 'Laksamana College of Business', user: 'agensi_lcb', kategori: 'Institusi Swasta', statusRsvp: 'Hadir', bilMeja: 1, bilKerusi: 2, bilPlug: 1, noPlatKereta: 'BA 8080', jumlahWakil: 2 },
-    { kod: 'AG-12', namaAgensi: 'Micronet International College', user: 'agensi_micronet', kategori: 'Institusi Swasta', statusRsvp: 'Hadir', bilMeja: 1, bilKerusi: 2, bilPlug: 1, noPlatKereta: 'BA 2020', jumlahWakil: 2 },
-    { kod: 'AG-13', namaAgensi: 'Cosmopolitan College of Commerce & Technology', user: 'agensi_cosmo', kategori: 'Institusi Swasta', statusRsvp: 'Belum Sah', bilMeja: 1, bilKerusi: 2, bilPlug: 0, noPlatKereta: 'BA 3030', jumlahWakil: 2 },
-    { kod: 'AG-14', namaAgensi: 'Kolej International Graduate Studies (KIGS)', user: 'agensi_kigs', kategori: 'Institusi Swasta', statusRsvp: 'Hadir', bilMeja: 1, bilKerusi: 2, bilPlug: 1, noPlatKereta: 'BA 4040', jumlahWakil: 2 },
-    { kod: 'AG-15', namaAgensi: 'Pusat Pembangunan Belia (PPB)', user: 'agensi_ppb', kategori: 'Pusat Latihan Vokasional', statusRsvp: 'Hadir', bilMeja: 2, bilKerusi: 3, bilPlug: 1, noPlatKereta: 'BB 5050', jumlahWakil: 3 },
-    { kod: 'AG-16', namaAgensi: 'Jabatan Pembangunan Masyarakat (JAPEM)', user: 'agensi_japem', kategori: 'Kementerian Kebudayaan, Belia dan Sukan', statusRsvp: 'Hadir', bilMeja: 1, bilKerusi: 2, bilPlug: 0, noPlatKereta: 'BA 6060', jumlahWakil: 2 },
-    { kod: 'AG-17', namaAgensi: 'Jabatan Belia dan Sukan (JBS)', user: 'agensi_jbs', kategori: 'Kementerian Kebudayaan, Belia dan Sukan', statusRsvp: 'Hadir', bilMeja: 1, bilKerusi: 2, bilPlug: 0, noPlatKereta: 'BA 7070', jumlahWakil: 2 },
-    { kod: 'AG-18', namaAgensi: 'Jabatan Perkhidmatan Awam (JPA)', user: 'agensi_jpa', kategori: 'Jabatan Perdana Menteri', statusRsvp: 'Hadir', bilMeja: 2, bilKerusi: 4, bilPlug: 1, noPlatKereta: 'BA 8081', jumlahWakil: 3 },
-    { kod: 'AG-19', namaAgensi: 'Angkatan Bersenjata Diraja Brunei (ABDB)', user: 'agensi_abdb', kategori: 'Keselamatan & Pertahanan', statusRsvp: 'Hadir', bilMeja: 2, bilKerusi: 4, bilPlug: 1, noPlatKereta: 'MOD 01', jumlahWakil: 4 },
-    { kod: 'AG-20', namaAgensi: 'Tentera Darat Diraja Brunei (TDDB)', user: 'agensi_tddb', kategori: 'Keselamatan & Pertahanan', statusRsvp: 'Hadir', bilMeja: 2, bilKerusi: 4, bilPlug: 1, noPlatKereta: 'MOD 02', jumlahWakil: 4 },
-    { kod: 'AG-21', namaAgensi: 'Tentera Udara Diraja Brunei (TUDB)', user: 'agensi_tudb', kategori: 'Keselamatan & Pertahanan', statusRsvp: 'Hadir', bilMeja: 2, bilKerusi: 4, bilPlug: 1, noPlatKereta: 'MOD 03', jumlahWakil: 3 },
-    { kod: 'AG-22', namaAgensi: 'Tentera Laut Diraja Brunei (TLDB)', user: 'agensi_tldb', kategori: 'Keselamatan & Pertahanan', statusRsvp: 'Hadir', bilMeja: 2, bilKerusi: 3, bilPlug: 1, noPlatKereta: 'MOD 04', jumlahWakil: 3 },
-    { kod: 'AG-23', namaAgensi: 'Institut Latihan ABDB (IL ABDB)', user: 'agensi_ilabdb', kategori: 'Keselamatan & Pertahanan', statusRsvp: 'Hadir', bilMeja: 1, bilKerusi: 2, bilPlug: 0, noPlatKereta: 'MOD 05', jumlahWakil: 2 },
-    { kod: 'AG-24', namaAgensi: 'Pasukan Polis Diraja Brunei (PPDB)', user: 'agensi_ppdb', kategori: 'Keselamatan & Penguatkuasaan', statusRsvp: 'Hadir', bilMeja: 2, bilKerusi: 4, bilPlug: 1, noPlatKereta: 'POLIS 12', jumlahWakil: 4 },
-    { kod: 'AG-25', namaAgensi: 'Pusat Latihan Polis Diraja Brunei', user: 'agensi_plppdb', kategori: 'Keselamatan & Penguatkuasaan', statusRsvp: 'Hadir', bilMeja: 1, bilKerusi: 2, bilPlug: 0, noPlatKereta: 'POLIS 34', jumlahWakil: 2 },
-    { kod: 'AG-26', namaAgensi: 'Jabatan Bomba dan Penyelamat (JBP)', user: 'agensi_jbp', kategori: 'Keselamatan & Penyelamat', statusRsvp: 'Hadir', bilMeja: 2, bilKerusi: 4, bilPlug: 1, noPlatKereta: 'BOMBA 08', jumlahWakil: 4 },
-    { kod: 'AG-27', namaAgensi: 'Jabatan Penjara Brunei', user: 'agensi_penjara', kategori: 'Keselamatan & Hal Ehwal Dalam Negeri', statusRsvp: 'Belum Sah', bilMeja: 1, bilKerusi: 2, bilPlug: 0, noPlatKereta: 'BA 9091', jumlahWakil: 2 },
-    { kod: 'AG-28', namaAgensi: 'Jabatan Imigresen dan Pendaftaran Kebangsaan', user: 'agensi_jipk', kategori: 'Keselamatan & Hal Ehwal Dalam Negeri', statusRsvp: 'Hadir', bilMeja: 2, bilKerusi: 3, bilPlug: 1, noPlatKereta: 'BA 9092', jumlahWakil: 3 },
-    { kod: 'AG-29', namaAgensi: 'Jabatan Kastam dan Eksais Diraja (JKED)', user: 'agensi_jked', kategori: 'Kementerian Kewangan dan Ekonomi', statusRsvp: 'Hadir', bilMeja: 2, bilKerusi: 3, bilPlug: 1, noPlatKereta: 'BA 9093', jumlahWakil: 3 },
-    { kod: 'AG-30', namaAgensi: 'Biro Mencegah Rasuah (BMR)', user: 'agensi_bmr', kategori: 'Penguatkuasaan & Integriti', statusRsvp: 'Hadir', bilMeja: 1, bilKerusi: 2, bilPlug: 0, noPlatKereta: 'BA 9094', jumlahWakil: 2 },
-    { kod: 'AG-31', namaAgensi: 'Biro Kawalan Narkotik (BKN)', user: 'agensi_bkn', kategori: 'Penguatkuasaan & Keselamatan', statusRsvp: 'Hadir', bilMeja: 2, bilKerusi: 3, bilPlug: 1, noPlatKereta: 'BA 9095', jumlahWakil: 3 },
-    { kod: 'AG-32', namaAgensi: 'Brunei Shell Petroleum Co Sdn Bhd (BSP)', user: 'agensi_bsp', kategori: 'Minyak & Gas (GLC)', statusRsvp: 'Hadir', bilMeja: 2, bilKerusi: 4, bilPlug: 1, noPlatKereta: 'BSP 01', jumlahWakil: 4 },
-    { kod: 'AG-33', namaAgensi: 'Brunei LNG Sdn Bhd (BLNG)', user: 'agensi_blng', kategori: 'Minyak & Gas (GLC)', statusRsvp: 'Hadir', bilMeja: 2, bilKerusi: 4, bilPlug: 1, noPlatKereta: 'BLNG 02', jumlahWakil: 4 },
-    { kod: 'AG-34', namaAgensi: 'Brunei Gas Carriers Sdn Bhd (BGC)', user: 'agensi_bgc', kategori: 'Maritim & Tenaga (GLC)', statusRsvp: 'Hadir', bilMeja: 1, bilKerusi: 2, bilPlug: 1, noPlatKereta: 'BGC 03', jumlahWakil: 2 },
-    { kod: 'AG-35', namaAgensi: 'Brunei Fertilizer Industries (BFI)', user: 'agensi_bfi', kategori: 'Petrokimia (GLC)', statusRsvp: 'Hadir', bilMeja: 2, bilKerusi: 3, bilPlug: 1, noPlatKereta: 'BFI 04', jumlahWakil: 3 },
-    { kod: 'AG-36', namaAgensi: 'Hengyi Industries Sdn Bhd', user: 'agensi_hengyi', kategori: 'Petrokimia & Industri Berat', statusRsvp: 'Hadir', bilMeja: 2, bilKerusi: 4, bilPlug: 1, noPlatKereta: 'PMB 88', jumlahWakil: 4 },
-    { kod: 'AG-37', namaAgensi: 'Royal Brunei Airlines (RB)', user: 'agensi_rb', kategori: 'Syarikat Penerbangan & GLC', statusRsvp: 'Hadir', bilMeja: 2, bilKerusi: 4, bilPlug: 1, noPlatKereta: 'RBA 787', jumlahWakil: 4 },
-    { kod: 'AG-38', namaAgensi: 'DST Sdn Bhd', user: 'agensi_dst', kategori: 'Telekomunikasi & GLC', statusRsvp: 'Hadir', bilMeja: 2, bilKerusi: 4, bilPlug: 1, noPlatKereta: 'DST 55', jumlahWakil: 3 },
-    { kod: 'AG-39', namaAgensi: 'Progresif Sdn Bhd', user: 'agensi_progresif', kategori: 'Telekomunikasi & GLC', statusRsvp: 'Hadir', bilMeja: 2, bilKerusi: 3, bilPlug: 1, noPlatKereta: 'PRO 99', jumlahWakil: 3 },
-    { kod: 'AG-40', namaAgensi: 'imagine Sdn Bhd', user: 'agensi_imagine', kategori: 'Telekomunikasi & GLC', statusRsvp: 'Belum Sah', bilMeja: 1, bilKerusi: 2, bilPlug: 0, noPlatKereta: 'IMG 10', jumlahWakil: 2 },
-    { kod: 'AG-41', namaAgensi: 'Unified National Networks (UNN)', user: 'agensi_unn', kategori: 'Infrastruktur Telekomunikasi (GLC)', statusRsvp: 'Hadir', bilMeja: 2, bilKerusi: 3, bilPlug: 1, noPlatKereta: 'UNN 01', jumlahWakil: 3 },
-    { kod: 'AG-42', namaAgensi: 'Bank Islam Brunei Darussalam (BIBD)', user: 'agensi_bibd', kategori: 'Perbankan & Kewangan', statusRsvp: 'Hadir', bilMeja: 2, bilKerusi: 4, bilPlug: 1, noPlatKereta: 'BIBD 08', jumlahWakil: 4 },
-    { kod: 'AG-43', namaAgensi: 'Baiduri Bank Group', user: 'agensi_baiduri', kategori: 'Perbankan & Kewangan', statusRsvp: 'Hadir', bilMeja: 2, bilKerusi: 4, bilPlug: 1, noPlatKereta: 'BBG 77', jumlahWakil: 3 },
-    { kod: 'AG-44', namaAgensi: 'Perbadanan Tabung Amanah Islam Brunei (TAIB)', user: 'agensi_taib', kategori: 'Institusi Kewangan Islam', statusRsvp: 'Hadir', bilMeja: 1, bilKerusi: 2, bilPlug: 0, noPlatKereta: 'TAIB 03', jumlahWakil: 2 },
-    { kod: 'AG-45', namaAgensi: 'Brunei Darussalam Central Bank (BDCB)', user: 'agensi_bdcb', kategori: 'Kawal Selia Kewangan', statusRsvp: 'Hadir', bilMeja: 2, bilKerusi: 3, bilPlug: 1, noPlatKereta: 'BDCB 01', jumlahWakil: 3 },
-    { kod: 'AG-46', namaAgensi: 'Brunei Investment Agency (BIA)', user: 'agensi_bia', kategori: 'Pelaburan Negara', statusRsvp: 'Hadir', bilMeja: 1, bilKerusi: 2, bilPlug: 0, noPlatKereta: 'BIA 99', jumlahWakil: 2 },
-    { kod: 'AG-47', namaAgensi: 'Darussalam Enterprise (DARe)', user: 'agensi_dare', kategori: 'Pembangunan Keusahawanan (GLC)', statusRsvp: 'Hadir', bilMeja: 2, bilKerusi: 3, bilPlug: 1, noPlatKereta: 'DARE 01', jumlahWakil: 3 },
-    { kod: 'AG-48', namaAgensi: 'Pihak Berkuasa Industri Info-Komunikasi (AITI)', user: 'agensi_aiti', kategori: 'Kawal Selia Digital', statusRsvp: 'Hadir', bilMeja: 2, bilKerusi: 3, bilPlug: 1, noPlatKereta: 'AITI 05', jumlahWakil: 3 },
-    { kod: 'AG-49', namaAgensi: 'Cyber Security Brunei (CSB)', user: 'agensi_csb', kategori: 'Keselamatan Siber Kebangsaan', statusRsvp: 'Hadir', bilMeja: 2, bilKerusi: 3, bilPlug: 1, noPlatKereta: 'CSB 01', jumlahWakil: 3 },
-    { kod: 'AG-50', namaAgensi: 'Pusat Sejarah Brunei', user: 'agensi_psb', kategori: 'Kebudayaan & Sejarah', statusRsvp: 'Hadir', bilMeja: 1, bilKerusi: 2, bilPlug: 0, noPlatKereta: 'BA 3388', jumlahWakil: 2 },
-    { kod: 'AG-51', namaAgensi: 'Dewan Bahasa dan Pustaka Brunei', user: 'agensi_dbp', kategori: 'Bahasa & Sastera Kebangsaan', statusRsvp: 'Hadir', bilMeja: 1, bilKerusi: 2, bilPlug: 0, noPlatKereta: 'BA 4499', jumlahWakil: 2 },
-    { kod: 'AG-52', namaAgensi: 'Radio Televisyen Brunei (RTB)', user: 'agensi_rtb', kategori: 'Penyiaran & Media Kebangsaan', statusRsvp: 'Hadir', bilMeja: 2, bilKerusi: 4, bilPlug: 1, noPlatKereta: 'RTB 01', jumlahWakil: 4 }
+    { kod: 'AG-01', namaAgensi: 'Pasukan Polis Diraja Brunei', user: 'agensi_ppdb', kategori: 'Keselamatan & Penguatkuasaan', statusRsvp: 'Hadir', bilMeja: 2, bilKerusi: 4, bilPlug: 1, noPlatKereta: 'POLIS 12', jumlahWakil: 4, namaWakilHadir: 'DSP Hj Rosli / Insp Nurul' },
+    { kod: 'AG-02', namaAgensi: 'Jabatan Bomba dan Penyelamat', user: 'agensi_jbp', kategori: 'Keselamatan & Penyelamat', statusRsvp: 'Hadir', bilMeja: 2, bilKerusi: 4, bilPlug: 1, noPlatKereta: 'BOMBA 08', jumlahWakil: 4, namaWakilHadir: 'Awg Azmi & Anggota Bomba' },
+    { kod: 'AG-03', namaAgensi: 'Pejabat Pengambilan Angkatan Bersenjata Diraja Brunei', user: 'agensi_abdb', kategori: 'Keselamatan & Pertahanan', statusRsvp: 'Hadir', bilMeja: 2, bilKerusi: 4, bilPlug: 1, noPlatKereta: 'MOD 01', jumlahWakil: 4, namaWakilHadir: 'Mejar (U) Faisal / PW2' },
+    { kod: 'AG-04', namaAgensi: 'Tentera Darat Diraja Brunei (TDDB)', user: 'agensi_tddb', kategori: 'Keselamatan & Pertahanan', statusRsvp: 'Hadir', bilMeja: 2, bilKerusi: 4, bilPlug: 1, noPlatKereta: 'MOD 02', jumlahWakil: 4, namaWakilHadir: 'Kapt Mohd Syazwan' },
+    { kod: 'AG-05', namaAgensi: 'Tentera Laut Diraja Brunei (TLDB)', user: 'agensi_tldb', kategori: 'Keselamatan & Pertahanan', statusRsvp: 'Hadir', bilMeja: 2, bilKerusi: 3, bilPlug: 1, noPlatKereta: 'MOD 04', jumlahWakil: 3, namaWakilHadir: 'Lt Kdr Ahmad' },
+    { kod: 'AG-06', namaAgensi: 'Tentera Udara Diraja Brunei (TUDB)', user: 'agensi_tudb', kategori: 'Keselamatan & Pertahanan', statusRsvp: 'Hadir', bilMeja: 2, bilKerusi: 4, bilPlug: 1, noPlatKereta: 'MOD 03', jumlahWakil: 3, namaWakilHadir: 'Kapt (U) Hazim' },
+    { kod: 'AG-07', namaAgensi: "Jabatanarah Agama Angkatan Bersenjata Diraja Brunei (JAMA'AT)", user: 'agensi_jamat', kategori: 'Keselamatan & Pertahanan', statusRsvp: 'Hadir', bilMeja: 1, bilKerusi: 2, bilPlug: 0, noPlatKereta: 'MOD 07', jumlahWakil: 2, namaWakilHadir: 'Ustaz Hj Hanafi' },
+    { kod: 'AG-08', namaAgensi: 'Pusat Optima Kecergasan Tentera', user: 'agensi_pokt', kategori: 'Keselamatan & Pertahanan', statusRsvp: 'Hadir', bilMeja: 1, bilKerusi: 2, bilPlug: 1, noPlatKereta: 'MOD 08', jumlahWakil: 2, namaWakilHadir: 'Instruktur Jasmani' },
+    { kod: 'AG-09', namaAgensi: 'Polis Tentera Angkatan Bersenjata Diraja Brunei', user: 'agensi_polistentera', kategori: 'Keselamatan & Pertahanan', statusRsvp: 'Hadir', bilMeja: 1, bilKerusi: 2, bilPlug: 0, noPlatKereta: 'PT 09', jumlahWakil: 2, namaWakilHadir: 'Staf Sarjan PT' },
+    { kod: 'AG-10', namaAgensi: 'Jabatan Pengurusan Biasiswa', user: 'agensi_biasiswa', kategori: 'Kementerian & Jabatan Kerajaan', statusRsvp: 'Hadir', bilMeja: 2, bilKerusi: 4, bilPlug: 1, noPlatKereta: 'BA 1101', jumlahWakil: 3, namaWakilHadir: 'Dk Siti Rahmah' },
+    { kod: 'AG-11', namaAgensi: 'Majlis Kebangsaan Pengiktirafan Kelulusan (MKPK)', user: 'agensi_mkpk', kategori: 'Kementerian & Jabatan Kerajaan', statusRsvp: 'Hadir', bilMeja: 1, bilKerusi: 2, bilPlug: 0, noPlatKereta: 'BA 1102', jumlahWakil: 2, namaWakilHadir: 'Pegawai MKPK' },
+    { kod: 'AG-12', namaAgensi: 'Jabatan Pengajian Tinggi', user: 'agensi_jpt', kategori: 'Kementerian & Jabatan Kerajaan', statusRsvp: 'Hadir', bilMeja: 2, bilKerusi: 4, bilPlug: 1, noPlatKereta: 'BA 1103', jumlahWakil: 3, namaWakilHadir: 'Pegawai JPT' },
+    { kod: 'AG-13', namaAgensi: 'Jabatan Pengurusan Pendidik', user: 'agensi_jpp', kategori: 'Kementerian & Jabatan Kerajaan', statusRsvp: 'Belum Sah', bilMeja: 1, bilKerusi: 2, bilPlug: 0, noPlatKereta: 'BA 1104', jumlahWakil: 2, namaWakilHadir: '-' },
+    { kod: 'AG-14', namaAgensi: 'Bahagian Biasiswa, Kementerian Pertahanan', user: 'agensi_biasiswa_mindef', kategori: 'Keselamatan & Pertahanan', statusRsvp: 'Hadir', bilMeja: 1, bilKerusi: 2, bilPlug: 1, noPlatKereta: 'MOD 14', jumlahWakil: 2, namaWakilHadir: 'Pegawai Biasiswa Mindef' },
+    { kod: 'AG-15', namaAgensi: 'Jabatan Penjara', user: 'agensi_penjara', kategori: 'Penguatkuasaan & Keselamatan', statusRsvp: 'Belum Sah', bilMeja: 1, bilKerusi: 2, bilPlug: 0, noPlatKereta: 'BA 9091', jumlahWakil: 2, namaWakilHadir: '-' },
+    { kod: 'AG-16', namaAgensi: 'Kementerian Kesihatan', user: 'agensi_moh', kategori: 'Kementerian & Kesihatan', statusRsvp: 'Hadir', bilMeja: 2, bilKerusi: 4, bilPlug: 1, noPlatKereta: 'MOH 01', jumlahWakil: 3, namaWakilHadir: 'Pegawai Perhubungan Awam MOH' },
+    { kod: 'AG-17', namaAgensi: 'Jabatan Kemajuan Pelancongan', user: 'agensi_pelancongan', kategori: 'Kementerian & Jabatan Kerajaan', statusRsvp: 'Hadir', bilMeja: 1, bilKerusi: 2, bilPlug: 0, noPlatKereta: 'BA 7711', jumlahWakil: 2, namaWakilHadir: 'Pegawai Pelancongan' },
+    { kod: 'AG-18', namaAgensi: 'Jabatan Pertanian dan Agrimakanan, Kementerian Ekonomi, Perdagangan & Industry', user: 'agensi_pertanian', kategori: 'Kementerian & Jabatan Kerajaan', statusRsvp: 'Hadir', bilMeja: 1, bilKerusi: 2, bilPlug: 1, noPlatKereta: 'BA 8822', jumlahWakil: 2, namaWakilHadir: 'Pegawai Pertanian' },
+    { kod: 'AG-19', namaAgensi: 'Jabatan Imigresen dan Pendaftaran Kebangsaan, Kementerian Hal Ehwal Dalam Negeri', user: 'agensi_imigresen', kategori: 'Kementerian & Jabatan Kerajaan', statusRsvp: 'Hadir', bilMeja: 2, bilKerusi: 3, bilPlug: 1, noPlatKereta: 'BA 9092', jumlahWakil: 3, namaWakilHadir: 'Pegawai Imigresen' },
+    { kod: 'AG-20', namaAgensi: 'Jabatan Kajicuaca (Meteorological Department)', user: 'agensi_kajicuaca', kategori: 'Kementerian & Jabatan Kerajaan', statusRsvp: 'Hadir', bilMeja: 1, bilKerusi: 2, bilPlug: 1, noPlatKereta: 'BA 9933', jumlahWakil: 2, namaWakilHadir: 'Pegawai Meteorologi' },
+    { kod: 'AG-21', namaAgensi: 'Pusat Pembangunan Belia', user: 'agensi_ppb', kategori: 'Latihan & Belia', statusRsvp: 'Hadir', bilMeja: 2, bilKerusi: 3, bilPlug: 1, noPlatKereta: 'BB 5050', jumlahWakil: 3, namaWakilHadir: 'Instruktur Vokasional PPB' },
+    { kod: 'AG-22', namaAgensi: 'Program Khidmat Bakti Negara (PKBN)', user: 'agensi_pkbn', kategori: 'Latihan & Belia', statusRsvp: 'Hadir', bilMeja: 2, bilKerusi: 3, bilPlug: 0, noPlatKereta: 'PKBN 01', jumlahWakil: 3, namaWakilHadir: 'Jurulatih PKBN' },
+    { kod: 'AG-23', namaAgensi: 'Universiti Brunei Darussalam (UBD)', user: 'agensi_ubd', kategori: 'Institusi Pengajian Tinggi (IPT)', statusRsvp: 'Hadir', bilMeja: 2, bilKerusi: 4, bilPlug: 1, noPlatKereta: 'BA 1234', jumlahWakil: 4, namaWakilHadir: 'Dr. Hjh Noor Maya & Delegasi' },
+    { kod: 'AG-24', namaAgensi: 'Universiti Teknologi Brunei (UTB)', user: 'agensi_utb', kategori: 'Institusi Pengajian Tinggi (IPT)', statusRsvp: 'Hadir', bilMeja: 2, bilKerusi: 4, bilPlug: 1, noPlatKereta: 'BG 5566', jumlahWakil: 3, namaWakilHadir: 'Pegawai Kemasukan UTB' },
+    { kod: 'AG-25', namaAgensi: 'UNISSA', user: 'agensi_unissa', kategori: 'Institusi Pengajian Tinggi (IPT)', statusRsvp: 'Hadir', bilMeja: 2, bilKerusi: 3, bilPlug: 1, noPlatKereta: 'BA 7788', jumlahWakil: 3, namaWakilHadir: 'Pegawai Hal Ehwal Akademik' },
+    { kod: 'AG-26', namaAgensi: 'Kolej Universiti Perguruan Ugama Seri Begawan (KUPU SB)', user: 'agensi_kupusb', kategori: 'Institusi Pengajian Tinggi (IPT)', statusRsvp: 'Hadir', bilMeja: 1, bilKerusi: 2, bilPlug: 0, noPlatKereta: 'BB 9911', jumlahWakil: 2, namaWakilHadir: 'Ustaz Pengambilan Pelajar' },
+    { kod: 'AG-27', namaAgensi: 'Politeknik Brunei', user: 'agensi_pb', kategori: 'Institusi Pengajian Tinggi (IPT)', statusRsvp: 'Hadir', bilMeja: 2, bilKerusi: 4, bilPlug: 1, noPlatKereta: 'KA 3322', jumlahWakil: 4, namaWakilHadir: 'Pegawai Perhubungan Awam PB' },
+    { kod: 'AG-28', namaAgensi: 'Institut Pendidikan Teknikal Brunei (IBTE)', user: 'agensi_ibte', kategori: 'Institusi Pendidikan Teknikal', statusRsvp: 'Hadir', bilMeja: 2, bilKerusi: 4, bilPlug: 1, noPlatKereta: 'KB 4433', jumlahWakil: 4, namaWakilHadir: 'Kaunselor & Pegawai IBTE' },
+    { kod: 'AG-29', namaAgensi: 'JPMC College of Health Sciences', user: 'agensi_jpmcchs', kategori: 'Kolej Kesihatan & Perubatan', statusRsvp: 'Hadir', bilMeja: 2, bilKerusi: 3, bilPlug: 1, noPlatKereta: 'BA 6611', jumlahWakil: 3, namaWakilHadir: 'Pegawai Kemasukan JPMC CHS' },
+    { kod: 'AG-30', namaAgensi: 'Cosmopolitan College / Cosmopolitan College of Commerce and Technology', user: 'agensi_cosmo', kategori: 'Kolej Swasta', statusRsvp: 'Belum Sah', bilMeja: 1, bilKerusi: 2, bilPlug: 0, noPlatKereta: 'BA 3030', jumlahWakil: 2, namaWakilHadir: '-' },
+    { kod: 'AG-31', namaAgensi: 'Kemuda Institute', user: 'agensi_kemuda', kategori: 'Kolej Swasta', statusRsvp: 'Hadir', bilMeja: 1, bilKerusi: 2, bilPlug: 1, noPlatKereta: 'BA 5544', jumlahWakil: 2, namaWakilHadir: 'Pegawai Pemasaran Kemuda' },
+    { kod: 'AG-32', namaAgensi: 'Kolej International Graduate Studies (Kolej IGS)', user: 'agensi_kigs', kategori: 'Kolej Swasta', statusRsvp: 'Hadir', bilMeja: 1, bilKerusi: 2, bilPlug: 1, noPlatKereta: 'BA 4040', jumlahWakil: 2, namaWakilHadir: 'Pegawai Hal Ehwal Pelajar' },
+    { kod: 'AG-33', namaAgensi: 'Laksamana College of Business', user: 'agensi_lcb', kategori: 'Kolej Swasta', statusRsvp: 'Hadir', bilMeja: 1, bilKerusi: 2, bilPlug: 1, noPlatKereta: 'BA 8080', jumlahWakil: 2, namaWakilHadir: 'Pegawai Kaunseling LCB' },
+    { kod: 'AG-34', namaAgensi: 'Micronet International College', user: 'agensi_micronet', kategori: 'Kolej Swasta', statusRsvp: 'Hadir', bilMeja: 1, bilKerusi: 2, bilPlug: 1, noPlatKereta: 'BA 2020', jumlahWakil: 2, namaWakilHadir: 'Pegawai Pemasaran Micronet' },
+    { kod: 'AG-35', namaAgensi: 'HADtech College', user: 'agensi_hadtech', kategori: 'Kolej Swasta', statusRsvp: 'Hadir', bilMeja: 1, bilKerusi: 2, bilPlug: 1, noPlatKereta: 'BA 3434', jumlahWakil: 2, namaWakilHadir: 'Pegawai Kemasukan HADtech' },
+    { kod: 'AG-36', namaAgensi: 'Findlay (B) Sdn Bhd', user: 'agensi_findlay', kategori: 'Agensi Perkhidmatan Pendidikan', statusRsvp: 'Hadir', bilMeja: 1, bilKerusi: 2, bilPlug: 1, noPlatKereta: 'BA 4545', jumlahWakil: 2, namaWakilHadir: 'Konsultan Pendidikan Findlay' },
+    { kod: 'AG-37', namaAgensi: 'BICPA / Brunei Institutes of Certified Public Accountants', user: 'agensi_bicpa', kategori: 'Badan Profesional', statusRsvp: 'Hadir', bilMeja: 1, bilKerusi: 2, bilPlug: 0, noPlatKereta: 'BA 5656', jumlahWakil: 2, namaWakilHadir: 'Wakil Majlis BICPA' },
+    { kod: 'AG-38', namaAgensi: 'AEGIS Secure Solutions', user: 'agensi_aegis', kategori: 'Syarikat Swasta & Keselamatan', statusRsvp: 'Hadir', bilMeja: 2, bilKerusi: 3, bilPlug: 1, noPlatKereta: 'AEGIS 01', jumlahWakil: 3, namaWakilHadir: 'Pegawai Sumber Manusia AEGIS' },
+    { kod: 'AG-39', namaAgensi: 'Hibiscus EP (Brunei) B.V. (HEB)', user: 'agensi_hibiscus', kategori: 'Industri Minyak & Gas', statusRsvp: 'Hadir', bilMeja: 2, bilKerusi: 4, bilPlug: 1, noPlatKereta: 'HEB 01', jumlahWakil: 3, namaWakilHadir: 'Pegawai Komunikasi Korporat' },
+    { kod: 'AG-40', namaAgensi: 'Royal Brunei Airlines', user: 'agensi_rb', kategori: 'Syarikat Penerbangan Nasional & GLC', statusRsvp: 'Hadir', bilMeja: 2, bilKerusi: 4, bilPlug: 1, noPlatKereta: 'RBA 787', jumlahWakil: 4, namaWakilHadir: 'Pegawai Pengambilan Bakat RB' },
+    { kod: 'AG-41', namaAgensi: 'DST Sdn Bhd', user: 'agensi_dst', kategori: 'Telekomunikasi & GLC', statusRsvp: 'Hadir', bilMeja: 2, bilKerusi: 4, bilPlug: 1, noPlatKereta: 'DST 55', jumlahWakil: 3, namaWakilHadir: 'Pegawai Penjenamaan Korporat' },
+    { kod: 'AG-42', namaAgensi: 'NOVO Sdn Bhd', user: 'agensi_novo', kategori: 'Syarikat Swasta', statusRsvp: 'Hadir', bilMeja: 1, bilKerusi: 2, bilPlug: 1, noPlatKereta: 'NOVO 01', jumlahWakil: 2, namaWakilHadir: 'Wakil Syarikat NOVO' },
+    { kod: 'AG-43', namaAgensi: 'BFI Sdn Bhd', user: 'agensi_bfi', kategori: 'Industri & Kimia', statusRsvp: 'Hadir', bilMeja: 2, bilKerusi: 3, bilPlug: 1, noPlatKereta: 'BFI 04', jumlahWakil: 3, namaWakilHadir: 'Pegawai Sumber Manusia BFI' },
+    { kod: 'AG-44', namaAgensi: 'Imagine Sdn Bhd', user: 'agensi_imagine', kategori: 'Telekomunikasi & GLC', statusRsvp: 'Belum Sah', bilMeja: 1, bilKerusi: 2, bilPlug: 0, noPlatKereta: 'IMG 10', jumlahWakil: 2, namaWakilHadir: '-' },
+    { kod: 'AG-45', namaAgensi: 'Baiduri Bank', user: 'agensi_baiduri', kategori: 'Perbankan & Kewangan', statusRsvp: 'Hadir', bilMeja: 2, bilKerusi: 4, bilPlug: 1, noPlatKereta: 'BBG 77', jumlahWakil: 3, namaWakilHadir: 'Pegawai Pengambilan Bakat' },
+    { kod: 'AG-46', namaAgensi: 'Muara Port Company', user: 'agensi_muaraport', kategori: 'Logistik & Pelabuhan', statusRsvp: 'Hadir', bilMeja: 2, bilKerusi: 3, bilPlug: 1, noPlatKereta: 'MPC 01', jumlahWakil: 3, namaWakilHadir: 'Pegawai Komunikasi Luar' },
+    { kod: 'AG-47', namaAgensi: 'HRDS (Education Services Agency)', user: 'agensi_hrds', kategori: 'Agensi Perkhidmatan Pendidikan', statusRsvp: 'Hadir', bilMeja: 1, bilKerusi: 2, bilPlug: 1, noPlatKereta: 'HRDS 01', jumlahWakil: 2, namaWakilHadir: 'Konsultan Pendidikan HRDS' },
+    { kod: 'AG-48', namaAgensi: 'Serikandi Group Of Companies', user: 'agensi_serikandi', kategori: 'Syarikat Korporat & Katering', statusRsvp: 'Hadir', bilMeja: 2, bilKerusi: 4, bilPlug: 1, noPlatKereta: 'SRK 01', jumlahWakil: 3, namaWakilHadir: 'Pegawai Sumber Manusia' },
+    { kod: 'AG-49', namaAgensi: 'Uniklearn', user: 'agensi_uniklearn', kategori: 'Latihan Khas & Kebajikan', statusRsvp: 'Hadir', bilMeja: 1, bilKerusi: 2, bilPlug: 0, noPlatKereta: 'UNIK 01', jumlahWakil: 2, namaWakilHadir: 'Penyelaras Latihan Uniklearn' },
+    { kod: 'AG-50', namaAgensi: 'Hengyi Industries Sdn Bhd', user: 'agensi_hengyi', kategori: 'Petrokimia & Industri Berat', statusRsvp: 'Hadir', bilMeja: 2, bilKerusi: 4, bilPlug: 1, noPlatKereta: 'PMB 88', jumlahWakil: 4, namaWakilHadir: 'Pegawai Hubungan Komuniti' }
   ];
 }
+
+const getPreseeded52Agencies = getPreseededAgencies;
 
 // ============================================
 // 13. MODUL NOTIFIKASI DALAMAN & INTEGRASI WHATSAPP
@@ -2303,7 +2303,7 @@ Pautan Portal Rasmi: https://ceujss2026.github.io/rsvp-ceu-portal/`;
 }
 
 function adminSendAgencyWhatsApp(agencyCode) {
-  const agency = (AppState.agencies || getPreseeded52Agencies()).find(a => a.kod === agencyCode);
+  const agency = (AppState.agencies || getPreseededAgencies()).find(a => a.kod === agencyCode);
   if (!agency) return;
 
   const ev = AppState.activeEvent || getFallbackEvents()[0];
@@ -2442,11 +2442,14 @@ function handleOfflineFallback(action, data) {
         user: { id: 'ADMIN-CEU', role: 'ADMIN', namaAgensi: 'Unit Pendidikan Kerjaya (Admin CEU)', username: 'admin_ceu' }
       };
     } else {
+      const agencies = getPreseededAgencies();
+      const matched = agencies.find(a => (a.user && a.user.toLowerCase() === u) || (a.kod && a.kod.toLowerCase() === u) || (a.namaAgensi && a.namaAgensi.toLowerCase().includes(u)));
+      const ag = matched || agencies[22]; // defaults to UBD (AG-23)
       return {
         success: true,
         message: 'Log masuk berjaya.',
         token: 'auth-agency-session',
-        user: { id: 'AG-05', role: 'AGENCY', namaAgensi: 'Universiti Brunei Darussalam', username: u || 'agensi_ubd' }
+        user: { id: ag.kod, role: 'AGENCY', namaAgensi: ag.namaAgensi, username: ag.user || u }
       };
     }
   }

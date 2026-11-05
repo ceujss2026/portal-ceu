@@ -182,7 +182,7 @@ function handleGetNotifications_(auth) {
 }
 
 /**
- * Papan Pemuka Pentadbir CEU (Kiraan Agregat 52 Agensi)
+ * Papan Pemuka Pentadbir CEU (Kiraan Agregat 50 Agensi)
  */
 function handleGetAdminDashboard_() {
   const v = getVersion_('reports');
@@ -314,7 +314,7 @@ function handleDeleteEvent_(eventId) {
 }
 
 /**
- * Mengambil senarai 52 Kredensial Agensi untuk Pentadbir CEU
+ * Mengambil senarai 50 Kredensial Agensi untuk Pentadbir CEU
  */
 function handleGetAgenciesCredentials_() {
   const agencies = getSheetData_('Agensi_Users');

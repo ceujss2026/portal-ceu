@@ -270,7 +270,7 @@ function handleSyncCRM_() {
         CekWAAt: '',
         EmailValid: ag.Emel_Rasmi ? 'YA' : 'TIDAK',
         OptOut: 'TIDAK',
-        Catatan: 'Pra-muat 52 Agensi CEU',
+        Catatan: 'Pra-muat 50 Agensi CEU',
         JumlahPesan: 0,
         TerakhirDihubungi: '',
         Info: JSON.stringify({ kod: ag.Agensi_ID, username: ag.Username }),

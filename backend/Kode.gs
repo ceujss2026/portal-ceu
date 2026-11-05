@@ -169,7 +169,7 @@ function getPublicAppConfig_() {
     department: 'Unit Pendidikan Kerjaya, Jabatan Sekolah-Sekolah',
     ministry: 'Kementerian Pendidikan, Negara Brunei Darussalam',
     version: APP_VERSION,
-    totalAgencies: 52,
+    totalAgencies: 50,
     defaultLanguage: 'BM'
   };
 
@@ -178,7 +178,7 @@ function getPublicAppConfig_() {
 }
 
 /**
- * Mengambil senarai nama 52 agensi untuk dropdown/paparan umum
+ * Mengambil senarai nama 50 agensi untuk dropdown/paparan umum
  */
 function getPublicAgenciesList_() {
   const cached = CacheX.get('public_agencies_list');
