@@ -110,6 +110,8 @@ function dispatchPostAction_(action, data, token) {
       return handleGetNotifications_(auth);
     case 'changePassword':
       return handleChangePassword_(auth, data);
+    case 'generateSuratJemputan':
+      return handleGenerateSuratJemputan_(data);
   }
 
   // Aksi Eksklusif Super Admin CEU

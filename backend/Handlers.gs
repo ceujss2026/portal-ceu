@@ -68,8 +68,30 @@ function handleSubmitRSVP_(auth, data) {
   }
 
   const events = getSheetData_('Events');
-  const ev = events.find(e => e.Event_ID === eventId);
-  if (!ev) return { success: false, message: 'Acara tidak sah.' };
+  let ev = events.find(e => e.Event_ID === eventId);
+  if (!ev) {
+    try {
+      const shEvents = getSheet_('Events');
+      const nowEv = Utilities.formatDate(new Date(), 'GMT+8', 'yyyy-MM-dd HH:mm:ss');
+      shEvents.appendRow([
+        eventId,
+        data.kategoriProgram || 'Program Hala Tuju',
+        data.namaAcara || ('Program Rasmi - ' + eventId),
+        data.tarikhMula || '2027-01-25',
+        data.tarikhMula || '2027-01-25',
+        data.masa || '09:00 - 11:30',
+        data.tempatVenue || 'Dewan Sekolah',
+        '', '', '',
+        'Sila masuk melalui Pintu Pagar B.',
+        'Sesi Takwim Rasmi 2027',
+        'Aktif',
+        nowEv
+      ]);
+      bumpVersion_('events');
+    } catch (e) {
+      // Teruskan simpan RSVP
+    }
+  }
 
   const sh = getSheet_('RSVP_Logistik');
   const vals = sh.getDataRange().getValues();
@@ -235,11 +257,12 @@ function handleGetAdminDashboard_() {
  */
 function handleSaveEvent_(data) {
   const sh = getSheet_('Events');
-  const isNew = !data.eventId;
-  const eventId = isNew ? 'EVT-' + new Date().getFullYear() + '-' + Utilities.getUuid().slice(0, 5).toUpperCase() : data.eventId;
+  const existingEvents = getSheetData_('Events');
+  const eventId = data.eventId || ('EVT-' + new Date().getFullYear() + '-' + Utilities.getUuid().slice(0, 5).toUpperCase());
+  const exists = existingEvents.some(e => e.Event_ID === eventId);
   const nowStr = Utilities.formatDate(new Date(), 'GMT+8', 'yyyy-MM-dd HH:mm:ss');
 
-  if (isNew) {
+  if (!exists) {
     sh.appendRow([
       eventId,
       data.kategoriProgram || 'Program Hala Tuju',

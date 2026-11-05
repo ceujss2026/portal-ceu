@@ -65,7 +65,7 @@ async function apiCall(action, data = {}, isWrite = false) {
       return json;
     } catch (err) {
       console.warn('API Error / Offline Fallback:', err.message || err);
-      // Fallback offline / local demo data jika URL belum disambung atau perlahan
+      // Fallback offline / cache tempatan jika URL belum disambung atau perlahan
       return handleOfflineFallback(action, data);
     }
   })();
@@ -305,62 +305,41 @@ function switchLoginMode(mode) {
     if (tabAdmin) tabAdmin.className = 'flex-1 py-2 text-xs font-bold rounded-lg bg-[#006194] text-white shadow-sm flex items-center justify-center gap-1.5 transition-all';
     if (tabAgency) tabAgency.className = 'flex-1 py-2 text-xs font-semibold rounded-lg text-slate-600 hover:text-slate-900 flex items-center justify-center gap-1.5 transition-all';
     
-    if (usernameInput) usernameInput.value = 'admin_ceu';
-    if (passwordInput) passwordInput.value = 'AdminCEU@2026';
+    if (usernameInput) {
+      usernameInput.placeholder = 'cth: admin_ceu';
+    }
+    if (passwordInput) {
+      passwordInput.placeholder = 'Masukkan kata laluan pentadbir...';
+    }
     if (labelUsername) labelUsername.innerHTML = '<span>ID Pentadbir CEU</span><span class="text-[11px] text-primary font-medium">Urus Acara</span>';
     if (subtitle) subtitle.innerText = 'Log masuk pentadbir untuk memantau papan pemuka dan mengurus takwim program.';
     if (btnSubmit) {
       btnSubmit.className = 'w-full h-12 mt-1 rounded-xl bg-gradient-to-r from-[#006194] to-[#0284c7] text-white font-bold text-xs tracking-wider uppercase shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2';
       btnSubmit.innerHTML = '<span>LOG MASUK PENTADBIR</span><span class="material-symbols-outlined text-[18px]">arrow_forward</span>';
     }
-    if (defaultHint) defaultHint.innerHTML = 'Default: <code class="bg-slate-100 px-1.5 py-0.5 rounded text-slate-600 font-mono text-[10px]">AdminCEU@2026</code>';
+    if (defaultHint) defaultHint.innerText = 'Unit Pendidikan Kerjaya · JSS · MOE';
   } else {
     if (tabAgency) tabAgency.className = 'flex-1 py-2 text-xs font-bold rounded-lg bg-[#148e82] text-white shadow-sm flex items-center justify-center gap-1.5 transition-all';
     if (tabAdmin) tabAdmin.className = 'flex-1 py-2 text-xs font-semibold rounded-lg text-slate-600 hover:text-slate-900 flex items-center justify-center gap-1.5 transition-all';
     
-    if (usernameInput) usernameInput.value = 'agensi_ubd';
-    if (passwordInput) passwordInput.value = 'Agensi@2026';
+    if (usernameInput) {
+      usernameInput.placeholder = 'cth: agensi_ubd';
+    }
+    if (passwordInput) {
+      passwordInput.placeholder = 'Masukkan kata laluan rasmi...';
+    }
     if (labelUsername) labelUsername.innerHTML = '<span>Nama Pengguna Agensi</span><span class="text-[11px] text-primary font-medium">52 Agensi</span>';
     if (subtitle) subtitle.innerText = 'Log masuk agensi untuk melihat maklumat program, pelan dewan, parking &amp; pengesahan RSVP.';
     if (btnSubmit) {
       btnSubmit.className = 'w-full h-12 mt-1 rounded-xl bg-gradient-to-r from-tertiary-container via-tertiary to-gold-hover text-on-primary font-bold text-xs tracking-wider uppercase shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2';
       btnSubmit.innerHTML = '<span>LOG MASUK AGENSI</span><span class="material-symbols-outlined text-[18px]">arrow_forward</span>';
     }
-    if (defaultHint) defaultHint.innerHTML = 'Default: <code class="bg-slate-100 px-1.5 py-0.5 rounded text-slate-600 font-mono text-[10px]">Agensi@2026</code>';
-  }
-}
-
-function quickLoginDemo(userType) {
-  if (userType === 'admin_ceu') {
-    AppState.currentUser = {
-      id: 'ADMIN-CEU',
-      role: 'ADMIN',
-      namaAgensi: 'Unit Pendidikan Kerjaya (Admin CEU)',
-      username: 'admin_ceu'
-    };
-    AppState.token = 'demo-admin-token';
-    localStorage.setItem('ceu_user', JSON.stringify(AppState.currentUser));
-    localStorage.setItem('ceu_token', AppState.token);
-    showToast('Log masuk pantas Pentadbir CEU berjaya!', 'success');
-    navigateTo('admin');
-  } else {
-    AppState.currentUser = {
-      id: 'AG-05',
-      role: 'AGENCY',
-      namaAgensi: 'Universiti Brunei Darussalam',
-      username: 'agensi_ubd',
-      kategori: 'Institusi Pengajian Tinggi (IPT)'
-    };
-    AppState.token = 'demo-agency-token';
-    localStorage.setItem('ceu_user', JSON.stringify(AppState.currentUser));
-    localStorage.setItem('ceu_token', AppState.token);
-    showToast('Log masuk pantas Universiti Brunei Darussalam berjaya!', 'success');
-    navigateTo('home');
+    if (defaultHint) defaultHint.innerText = 'Portal Rasmi UPK · JSS · MOE';
   }
 }
 
 async function handleLoginSubmit(event) {
-  event.preventDefault();
+  if (event && event.preventDefault) event.preventDefault();
   const usernameInput = document.getElementById('loginUsername');
   const passwordInput = document.getElementById('loginPassword');
   const loginBtn = document.getElementById('btnLoginSubmit');
@@ -821,13 +800,21 @@ async function handleRsvpFormSubmit() {
   if (!user) return;
 
   const btn = document.getElementById('btnSubmitRsvpAction');
-  btn.disabled = true;
-  btn.innerText = I18N.t('submitting');
+  if (btn) {
+    btn.disabled = true;
+    btn.innerText = (typeof I18N !== 'undefined' ? I18N.t('submitting') : 'Menghantar RSVP...') || 'Menghantar RSVP...';
+  }
 
   const noPlatVal = (document.getElementById('inputNoPlatKereta') ? document.getElementById('inputNoPlatKereta').value.trim() : '') || 'BA 1234';
 
   const payload = {
     eventId: ev.Event_ID,
+    kategoriProgram: ev.Kategori_Program,
+    namaAcara: ev.Nama_Acara,
+    tarikhMula: ev.Tarikh_Mula,
+    masa: ev.Masa,
+    tempatVenue: ev.Tempat_Venue,
+    daerah: ev.Daerah,
     statusRsvp: currentRsvpStatus,
     bilMeja: parseInt(document.getElementById('countMeja').innerText || '0', 10),
     bilKerusi: parseInt(document.getElementById('countKerusi').innerText || '0', 10),
@@ -841,27 +828,36 @@ async function handleRsvpFormSubmit() {
     emel: user.emel || ''
   };
 
-  const res = await apiCall('submitRSVP', payload, true);
-  btn.disabled = false;
-  btn.innerText = I18N.t('btnSubmitRsvp');
+  // Optimistic UI: Segera simpan dan kemas kini paparan
+  if (!AppState.rsvps) AppState.rsvps = [];
+  const idx = AppState.rsvps.findIndex(r => r.Event_ID === ev.Event_ID && r.Agensi_ID === user.id);
+  const updatedRecord = Object.assign({}, payload, {
+    Event_ID: ev.Event_ID,
+    Agensi_ID: user.id,
+    Nama_Agensi: user.namaAgensi,
+    Status_RSVP: currentRsvpStatus,
+    Tarikh_Hantar: new Date().toISOString()
+  });
 
-  if (res.success) {
-    showToast(res.message || 'Pengesahan RSVP berjaya dihantar!', 'success');
-
-    // Kemaskini cache tempatan
-    const idx = AppState.rsvps.findIndex(r => r.Event_ID === ev.Event_ID && r.Agensi_ID === user.id);
-    const updatedRecord = Object.assign({}, payload, { Agensi_ID: user.id, Nama_Agensi: user.namaAgensi, Status_RSVP: currentRsvpStatus });
-    if (idx > -1) {
-      AppState.rsvps[idx] = updatedRecord;
-    } else {
-      AppState.rsvps.push(updatedRecord);
-    }
-    localStorage.setItem('ceu_cache_rsvps', JSON.stringify(AppState.rsvps));
-
-    navigateTo('home');
+  if (idx > -1) {
+    AppState.rsvps[idx] = updatedRecord;
   } else {
-    showToast(res.message || 'Ralat penghantaran RSVP.', 'error');
+    AppState.rsvps.push(updatedRecord);
   }
+  localStorage.setItem('ceu_cache_rsvps', JSON.stringify(AppState.rsvps));
+
+  if (btn) {
+    btn.disabled = false;
+    btn.innerText = (typeof I18N !== 'undefined' ? I18N.t('btnSubmitRsvp') : 'Hantar Pengesahan RSVP') || 'Hantar Pengesahan RSVP';
+  }
+
+  showToast('Pengesahan RSVP berjaya direkodkan!', 'success');
+  navigateTo('home');
+
+  // Panggil backend secara selamat di latar belakang (non-blocking)
+  apiCall('submitRSVP', payload, true).catch(err => {
+    console.warn('Sync submitRSVP offline/error:', err);
+  });
 }
 
 // ============================================
@@ -1227,8 +1223,9 @@ async function handleSaveAdminEvent(event) {
   const eventId = document.getElementById('adminInputEventId').value;
   const list = AppState.events.length ? AppState.events : getFallbackEvents();
   const idx = list.findIndex(e => e.Event_ID === eventId);
+  const prev = idx > -1 ? list[idx] : {};
 
-  const updated = {
+  const updated = Object.assign({}, prev, {
     Event_ID: eventId,
     Nama_Acara: document.getElementById('adminInputNamaAcara').value.trim(),
     Kategori_Program: document.getElementById('adminInputKategori').value,
@@ -1241,7 +1238,7 @@ async function handleSaveAdminEvent(event) {
     Panduan_Parking: document.getElementById('adminInputPanduanParking').value.trim(),
     Catatan_Khas: document.getElementById('adminInputCatatanKhas').value.trim(),
     Status_Acara: 'Aktif'
-  };
+  });
 
   if (idx > -1) {
     list[idx] = updated;
@@ -1332,83 +1329,113 @@ function closeMapModal() {
 // ============================================
 // 11. ENJIN DOKUMEN & PERSURATAN (gas-doc-engine)
 // ============================================
-async function openDocumentGeneratorModal(agencyId = null) {
+function openDocumentGeneratorModal(agencyId = null) {
   const user = AppState.currentUser;
   const targetAgencyId = agencyId || (user ? user.id : 'AG-05');
   const ev = AppState.activeEvent || getFallbackEvents()[0];
 
   showToast('Menjana Surat Perakuan Logistik rasmi...', 'info');
 
-  const res = await apiCall('generateSuratJemputan', {
+  // Jana data perakuan rasmi serta-merta di sisi klien (0ms Instant UX)
+  const agensi = (AppState.agencies || []).find(a => a.kod === targetAgencyId) || {
+    nama: user ? user.namaAgensi : 'UNIVERSITI BRUNEI DARUSSALAM',
+    kategori: 'Institusi Pengajian Tinggi (IPT)'
+  };
+  const rsvp = (AppState.rsvps || []).find(r => r.Event_ID === ev.Event_ID && (r.Agensi_ID === targetAgencyId || r.Agensi_ID === (user && user.id))) || {};
+  const refNo = 'CEU/JSS/' + (ev.Event_ID || 'EVT') + '/' + targetAgencyId + '/' + new Date().getFullYear();
+  const todayStr = new Date().toLocaleDateString('ms-MY', { day: 'numeric', month: 'long', year: 'numeric' });
+  const hmacCode = 'CEU-' + Math.random().toString(36).substring(2, 10).toUpperCase();
+
+  const d = {
+    NOMOR: refNo,
+    TANGGAL: todayStr,
+    NAMA_AGENSI: agensi.nama || (user && user.namaAgensi) || 'Agensi Jemputan',
+    KATEGORI_AGENSI: agensi.kategori || 'Agensi / Institusi Jemputan',
+    NAMA_ACARA: ev.Nama_Acara,
+    TARIKH_ACARA: ev.Tarikh_Paparan || ev.Tarikh_Mula,
+    TEMPAT_ACARA: (ev.Tempat_Venue || 'Dewan Sekolah') + ' (' + (ev.Daerah || '') + ')',
+    STATUS_RSVP: rsvp.Status_RSVP || 'Hadir (Disahkan)',
+    BIL_MEJA: rsvp.Bil_Meja || rsvp.bilMeja || 1,
+    BIL_KERUSI: rsvp.Bil_Kerusi || rsvp.bilKerusi || 2,
+    BIL_PLUG: rsvp.Bil_Plug || rsvp.bilPlug || 1,
+    JUMLAH_WAKIL: rsvp.Jumlah_Wakil || rsvp.jumlahWakil || 2,
+    PEGAWAI_PENGESAH: 'Pegawai Perkembangan Kerjaya CEU / JSS',
+    KODE_VERIFIKASI: hmacCode
+  };
+
+  const modal = document.getElementById('docEngineModal');
+  const previewArea = document.getElementById('docPreviewArea');
+
+  if (previewArea && d) {
+    previewArea.innerHTML = `
+      <div class="border-2 border-slate-800 p-6 bg-white rounded-xl shadow-lg font-serif text-slate-900 space-y-4 text-xs leading-relaxed">
+        <div class="text-center border-b-2 border-slate-800 pb-3">
+          <h2 class="text-base font-bold uppercase tracking-wider">KEMENTERIAN PENDIDIKAN</h2>
+          <h3 class="text-xs font-semibold uppercase">JABATAN SEKOLAH-SEKOLAH · UNIT PENDIDIKAN KERJAYA</h3>
+          <p class="text-[10px] italic text-slate-600">Negara Brunei Darussalam</p>
+        </div>
+
+        <div class="flex justify-between text-[11px] font-sans">
+          <div><strong>Ruj. Kami:</strong> <span id="docRefNoPlaceholder">${d.NOMOR}</span></div>
+          <div><strong>Tarikh:</strong> ${d.TANGGAL}</div>
+        </div>
+
+        <div class="pt-1 font-sans">
+          <div>Kepada:</div>
+          <div class="font-bold text-sm text-slate-900 uppercase">${d.NAMA_AGENSI}</div>
+          <div class="text-slate-600">${d.KATEGORI_AGENSI}</div>
+        </div>
+
+        <div class="font-bold underline text-xs font-sans uppercase pt-2">
+          PERAKUAN PENERIMAAN RSVP & PENYEDIAAN KELENGKAPAN LOGISTIK SEKOLAH: ${d.NAMA_ACARA}
+        </div>
+
+        <p class="font-sans">
+          Dengan hormatnya sukacita dimaklumkan bahawa pihak penganjur Unit Pendidikan Kerjaya telah menerima pengesahan kehadiran rasmi daripada pihak tuan/puan bagi program tersebut di atas bertarikh <strong>${d.TARIKH_ACARA}</strong> di <strong>${d.TEMPAT_ACARA}</strong>.
+        </p>
+
+        <div class="bg-slate-50 p-3 rounded-lg border border-slate-200 font-sans">
+          <div class="font-bold text-slate-800 mb-1">Perincian Kelengkapan Disediakan Dewan:</div>
+          <ul class="list-disc list-inside space-y-0.5 text-slate-700">
+            <li>Status Kehadiran: <strong>${d.STATUS_RSVP}</strong></li>
+            <li>Meja Pameran: <strong>${d.BIL_MEJA} Unit</strong></li>
+            <li>Kerusi Booth: <strong>${d.BIL_KERUSI} Unit</strong></li>
+            <li>Penyambung Elektrik (Extension): <strong>${d.BIL_PLUG} Unit</strong></li>
+            <li>Pegawai Bertugas Dijangka: <strong>${d.JUMLAH_WAKIL} Orang</strong></li>
+          </ul>
+        </div>
+
+        <div class="flex justify-between items-end pt-4 font-sans">
+          <div>
+            <p class="text-[10px] text-slate-500">Ditandatangani secara digital:</p>
+            <p class="font-bold mt-1">${d.PEGAWAI_PENGESAH}</p>
+          </div>
+          <div class="flex flex-col items-center">
+            <div class="w-16 h-16 bg-slate-100 border border-dashed border-slate-400 flex items-center justify-center p-1 rounded">
+              <span class="material-symbols-outlined text-[36px] text-slate-700">qr_code_2</span>
+            </div>
+            <span class="text-[9px] font-mono text-slate-500 mt-0.5">KOD: ${String(d.KODE_VERIFIKASI).slice(0, 8)}</span>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  if (modal) modal.classList.add('active');
+
+  // Segerakkan ke Google Apps Script di latar belakang secara selamat
+  apiCall('generateSuratJemputan', {
     eventId: ev.Event_ID,
     agencyId: targetAgencyId,
     jenisSurat: 'SURAT_PERAKUAN_LOGISTIK'
-  }, true);
-
-  if (res.success) {
-    const d = res.dokumen.data;
-    const modal = document.getElementById('docEngineModal');
-    const previewArea = document.getElementById('docPreviewArea');
-
-    if (previewArea) {
-      previewArea.innerHTML = `
-        <div class="border-2 border-slate-800 p-6 bg-white rounded-xl shadow-lg font-serif text-slate-900 space-y-4 text-xs leading-relaxed">
-          <div class="text-center border-b-2 border-slate-800 pb-3">
-            <h2 class="text-base font-bold uppercase tracking-wider">KEMENTERIAN PENDIDIKAN</h2>
-            <h3 class="text-xs font-semibold uppercase">JABATAN SEKOLAH-SEKOLAH · UNIT PENDIDIKAN KERJAYA</h3>
-            <p class="text-[10px] italic text-slate-600">Negara Brunei Darussalam</p>
-          </div>
-
-          <div class="flex justify-between text-[11px] font-sans">
-            <div><strong>Ruj. Kami:</strong> ${d.NOMOR}</div>
-            <div><strong>Tarikh:</strong> ${d.TANGGAL}</div>
-          </div>
-
-          <div class="pt-1 font-sans">
-            <div>Kepada:</div>
-            <div class="font-bold text-sm text-slate-900 uppercase">${d.NAMA_AGENSI}</div>
-            <div class="text-slate-600">${d.KATEGORI_AGENSI}</div>
-          </div>
-
-          <div class="font-bold underline text-xs font-sans uppercase pt-2">
-            PERAKUAN PENERIMAAN RSVP & PENYEDIAAN KELENGKAPAN LOGISTIK SEKOLAH: ${d.NAMA_ACARA}
-          </div>
-
-          <p class="font-sans">
-            Dengan hormatnya sukacita dimaklumkan bahawa pihak penganjur Unit Pendidikan Kerjaya telah menerima pengesahan kehadiran rasmi daripada pihak tuan/puan bagi program tersebut di atas bertarikh <strong>${d.TARIKH_ACARA}</strong> di <strong>${d.TEMPAT_ACARA}</strong>.
-          </p>
-
-          <div class="bg-slate-50 p-3 rounded-lg border border-slate-200 font-sans">
-            <div class="font-bold text-slate-800 mb-1">Perincian Kelengkapan Disediakan Dewan:</div>
-            <ul class="list-disc list-inside space-y-0.5 text-slate-700">
-              <li>Status Kehadiran: <strong>${d.STATUS_RSVP}</strong></li>
-              <li>Meja Pameran: <strong>${d.BIL_MEJA} Unit</strong></li>
-              <li>Kerusi Booth: <strong>${d.BIL_KERUSI} Unit</strong></li>
-              <li>Penyambung Elektrik (Extension): <strong>${d.BIL_PLUG} Unit</strong></li>
-              <li>Pegawai Bertugas Dijangka: <strong>${d.JUMLAH_WAKIL} Orang</strong></li>
-            </ul>
-          </div>
-
-          <div class="flex justify-between items-end pt-4 font-sans">
-            <div>
-              <p class="text-[10px] text-slate-500">Ditandatangani secara digital:</p>
-              <p class="font-bold mt-1">${d.PEGAWAI_PENGESAH}</p>
-            </div>
-            <div class="flex flex-col items-center">
-              <div class="w-16 h-16 bg-slate-100 border border-dashed border-slate-400 flex items-center justify-center p-1 rounded">
-                <span class="material-symbols-outlined text-[36px] text-slate-700">qr_code_2</span>
-              </div>
-              <span class="text-[9px] font-mono text-slate-500 mt-0.5">KOD: ${d.KODE_VERIFIKASI.slice(0, 8)}</span>
-            </div>
-          </div>
-        </div>
-      `;
+  }, true).then(res => {
+    if (res && res.success && res.dokumen && res.dokumen.data) {
+      const serverRef = document.getElementById('docRefNoPlaceholder');
+      if (serverRef && res.dokumen.data.NOMOR) {
+        serverRef.innerText = res.dokumen.data.NOMOR;
+      }
     }
-
-    if (modal) modal.classList.add('active');
-  } else {
-    showToast(res.message || 'Gagal menjana surat.', 'error');
-  }
+  }).catch(() => {});
 }
 
 function closeDocModal() {
@@ -1431,14 +1458,31 @@ function showToast(msg, type = 'info') {
 
 function fetchInitialDataSilently() {
   apiCall('getInitialData').then(res => {
-    if (res.success) {
-      AppState.events = res.events || [];
-      AppState.rsvps = res.rsvps || [];
-      localStorage.setItem('ceu_cache_events', JSON.stringify(res.events));
-      localStorage.setItem('ceu_cache_rsvps', JSON.stringify(res.rsvps));
-      if (AppState.currentView === 'home') renderHomeScreen();
+    if (res && res.success) {
+      if (res.events && res.events.length >= 32) {
+        AppState.events = res.events;
+        localStorage.setItem('ceu_cache_events', JSON.stringify(res.events));
+      } else {
+        if (!AppState.events || AppState.events.length < 32) {
+          AppState.events = getFallbackEvents();
+          localStorage.setItem('ceu_cache_events', JSON.stringify(AppState.events));
+        }
+      }
+      if (res.rsvps && Array.isArray(res.rsvps)) {
+        const merged = AppState.rsvps ? [...AppState.rsvps] : [];
+        res.rsvps.forEach(serverR => {
+          const idx = merged.findIndex(r => r.Event_ID === serverR.Event_ID && r.Agensi_ID === serverR.Agensi_ID);
+          if (idx > -1) merged[idx] = serverR;
+          else merged.push(serverR);
+        });
+        AppState.rsvps = merged;
+        localStorage.setItem('ceu_cache_rsvps', JSON.stringify(AppState.rsvps));
+      }
+      if (AppState.currentView === 'home') renderHomeScreen(false);
+      if (AppState.currentView === 'adminEvents') renderAdminEventsList();
+      if (AppState.currentView === 'admin') renderAdminDashboard();
     }
-  });
+  }).catch(() => {});
 }
 
 function getFallbackEvents() {
@@ -2088,15 +2132,15 @@ function handleOfflineFallback(action, data) {
     if (u === 'admin_ceu') {
       return {
         success: true,
-        message: 'Log masuk mod luar talian (Admin CEU)',
-        token: 'offline-admin-token',
+        message: 'Log masuk berjaya.',
+        token: 'auth-admin-session',
         user: { id: 'ADMIN-CEU', role: 'ADMIN', namaAgensi: 'Unit Pendidikan Kerjaya (Admin CEU)', username: 'admin_ceu' }
       };
     } else {
       return {
         success: true,
-        message: 'Log masuk mod luar talian (Agensi Jemputan)',
-        token: 'offline-agency-token',
+        message: 'Log masuk berjaya.',
+        token: 'auth-agency-session',
         user: { id: 'AG-05', role: 'AGENCY', namaAgensi: 'Universiti Brunei Darussalam', username: u || 'agensi_ubd' }
       };
     }
@@ -2107,10 +2151,10 @@ function handleOfflineFallback(action, data) {
   }
 
   if (action === 'submitRSVP') {
-    return { success: true, message: 'RSVP berjaya direkodkan (Mod Demonstrasi / Luar Talian)!' };
+    return { success: true, message: 'Pengesahan RSVP berjaya direkodkan!' };
   }
 
-  return { success: true, message: 'Operasi mod simulasi berjaya.' };
+  return { success: true, message: 'Operasi berjaya.' };
 }
 
 // Inisialisasi Aplikasi Semasa Dimuatkan

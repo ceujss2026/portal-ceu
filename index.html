@@ -445,7 +445,7 @@
             </div>
 
             <!-- Form Elements -->
-            <form onsubmit="handleLoginSubmit(event)" class="flex flex-col gap-3.5">
+            <form id="formLogin" onsubmit="handleLoginSubmit(event)" class="flex flex-col gap-3.5">
               <!-- Field 1: Agency Username -->
               <div class="flex flex-col gap-1.5">
                 <label id="labelLoginUsername" class="text-xs text-on-surface font-semibold flex items-center justify-between" for="loginUsername">
@@ -454,7 +454,7 @@
                 </label>
                 <div class="relative flex items-center">
                   <span class="material-symbols-outlined absolute left-3.5 text-outline text-[20px] pointer-events-none">domain</span>
-                  <input class="w-full h-11 pl-11 pr-4 bg-slate-50 border border-slate-200 text-on-surface text-xs rounded-xl focus:outline-none focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all placeholder:text-outline" id="loginUsername" value="agensi_ubd" placeholder="cth: agensi_ubd / admin_ceu" required type="text" />
+                  <input class="w-full h-11 pl-11 pr-4 bg-slate-50 border border-slate-200 text-on-surface text-xs rounded-xl focus:outline-none focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all placeholder:text-outline" id="loginUsername" value="" placeholder="cth: agensi_ubd atau admin_ceu" required type="text" />
                 </div>
               </div>
 
@@ -466,7 +466,7 @@
                 </label>
                 <div class="relative flex items-center">
                   <span class="material-symbols-outlined absolute left-3.5 text-outline text-[20px] pointer-events-none">lock</span>
-                  <input class="w-full h-11 pl-11 pr-10 bg-slate-50 border border-slate-200 text-on-surface text-xs rounded-xl focus:outline-none focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all placeholder:text-outline" id="loginPassword" value="Agensi@2026" placeholder="••••••••" required type="password" />
+                  <input class="w-full h-11 pl-11 pr-10 bg-slate-50 border border-slate-200 text-on-surface text-xs rounded-xl focus:outline-none focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all placeholder:text-outline" id="loginPassword" value="" placeholder="Masukkan kata laluan rasmi..." required type="password" />
                   <button type="button" onclick="const p = document.getElementById('loginPassword'); p.type = p.type === 'password' ? 'text' : 'password';" class="absolute right-3 text-outline hover:text-on-surface">
                     <span class="material-symbols-outlined text-[20px]">visibility</span>
                   </button>
@@ -475,7 +475,7 @@
 
               <!-- Action Link -->
               <div class="flex items-center justify-between text-xs pt-0.5">
-                <span id="loginDefaultHint" class="text-[11px] text-slate-400">Default: <code class="bg-slate-100 px-1.5 py-0.5 rounded text-slate-600 font-mono text-[10px]">Agensi@2026</code></span>
+                <span id="loginDefaultHint" class="text-[11px] text-slate-400">Portal Rasmi UPK · JSS · MOE</span>
                 <a href="javascript:void(0)" onclick="alert('Urus Setia CEU:\nTalian: +673 2381224\nEmel: ceu@moe.gov.bn')" class="text-xs font-semibold text-primary hover:underline">
                   Bantuan Kredensial?
                 </a>
@@ -486,21 +486,6 @@
                 <span>LOG MASUK AGENSI</span>
                 <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
               </button>
-
-              <!-- Akses Pantas Demonstrasi 1-Klik -->
-              <div class="mt-2 pt-3 border-t border-slate-100 flex flex-col gap-2">
-                <span class="text-[10px] text-slate-400 font-semibold uppercase tracking-wider text-center">Akses Terus (Ujian Demonstrasi 0ms):</span>
-                <div class="grid grid-cols-2 gap-2">
-                  <button type="button" onclick="quickLoginDemo('agensi_ubd')" class="px-2.5 py-2.5 rounded-xl bg-slate-50 hover:bg-[#e0f2fe] hover:border-[#0284c7] border border-slate-200 text-slate-700 hover:text-[#006194] text-[11px] font-bold flex items-center justify-center gap-1.5 transition-all shadow-sm">
-                    <span class="material-symbols-outlined text-[16px] text-[#006194]">apartment</span>
-                    <span class="truncate">Mod Agensi (UBD)</span>
-                  </button>
-                  <button type="button" onclick="quickLoginDemo('admin_ceu')" class="px-2.5 py-2.5 rounded-xl bg-slate-50 hover:bg-[#fef3c7] hover:border-[#d97706] border border-slate-200 text-slate-700 hover:text-[#b45309] text-[11px] font-bold flex items-center justify-center gap-1.5 transition-all shadow-sm">
-                    <span class="material-symbols-outlined text-[16px] text-[#d97706]">shield_person</span>
-                    <span class="truncate">Mod Pentadbir (CEU)</span>
-                  </button>
-                </div>
-              </div>
             </form>
 
             <div class="text-center text-[10px] text-slate-400 mt-4 md:mt-6">
@@ -734,9 +719,9 @@
                 <span class="font-bold">RSVP Ekspo Belait Masih Tertunggak</span>
                 <span class="text-[11px] text-amber-800">Sila sahkan kehadiran &amp; butiran delegasi sebelum <strong>12 Mac 2026</strong> bagi penyediaan pelekat meja &amp; pas masuk kenderaan.</span>
               </div>
-              <button onclick="navigateTo('rsvpForm', 'EVT-2026-01')" class="w-full py-2.5 px-4 bg-[#f59e0b] hover:bg-[#d97706] text-slate-900 font-bold text-xs rounded-xl shadow-sm transition-all flex items-center justify-center gap-1.5">
+              <button onclick="navigateTo('rsvpForm', AppState.activeEvent ? AppState.activeEvent.Event_ID : null)" class="w-full py-2.5 px-4 bg-[#f59e0b] hover:bg-[#d97706] text-slate-900 font-bold text-xs rounded-xl shadow-sm transition-all flex items-center justify-center gap-1.5">
                 <span class="material-symbols-outlined text-[16px]">edit_document</span>
-                <span>Isi Borang RSVP Sekarang</span>
+                <span>Isi Borang RSVP Sesi Terpilih</span>
               </button>
             </div>
 
@@ -765,8 +750,8 @@
                 </li>
               </ul>
               <div class="pt-2 border-t border-slate-100 flex items-center justify-between text-xs">
-                <button onclick="navigateTo('floorPlan')" class="text-primary font-bold hover:underline">Semak No Booth →</button>
-                <button onclick="navigateTo('parking')" class="text-primary font-bold hover:underline">Pas Parking →</button>
+                <button type="button" onclick="openMapModal('floorPlan')" class="text-[#148e82] font-bold hover:underline flex items-center gap-0.5"><span class="material-symbols-outlined text-[15px]">view_quilt</span><span>Pelan Meja Booth →</span></button>
+                <button type="button" onclick="openMapModal('parking')" class="text-[#d97706] font-bold hover:underline flex items-center gap-0.5"><span class="material-symbols-outlined text-[15px]">directions_car</span><span>Peta Parking Pintu B →</span></button>
               </div>
             </div>
 
@@ -791,8 +776,8 @@
                   <span class="font-bold text-white">ceu@moe.gov.bn</span>
                 </div>
               </div>
-              <button onclick="navigateTo('rsvpForm', 'EVT-2026-01')" class="w-full py-2 bg-white text-[#148e82] hover:bg-slate-50 text-xs font-bold rounded-xl shadow-sm transition-all text-center">
-                Lantik Wakil Rasmi Ganti
+              <button onclick="navigateTo('rsvpForm', AppState.activeEvent ? AppState.activeEvent.Event_ID : null)" class="w-full py-2 bg-white text-[#148e82] hover:bg-slate-50 text-xs font-bold rounded-xl shadow-sm transition-all text-center">
+                Borang RSVP &amp; Lantik Wakil
               </button>
             </div>
 
@@ -1431,11 +1416,11 @@
               </div>
               <h3 id="adminEventFormTitle" class="text-sm font-bold text-slate-900">Kemaskini Butiran Acara &amp; Logistik</h3>
             </div>
-            <span id="adminEventIdBadge" class="text-[10px] font-mono font-bold bg-slate-100 text-slate-600 px-2 py-0.5 rounded">EVT-2026-01</span>
+            <span id="adminEventIdBadge" class="text-[10px] font-mono font-bold bg-slate-100 text-slate-600 px-2 py-0.5 rounded">EVT-PHT-01</span>
           </div>
 
           <form onsubmit="handleSaveAdminEvent(event)" class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
-            <input type="hidden" id="adminInputEventId" value="EVT-2026-01" />
+            <input type="hidden" id="adminInputEventId" value="EVT-PHT-01" />
 
             <!-- Nama Acara -->
             <div class="md:col-span-2 flex flex-col gap-1.5">
@@ -1448,7 +1433,7 @@
               <label class="font-bold text-slate-800">Kategori Program</label>
               <select id="adminInputKategori" class="w-full h-11 px-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold">
                 <option value="Program Hala Tuju">Program Hala Tuju (PHT)</option>
-                <option value="FutureLink">FutureLink</option>
+                <option value="Program FutureLink">Program FutureLink</option>
                 <option value="Taklimat Tahunan Agensi">Taklimat Tahunan Agensi</option>
               </select>
             </div>

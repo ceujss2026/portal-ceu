@@ -181,6 +181,12 @@ const I18N = {
     this.currentLang = lang;
     localStorage.setItem('ceu_lang', lang);
     this.applyToDOM();
+    if (typeof AppState !== 'undefined' && AppState.currentUser) {
+      if (AppState.currentView === 'home' && typeof renderHomeScreen === 'function') renderHomeScreen(false);
+      if (AppState.currentView === 'admin' && typeof renderAdminDashboard === 'function') renderAdminDashboard();
+      if (AppState.currentView === 'adminEvents' && typeof renderAdminEventsList === 'function') renderAdminEventsList();
+      if (AppState.currentView === 'rsvpForm' && typeof renderRsvpScreen === 'function') renderRsvpScreen();
+    }
   },
 
   applyToDOM: function() {
