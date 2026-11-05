@@ -437,10 +437,132 @@ function logoutUser() {
 let homeCategoryFilter = 'ALL';
 let homeDistrictFilter = 'ALL';
 
+let homeCalendarCurrentDate = null;
+
+function sortEventsChronologically(list) {
+  return (list || []).slice().sort((a, b) => (a.Tarikh_Mula || '').localeCompare(b.Tarikh_Mula || ''));
+}
+
+function syncCalendarToActiveEvent() {
+  const activeEv = AppState.activeEvent || (AppState.events && AppState.events[0]) || getFallbackEvents()[0];
+  if (activeEv && activeEv.Tarikh_Mula) {
+    const p = activeEv.Tarikh_Mula.split('-');
+    homeCalendarCurrentDate = new Date(parseInt(p[0], 10), parseInt(p[1], 10) - 1, parseInt(p[2], 10));
+  } else {
+    homeCalendarCurrentDate = new Date(2027, 0, 25);
+  }
+  renderHomeMiniCalendar();
+}
+
+function navigateHomeCalendarWeek(direction) {
+  if (!homeCalendarCurrentDate) {
+    syncCalendarToActiveEvent();
+  }
+  homeCalendarCurrentDate.setDate(homeCalendarCurrentDate.getDate() + (direction * 7));
+  renderHomeMiniCalendar();
+}
+
+function renderHomeMiniCalendar() {
+  const daysContainer = document.getElementById('homeMiniCalDaysContainer');
+  const monthEl = document.getElementById('homeMiniCalMonth');
+  const weekEl = document.getElementById('homeMiniCalWeek');
+  if (!daysContainer) return;
+
+  const isEn = typeof I18N !== 'undefined' && I18N.currentLang === 'EN';
+  
+  if (!homeCalendarCurrentDate) {
+    const activeEv = AppState.activeEvent || (AppState.events && AppState.events[0]);
+    if (activeEv && activeEv.Tarikh_Mula) {
+      const p = activeEv.Tarikh_Mula.split('-');
+      homeCalendarCurrentDate = new Date(parseInt(p[0], 10), parseInt(p[1], 10) - 1, parseInt(p[2], 10));
+    } else {
+      homeCalendarCurrentDate = new Date(2027, 0, 25);
+    }
+  }
+
+  // Hari Ahad bagi minggu ini (Sunday)
+  const curr = new Date(homeCalendarCurrentDate.getTime());
+  const dayOfWeek = curr.getDay(); // 0 = Ahad
+  const sunday = new Date(curr);
+  sunday.setDate(curr.getDate() - dayOfWeek);
+  sunday.setHours(0, 0, 0, 0);
+
+  const saturday = new Date(sunday);
+  saturday.setDate(sunday.getDate() + 6);
+
+  // Tentukan nama bulan & tahun mengikut pertengahan minggu (Rabu)
+  const midWeek = new Date(sunday);
+  midWeek.setDate(sunday.getDate() + 3);
+  const mIndex = midWeek.getMonth();
+  const yearNum = midWeek.getFullYear();
+
+  const monthNamesBm = ['Januari', 'Februari', 'Mac', 'April', 'Mei', 'Jun', 'Julai', 'Ogos', 'September', 'Oktober', 'November', 'Disember'];
+  const monthNamesEn = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+  const monthName = isEn ? monthNamesEn[mIndex] : monthNamesBm[mIndex];
+
+  if (monthEl) monthEl.innerText = `${monthName} ${yearNum}`;
+
+  const pad = (n) => n < 10 ? '0' + n : '' + n;
+  if (weekEl) {
+    weekEl.innerText = `${pad(sunday.getDate())}/${pad(sunday.getMonth()+1)} - ${pad(saturday.getDate())}/${pad(saturday.getMonth()+1)}`;
+  }
+
+  const dayNamesBm = ['Aha', 'Isn', 'Sel', 'Rab', 'Kha', 'Jum', 'Sab'];
+  const dayNamesEn = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  const dayNames = isEn ? dayNamesEn : dayNamesBm;
+
+  const events = AppState.events || [];
+  const activeTarikh = AppState.activeEvent ? AppState.activeEvent.Tarikh_Mula : '';
+
+  let daysHtml = '';
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(sunday);
+    d.setDate(sunday.getDate() + i);
+    const dateStr = `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+    const dayName = dayNames[i];
+    const dayNumber = pad(d.getDate());
+
+    const matchingEv = events.find(e => e.Tarikh_Mula === dateStr);
+    const isActive = activeTarikh === dateStr;
+
+    if (isActive) {
+      daysHtml += `
+        <div onclick="${matchingEv ? `selectActiveEvent('${matchingEv.Event_ID}')` : ''}" class="flex flex-col items-center py-1.5 px-0.5 rounded-xl bg-[#f59e0b] text-slate-900 shadow-md ring-2 ring-amber-300 font-bold cursor-pointer transition-transform active:scale-95" title="${matchingEv ? (matchingEv.Sekolah || matchingEv.Nama_Acara) : ''}">
+          <span class="text-[9px] font-bold text-slate-900">${dayName}</span>
+          <span class="text-xs font-black text-slate-900">${dayNumber}</span>
+          <span class="w-1.5 h-1.5 rounded-full bg-slate-900 mt-0.5"></span>
+        </div>
+      `;
+    } else if (matchingEv) {
+      daysHtml += `
+        <div onclick="selectActiveEvent('${matchingEv.Event_ID}'); window.scrollTo({top: 0, behavior: 'smooth'});" class="flex flex-col items-center py-1.5 px-0.5 rounded-xl bg-white/20 hover:bg-white/35 text-white font-bold cursor-pointer border border-amber-300/40 transition-transform active:scale-95 shadow-xs" title="Sesi: ${matchingEv.Sekolah || matchingEv.Nama_Acara}">
+          <span class="text-[9px] text-amber-200">${dayName}</span>
+          <span class="text-xs font-extrabold text-white">${dayNumber}</span>
+          <span class="w-1.5 h-1.5 rounded-full bg-amber-400 mt-0.5"></span>
+        </div>
+      `;
+    } else {
+      daysHtml += `
+        <div class="flex flex-col items-center py-1.5 px-0.5 rounded-xl bg-white/10 text-white/70">
+          <span class="text-[9px] text-white/70">${dayName}</span>
+          <span class="text-xs font-semibold text-white/90">${dayNumber}</span>
+          <span class="w-1 h-1 rounded-full bg-transparent mt-0.5"></span>
+        </div>
+      `;
+    }
+  }
+
+  daysContainer.innerHTML = daysHtml;
+}
+
 function selectActiveEvent(eventId) {
   const ev = (AppState.events || []).find(e => e.Event_ID === eventId);
   if (ev) {
     AppState.activeEvent = ev;
+    if (ev.Tarikh_Mula) {
+      const p = ev.Tarikh_Mula.split('-');
+      homeCalendarCurrentDate = new Date(parseInt(p[0], 10), parseInt(p[1], 10) - 1, parseInt(p[2], 10));
+    }
     const dropdown = document.getElementById('homeSessionDropdown');
     if (dropdown) dropdown.value = eventId;
     const rsvpSelector = document.getElementById('rsvpSessionSelector');
@@ -497,19 +619,33 @@ function renderHomeScreen(populateDropdown = true) {
     agencyNameEl.innerText = user.namaAgensi || 'UNIVERSITI BRUNEI DARUSSALAM';
   }
 
-  // 2. Metrik Pantas daripada Cache (Pastikan 31 Sesi & Bebas Maktab Duli)
+  // 2. Metrik Pantas daripada Cache (Pastikan 31 Sesi Tersusun Kronologi & Bebas Maktab Duli)
   if (AppState.events && AppState.events.length > 0) {
     AppState.events = AppState.events.filter(e => e.Event_ID !== 'EVT-FL-05' && !e.Nama_Acara.includes('Maktab Duli'));
   }
   if (!AppState.events || AppState.events.length < 31) {
     AppState.events = getFallbackEvents();
-    localStorage.setItem('ceu_cache_events', JSON.stringify(AppState.events));
   }
+  AppState.events = sortEventsChronologically(AppState.events);
+  localStorage.setItem('ceu_cache_events', JSON.stringify(AppState.events));
 
   if (!AppState.activeEvent || AppState.activeEvent.Event_ID === 'EVT-FL-05' || AppState.activeEvent.Nama_Acara.includes('Maktab Duli')) {
     AppState.activeEvent = AppState.events[0];
   }
   const primaryEvent = AppState.activeEvent;
+
+  // Render Mini Kalendar Interaktif (Aktifkan dinamik mengikut sesi)
+  renderHomeMiniCalendar();
+
+  // Kemas kini Kad Metrik 1, 2, 3
+  const mCount1 = document.getElementById('homeMetricCount1');
+  const mLabel1 = document.getElementById('homeMetricLabel1');
+  if (mCount1) mCount1.innerText = AppState.events.length || 31;
+  if (mLabel1) mLabel1.innerText = isEn ? 'Official Takwim Sessions' : 'Jumlah Sesi Takwim';
+
+  const userRsvps = (AppState.rsvps || []).filter(r => r.Agensi_ID === user.id && r.Status_RSVP === 'Hadir');
+  const mCount2 = document.getElementById('homeMetricCount2');
+  if (mCount2) mCount2.innerText = (userRsvps.length < 10 ? '0' : '') + userRsvps.length;
 
   // 3. Dropdown Pemilih 31 Sesi
   const dropdown = document.getElementById('homeSessionDropdown');
@@ -649,7 +785,7 @@ function setHomeCalendarView(viewMode) {
 
 function setHomeCalendarMonth(monthStr) {
   homeCalendarMonth = monthStr;
-  const monthIds = ['pillMonth_ALL', 'pillMonth_01', 'pillMonth_02', 'pillMonth_03', 'pillMonth_04', 'pillMonth_06', 'pillMonth_07'];
+  const monthIds = ['pillMonth_ALL', 'pillMonth_01', 'pillMonth_02', 'pillMonth_03', 'pillMonth_04', 'pillMonth_05', 'pillMonth_06', 'pillMonth_07'];
   monthIds.forEach(id => {
     const el = document.getElementById(id);
     if (el) el.className = 'px-2.5 py-0.5 rounded-lg font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 shrink-0';
@@ -658,6 +794,19 @@ function setHomeCalendarMonth(monthStr) {
   if (activeEl) {
     activeEl.className = 'px-2.5 py-0.5 rounded-lg font-bold bg-[#148e82] text-white shrink-0';
   }
+
+  // Jika memilih bulan khusus, selaraskan kalendar ke bulan tersebut
+  if (monthStr !== 'ALL') {
+    const firstInMonth = (AppState.events || []).find(e => (e.Tarikh_Mula || '').slice(5, 7) === monthStr);
+    if (firstInMonth && firstInMonth.Tarikh_Mula) {
+      const p = firstInMonth.Tarikh_Mula.split('-');
+      homeCalendarCurrentDate = new Date(parseInt(p[0], 10), parseInt(p[1], 10) - 1, parseInt(p[2], 10));
+    } else {
+      homeCalendarCurrentDate = new Date(2027, parseInt(monthStr, 10) - 1, 1);
+    }
+    renderHomeMiniCalendar();
+  }
+
   renderHomeScheduleList();
 }
 
@@ -764,6 +913,7 @@ function renderHomeScheduleList() {
       { code: '02', name: 'February 2027' },
       { code: '03', name: 'March 2027' },
       { code: '04', name: 'April 2027' },
+      { code: '05', name: 'May 2027' },
       { code: '06', name: 'June 2027' },
       { code: '07', name: 'July 2027' }
     ] : [
@@ -771,6 +921,7 @@ function renderHomeScheduleList() {
       { code: '02', name: 'Februari 2027' },
       { code: '03', name: 'Mac 2027' },
       { code: '04', name: 'April 2027' },
+      { code: '05', name: 'Mei 2027' },
       { code: '06', name: 'Jun 2027' },
       { code: '07', name: 'Julai 2027' }
     ];
@@ -820,15 +971,23 @@ function renderHomeScheduleList() {
     };
 
     const weekGroups = {};
+    const weekDates = {};
     list.forEach(ev => {
       const key = getWeekKey(ev.Tarikh_Mula);
-      if (!weekGroups[key]) weekGroups[key] = [];
+      if (!weekGroups[key]) {
+        weekGroups[key] = [];
+        weekDates[key] = ev.Tarikh_Mula;
+      }
       weekGroups[key].push(ev);
+    });
+
+    const sortedWeekKeys = Object.keys(weekGroups).sort((a, b) => {
+      return (weekDates[a] || '').localeCompare(weekDates[b] || '');
     });
 
     let html = '';
     let weekIndex = 1;
-    Object.keys(weekGroups).forEach(wKey => {
+    sortedWeekKeys.forEach(wKey => {
       const wEvents = weekGroups[wKey];
       html += `
         <div class="flex flex-col gap-2 pt-2">
@@ -1702,569 +1861,568 @@ function fetchInitialDataSilently() {
 }
 
 function getFallbackEvents() {
-  return [
-    // --- PROGRAM HALA TUJU (27 SESI) ---
+  const events = [
+    // --- 31 SESI TAKWIM TERSUSUN KRONOLOGI MENGIKUT TARIKH ---
     {
-      Event_ID: 'EVT-PHT-01',
-      Kategori_Program: 'Program Hala Tuju',
-      Nama_Acara: 'Program Hala Tuju - SM Tanjong Maya',
-      Sekolah: 'Sekolah Menengah Tanjong Maya',
-      Daerah: 'Tutong',
-      Tarikh_Mula: '2027-01-25',
-      Tarikh_Paparan: '25/01/2027 (Isnin)',
-      Hari: 'Isnin',
-      Masa: '09:00 - 11:30',
-      Tempat_Venue: 'Dewan Sekolah Menengah Tanjong Maya',
-      Pautan_GPS_Maps: 'https://maps.google.com/?q=Sekolah+Menengah+Tanjong+Maya+Brunei',
-      Pelan_Sekolah_URL: 'https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=600&q=80',
-      Pelan_Parking_URL: 'https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=600&q=80',
-      Panduan_Parking: 'Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi & VIP). Zon parking dikhaskan di Blok C.',
-      Catatan_Khas: 'Pakaian rasmi pejabat / kot. Meja pameran disediakan oleh pihak sekolah di dewan.',
-      Status_Acara: 'Aktif'
+          "Event_ID": "EVT-PHT-01",
+          "Kategori_Program": "Program Hala Tuju",
+          "Nama_Acara": "Program Hala Tuju - SM Tanjong Maya",
+          "Sekolah": "Sekolah Menengah Tanjong Maya",
+          "Daerah": "Tutong",
+          "Tarikh_Mula": "2027-01-25",
+          "Tarikh_Paparan": "25/01/2027 (Isnin)",
+          "Hari": "Isnin",
+          "Masa": "09:00 - 11:30",
+          "Tempat_Venue": "Dewan Sekolah Menengah Tanjong Maya",
+          "Pautan_GPS_Maps": "https://maps.google.com/?q=Sekolah+Menengah+Tanjong+Maya+Brunei",
+          "Pelan_Sekolah_URL": "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=600&q=80",
+          "Pelan_Parking_URL": "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=600&q=80",
+          "Panduan_Parking": "Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi & VIP). Zon parking dikhaskan di Blok C.",
+          "Catatan_Khas": "Pakaian rasmi pejabat / kot. Meja pameran disediakan oleh pihak sekolah di dewan.",
+          "Status_Acara": "Aktif"
     },
     {
-      Event_ID: 'EVT-PHT-02',
-      Kategori_Program: 'Program Hala Tuju',
-      Nama_Acara: 'Program Hala Tuju - SM Sayyidina ‘Othman',
-      Sekolah: 'Sekolah Menengah Sayyidina ‘Othman',
-      Daerah: 'Tutong',
-      Tarikh_Mula: '2027-01-26',
-      Tarikh_Paparan: '26/01/2027 (Selasa)',
-      Hari: 'Selasa',
-      Masa: '09:00 - 11:30',
-      Tempat_Venue: 'Dewan Sekolah Menengah Sayyidina ‘Othman',
-      Pautan_GPS_Maps: 'https://maps.google.com/?q=Sekolah+Menengah+Sayyidina+Othman+Brunei',
-      Pelan_Sekolah_URL: 'https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=600&q=80',
-      Pelan_Parking_URL: 'https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=600&q=80',
-      Panduan_Parking: 'Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi & VIP).',
-      Catatan_Khas: 'Pakaian rasmi pejabat / kot. Meja pameran disediakan di dewan.',
-      Status_Acara: 'Aktif'
+          "Event_ID": "EVT-PHT-02",
+          "Kategori_Program": "Program Hala Tuju",
+          "Nama_Acara": "Program Hala Tuju - SM Sayyidina ‘Othman",
+          "Sekolah": "Sekolah Menengah Sayyidina ‘Othman",
+          "Daerah": "Tutong",
+          "Tarikh_Mula": "2027-01-26",
+          "Tarikh_Paparan": "26/01/2027 (Selasa)",
+          "Hari": "Selasa",
+          "Masa": "09:00 - 11:30",
+          "Tempat_Venue": "Dewan Sekolah Menengah Sayyidina ‘Othman",
+          "Pautan_GPS_Maps": "https://maps.google.com/?q=Sekolah+Menengah+Sayyidina+Othman+Brunei",
+          "Pelan_Sekolah_URL": "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=600&q=80",
+          "Pelan_Parking_URL": "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=600&q=80",
+          "Panduan_Parking": "Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi & VIP).",
+          "Catatan_Khas": "Pakaian rasmi pejabat / kot. Meja pameran disediakan di dewan.",
+          "Status_Acara": "Aktif"
     },
     {
-      Event_ID: 'EVT-PHT-03',
-      Kategori_Program: 'Program Hala Tuju',
-      Nama_Acara: 'Program Hala Tuju - SM Sayyidina Husain',
-      Sekolah: 'Sekolah Menengah Sayyidina Husain',
-      Daerah: 'Brunei Muara',
-      Tarikh_Mula: '2027-01-28',
-      Tarikh_Paparan: '28/01/2027 (Khamis)',
-      Hari: 'Khamis',
-      Masa: '09:00 - 11:30',
-      Tempat_Venue: 'Dewan Sekolah Menengah Sayyidina Husain',
-      Pautan_GPS_Maps: 'https://maps.google.com/?q=Sekolah+Menengah+Sayyidina+Husain+Brunei',
-      Pelan_Sekolah_URL: 'https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=600&q=80',
-      Pelan_Parking_URL: 'https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=600&q=80',
-      Panduan_Parking: 'Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi & VIP).',
-      Catatan_Khas: 'Pakaian rasmi pejabat / kot.',
-      Status_Acara: 'Aktif'
+          "Event_ID": "EVT-PHT-03",
+          "Kategori_Program": "Program Hala Tuju",
+          "Nama_Acara": "Program Hala Tuju - SM Sayyidina Husain",
+          "Sekolah": "Sekolah Menengah Sayyidina Husain",
+          "Daerah": "Brunei Muara",
+          "Tarikh_Mula": "2027-01-28",
+          "Tarikh_Paparan": "28/01/2027 (Khamis)",
+          "Hari": "Khamis",
+          "Masa": "09:00 - 11:30",
+          "Tempat_Venue": "Dewan Sekolah Menengah Sayyidina Husain",
+          "Pautan_GPS_Maps": "https://maps.google.com/?q=Sekolah+Menengah+Sayyidina+Husain+Brunei",
+          "Pelan_Sekolah_URL": "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=600&q=80",
+          "Pelan_Parking_URL": "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=600&q=80",
+          "Panduan_Parking": "Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi & VIP).",
+          "Catatan_Khas": "Pakaian rasmi pejabat / kot.",
+          "Status_Acara": "Aktif"
     },
     {
-      Event_ID: 'EVT-PHT-04',
-      Kategori_Program: 'Program Hala Tuju',
-      Nama_Acara: 'Program Hala Tuju - SM Katok',
-      Sekolah: 'Sekolah Menengah Katok',
-      Daerah: 'Brunei Muara',
-      Tarikh_Mula: '2027-02-01',
-      Tarikh_Paparan: '01/02/2027 (Isnin)',
-      Hari: 'Isnin',
-      Masa: '09:00 - 11:30',
-      Tempat_Venue: 'Dewan Sekolah Menengah Katok',
-      Pautan_GPS_Maps: 'https://maps.google.com/?q=Sekolah+Menengah+Katok+Brunei',
-      Pelan_Sekolah_URL: 'https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=600&q=80',
-      Pelan_Parking_URL: 'https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=600&q=80',
-      Panduan_Parking: 'Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi & VIP).',
-      Catatan_Khas: 'Pakaian rasmi pejabat / kot.',
-      Status_Acara: 'Aktif'
+          "Event_ID": "EVT-PHT-04",
+          "Kategori_Program": "Program Hala Tuju",
+          "Nama_Acara": "Program Hala Tuju - SM Katok",
+          "Sekolah": "Sekolah Menengah Katok",
+          "Daerah": "Brunei Muara",
+          "Tarikh_Mula": "2027-02-01",
+          "Tarikh_Paparan": "01/02/2027 (Isnin)",
+          "Hari": "Isnin",
+          "Masa": "09:00 - 11:30",
+          "Tempat_Venue": "Dewan Sekolah Menengah Katok",
+          "Pautan_GPS_Maps": "https://maps.google.com/?q=Sekolah+Menengah+Katok+Brunei",
+          "Pelan_Sekolah_URL": "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=600&q=80",
+          "Pelan_Parking_URL": "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=600&q=80",
+          "Panduan_Parking": "Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi & VIP).",
+          "Catatan_Khas": "Pakaian rasmi pejabat / kot.",
+          "Status_Acara": "Aktif"
     },
     {
-      Event_ID: 'EVT-PHT-05',
-      Kategori_Program: 'Program Hala Tuju',
-      Nama_Acara: 'Program Hala Tuju - SM PAP Hajah Rashidah + Maktab Anthony Abell',
-      Sekolah: 'Sekolah Menengah Pengiran Anak Puteri Hajah Rashidah + Maktab Anthony Abell',
-      Daerah: 'Belait',
-      Tarikh_Mula: '2027-02-02',
-      Tarikh_Paparan: '02/02/2027 (Selasa)',
-      Hari: 'Selasa',
-      Masa: '09:00 - 12:00',
-      Tempat_Venue: 'Dewan Sekolah Menengah Pengiran Anak Puteri Hajah Rashidah',
-      Pautan_GPS_Maps: 'https://maps.google.com/?q=SMPAPH+Rashidah+Lumut+Brunei',
-      Pelan_Sekolah_URL: 'https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=600&q=80',
-      Pelan_Parking_URL: 'https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=600&q=80',
-      Panduan_Parking: 'Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi & VIP Daerah Belait).',
-      Catatan_Khas: 'Penyertaan gabungan bersama Maktab Anthony Abell. Masa sesi Daerah Belait: 09:00 - 12:00.',
-      Status_Acara: 'Aktif'
+          "Event_ID": "EVT-PHT-05",
+          "Kategori_Program": "Program Hala Tuju",
+          "Nama_Acara": "Program Hala Tuju - SM PAP Hajah Rashidah + Maktab Anthony Abell",
+          "Sekolah": "Sekolah Menengah Pengiran Anak Puteri Hajah Rashidah + Maktab Anthony Abell",
+          "Daerah": "Belait",
+          "Tarikh_Mula": "2027-02-02",
+          "Tarikh_Paparan": "02/02/2027 (Selasa)",
+          "Hari": "Selasa",
+          "Masa": "09:00 - 12:00",
+          "Tempat_Venue": "Dewan Sekolah Menengah Pengiran Anak Puteri Hajah Rashidah",
+          "Pautan_GPS_Maps": "https://maps.google.com/?q=SMPAPH+Rashidah+Lumut+Brunei",
+          "Pelan_Sekolah_URL": "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=600&q=80",
+          "Pelan_Parking_URL": "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=600&q=80",
+          "Panduan_Parking": "Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi & VIP Daerah Belait).",
+          "Catatan_Khas": "Penyertaan gabungan bersama Maktab Anthony Abell. Masa sesi Daerah Belait: 09:00 - 12:00.",
+          "Status_Acara": "Aktif"
     },
     {
-      Event_ID: 'EVT-PHT-06',
-      Kategori_Program: 'Program Hala Tuju',
-      Nama_Acara: 'Program Hala Tuju - SM Sultan Sharif Ali',
-      Sekolah: 'Sekolah Menengah Sultan Sharif Ali',
-      Daerah: 'Brunei Muara',
-      Tarikh_Mula: '2027-02-04',
-      Tarikh_Paparan: '04/02/2027 (Khamis)',
-      Hari: 'Khamis',
-      Masa: '09:00 - 11:30',
-      Tempat_Venue: 'Dewan Sekolah Menengah Sultan Sharif Ali',
-      Pautan_GPS_Maps: 'https://maps.google.com/?q=Sekolah+Menengah+Sultan+Sharif+Ali+Brunei',
-      Pelan_Sekolah_URL: 'https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=600&q=80',
-      Pelan_Parking_URL: 'https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=600&q=80',
-      Panduan_Parking: 'Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi & VIP).',
-      Catatan_Khas: 'Pakaian rasmi pejabat / kot.',
-      Status_Acara: 'Aktif'
+          "Event_ID": "EVT-PHT-06",
+          "Kategori_Program": "Program Hala Tuju",
+          "Nama_Acara": "Program Hala Tuju - SM Sultan Sharif Ali",
+          "Sekolah": "Sekolah Menengah Sultan Sharif Ali",
+          "Daerah": "Brunei Muara",
+          "Tarikh_Mula": "2027-02-04",
+          "Tarikh_Paparan": "04/02/2027 (Khamis)",
+          "Hari": "Khamis",
+          "Masa": "09:00 - 11:30",
+          "Tempat_Venue": "Dewan Sekolah Menengah Sultan Sharif Ali",
+          "Pautan_GPS_Maps": "https://maps.google.com/?q=Sekolah+Menengah+Sultan+Sharif+Ali+Brunei",
+          "Pelan_Sekolah_URL": "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=600&q=80",
+          "Pelan_Parking_URL": "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=600&q=80",
+          "Panduan_Parking": "Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi & VIP).",
+          "Catatan_Khas": "Pakaian rasmi pejabat / kot.",
+          "Status_Acara": "Aktif"
     },
     {
-      Event_ID: 'EVT-PHT-07',
-      Kategori_Program: 'Program Hala Tuju',
-      Nama_Acara: 'Program Hala Tuju - SM Pengiran Isteri Hajjah Mariam Serasa',
-      Sekolah: 'Sekolah Menengah Pengiran Isteri Hajjah Mariam Serasa',
-      Daerah: 'Brunei Muara',
-      Tarikh_Mula: '2027-03-22',
-      Tarikh_Paparan: '22/03/2027 (Isnin)',
-      Hari: 'Isnin',
-      Masa: '09:00 - 11:30',
-      Tempat_Venue: 'Dewan Sekolah Menengah Pengiran Isteri Hajjah Mariam Serasa',
-      Pautan_GPS_Maps: 'https://maps.google.com/?q=SMPIHM+Serasa+Muara+Brunei',
-      Pelan_Sekolah_URL: 'https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=600&q=80',
-      Pelan_Parking_URL: 'https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=600&q=80',
-      Panduan_Parking: 'Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi & VIP).',
-      Catatan_Khas: 'Pakaian rasmi pejabat / kot.',
-      Status_Acara: 'Aktif'
+          "Event_ID": "EVT-PHT-07",
+          "Kategori_Program": "Program Hala Tuju",
+          "Nama_Acara": "Program Hala Tuju - SM Pengiran Isteri Hajjah Mariam Serasa",
+          "Sekolah": "Sekolah Menengah Pengiran Isteri Hajjah Mariam Serasa",
+          "Daerah": "Brunei Muara",
+          "Tarikh_Mula": "2027-03-22",
+          "Tarikh_Paparan": "22/03/2027 (Isnin)",
+          "Hari": "Isnin",
+          "Masa": "09:00 - 11:30",
+          "Tempat_Venue": "Dewan Sekolah Menengah Pengiran Isteri Hajjah Mariam Serasa",
+          "Pautan_GPS_Maps": "https://maps.google.com/?q=SMPIHM+Serasa+Muara+Brunei",
+          "Pelan_Sekolah_URL": "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=600&q=80",
+          "Pelan_Parking_URL": "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=600&q=80",
+          "Panduan_Parking": "Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi & VIP).",
+          "Catatan_Khas": "Pakaian rasmi pejabat / kot.",
+          "Status_Acara": "Aktif"
     },
     {
-      Event_ID: 'EVT-PHT-08',
-      Kategori_Program: 'Program Hala Tuju',
-      Nama_Acara: 'Program Hala Tuju - SM Masin',
-      Sekolah: 'Sekolah Menengah Masin',
-      Daerah: 'Brunei Muara',
-      Tarikh_Mula: '2027-03-23',
-      Tarikh_Paparan: '23/03/2027 (Selasa)',
-      Hari: 'Selasa',
-      Masa: '09:00 - 11:30',
-      Tempat_Venue: 'Dewan Sekolah Menengah Masin',
-      Pautan_GPS_Maps: 'https://maps.google.com/?q=Sekolah+Menengah+Masin+Brunei',
-      Pelan_Sekolah_URL: 'https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=600&q=80',
-      Pelan_Parking_URL: 'https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=600&q=80',
-      Panduan_Parking: 'Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi & VIP).',
-      Catatan_Khas: 'Pakaian rasmi pejabat / kot.',
-      Status_Acara: 'Aktif'
+          "Event_ID": "EVT-PHT-08",
+          "Kategori_Program": "Program Hala Tuju",
+          "Nama_Acara": "Program Hala Tuju - SM Masin",
+          "Sekolah": "Sekolah Menengah Masin",
+          "Daerah": "Brunei Muara",
+          "Tarikh_Mula": "2027-03-23",
+          "Tarikh_Paparan": "23/03/2027 (Selasa)",
+          "Hari": "Selasa",
+          "Masa": "09:00 - 11:30",
+          "Tempat_Venue": "Dewan Sekolah Menengah Masin",
+          "Pautan_GPS_Maps": "https://maps.google.com/?q=Sekolah+Menengah+Masin+Brunei",
+          "Pelan_Sekolah_URL": "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=600&q=80",
+          "Pelan_Parking_URL": "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=600&q=80",
+          "Panduan_Parking": "Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi & VIP).",
+          "Catatan_Khas": "Pakaian rasmi pejabat / kot.",
+          "Status_Acara": "Aktif"
     },
     {
-      Event_ID: 'EVT-PHT-09',
-      Kategori_Program: 'Program Hala Tuju',
-      Nama_Acara: 'Program Hala Tuju - SM PJN PH Abu Bakar + SM Perdana Wazir',
-      Sekolah: 'Sekolah Menengah Pengiran Jaya Negara Pengiran Haji Abu Bakar + Sekolah Menengah Perdana Wazir',
-      Daerah: 'Belait',
-      Tarikh_Mula: '2027-03-25',
-      Tarikh_Paparan: '25/03/2027 (Khamis)',
-      Hari: 'Khamis',
-      Masa: '09:00 - 12:00',
-      Tempat_Venue: 'Dewan Sekolah Menengah Pengiran Jaya Negara Pengiran Haji Abu Bakar',
-      Pautan_GPS_Maps: 'https://maps.google.com/?q=SMPJN+PH+Abu+Bakar+Kuala+Belait',
-      Pelan_Sekolah_URL: 'https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=600&q=80',
-      Pelan_Parking_URL: 'https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=600&q=80',
-      Panduan_Parking: 'Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi & VIP Daerah Belait).',
-      Catatan_Khas: 'Penyertaan gabungan bersama SM Perdana Wazir. Masa sesi Daerah Belait: 09:00 - 12:00.',
-      Status_Acara: 'Aktif'
+          "Event_ID": "EVT-PHT-09",
+          "Kategori_Program": "Program Hala Tuju",
+          "Nama_Acara": "Program Hala Tuju - SM PJN PH Abu Bakar + SM Perdana Wazir",
+          "Sekolah": "Sekolah Menengah Pengiran Jaya Negara Pengiran Haji Abu Bakar + Sekolah Menengah Perdana Wazir",
+          "Daerah": "Belait",
+          "Tarikh_Mula": "2027-03-25",
+          "Tarikh_Paparan": "25/03/2027 (Khamis)",
+          "Hari": "Khamis",
+          "Masa": "09:00 - 12:00",
+          "Tempat_Venue": "Dewan Sekolah Menengah Pengiran Jaya Negara Pengiran Haji Abu Bakar",
+          "Pautan_GPS_Maps": "https://maps.google.com/?q=SMPJN+PH+Abu+Bakar+Kuala+Belait",
+          "Pelan_Sekolah_URL": "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=600&q=80",
+          "Pelan_Parking_URL": "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=600&q=80",
+          "Panduan_Parking": "Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi & VIP Daerah Belait).",
+          "Catatan_Khas": "Penyertaan gabungan bersama SM Perdana Wazir. Masa sesi Daerah Belait: 09:00 - 12:00.",
+          "Status_Acara": "Aktif"
     },
     {
-      Event_ID: 'EVT-PHT-10',
-      Kategori_Program: 'Program Hala Tuju',
-      Nama_Acara: 'Program Hala Tuju - SM Rimba II',
-      Sekolah: 'Sekolah Menengah Rimba II',
-      Daerah: 'Brunei Muara',
-      Tarikh_Mula: '2027-03-29',
-      Tarikh_Paparan: '29/03/2027 (Isnin)',
-      Hari: 'Isnin',
-      Masa: '09:00 - 11:30',
-      Tempat_Venue: 'Dewan Sekolah Menengah Rimba II',
-      Pautan_GPS_Maps: 'https://maps.google.com/?q=Sekolah+Menengah+Rimba+II+Brunei',
-      Pelan_Sekolah_URL: 'https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=600&q=80',
-      Pelan_Parking_URL: 'https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=600&q=80',
-      Panduan_Parking: 'Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi & VIP).',
-      Catatan_Khas: 'Pakaian rasmi pejabat / kot.',
-      Status_Acara: 'Aktif'
+          "Event_ID": "EVT-PHT-10",
+          "Kategori_Program": "Program Hala Tuju",
+          "Nama_Acara": "Program Hala Tuju - SM Rimba II",
+          "Sekolah": "Sekolah Menengah Rimba II",
+          "Daerah": "Brunei Muara",
+          "Tarikh_Mula": "2027-03-29",
+          "Tarikh_Paparan": "29/03/2027 (Isnin)",
+          "Hari": "Isnin",
+          "Masa": "09:00 - 11:30",
+          "Tempat_Venue": "Dewan Sekolah Menengah Rimba II",
+          "Pautan_GPS_Maps": "https://maps.google.com/?q=Sekolah+Menengah+Rimba+II+Brunei",
+          "Pelan_Sekolah_URL": "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=600&q=80",
+          "Pelan_Parking_URL": "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=600&q=80",
+          "Panduan_Parking": "Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi & VIP).",
+          "Catatan_Khas": "Pakaian rasmi pejabat / kot.",
+          "Status_Acara": "Aktif"
     },
     {
-      Event_ID: 'EVT-PHT-11',
-      Kategori_Program: 'Program Hala Tuju',
-      Nama_Acara: 'Program Hala Tuju - Maktab SOASC',
-      Sekolah: 'Maktab Sultan Omar Ali Saifuddien',
-      Daerah: 'Brunei Muara',
-      Tarikh_Mula: '2027-03-30',
-      Tarikh_Paparan: '30/03/2027 (Selasa)',
-      Hari: 'Selasa',
-      Masa: '09:00 - 11:30',
-      Tempat_Venue: 'Dewan Maktab Sultan Omar Ali Saifuddien',
-      Pautan_GPS_Maps: 'https://maps.google.com/?q=Maktab+SOAS+Bandar+Seri+Begawan',
-      Pelan_Sekolah_URL: 'https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=600&q=80',
-      Pelan_Parking_URL: 'https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=600&q=80',
-      Panduan_Parking: 'Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi & VIP).',
-      Catatan_Khas: 'Pakaian rasmi pejabat / kot.',
-      Status_Acara: 'Aktif'
+          "Event_ID": "EVT-PHT-11",
+          "Kategori_Program": "Program Hala Tuju",
+          "Nama_Acara": "Program Hala Tuju - Maktab SOASC",
+          "Sekolah": "Maktab Sultan Omar Ali Saifuddien",
+          "Daerah": "Brunei Muara",
+          "Tarikh_Mula": "2027-03-30",
+          "Tarikh_Paparan": "30/03/2027 (Selasa)",
+          "Hari": "Selasa",
+          "Masa": "09:00 - 11:30",
+          "Tempat_Venue": "Dewan Maktab Sultan Omar Ali Saifuddien",
+          "Pautan_GPS_Maps": "https://maps.google.com/?q=Maktab+SOAS+Bandar+Seri+Begawan",
+          "Pelan_Sekolah_URL": "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=600&q=80",
+          "Pelan_Parking_URL": "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=600&q=80",
+          "Panduan_Parking": "Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi & VIP).",
+          "Catatan_Khas": "Pakaian rasmi pejabat / kot.",
+          "Status_Acara": "Aktif"
     },
     {
-      Event_ID: 'EVT-PHT-12',
-      Kategori_Program: 'Program Hala Tuju',
-      Nama_Acara: 'Program Hala Tuju - Sekolah Sukan',
-      Sekolah: 'Sekolah Sukan',
-      Daerah: 'Brunei Muara',
-      Tarikh_Mula: '2027-04-05',
-      Tarikh_Paparan: '05/04/2027 (Isnin)',
-      Hari: 'Isnin',
-      Masa: '09:00 - 11:30',
-      Tempat_Venue: 'Atrium Sekolah Sukan',
-      Pautan_GPS_Maps: 'https://maps.google.com/?q=Sekolah+Sukan+Brunei',
-      Pelan_Sekolah_URL: 'https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=600&q=80',
-      Pelan_Parking_URL: 'https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=600&q=80',
-      Panduan_Parking: 'Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi & VIP ke Atrium Sekolah Sukan).',
-      Catatan_Khas: 'Lokasi bertempat di Atrium Sekolah Sukan.',
-      Status_Acara: 'Aktif'
+          "Event_ID": "EVT-FL-01",
+          "Kategori_Program": "Program FutureLink",
+          "Nama_Acara": "Program FutureLink - Maktab Sains PSBS",
+          "Sekolah": "Maktab Sains Paduka Seri Begawan Sultan",
+          "Daerah": "Brunei Muara",
+          "Tarikh_Mula": "2027-04-01",
+          "Tarikh_Paparan": "01/04/2027 (Khamis)",
+          "Hari": "Khamis",
+          "Masa": "09:00 - 11:30",
+          "Tempat_Venue": "Dewan Maktab Sains Paduka Seri Begawan Sultan",
+          "Pautan_GPS_Maps": "https://maps.google.com/?q=Maktab+Sains+Paduka+Seri+Begawan+Sultan",
+          "Pelan_Sekolah_URL": "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=600&q=80",
+          "Pelan_Parking_URL": "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=600&q=80",
+          "Panduan_Parking": "Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi & VIP).",
+          "Catatan_Khas": "Program FutureLink - Orientasi dan pendedahan kerjaya peringkat pra-universiti.",
+          "Status_Acara": "Aktif"
     },
     {
-      Event_ID: 'EVT-PHT-13',
-      Kategori_Program: 'Program Hala Tuju',
-      Nama_Acara: 'Program Hala Tuju - SM Berakas',
-      Sekolah: 'Sekolah Menengah Berakas',
-      Daerah: 'Brunei Muara',
-      Tarikh_Mula: '2027-04-06',
-      Tarikh_Paparan: '06/04/2027 (Selasa)',
-      Hari: 'Selasa',
-      Masa: '09:00 - 11:30',
-      Tempat_Venue: 'Dewan Sekolah Menengah Berakas',
-      Pautan_GPS_Maps: 'https://maps.google.com/?q=Sekolah+Menengah+Berakas+Brunei',
-      Pelan_Sekolah_URL: 'https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=600&q=80',
-      Pelan_Parking_URL: 'https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=600&q=80',
-      Panduan_Parking: 'Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi & VIP).',
-      Catatan_Khas: 'Pakaian rasmi pejabat / kot.',
-      Status_Acara: 'Aktif'
+          "Event_ID": "EVT-PHT-12",
+          "Kategori_Program": "Program Hala Tuju",
+          "Nama_Acara": "Program Hala Tuju - Sekolah Sukan",
+          "Sekolah": "Sekolah Sukan",
+          "Daerah": "Brunei Muara",
+          "Tarikh_Mula": "2027-04-05",
+          "Tarikh_Paparan": "05/04/2027 (Isnin)",
+          "Hari": "Isnin",
+          "Masa": "09:00 - 11:30",
+          "Tempat_Venue": "Atrium Sekolah Sukan",
+          "Pautan_GPS_Maps": "https://maps.google.com/?q=Sekolah+Sukan+Brunei",
+          "Pelan_Sekolah_URL": "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=600&q=80",
+          "Pelan_Parking_URL": "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=600&q=80",
+          "Panduan_Parking": "Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi & VIP ke Atrium Sekolah Sukan).",
+          "Catatan_Khas": "Lokasi bertempat di Atrium Sekolah Sukan.",
+          "Status_Acara": "Aktif"
     },
     {
-      Event_ID: 'EVT-PHT-14',
-      Kategori_Program: 'Program Hala Tuju',
-      Nama_Acara: 'Program Hala Tuju - SM Sayyidina Hasan',
-      Sekolah: 'Sekolah Menengah Sayyidina Hasan',
-      Daerah: 'Brunei Muara',
-      Tarikh_Mula: '2027-04-12',
-      Tarikh_Paparan: '12/04/2027 (Isnin)',
-      Hari: 'Isnin',
-      Masa: '09:00 - 11:30',
-      Tempat_Venue: 'Dewan Sekolah Menengah Sayyidina Hasan',
-      Pautan_GPS_Maps: 'https://maps.google.com/?q=Sekolah+Menengah+Sayyidina+Hasan+Kilanas',
-      Pelan_Sekolah_URL: 'https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=600&q=80',
-      Pelan_Parking_URL: 'https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=600&q=80',
-      Panduan_Parking: 'Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi & VIP).',
-      Catatan_Khas: 'Pakaian rasmi pejabat / kot.',
-      Status_Acara: 'Aktif'
+          "Event_ID": "EVT-PHT-13",
+          "Kategori_Program": "Program Hala Tuju",
+          "Nama_Acara": "Program Hala Tuju - SM Berakas",
+          "Sekolah": "Sekolah Menengah Berakas",
+          "Daerah": "Brunei Muara",
+          "Tarikh_Mula": "2027-04-06",
+          "Tarikh_Paparan": "06/04/2027 (Selasa)",
+          "Hari": "Selasa",
+          "Masa": "09:00 - 11:30",
+          "Tempat_Venue": "Dewan Sekolah Menengah Berakas",
+          "Pautan_GPS_Maps": "https://maps.google.com/?q=Sekolah+Menengah+Berakas+Brunei",
+          "Pelan_Sekolah_URL": "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=600&q=80",
+          "Pelan_Parking_URL": "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=600&q=80",
+          "Panduan_Parking": "Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi & VIP).",
+          "Catatan_Khas": "Pakaian rasmi pejabat / kot.",
+          "Status_Acara": "Aktif"
     },
     {
-      Event_ID: 'EVT-PHT-15',
-      Kategori_Program: 'Program Hala Tuju',
-      Nama_Acara: 'Program Hala Tuju - SM SMJA',
-      Sekolah: 'Sekolah Menengah Sultan Muhammad Jamalul Alam',
-      Daerah: 'Brunei Muara',
-      Tarikh_Mula: '2027-04-13',
-      Tarikh_Paparan: '13/04/2027 (Selasa)',
-      Hari: 'Selasa',
-      Masa: '09:00 - 11:30',
-      Tempat_Venue: 'Dewan Sekolah Menengah Sultan Muhammad Jamalul Alam',
-      Pautan_GPS_Maps: 'https://maps.google.com/?q=SMJA+School+Bandar+Seri+Begawan',
-      Pelan_Sekolah_URL: 'https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=600&q=80',
-      Pelan_Parking_URL: 'https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=600&q=80',
-      Panduan_Parking: 'Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi & VIP).',
-      Catatan_Khas: 'Pakaian rasmi pejabat / kot.',
-      Status_Acara: 'Aktif'
+          "Event_ID": "EVT-FL-02",
+          "Kategori_Program": "Program FutureLink",
+          "Nama_Acara": "Program FutureLink - PTE Belait + SM Sayyidina Ali",
+          "Sekolah": "Pusat Tingkatan Enam Belait + Sekolah Menengah Sayyidina Ali",
+          "Daerah": "Belait",
+          "Tarikh_Mula": "2027-04-08",
+          "Tarikh_Paparan": "08/04/2027 (Khamis)",
+          "Hari": "Khamis",
+          "Masa": "09:00 - 12:00",
+          "Tempat_Venue": "Dewan Serbaguna Pusat Tingkatan Enam Belait",
+          "Pautan_GPS_Maps": "https://maps.google.com/?q=Pusat+Tingkatan+Enam+Belait",
+          "Pelan_Sekolah_URL": "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=600&q=80",
+          "Pelan_Parking_URL": "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=600&q=80",
+          "Panduan_Parking": "Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi & VIP Daerah Belait).",
+          "Catatan_Khas": "Penyertaan gabungan bersama SM Sayyidina Ali. Masa sesi Daerah Belait: 09:00 - 12:00.",
+          "Status_Acara": "Aktif"
     },
     {
-      Event_ID: 'EVT-PHT-16',
-      Kategori_Program: 'Program Hala Tuju',
-      Nama_Acara: 'Program Hala Tuju - SM Muda Hashim, Tutong',
-      Sekolah: 'Sekolah Menengah Muda Hashim, Tutong',
-      Daerah: 'Tutong',
-      Tarikh_Mula: '2027-04-15',
-      Tarikh_Paparan: '15/04/2027 (Khamis)',
-      Hari: 'Khamis',
-      Masa: '09:00 - 11:30',
-      Tempat_Venue: 'Dewan Sekolah Menengah Muda Hashim, Tutong',
-      Pautan_GPS_Maps: 'https://maps.google.com/?q=Sekolah+Menengah+Muda+Hashim+Tutong',
-      Pelan_Sekolah_URL: 'https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=600&q=80',
-      Pelan_Parking_URL: 'https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=600&q=80',
-      Panduan_Parking: 'Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi & VIP).',
-      Catatan_Khas: 'Pakaian rasmi pejabat / kot.',
-      Status_Acara: 'Aktif'
+          "Event_ID": "EVT-PHT-14",
+          "Kategori_Program": "Program Hala Tuju",
+          "Nama_Acara": "Program Hala Tuju - SM Sayyidina Hasan",
+          "Sekolah": "Sekolah Menengah Sayyidina Hasan",
+          "Daerah": "Brunei Muara",
+          "Tarikh_Mula": "2027-04-12",
+          "Tarikh_Paparan": "12/04/2027 (Isnin)",
+          "Hari": "Isnin",
+          "Masa": "09:00 - 11:30",
+          "Tempat_Venue": "Dewan Sekolah Menengah Sayyidina Hasan",
+          "Pautan_GPS_Maps": "https://maps.google.com/?q=Sekolah+Menengah+Sayyidina+Hasan+Kilanas",
+          "Pelan_Sekolah_URL": "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=600&q=80",
+          "Pelan_Parking_URL": "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=600&q=80",
+          "Panduan_Parking": "Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi & VIP).",
+          "Catatan_Khas": "Pakaian rasmi pejabat / kot.",
+          "Status_Acara": "Aktif"
     },
     {
-      Event_ID: 'EVT-PHT-17',
-      Kategori_Program: 'Program Hala Tuju',
-      Nama_Acara: 'Program Hala Tuju - SM Sayyidina Umar Al Khattab',
-      Sekolah: 'Sekolah Menengah Sayyidina Umar Al Khattab',
-      Daerah: 'Brunei Muara',
-      Tarikh_Mula: '2027-04-19',
-      Tarikh_Paparan: '19/04/2027 (Isnin)',
-      Hari: 'Isnin',
-      Masa: '09:00 - 11:30',
-      Tempat_Venue: 'Dewan Sekolah Menengah Sayyidina Umar Al Khattab',
-      Pautan_GPS_Maps: 'https://maps.google.com/?q=Sekolah+Menengah+Sayyidina+Umar+Al+Khattab',
-      Pelan_Sekolah_URL: 'https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=600&q=80',
-      Pelan_Parking_URL: 'https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=600&q=80',
-      Panduan_Parking: 'Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi & VIP).',
-      Catatan_Khas: 'Pakaian rasmi pejabat / kot.',
-      Status_Acara: 'Aktif'
+          "Event_ID": "EVT-PHT-15",
+          "Kategori_Program": "Program Hala Tuju",
+          "Nama_Acara": "Program Hala Tuju - SM SMJA",
+          "Sekolah": "Sekolah Menengah Sultan Muhammad Jamalul Alam",
+          "Daerah": "Brunei Muara",
+          "Tarikh_Mula": "2027-04-13",
+          "Tarikh_Paparan": "13/04/2027 (Selasa)",
+          "Hari": "Selasa",
+          "Masa": "09:00 - 11:30",
+          "Tempat_Venue": "Dewan Sekolah Menengah Sultan Muhammad Jamalul Alam",
+          "Pautan_GPS_Maps": "https://maps.google.com/?q=SMJA+School+Bandar+Seri+Begawan",
+          "Pelan_Sekolah_URL": "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=600&q=80",
+          "Pelan_Parking_URL": "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=600&q=80",
+          "Panduan_Parking": "Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi & VIP).",
+          "Catatan_Khas": "Pakaian rasmi pejabat / kot.",
+          "Status_Acara": "Aktif"
     },
     {
-      Event_ID: 'EVT-PHT-18',
-      Kategori_Program: 'Program Hala Tuju',
-      Nama_Acara: 'Program Hala Tuju - SM Rimba',
-      Sekolah: 'Sekolah Menengah Rimba',
-      Daerah: 'Brunei Muara',
-      Tarikh_Mula: '2027-04-20',
-      Tarikh_Paparan: '20/04/2027 (Selasa)',
-      Hari: 'Selasa',
-      Masa: '09:00 - 11:30',
-      Tempat_Venue: 'Dewan Sekolah Menengah Rimba',
-      Pautan_GPS_Maps: 'https://maps.google.com/?q=Sekolah+Menengah+Rimba+I+Brunei',
-      Pelan_Sekolah_URL: 'https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=600&q=80',
-      Pelan_Parking_URL: 'https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=600&q=80',
-      Panduan_Parking: 'Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi & VIP).',
-      Catatan_Khas: 'Pakaian rasmi pejabat / kot.',
-      Status_Acara: 'Aktif'
+          "Event_ID": "EVT-PHT-16",
+          "Kategori_Program": "Program Hala Tuju",
+          "Nama_Acara": "Program Hala Tuju - SM Muda Hashim, Tutong",
+          "Sekolah": "Sekolah Menengah Muda Hashim, Tutong",
+          "Daerah": "Tutong",
+          "Tarikh_Mula": "2027-04-15",
+          "Tarikh_Paparan": "15/04/2027 (Khamis)",
+          "Hari": "Khamis",
+          "Masa": "09:00 - 11:30",
+          "Tempat_Venue": "Dewan Sekolah Menengah Muda Hashim, Tutong",
+          "Pautan_GPS_Maps": "https://maps.google.com/?q=Sekolah+Menengah+Muda+Hashim+Tutong",
+          "Pelan_Sekolah_URL": "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=600&q=80",
+          "Pelan_Parking_URL": "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=600&q=80",
+          "Panduan_Parking": "Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi & VIP).",
+          "Catatan_Khas": "Pakaian rasmi pejabat / kot.",
+          "Status_Acara": "Aktif"
     },
     {
-      Event_ID: 'EVT-PHT-19',
-      Kategori_Program: 'Program Hala Tuju',
-      Nama_Acara: 'Program Hala Tuju - SM Sayyidina Abu Bakar',
-      Sekolah: 'Sekolah Menengah Sayyidina Abu Bakar',
-      Daerah: 'Brunei Muara',
-      Tarikh_Mula: '2027-05-04',
-      Tarikh_Paparan: '04/05/2027 (Selasa)',
-      Hari: 'Selasa',
-      Masa: '09:00 - 11:30',
-      Tempat_Venue: 'Dewan Sekolah Menengah Sayyidina Abu Bakar',
-      Pautan_GPS_Maps: 'https://maps.google.com/?q=Sekolah+Menengah+Sayyidina+Abu+Bakar+Lambak+Kanan',
-      Pelan_Sekolah_URL: 'https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=600&q=80',
-      Pelan_Parking_URL: 'https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=600&q=80',
-      Panduan_Parking: 'Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi & VIP).',
-      Catatan_Khas: 'Pakaian rasmi pejabat / kot.',
-      Status_Acara: 'Aktif'
+          "Event_ID": "EVT-PHT-17",
+          "Kategori_Program": "Program Hala Tuju",
+          "Nama_Acara": "Program Hala Tuju - SM Sayyidina Umar Al Khattab",
+          "Sekolah": "Sekolah Menengah Sayyidina Umar Al Khattab",
+          "Daerah": "Brunei Muara",
+          "Tarikh_Mula": "2027-04-19",
+          "Tarikh_Paparan": "19/04/2027 (Isnin)",
+          "Hari": "Isnin",
+          "Masa": "09:00 - 11:30",
+          "Tempat_Venue": "Dewan Sekolah Menengah Sayyidina Umar Al Khattab",
+          "Pautan_GPS_Maps": "https://maps.google.com/?q=Sekolah+Menengah+Sayyidina+Umar+Al+Khattab",
+          "Pelan_Sekolah_URL": "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=600&q=80",
+          "Pelan_Parking_URL": "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=600&q=80",
+          "Panduan_Parking": "Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi & VIP).",
+          "Catatan_Khas": "Pakaian rasmi pejabat / kot.",
+          "Status_Acara": "Aktif"
     },
     {
-      Event_ID: 'EVT-PHT-20',
-      Kategori_Program: 'Program Hala Tuju',
-      Nama_Acara: 'Program Hala Tuju - SM Awang Semaun',
-      Sekolah: 'Sekolah Menengah Awang Semaun',
-      Daerah: 'Brunei Muara',
-      Tarikh_Mula: '2027-05-06',
-      Tarikh_Paparan: '06/05/2027 (Khamis)',
-      Hari: 'Khamis',
-      Masa: '09:00 - 11:30',
-      Tempat_Venue: 'Dewan Sekolah Menengah Awang Semaun',
-      Pautan_GPS_Maps: 'https://maps.google.com/?q=Sekolah+Menengah+Awang+Semaun+Sungai+Kebun',
-      Pelan_Sekolah_URL: 'https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=600&q=80',
-      Pelan_Parking_URL: 'https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=600&q=80',
-      Panduan_Parking: 'Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi & VIP).',
-      Catatan_Khas: 'Pakaian rasmi pejabat / kot.',
-      Status_Acara: 'Aktif'
+          "Event_ID": "EVT-PHT-18",
+          "Kategori_Program": "Program Hala Tuju",
+          "Nama_Acara": "Program Hala Tuju - SM Rimba",
+          "Sekolah": "Sekolah Menengah Rimba",
+          "Daerah": "Brunei Muara",
+          "Tarikh_Mula": "2027-04-20",
+          "Tarikh_Paparan": "20/04/2027 (Selasa)",
+          "Hari": "Selasa",
+          "Masa": "09:00 - 11:30",
+          "Tempat_Venue": "Dewan Sekolah Menengah Rimba",
+          "Pautan_GPS_Maps": "https://maps.google.com/?q=Sekolah+Menengah+Rimba+I+Brunei",
+          "Pelan_Sekolah_URL": "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=600&q=80",
+          "Pelan_Parking_URL": "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=600&q=80",
+          "Panduan_Parking": "Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi & VIP).",
+          "Catatan_Khas": "Pakaian rasmi pejabat / kot.",
+          "Status_Acara": "Aktif"
     },
     {
-      Event_ID: 'EVT-PHT-21',
-      Kategori_Program: 'Program Hala Tuju',
-      Nama_Acara: 'Program Hala Tuju - SM Sufri Bolkiah',
-      Sekolah: 'Sekolah Menengah Sufri Bolkiah',
-      Daerah: 'Tutong',
-      Tarikh_Mula: '2027-06-03',
-      Tarikh_Paparan: '03/06/2027 (Khamis)',
-      Hari: 'Khamis',
-      Masa: '09:00 - 11:30',
-      Tempat_Venue: 'Dewan Sekolah Menengah Sufri Bolkiah',
-      Pautan_GPS_Maps: 'https://maps.google.com/?q=Sekolah+Menengah+Sufri+Bolkiah+Tutong',
-      Pelan_Sekolah_URL: 'https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=600&q=80',
-      Pelan_Parking_URL: 'https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=600&q=80',
-      Panduan_Parking: 'Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi & VIP).',
-      Catatan_Khas: 'Pakaian rasmi pejabat / kot.',
-      Status_Acara: 'Aktif'
+          "Event_ID": "EVT-FL-03",
+          "Kategori_Program": "Program FutureLink",
+          "Nama_Acara": "Program FutureLink - PTE Tutong",
+          "Sekolah": "Pusat Tingkatan Enam Tutong",
+          "Daerah": "Tutong",
+          "Tarikh_Mula": "2027-04-22",
+          "Tarikh_Paparan": "22/04/2027 (Khamis)",
+          "Hari": "Khamis",
+          "Masa": "09:00 - 11:30",
+          "Tempat_Venue": "Foyer Pusat Tingkatan Enam Tutong",
+          "Pautan_GPS_Maps": "https://maps.google.com/?q=Pusat+Tingkatan+Enam+Tutong",
+          "Pelan_Sekolah_URL": "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=600&q=80",
+          "Pelan_Parking_URL": "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=600&q=80",
+          "Panduan_Parking": "Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi & VIP ke Foyer PTE Tutong).",
+          "Catatan_Khas": "Lokasi bertempat di Foyer Pusat Tingkatan Enam Tutong.",
+          "Status_Acara": "Aktif"
     },
     {
-      Event_ID: 'EVT-PHT-22',
-      Kategori_Program: 'Program Hala Tuju',
-      Nama_Acara: 'Program Hala Tuju - SM PAP Hajah Masna',
-      Sekolah: 'Sekolah Menengah Pengiran Anak Puteri Hajah Masna',
-      Daerah: 'Brunei Muara',
-      Tarikh_Mula: '2027-06-10',
-      Tarikh_Paparan: '10/06/2027 (Selasa)',
-      Hari: 'Selasa',
-      Masa: '09:00 - 11:30',
-      Tempat_Venue: 'Dewan Sekolah Menengah Pengiran Anak Puteri Hajah Masna',
-      Pautan_GPS_Maps: 'https://maps.google.com/?q=SMPAPH+Masna+Sungai+Akar+Brunei',
-      Pelan_Sekolah_URL: 'https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=600&q=80',
-      Pelan_Parking_URL: 'https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=600&q=80',
-      Panduan_Parking: 'Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi & VIP).',
-      Catatan_Khas: 'Pakaian rasmi pejabat / kot.',
-      Status_Acara: 'Aktif'
+          "Event_ID": "EVT-PHT-19",
+          "Kategori_Program": "Program Hala Tuju",
+          "Nama_Acara": "Program Hala Tuju - SM Sayyidina Abu Bakar",
+          "Sekolah": "Sekolah Menengah Sayyidina Abu Bakar",
+          "Daerah": "Brunei Muara",
+          "Tarikh_Mula": "2027-05-04",
+          "Tarikh_Paparan": "04/05/2027 (Selasa)",
+          "Hari": "Selasa",
+          "Masa": "09:00 - 11:30",
+          "Tempat_Venue": "Dewan Sekolah Menengah Sayyidina Abu Bakar",
+          "Pautan_GPS_Maps": "https://maps.google.com/?q=Sekolah+Menengah+Sayyidina+Abu+Bakar+Lambak+Kanan",
+          "Pelan_Sekolah_URL": "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=600&q=80",
+          "Pelan_Parking_URL": "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=600&q=80",
+          "Panduan_Parking": "Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi & VIP).",
+          "Catatan_Khas": "Pakaian rasmi pejabat / kot.",
+          "Status_Acara": "Aktif"
     },
     {
-      Event_ID: 'EVT-PHT-23',
-      Kategori_Program: 'Program Hala Tuju',
-      Nama_Acara: 'Program Hala Tuju - SM Lambak Kiri',
-      Sekolah: 'Sekolah Menengah Lambak Kiri',
-      Daerah: 'Brunei Muara',
-      Tarikh_Mula: '2027-06-21',
-      Tarikh_Paparan: '21/06/2027 (Isnin)',
-      Hari: 'Isnin',
-      Masa: '09:00 - 11:30',
-      Tempat_Venue: 'Dewan Sekolah Menengah Lambak Kiri',
-      Pautan_GPS_Maps: 'https://maps.google.com/?q=Sekolah+Menengah+Lambak+Kiri+Brunei',
-      Pelan_Sekolah_URL: 'https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=600&q=80',
-      Pelan_Parking_URL: 'https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=600&q=80',
-      Panduan_Parking: 'Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi & VIP).',
-      Catatan_Khas: 'Pakaian rasmi pejabat / kot.',
-      Status_Acara: 'Aktif'
+          "Event_ID": "EVT-PHT-20",
+          "Kategori_Program": "Program Hala Tuju",
+          "Nama_Acara": "Program Hala Tuju - SM Awang Semaun",
+          "Sekolah": "Sekolah Menengah Awang Semaun",
+          "Daerah": "Brunei Muara",
+          "Tarikh_Mula": "2027-05-06",
+          "Tarikh_Paparan": "06/05/2027 (Khamis)",
+          "Hari": "Khamis",
+          "Masa": "09:00 - 11:30",
+          "Tempat_Venue": "Dewan Sekolah Menengah Awang Semaun",
+          "Pautan_GPS_Maps": "https://maps.google.com/?q=Sekolah+Menengah+Awang+Semaun+Sungai+Kebun",
+          "Pelan_Sekolah_URL": "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=600&q=80",
+          "Pelan_Parking_URL": "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=600&q=80",
+          "Panduan_Parking": "Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi & VIP).",
+          "Catatan_Khas": "Pakaian rasmi pejabat / kot.",
+          "Status_Acara": "Aktif"
     },
     {
-      Event_ID: 'EVT-PHT-24',
-      Kategori_Program: 'Program Hala Tuju',
-      Nama_Acara: 'Program Hala Tuju - SM RIPAS Tutong',
-      Sekolah: 'Sekolah Menengah Raja Isteri Pengiran Anak Saleha, Tutong',
-      Daerah: 'Tutong',
-      Tarikh_Mula: '2027-06-24',
-      Tarikh_Paparan: '24/06/2027 (Khamis)',
-      Hari: 'Khamis',
-      Masa: '09:00 - 11:30',
-      Tempat_Venue: 'Dewan Sekolah Menengah Raja Isteri Pengiran Anak Saleha, Tutong',
-      Pautan_GPS_Maps: 'https://maps.google.com/?q=SM+RIPAS+Tutong+Brunei',
-      Pelan_Sekolah_URL: 'https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=600&q=80',
-      Pelan_Parking_URL: 'https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=600&q=80',
-      Panduan_Parking: 'Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi & VIP).',
-      Catatan_Khas: 'Pakaian rasmi pejabat / kot.',
-      Status_Acara: 'Aktif'
+          "Event_ID": "EVT-PHT-21",
+          "Kategori_Program": "Program Hala Tuju",
+          "Nama_Acara": "Program Hala Tuju - SM Sufri Bolkiah",
+          "Sekolah": "Sekolah Menengah Sufri Bolkiah",
+          "Daerah": "Tutong",
+          "Tarikh_Mula": "2027-06-03",
+          "Tarikh_Paparan": "03/06/2027 (Khamis)",
+          "Hari": "Khamis",
+          "Masa": "09:00 - 11:30",
+          "Tempat_Venue": "Dewan Sekolah Menengah Sufri Bolkiah",
+          "Pautan_GPS_Maps": "https://maps.google.com/?q=Sekolah+Menengah+Sufri+Bolkiah+Tutong",
+          "Pelan_Sekolah_URL": "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=600&q=80",
+          "Pelan_Parking_URL": "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=600&q=80",
+          "Panduan_Parking": "Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi & VIP).",
+          "Catatan_Khas": "Pakaian rasmi pejabat / kot.",
+          "Status_Acara": "Aktif"
     },
     {
-      Event_ID: 'EVT-PHT-25',
-      Kategori_Program: 'Program Hala Tuju',
-      Nama_Acara: 'Program Hala Tuju - SM PDHM Mentiri',
-      Sekolah: 'Sekolah Menengah Pehin Datu Seri Maharaja Mentiri',
-      Daerah: 'Brunei Muara',
-      Tarikh_Mula: '2027-06-28',
-      Tarikh_Paparan: '28/06/2027 (Isnin)',
-      Hari: 'Isnin',
-      Masa: '09:00 - 11:30',
-      Tempat_Venue: 'Dewan Sekolah Menengah Pehin Datu Seri Maharaja Mentiri',
-      Pautan_GPS_Maps: 'https://maps.google.com/?q=SM+Pehin+Datu+Seri+Maharaja+Mentiri',
-      Pelan_Sekolah_URL: 'https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=600&q=80',
-      Pelan_Parking_URL: 'https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=600&q=80',
-      Panduan_Parking: 'Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi & VIP).',
-      Catatan_Khas: 'Pakaian rasmi pejabat / kot.',
-      Status_Acara: 'Aktif'
+          "Event_ID": "EVT-PHT-22",
+          "Kategori_Program": "Program Hala Tuju",
+          "Nama_Acara": "Program Hala Tuju - SM PAP Hajah Masna",
+          "Sekolah": "Sekolah Menengah Pengiran Anak Puteri Hajah Masna",
+          "Daerah": "Brunei Muara",
+          "Tarikh_Mula": "2027-06-10",
+          "Tarikh_Paparan": "10/06/2027 (Selasa)",
+          "Hari": "Selasa",
+          "Masa": "09:00 - 11:30",
+          "Tempat_Venue": "Dewan Sekolah Menengah Pengiran Anak Puteri Hajah Masna",
+          "Pautan_GPS_Maps": "https://maps.google.com/?q=SMPAPH+Masna+Sungai+Akar+Brunei",
+          "Pelan_Sekolah_URL": "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=600&q=80",
+          "Pelan_Parking_URL": "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=600&q=80",
+          "Panduan_Parking": "Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi & VIP).",
+          "Catatan_Khas": "Pakaian rasmi pejabat / kot.",
+          "Status_Acara": "Aktif"
     },
     {
-      Event_ID: 'EVT-PHT-26',
-      Kategori_Program: 'Program Hala Tuju',
-      Nama_Acara: 'Program Hala Tuju - STPRI',
-      Sekolah: 'Sekolah Tinggi Perempuan Raja Isteri',
-      Daerah: 'Brunei Muara',
-      Tarikh_Mula: '2027-07-01',
-      Tarikh_Paparan: '01/07/2027 (Khamis)',
-      Hari: 'Khamis',
-      Masa: '09:00 - 11:30',
-      Tempat_Venue: 'Dewan Sekolah Tinggi Perempuan Raja Isteri',
-      Pautan_GPS_Maps: 'https://maps.google.com/?q=STPRI+School+Bandar+Seri+Begawan',
-      Pelan_Sekolah_URL: 'https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=600&q=80',
-      Pelan_Parking_URL: 'https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=600&q=80',
-      Panduan_Parking: 'Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi & VIP).',
-      Catatan_Khas: 'Pakaian rasmi pejabat / kot.',
-      Status_Acara: 'Aktif'
+          "Event_ID": "EVT-PHT-23",
+          "Kategori_Program": "Program Hala Tuju",
+          "Nama_Acara": "Program Hala Tuju - SM Lambak Kiri",
+          "Sekolah": "Sekolah Menengah Lambak Kiri",
+          "Daerah": "Brunei Muara",
+          "Tarikh_Mula": "2027-06-21",
+          "Tarikh_Paparan": "21/06/2027 (Isnin)",
+          "Hari": "Isnin",
+          "Masa": "09:00 - 11:30",
+          "Tempat_Venue": "Dewan Sekolah Menengah Lambak Kiri",
+          "Pautan_GPS_Maps": "https://maps.google.com/?q=Sekolah+Menengah+Lambak+Kiri+Brunei",
+          "Pelan_Sekolah_URL": "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=600&q=80",
+          "Pelan_Parking_URL": "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=600&q=80",
+          "Panduan_Parking": "Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi & VIP).",
+          "Catatan_Khas": "Pakaian rasmi pejabat / kot.",
+          "Status_Acara": "Aktif"
     },
     {
-      Event_ID: 'EVT-PHT-27',
-      Kategori_Program: 'Program Hala Tuju',
-      Nama_Acara: 'Program Hala Tuju - SM Sultan Hassan, Temburong',
-      Sekolah: 'Sekolah Menengah Sultan Hassan, Temburong',
-      Daerah: 'Temburong',
-      Tarikh_Mula: '2027-07-06',
-      Tarikh_Paparan: '06/07/2027 (Selasa)',
-      Hari: 'Selasa',
-      Masa: '09:00 - 11:30',
-      Tempat_Venue: 'Dewan Sekolah Menengah Sultan Hassan, Temburong',
-      Pautan_GPS_Maps: 'https://maps.google.com/?q=Sekolah+Menengah+Sultan+Hassan+Bangar+Temburong',
-      Pelan_Sekolah_URL: 'https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=600&q=80',
-      Pelan_Parking_URL: 'https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=600&q=80',
-      Panduan_Parking: 'Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi & VIP Daerah Temburong).',
-      Catatan_Khas: 'Sesi khas Daerah Temburong. Pakaian rasmi pejabat / kot.',
-      Status_Acara: 'Aktif'
-    },
-
-    // --- PROGRAM FUTURELINK (5 SESI) ---
-    {
-      Event_ID: 'EVT-FL-01',
-      Kategori_Program: 'Program FutureLink',
-      Nama_Acara: 'Program FutureLink - Maktab Sains PSBS',
-      Sekolah: 'Maktab Sains Paduka Seri Begawan Sultan',
-      Daerah: 'Brunei Muara',
-      Tarikh_Mula: '2027-04-01',
-      Tarikh_Paparan: '01/04/2027 (Khamis)',
-      Hari: 'Khamis',
-      Masa: '09:00 - 11:30',
-      Tempat_Venue: 'Dewan Maktab Sains Paduka Seri Begawan Sultan',
-      Pautan_GPS_Maps: 'https://maps.google.com/?q=Maktab+Sains+Paduka+Seri+Begawan+Sultan',
-      Pelan_Sekolah_URL: 'https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=600&q=80',
-      Pelan_Parking_URL: 'https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=600&q=80',
-      Panduan_Parking: 'Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi & VIP).',
-      Catatan_Khas: 'Program FutureLink - Orientasi dan pendedahan kerjaya peringkat pra-universiti.',
-      Status_Acara: 'Aktif'
+          "Event_ID": "EVT-FL-04",
+          "Kategori_Program": "Program FutureLink",
+          "Nama_Acara": "Program FutureLink - PTE Meragang",
+          "Sekolah": "Pusat Tingkatan Enam Meragang",
+          "Daerah": "Brunei Muara",
+          "Tarikh_Mula": "2027-06-22",
+          "Tarikh_Paparan": "22/06/2027 (Selasa)",
+          "Hari": "Selasa",
+          "Masa": "09:00 - 11:30",
+          "Tempat_Venue": "Dewan Pusat Tingkatan Enam Meragang",
+          "Pautan_GPS_Maps": "https://maps.google.com/?q=Pusat+Tingkatan+Enam+Meragang+Brunei",
+          "Pelan_Sekolah_URL": "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=600&q=80",
+          "Pelan_Parking_URL": "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=600&q=80",
+          "Panduan_Parking": "Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi & VIP).",
+          "Catatan_Khas": "Program FutureLink - Sesi pra-universiti.",
+          "Status_Acara": "Aktif"
     },
     {
-      Event_ID: 'EVT-FL-02',
-      Kategori_Program: 'Program FutureLink',
-      Nama_Acara: 'Program FutureLink - PTE Belait + SM Sayyidina Ali',
-      Sekolah: 'Pusat Tingkatan Enam Belait + Sekolah Menengah Sayyidina Ali',
-      Daerah: 'Belait',
-      Tarikh_Mula: '2027-04-08',
-      Tarikh_Paparan: '08/04/2027 (Khamis)',
-      Hari: 'Khamis',
-      Masa: '09:00 - 12:00',
-      Tempat_Venue: 'Dewan Serbaguna Pusat Tingkatan Enam Belait',
-      Pautan_GPS_Maps: 'https://maps.google.com/?q=Pusat+Tingkatan+Enam+Belait',
-      Pelan_Sekolah_URL: 'https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=600&q=80',
-      Pelan_Parking_URL: 'https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=600&q=80',
-      Panduan_Parking: 'Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi & VIP Daerah Belait).',
-      Catatan_Khas: 'Penyertaan gabungan bersama SM Sayyidina Ali. Masa sesi Daerah Belait: 09:00 - 12:00.',
-      Status_Acara: 'Aktif'
+          "Event_ID": "EVT-PHT-24",
+          "Kategori_Program": "Program Hala Tuju",
+          "Nama_Acara": "Program Hala Tuju - SM RIPAS Tutong",
+          "Sekolah": "Sekolah Menengah Raja Isteri Pengiran Anak Saleha, Tutong",
+          "Daerah": "Tutong",
+          "Tarikh_Mula": "2027-06-24",
+          "Tarikh_Paparan": "24/06/2027 (Khamis)",
+          "Hari": "Khamis",
+          "Masa": "09:00 - 11:30",
+          "Tempat_Venue": "Dewan Sekolah Menengah Raja Isteri Pengiran Anak Saleha, Tutong",
+          "Pautan_GPS_Maps": "https://maps.google.com/?q=SM+RIPAS+Tutong+Brunei",
+          "Pelan_Sekolah_URL": "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=600&q=80",
+          "Pelan_Parking_URL": "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=600&q=80",
+          "Panduan_Parking": "Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi & VIP).",
+          "Catatan_Khas": "Pakaian rasmi pejabat / kot.",
+          "Status_Acara": "Aktif"
     },
     {
-      Event_ID: 'EVT-FL-03',
-      Kategori_Program: 'Program FutureLink',
-      Nama_Acara: 'Program FutureLink - PTE Tutong',
-      Sekolah: 'Pusat Tingkatan Enam Tutong',
-      Daerah: 'Tutong',
-      Tarikh_Mula: '2027-04-22',
-      Tarikh_Paparan: '22/04/2027 (Khamis)',
-      Hari: 'Khamis',
-      Masa: '09:00 - 11:30',
-      Tempat_Venue: 'Foyer Pusat Tingkatan Enam Tutong',
-      Pautan_GPS_Maps: 'https://maps.google.com/?q=Pusat+Tingkatan+Enam+Tutong',
-      Pelan_Sekolah_URL: 'https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=600&q=80',
-      Pelan_Parking_URL: 'https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=600&q=80',
-      Panduan_Parking: 'Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi & VIP ke Foyer PTE Tutong).',
-      Catatan_Khas: 'Lokasi bertempat di Foyer Pusat Tingkatan Enam Tutong.',
-      Status_Acara: 'Aktif'
+          "Event_ID": "EVT-PHT-25",
+          "Kategori_Program": "Program Hala Tuju",
+          "Nama_Acara": "Program Hala Tuju - SM PDHM Mentiri",
+          "Sekolah": "Sekolah Menengah Pehin Datu Seri Maharaja Mentiri",
+          "Daerah": "Brunei Muara",
+          "Tarikh_Mula": "2027-06-28",
+          "Tarikh_Paparan": "28/06/2027 (Isnin)",
+          "Hari": "Isnin",
+          "Masa": "09:00 - 11:30",
+          "Tempat_Venue": "Dewan Sekolah Menengah Pehin Datu Seri Maharaja Mentiri",
+          "Pautan_GPS_Maps": "https://maps.google.com/?q=SM+Pehin+Datu+Seri+Maharaja+Mentiri",
+          "Pelan_Sekolah_URL": "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=600&q=80",
+          "Pelan_Parking_URL": "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=600&q=80",
+          "Panduan_Parking": "Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi & VIP).",
+          "Catatan_Khas": "Pakaian rasmi pejabat / kot.",
+          "Status_Acara": "Aktif"
     },
     {
-      Event_ID: 'EVT-FL-04',
-      Kategori_Program: 'Program FutureLink',
-      Nama_Acara: 'Program FutureLink - PTE Meragang',
-      Sekolah: 'Pusat Tingkatan Enam Meragang',
-      Daerah: 'Brunei Muara',
-      Tarikh_Mula: '2027-06-22',
-      Tarikh_Paparan: '22/06/2027 (Selasa)',
-      Hari: 'Selasa',
-      Masa: '09:00 - 11:30',
-      Tempat_Venue: 'Dewan Pusat Tingkatan Enam Meragang',
-      Pautan_GPS_Maps: 'https://maps.google.com/?q=Pusat+Tingkatan+Enam+Meragang+Brunei',
-      Pelan_Sekolah_URL: 'https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=600&q=80',
-      Pelan_Parking_URL: 'https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=600&q=80',
-      Panduan_Parking: 'Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi & VIP).',
-      Catatan_Khas: 'Program FutureLink - Sesi pra-universiti.',
-      Status_Acara: 'Aktif'
+          "Event_ID": "EVT-PHT-26",
+          "Kategori_Program": "Program Hala Tuju",
+          "Nama_Acara": "Program Hala Tuju - STPRI",
+          "Sekolah": "Sekolah Tinggi Perempuan Raja Isteri",
+          "Daerah": "Brunei Muara",
+          "Tarikh_Mula": "2027-07-01",
+          "Tarikh_Paparan": "01/07/2027 (Khamis)",
+          "Hari": "Khamis",
+          "Masa": "09:00 - 11:30",
+          "Tempat_Venue": "Dewan Sekolah Tinggi Perempuan Raja Isteri",
+          "Pautan_GPS_Maps": "https://maps.google.com/?q=STPRI+School+Bandar+Seri+Begawan",
+          "Pelan_Sekolah_URL": "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=600&q=80",
+          "Pelan_Parking_URL": "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=600&q=80",
+          "Panduan_Parking": "Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi & VIP).",
+          "Catatan_Khas": "Pakaian rasmi pejabat / kot.",
+          "Status_Acara": "Aktif"
+    },
+    {
+          "Event_ID": "EVT-PHT-27",
+          "Kategori_Program": "Program Hala Tuju",
+          "Nama_Acara": "Program Hala Tuju - SM Sultan Hassan, Temburong",
+          "Sekolah": "Sekolah Menengah Sultan Hassan, Temburong",
+          "Daerah": "Temburong",
+          "Tarikh_Mula": "2027-07-06",
+          "Tarikh_Paparan": "06/07/2027 (Selasa)",
+          "Hari": "Selasa",
+          "Masa": "09:00 - 11:30",
+          "Tempat_Venue": "Dewan Sekolah Menengah Sultan Hassan, Temburong",
+          "Pautan_GPS_Maps": "https://maps.google.com/?q=Sekolah+Menengah+Sultan+Hassan+Bangar+Temburong",
+          "Pelan_Sekolah_URL": "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=600&q=80",
+          "Pelan_Parking_URL": "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=600&q=80",
+          "Panduan_Parking": "Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi & VIP Daerah Temburong).",
+          "Catatan_Khas": "Sesi khas Daerah Temburong. Pakaian rasmi pejabat / kot.",
+          "Status_Acara": "Aktif"
     }
   ];
+  return events.sort((a, b) => (a.Tarikh_Mula || '').localeCompare(b.Tarikh_Mula || ''));
 }
 
 function getPreseededAgencies() {
@@ -2532,8 +2690,9 @@ window.addEventListener('DOMContentLoaded', () => {
   }
   if (!AppState.events || AppState.events.length < 31) {
     AppState.events = getFallbackEvents();
-    localStorage.setItem('ceu_cache_events', JSON.stringify(AppState.events));
   }
+  AppState.events = sortEventsChronologically(AppState.events);
+  localStorage.setItem('ceu_cache_events', JSON.stringify(AppState.events));
   if (!AppState.activeEvent || AppState.activeEvent.Event_ID === 'EVT-FL-05' || (AppState.activeEvent.Nama_Acara || '').includes('Maktab Duli')) {
     AppState.activeEvent = AppState.events[0];
   }

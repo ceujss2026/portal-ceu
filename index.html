@@ -547,43 +547,21 @@
               </p>
             </div>
 
-            <!-- Mini Kalendar Strip (Desktop & Mobile) -->
-            <div class="flex flex-col bg-black/15 backdrop-blur-md p-3 rounded-2xl md:min-w-[340px]">
-              <div class="flex items-center justify-between pb-1.5 mb-1.5 border-b border-white/10">
-                <span id="homeMiniCalMonth" class="text-xs font-bold text-white tracking-wide">Mac 2026</span>
-                <span id="homeMiniCalWeek" class="bg-white/20 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">Minggu Ke-2</span>
+            <!-- Mini Kalendar Strip Dinamik (Desktop & Mobile) -->
+            <div class="flex flex-col bg-black/20 backdrop-blur-md p-3 rounded-2xl md:min-w-[360px] border border-white/10 shadow-inner">
+              <div class="flex items-center justify-between pb-2 mb-2 border-b border-white/10 gap-2">
+                <div class="flex items-center gap-1">
+                  <button type="button" onclick="navigateHomeCalendarWeek(-1)" class="w-6 h-6 rounded-lg bg-white/10 hover:bg-white/25 active:scale-95 text-white flex items-center justify-center transition-all text-xs font-bold" title="Minggu Sebelumnya">‹</button>
+                  <span id="homeMiniCalMonth" class="text-xs font-bold text-white tracking-wide px-1">Januari 2027</span>
+                  <button type="button" onclick="navigateHomeCalendarWeek(1)" class="w-6 h-6 rounded-lg bg-white/10 hover:bg-white/25 active:scale-95 text-white flex items-center justify-center transition-all text-xs font-bold" title="Minggu Seterusnya">›</button>
+                </div>
+                <div class="flex items-center gap-1.5">
+                  <span id="homeMiniCalWeek" class="bg-white/20 text-white text-[10px] font-bold px-2 py-0.5 rounded-full whitespace-nowrap">24 - 30 Jan</span>
+                  <button type="button" onclick="syncCalendarToActiveEvent()" class="text-[10px] text-amber-300 hover:text-white underline font-semibold transition-colors shrink-0" title="Papar Minggu Sesi Terpilih">Sesi Ini</button>
+                </div>
               </div>
-              <div class="grid grid-cols-7 gap-1 text-center">
-                <div class="flex flex-col items-center py-1.5 px-0.5 rounded-xl bg-white/10">
-                  <span class="text-[9px] text-white/80">Aha</span>
-                  <span class="text-xs font-bold text-white">08</span>
-                </div>
-                <div class="flex flex-col items-center py-1.5 px-0.5 rounded-xl bg-white/10">
-                  <span class="text-[9px] text-white/80">Isn</span>
-                  <span class="text-xs font-bold text-white">09</span>
-                </div>
-                <div class="flex flex-col items-center py-1.5 px-0.5 rounded-xl bg-white/10">
-                  <span class="text-[9px] text-white/80">Sel</span>
-                  <span class="text-xs font-bold text-white">10</span>
-                </div>
-                <div class="flex flex-col items-center py-1.5 px-0.5 rounded-xl bg-white/10">
-                  <span class="text-[9px] text-white/80">Rab</span>
-                  <span class="text-xs font-bold text-white">11</span>
-                </div>
-                <!-- Hari Aktif Amber (Kha 12) -->
-                <div class="flex flex-col items-center py-1.5 px-0.5 rounded-xl bg-[#f59e0b] text-slate-900 shadow-md">
-                  <span class="text-[9px] font-bold text-slate-900">Kha</span>
-                  <span class="text-xs font-black text-slate-900">12</span>
-                  <span class="w-1 h-1 rounded-full bg-slate-900 mt-0.5"></span>
-                </div>
-                <div class="flex flex-col items-center py-1.5 px-0.5 rounded-xl bg-white/10">
-                  <span class="text-[9px] text-white/80">Jum</span>
-                  <span class="text-xs font-bold text-white">13</span>
-                </div>
-                <div class="flex flex-col items-center py-1.5 px-0.5 rounded-xl bg-white/10">
-                  <span class="text-[9px] text-white/80">Sab</span>
-                  <span class="text-xs font-bold text-white">14</span>
-                </div>
+              <div id="homeMiniCalDaysContainer" class="grid grid-cols-7 gap-1 text-center">
+                <!-- Dijana dinamik oleh app.js -->
               </div>
             </div>
           </div>
@@ -597,8 +575,8 @@
               <div class="w-8 h-8 md:w-10 md:h-10 rounded-xl bg-cyan-50 text-[#0284c7] flex items-center justify-center mb-1 md:mb-2">
                 <span class="material-symbols-outlined text-[18px] md:text-[22px]">calendar_month</span>
               </div>
-              <span class="text-lg md:text-2xl font-black text-slate-800 leading-tight">04</span>
-              <span id="homeMetricLabel1" class="text-[10px] md:text-xs font-medium text-slate-500 mt-0.5">Program Mac 2026</span>
+              <span id="homeMetricCount1" class="text-lg md:text-2xl font-black text-slate-800 leading-tight">31</span>
+              <span id="homeMetricLabel1" class="text-[10px] md:text-xs font-medium text-slate-500 mt-0.5">Jumlah Sesi Takwim</span>
             </div>
 
             <!-- Kad 2 -->
@@ -712,14 +690,15 @@
 
               <!-- Bar Carian & Sub-Pilihan Bulan / Minggu -->
               <div class="flex flex-col md:flex-row md:items-center justify-between gap-2">
-                <!-- Penapis Sub-Bulan Pantas -->
+                <!-- Penapis Sub-Bulan Pantas (31 Sesi Tersusun Kronologi) -->
                 <div id="homeCalendarMonthPills" class="flex items-center gap-1 overflow-x-auto pb-0.5 text-[11px]">
-                  <button type="button" onclick="setHomeCalendarMonth('ALL')" id="pillMonth_ALL" class="px-2.5 py-0.5 rounded-lg font-bold bg-[#148e82] text-white shrink-0">Semua Bulan</button>
+                  <button type="button" onclick="setHomeCalendarMonth('ALL')" id="pillMonth_ALL" class="px-2.5 py-0.5 rounded-lg font-bold bg-[#148e82] text-white shrink-0">Semua Bulan (31)</button>
                   <button type="button" onclick="setHomeCalendarMonth('01')" id="pillMonth_01" class="px-2.5 py-0.5 rounded-lg font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 shrink-0">Jan (3)</button>
                   <button type="button" onclick="setHomeCalendarMonth('02')" id="pillMonth_02" class="px-2.5 py-0.5 rounded-lg font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 shrink-0">Feb (3)</button>
                   <button type="button" onclick="setHomeCalendarMonth('03')" id="pillMonth_03" class="px-2.5 py-0.5 rounded-lg font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 shrink-0">Mac (5)</button>
-                  <button type="button" onclick="setHomeCalendarMonth('04')" id="pillMonth_04" class="px-2.5 py-0.5 rounded-lg font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 shrink-0">Apr (13)</button>
-                  <button type="button" onclick="setHomeCalendarMonth('06')" id="pillMonth_06" class="px-2.5 py-0.5 rounded-lg font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 shrink-0">Jun (5)</button>
+                  <button type="button" onclick="setHomeCalendarMonth('04')" id="pillMonth_04" class="px-2.5 py-0.5 rounded-lg font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 shrink-0">Apr (10)</button>
+                  <button type="button" onclick="setHomeCalendarMonth('05')" id="pillMonth_05" class="px-2.5 py-0.5 rounded-lg font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 shrink-0">Mei (2)</button>
+                  <button type="button" onclick="setHomeCalendarMonth('06')" id="pillMonth_06" class="px-2.5 py-0.5 rounded-lg font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 shrink-0">Jun (6)</button>
                   <button type="button" onclick="setHomeCalendarMonth('07')" id="pillMonth_07" class="px-2.5 py-0.5 rounded-lg font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 shrink-0">Jul (2)</button>
                 </div>
 

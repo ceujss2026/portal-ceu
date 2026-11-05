@@ -64,7 +64,7 @@ const I18N = {
       welcomeAgencyHeader: 'SELAMAT DATANG • AGENSI JEMPUTAN',
       welcomeBrunei: 'Negara Brunei Darussalam',
       welcomeDesc: 'Sesi Penyelarasan Takwim & Logistik Program Hala Tuju & FutureLink.',
-      metricMonth: 'Program Mac 2026',
+      metricMonth: 'Jumlah Sesi Takwim',
       metricAttended: 'Selesai Hadir',
       metricPendingRsvp: 'Perlu Tindakan RSVP',
       
@@ -248,7 +248,7 @@ const I18N = {
       welcomeAgencyHeader: 'WELCOME • INVITED AGENCY',
       welcomeBrunei: 'Brunei Darussalam',
       welcomeDesc: 'Calendar & Logistics Coordination Session for Program Hala Tuju & FutureLink.',
-      metricMonth: 'March 2026 Events',
+      metricMonth: 'Official Takwim Sessions',
       metricAttended: 'Attended',
       metricPendingRsvp: 'Action Required (RSVP)',
 
@@ -489,14 +489,12 @@ const I18N = {
     const hDesc = document.getElementById('homeWelcomeDesc');
     if (hDesc) hDesc.innerText = isEn ? 'Calendar & Logistics Coordination Session for Program Hala Tuju & FutureLink.' : 'Sesi Penyelarasan Takwim & Logistik Program Hala Tuju & FutureLink.';
 
-    const hMiniMonth = document.getElementById('homeMiniCalMonth');
-    if (hMiniMonth) hMiniMonth.innerText = isEn ? 'March 2026' : 'Mac 2026';
-
-    const hMiniWeek = document.getElementById('homeMiniCalWeek');
-    if (hMiniWeek) hMiniWeek.innerText = isEn ? 'Week 2' : 'Minggu Ke-2';
-
     const mLabel1 = document.getElementById('homeMetricLabel1');
-    if (mLabel1) mLabel1.innerText = isEn ? 'March 2026 Events' : 'Program Mac 2026';
+    if (mLabel1) mLabel1.innerText = isEn ? 'Official Takwim Sessions' : 'Jumlah Sesi Takwim';
+
+    if (typeof renderHomeMiniCalendar === 'function') {
+      renderHomeMiniCalendar();
+    }
 
     const mLabel2 = document.getElementById('homeMetricLabel2');
     if (mLabel2) mLabel2.innerText = isEn ? 'Attended' : 'Selesai Hadir';
@@ -558,9 +556,11 @@ const I18N = {
     }
 
     const pillMonthAll = document.getElementById('pillMonth_ALL');
-    if (pillMonthAll) pillMonthAll.innerText = isEn ? 'All Months' : 'Semua Bulan';
+    if (pillMonthAll) pillMonthAll.innerText = isEn ? 'All Months (31)' : 'Semua Bulan (31)';
     const pillMonth03 = document.getElementById('pillMonth_03');
     if (pillMonth03) pillMonth03.innerText = isEn ? 'Mar (5)' : 'Mac (5)';
+    const pillMonth05 = document.getElementById('pillMonth_05');
+    if (pillMonth05) pillMonth05.innerText = isEn ? 'May (2)' : 'Mei (2)';
 
     const homeSearch = document.getElementById('homeScheduleSearch');
     if (homeSearch) homeSearch.placeholder = isEn ? 'Search school, venue, date...' : 'Cari sekolah, venue, tarikh...';
