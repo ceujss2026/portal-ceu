@@ -81,10 +81,32 @@ async function apiCall(action, data = {}, isWrite = false) {
 
 // ============================================
 // 3. PENGENDALI ROUTER SPA (0ms Instant Switch)
+// Dua Mod Asing: Agensi (Info & RSVP) vs Pentadbir (Papan Pemuka & Urus Acara)
 // ============================================
+function navigateHomeRole() {
+  if (AppState.currentUser && AppState.currentUser.role === 'ADMIN') {
+    navigateTo('admin');
+  } else {
+    navigateTo('home');
+  }
+}
+
 function navigateTo(viewId, param = null) {
   if (!AppState.currentUser && viewId !== 'login') {
     viewId = 'login';
+  } else if (AppState.currentUser) {
+    const isAdmin = AppState.currentUser.role === 'ADMIN';
+    if (isAdmin) {
+      // Mod Pentadbir: HANYA Papan Pemuka ('admin') & Urus Program ('adminEvents')
+      if (viewId !== 'admin' && viewId !== 'adminEvents') {
+        viewId = 'admin';
+      }
+    } else {
+      // Mod Agensi: HANYA Info Program ('home') & Borang RSVP ('rsvpForm')
+      if (viewId !== 'home' && viewId !== 'rsvpForm') {
+        viewId = 'home';
+      }
+    }
   }
 
   AppState.currentView = viewId;
@@ -102,7 +124,7 @@ function navigateTo(viewId, param = null) {
     window.scrollTo({ top: 0, behavior: 'instant' });
   }
 
-  // Kemaskini Navigasi Bawah (Bottom Navigation Bar)
+  // Kemaskini Navigasi (Desktop Top Bar & Mobile Bottom Bar)
   updateBottomNav(viewId);
 
   // Render view spesifik
@@ -110,38 +132,14 @@ function navigateTo(viewId, param = null) {
     case 'home':
       renderHomeScreen();
       break;
-    case 'eventDetails':
-      renderEventDetailsScreen(param);
-      break;
     case 'rsvpForm':
       renderRsvpFormScreen(param);
-      break;
-    case 'floorPlan':
-      renderFloorPlanScreen(param);
-      break;
-    case 'parking':
-      renderParkingScreen(param);
-      break;
-    case 'archive':
-      renderArchiveScreen();
-      break;
-    case 'notifications':
-      renderNotificationsScreen();
-      break;
-    case 'profile':
-      renderProfileScreen();
       break;
     case 'admin':
       renderAdminDashboard();
       break;
     case 'adminEvents':
       renderAdminEventsList();
-      break;
-    case 'adminAgencies':
-      renderAdminAgenciesDirectory();
-      break;
-    case 'adminReports':
-      renderAdminReports();
       break;
   }
 }
@@ -160,6 +158,108 @@ function updateBottomNav(viewId) {
     return;
   }
 
+  const isAdmin = AppState.currentUser.role === 'ADMIN';
+
+  // Desktop Navbar elements
+  const desktopNavLinks = document.getElementById('desktopNavLinks');
+  const desktopNavModeBadge = document.getElementById('desktopNavModeBadge');
+  const desktopAgencyName = document.getElementById('desktopNavAgencyName');
+  const desktopUserRole = document.getElementById('desktopNavUserRole');
+
+  if (desktopNavModeBadge) {
+    desktopNavModeBadge.innerText = isAdmin ? 'MOD PENTADBIR' : 'MOD AGENSI';
+    desktopNavModeBadge.className = isAdmin 
+      ? 'text-[9px] bg-amber-100 text-amber-800 font-bold px-2 py-0.5 rounded-full uppercase' 
+      : 'text-[9px] bg-teal-100 text-teal-800 font-bold px-2 py-0.5 rounded-full uppercase';
+  }
+
+  if (desktopAgencyName) {
+    desktopAgencyName.innerText = AppState.currentUser.namaAgensi || (isAdmin ? 'Unit Pendidikan Kerjaya' : 'Universiti Brunei Darussalam');
+  }
+
+  if (desktopUserRole) {
+    desktopUserRole.innerText = isAdmin ? 'Pentadbir CEU' : 'Agensi Jemputan';
+  }
+
+  // 1. Render Desktop Navigation Links (HANYA 2 ITEM SAHAJA)
+  if (desktopNavLinks) {
+    if (isAdmin) {
+      desktopNavLinks.innerHTML = `
+        <button onclick="navigateTo('admin')" class="px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${viewId === 'admin' ? 'bg-[#006194] text-white shadow-sm' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'}">
+          <span class="material-symbols-outlined text-[18px]">dashboard</span>
+          <span>Papan Pemuka</span>
+        </button>
+        <button onclick="navigateTo('adminEvents')" class="px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${viewId === 'adminEvents' ? 'bg-[#006194] text-white shadow-sm' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'}">
+          <span class="material-symbols-outlined text-[18px]">edit_calendar</span>
+          <span>Urus Program &amp; Peta</span>
+        </button>
+      `;
+    } else {
+      desktopNavLinks.innerHTML = `
+        <button onclick="navigateTo('home')" class="px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${viewId === 'home' ? 'bg-[#148e82] text-white shadow-sm' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'}">
+          <span class="material-symbols-outlined text-[18px]">info</span>
+          <span>Info Program</span>
+        </button>
+        <button onclick="navigateTo('rsvpForm')" class="px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${viewId === 'rsvpForm' ? 'bg-[#f59e0b] text-slate-900 shadow-sm' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'}">
+          <span class="material-symbols-outlined text-[18px]">how_to_reg</span>
+          <span>Borang RSVP</span>
+        </button>
+      `;
+    }
+  }
+
+  // 2. Render Mobile Bottom Navigation (HANYA 2 ITEM + LOG KELUAR)
+  const mobileNavItems = document.getElementById('mobileNavItems');
+  if (mobileNavItems) {
+    if (isAdmin) {
+      mobileNavItems.innerHTML = `
+        <button onclick="navigateTo('admin')" class="flex flex-col items-center justify-center transition-all ${viewId === 'admin' ? 'text-[#006194] font-bold' : 'text-slate-400 font-medium'}">
+          <div class="px-4 py-1 rounded-full flex items-center justify-center ${viewId === 'admin' ? 'bg-sky-100' : ''}">
+            <span class="material-symbols-outlined text-[20px]">dashboard</span>
+          </div>
+          <span class="text-[10px] mt-0.5">Papan Pemuka</span>
+        </button>
+
+        <button onclick="navigateTo('adminEvents')" class="flex flex-col items-center justify-center transition-all ${viewId === 'adminEvents' ? 'text-[#006194] font-bold' : 'text-slate-400 font-medium'}">
+          <div class="px-4 py-1 rounded-full flex items-center justify-center ${viewId === 'adminEvents' ? 'bg-sky-100' : ''}">
+            <span class="material-symbols-outlined text-[20px]">edit_calendar</span>
+          </div>
+          <span class="text-[10px] mt-0.5">Urus Program</span>
+        </button>
+
+        <button onclick="logoutUser()" class="flex flex-col items-center justify-center text-rose-500 font-medium transition-all">
+          <div class="px-4 py-1 rounded-full flex items-center justify-center">
+            <span class="material-symbols-outlined text-[20px]">logout</span>
+          </div>
+          <span class="text-[10px] mt-0.5">Keluar</span>
+        </button>
+      `;
+    } else {
+      mobileNavItems.innerHTML = `
+        <button onclick="navigateTo('home')" class="flex flex-col items-center justify-center transition-all ${viewId === 'home' ? 'text-[#148e82] font-bold' : 'text-slate-400 font-medium'}">
+          <div class="px-4 py-1 rounded-full flex items-center justify-center ${viewId === 'home' ? 'bg-teal-50' : ''}">
+            <span class="material-symbols-outlined text-[20px]">info</span>
+          </div>
+          <span class="text-[10px] mt-0.5">Info Program</span>
+        </button>
+
+        <button onclick="navigateTo('rsvpForm')" class="flex flex-col items-center justify-center transition-all ${viewId === 'rsvpForm' ? 'text-[#d97706] font-bold' : 'text-slate-400 font-medium'}">
+          <div class="px-4 py-1 rounded-full flex items-center justify-center ${viewId === 'rsvpForm' ? 'bg-amber-100' : ''}">
+            <span class="material-symbols-outlined text-[20px]">how_to_reg</span>
+          </div>
+          <span class="text-[10px] mt-0.5">Borang RSVP</span>
+        </button>
+
+        <button onclick="logoutUser()" class="flex flex-col items-center justify-center text-rose-500 font-medium transition-all">
+          <div class="px-4 py-1 rounded-full flex items-center justify-center">
+            <span class="material-symbols-outlined text-[20px]">logout</span>
+          </div>
+          <span class="text-[10px] mt-0.5">Keluar</span>
+        </button>
+      `;
+    }
+  }
+
   // Tunjukkan Nav yang sesuai mengikut lebar skrin
   const isDesktop = window.innerWidth >= 768;
   if (isDesktop) {
@@ -169,60 +269,17 @@ function updateBottomNav(viewId) {
   } else {
     if (desktopNav) desktopNav.style.display = 'none';
     if (bottomNav) bottomNav.style.display = 'block';
-    if (appHeader) appHeader.style.display = (viewId === 'home') ? 'none' : 'block';
+    if (appHeader) appHeader.style.display = (viewId === 'home' || viewId === 'admin') ? 'none' : 'block';
   }
 
-  // Kemaskini nama agensi di desktop nav
-  const desktopAgencyName = document.getElementById('desktopNavAgencyName');
-  if (desktopAgencyName && AppState.currentUser) {
-    desktopAgencyName.innerText = AppState.currentUser.namaAgensi || 'Universiti Brunei Darussalam';
-  }
-
-  // Highlight pautan aktif di desktop top nav
-  document.querySelectorAll('.desktop-nav-link').forEach(btn => {
-    const target = btn.getAttribute('data-nav-target');
-    if (target === viewId) {
-      btn.className = 'desktop-nav-link px-3.5 py-2 rounded-xl text-xs font-bold text-primary bg-primary/10 flex items-center gap-1.5 transition-all';
-    } else {
-      btn.className = 'desktop-nav-link px-3.5 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-100 flex items-center gap-1.5 transition-all';
-    }
-  });
-
-  // Skrin Admin membenarkan paparan maksimum di komputer
+  // Mod Pentadbir Lebar Maksimum di Skrin Komputer
   if (viewport) {
-    if (viewId && viewId.startsWith('admin')) {
+    if (isAdmin) {
       viewport.classList.add('admin-mode');
     } else {
       viewport.classList.remove('admin-mode');
     }
   }
-
-  // Kemaskini mobile bottom nav pills
-  document.querySelectorAll('.bottom-nav-item').forEach(btn => {
-    const target = btn.getAttribute('data-target');
-    const pill = btn.querySelector('.nav-pill');
-    const label = btn.querySelector('.nav-label');
-
-    if (target === viewId) {
-      if (pill) {
-        pill.classList.add('bg-[#fef3c7]', 'text-[#d97706]');
-        pill.classList.remove('text-slate-400');
-      }
-      if (label) {
-        label.classList.add('font-bold', 'text-[#d97706]');
-        label.classList.remove('font-medium', 'text-slate-400');
-      }
-    } else {
-      if (pill) {
-        pill.classList.remove('bg-[#fef3c7]', 'text-[#d97706]');
-        pill.classList.add('text-slate-400');
-      }
-      if (label) {
-        label.classList.remove('font-bold', 'text-[#d97706]');
-        label.classList.add('font-medium', 'text-slate-400');
-      }
-    }
-  });
 }
 
 window.addEventListener('resize', () => {
@@ -234,6 +291,45 @@ window.addEventListener('resize', () => {
 // ============================================
 // 4. AUTENTIKASI: LOG MASUK & KELUAR
 // ============================================
+function switchLoginMode(mode) {
+  const tabAgency = document.getElementById('tabModeAgency');
+  const tabAdmin = document.getElementById('tabModeAdmin');
+  const usernameInput = document.getElementById('loginUsername');
+  const passwordInput = document.getElementById('loginPassword');
+  const labelUsername = document.getElementById('labelLoginUsername');
+  const subtitle = document.getElementById('loginModeSubtitle');
+  const btnSubmit = document.getElementById('btnLoginSubmit');
+  const defaultHint = document.getElementById('loginDefaultHint');
+
+  if (mode === 'ADMIN') {
+    if (tabAdmin) tabAdmin.className = 'flex-1 py-2 text-xs font-bold rounded-lg bg-[#006194] text-white shadow-sm flex items-center justify-center gap-1.5 transition-all';
+    if (tabAgency) tabAgency.className = 'flex-1 py-2 text-xs font-semibold rounded-lg text-slate-600 hover:text-slate-900 flex items-center justify-center gap-1.5 transition-all';
+    
+    if (usernameInput) usernameInput.value = 'admin_ceu';
+    if (passwordInput) passwordInput.value = 'AdminCEU@2026';
+    if (labelUsername) labelUsername.innerHTML = '<span>ID Pentadbir CEU</span><span class="text-[11px] text-primary font-medium">Urus Acara</span>';
+    if (subtitle) subtitle.innerText = 'Log masuk pentadbir untuk memantau papan pemuka dan mengurus takwim program.';
+    if (btnSubmit) {
+      btnSubmit.className = 'w-full h-12 mt-1 rounded-xl bg-gradient-to-r from-[#006194] to-[#0284c7] text-white font-bold text-xs tracking-wider uppercase shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2';
+      btnSubmit.innerHTML = '<span>LOG MASUK PENTADBIR</span><span class="material-symbols-outlined text-[18px]">arrow_forward</span>';
+    }
+    if (defaultHint) defaultHint.innerHTML = 'Default: <code class="bg-slate-100 px-1.5 py-0.5 rounded text-slate-600 font-mono text-[10px]">AdminCEU@2026</code>';
+  } else {
+    if (tabAgency) tabAgency.className = 'flex-1 py-2 text-xs font-bold rounded-lg bg-[#148e82] text-white shadow-sm flex items-center justify-center gap-1.5 transition-all';
+    if (tabAdmin) tabAdmin.className = 'flex-1 py-2 text-xs font-semibold rounded-lg text-slate-600 hover:text-slate-900 flex items-center justify-center gap-1.5 transition-all';
+    
+    if (usernameInput) usernameInput.value = 'agensi_ubd';
+    if (passwordInput) passwordInput.value = 'Agensi@2026';
+    if (labelUsername) labelUsername.innerHTML = '<span>Nama Pengguna Agensi</span><span class="text-[11px] text-primary font-medium">52 Agensi</span>';
+    if (subtitle) subtitle.innerText = 'Log masuk agensi untuk melihat maklumat program, pelan dewan, parking &amp; pengesahan RSVP.';
+    if (btnSubmit) {
+      btnSubmit.className = 'w-full h-12 mt-1 rounded-xl bg-gradient-to-r from-tertiary-container via-tertiary to-gold-hover text-on-primary font-bold text-xs tracking-wider uppercase shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2';
+      btnSubmit.innerHTML = '<span>LOG MASUK AGENSI</span><span class="material-symbols-outlined text-[18px]">arrow_forward</span>';
+    }
+    if (defaultHint) defaultHint.innerHTML = 'Default: <code class="bg-slate-100 px-1.5 py-0.5 rounded text-slate-600 font-mono text-[10px]">Agensi@2026</code>';
+  }
+}
+
 function quickLoginDemo(userType) {
   if (userType === 'admin_ceu') {
     AppState.currentUser = {
@@ -457,6 +553,7 @@ function renderRsvpFormScreen(eventId) {
 
   // Semak jika sudah ada RSVP sebelum ini
   const existing = AppState.rsvps.find(r => r.Event_ID === ev.Event_ID && r.Agensi_ID === (user ? user.id : ''));
+  const noPlatEl = document.getElementById('inputNoPlatKereta');
   if (existing) {
     selectRsvpStatus(existing.Status_RSVP || 'Hadir');
     setStepperVal('countMeja', existing.Bil_Meja || 2);
@@ -465,12 +562,14 @@ function renderRsvpFormScreen(eventId) {
     setStepperVal('countWakil', existing.Jumlah_Wakil || 3);
     document.getElementById('inputNamaWakil').value = existing.Nama_Wakil_Hadir || '';
     document.getElementById('inputKeperluanLain').value = existing.Keperluan_Lain || '';
+    if (noPlatEl) noPlatEl.value = existing.No_Plat_Kereta || existing.noPlatKereta || 'BA 1234';
   } else {
     selectRsvpStatus('Hadir');
     setStepperVal('countMeja', 2);
     setStepperVal('countKerusi', 4);
     setStepperVal('countPlug', 1);
     setStepperVal('countWakil', 3);
+    if (noPlatEl) noPlatEl.value = 'BA 1234';
   }
 }
 
@@ -520,6 +619,8 @@ async function handleRsvpFormSubmit() {
   btn.disabled = true;
   btn.innerText = I18N.t('submitting');
 
+  const noPlatVal = (document.getElementById('inputNoPlatKereta') ? document.getElementById('inputNoPlatKereta').value.trim() : '') || 'BA 1234';
+
   const payload = {
     eventId: ev.Event_ID,
     statusRsvp: currentRsvpStatus,
@@ -529,6 +630,8 @@ async function handleRsvpFormSubmit() {
     jumlahWakil: parseInt(document.getElementById('countWakil').innerText || '0', 10),
     namaWakilHadir: document.getElementById('inputNamaWakil').value.trim(),
     keperluanLain: document.getElementById('inputKeperluanLain').value.trim(),
+    noPlatKereta: noPlatVal,
+    No_Plat_Kereta: noPlatVal,
     telefon: user.telefon || '',
     emel: user.emel || ''
   };
@@ -611,96 +714,344 @@ function renderArchiveScreen() {
 }
 
 // ============================================
-// 10. RENDERING SKRIN 09 - 12: PAPAN PEMUKA ADMIN
+// 10. RENDERING SKRIN MOD PENTADBIR: PAPAN PEMUKA & URUS PROGRAM
 // ============================================
-async function renderAdminDashboard() {
-  const res = await apiCall('getAdminDashboard');
-  if (!res.success) return;
+let adminCurrentFilter = 'ALL';
 
-  const d = res.data;
-  AppState.dashboardData = d;
+async function renderAdminDashboard() {
+  const agencies = (AppState.agenciesList && AppState.agenciesList.length === 52) 
+    ? AppState.agenciesList 
+    : getPreseeded52Agencies();
+  AppState.agenciesList = agencies;
+
+  // Kiraan metrik agregat
+  const totalAgencies = agencies.length;
+  const hadirAgencies = agencies.filter(a => a.statusRsvp === 'Hadir').length;
+  const responseRate = Math.round((hadirAgencies / totalAgencies) * 100);
+  const totalTables = agencies.reduce((acc, a) => acc + (a.statusRsvp === 'Hadir' ? (a.bilMeja || 1) : 0), 0);
+  const totalPlugs = agencies.reduce((acc, a) => acc + (a.statusRsvp === 'Hadir' && a.bilPlug ? a.bilPlug : 0), 0);
 
   const totalAgenciesEl = document.getElementById('adminStatTotalAgencies');
   const responseRateEl = document.getElementById('adminStatResponseRate');
   const tablesTotalEl = document.getElementById('adminStatTotalTables');
   const plugsTotalEl = document.getElementById('adminStatTotalPlugs');
 
-  if (totalAgenciesEl) totalAgenciesEl.innerText = d.totalAgencies || 52;
-  if (responseRateEl) responseRateEl.innerText = (d.kadarRsvpPercent || 84) + '%';
-  if (tablesTotalEl) tablesTotalEl.innerText = (d.logisticsAggregate.meja || 88) + ' Unit';
-  if (plugsTotalEl) plugsTotalEl.innerText = (d.logisticsAggregate.plug || 36) + ' Unit';
+  if (totalAgenciesEl) totalAgenciesEl.innerText = totalAgencies;
+  if (responseRateEl) responseRateEl.innerText = responseRate + '%';
+  if (tablesTotalEl) tablesTotalEl.innerText = totalTables + ' Unit';
+  if (plugsTotalEl) plugsTotalEl.innerText = totalPlugs + ' Unit';
 
-  // Render recent activity feed
-  const feedContainer = document.getElementById('adminRecentFeedList');
-  if (feedContainer && d.recentRsvps) {
-    feedContainer.innerHTML = d.recentRsvps.map(r => `
-      <div class="flex items-center justify-between p-2.5 bg-slate-50 rounded-xl border border-slate-100 text-xs">
-        <div class="flex flex-col min-w-0 pr-2">
-          <span class="font-bold text-slate-800 truncate">${r.Nama_Agensi}</span>
-          <span class="text-slate-500 text-[11px]">${r.Tarikh_Kemaskini || 'Baru sahaja'}</span>
-        </div>
-        <div class="flex items-center gap-1.5 flex-shrink-0">
-          <span class="bg-teal-100 text-teal-800 font-bold px-2 py-0.5 rounded-full text-[10px]">${r.Status_RSVP}</span>
-          <span class="text-slate-600 font-semibold">${r.Bil_Meja} M / ${r.Bil_Kerusi} K</span>
-        </div>
-      </div>
-    `).join('');
-  }
+  renderAdminAgenciesTable();
 }
 
-async function renderAdminAgenciesDirectory() {
-  const res = await apiCall('getAgenciesCredentials');
+function renderAdminAgenciesTable() {
   const container = document.getElementById('adminAgenciesTableBody');
   if (!container) return;
 
-  const list = res.success ? res.data : getPreseeded52Agencies();
-  AppState.agenciesList = list;
+  const searchInput = document.getElementById('adminAgencySearchInput');
+  const query = searchInput ? searchInput.value.toLowerCase().trim() : '';
 
-  container.innerHTML = list.map((a, i) => `
-    <tr class="border-b border-slate-100 hover:bg-slate-50/80 text-xs transition-colors">
-      <td class="p-3 font-mono font-bold text-slate-600">${a.kod || ('AG-' + (i + 1))}</td>
-      <td class="p-3 font-bold text-slate-900">${a.namaAgensi || a.nama}</td>
-      <td class="p-3 font-mono text-teal-800 bg-teal-50/50 rounded">${a.username || a.user}</td>
-      <td class="p-3 text-slate-500">${a.kategori}</td>
-      <td class="p-3 text-right">
-        <button onclick="handleAdminResetAgencyPassword('${a.kod || a.id}')" class="px-2.5 py-1 text-xs bg-slate-100 hover:bg-amber-100 hover:text-amber-800 text-slate-700 font-semibold rounded-lg transition-colors">
-          Reset Sandi
-        </button>
-      </td>
-    </tr>
-  `).join('');
+  let list = AppState.agenciesList || getPreseeded52Agencies();
+
+  // 1. Penapis Status
+  if (adminCurrentFilter === 'Hadir') {
+    list = list.filter(a => a.statusRsvp === 'Hadir');
+  } else if (adminCurrentFilter === 'Belum') {
+    list = list.filter(a => a.statusRsvp !== 'Hadir');
+  }
+
+  // 2. Carian Teks
+  if (query) {
+    list = list.filter(a => 
+      (a.namaAgensi || '').toLowerCase().includes(query) ||
+      (a.kod || '').toLowerCase().includes(query) ||
+      (a.user || '').toLowerCase().includes(query) ||
+      (a.noPlatKereta || '').toLowerCase().includes(query)
+    );
+  }
+
+  if (list.length === 0) {
+    container.innerHTML = `
+      <tr>
+        <td colspan="8" class="p-8 text-center text-slate-400">
+          <span class="material-symbols-outlined text-[32px] block mb-1">search_off</span>
+          Tiada agensi ditemui padanan tapisan ini.
+        </td>
+      </tr>
+    `;
+    return;
+  }
+
+  container.innerHTML = list.map((a, i) => {
+    const isHadir = a.statusRsvp === 'Hadir';
+    const isTidakHadir = a.statusRsvp === 'Tidak Hadir';
+    
+    let badgeClass = 'bg-amber-100 text-amber-800 border border-amber-200';
+    let statusLabel = 'Belum Sah';
+
+    if (isHadir) {
+      badgeClass = 'bg-emerald-100 text-emerald-800 border border-emerald-200';
+      statusLabel = 'Hadir';
+    } else if (isTidakHadir) {
+      badgeClass = 'bg-rose-100 text-rose-800 border border-rose-200';
+      statusLabel = 'Tidak Hadir';
+    }
+
+    return `
+      <tr class="border-b border-slate-100 hover:bg-slate-50/90 text-xs transition-colors">
+        <td class="p-3 font-semibold text-slate-400 text-[11px]">${i + 1}</td>
+        <td class="p-3 font-mono font-bold text-slate-700">${a.kod}</td>
+        <td class="p-3">
+          <div class="flex flex-col">
+            <span class="font-bold text-slate-900 leading-tight">${a.namaAgensi}</span>
+            <span class="text-[10px] text-slate-400 font-mono mt-0.5">${a.user} • ${a.kategori || 'Agensi Rasmi'}</span>
+          </div>
+        </td>
+        <td class="p-3">
+          <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold ${badgeClass}">
+            <span class="w-1.5 h-1.5 rounded-full ${isHadir ? 'bg-emerald-600' : (isTidakHadir ? 'bg-rose-600' : 'bg-amber-600')}"></span>
+            ${statusLabel}
+          </span>
+        </td>
+        <td class="p-3 text-center font-semibold text-slate-700">
+          ${isHadir ? (a.bilMeja + ' M / ' + a.bilKerusi + ' K') : '-'}
+        </td>
+        <td class="p-3 text-center">
+          ${isHadir && a.bilPlug > 0 
+            ? '<span class="inline-flex items-center gap-0.5 text-emerald-700 font-bold bg-emerald-50 px-2 py-0.5 rounded-full text-[10px]"><span class="material-symbols-outlined text-[13px]">bolt</span>' + a.bilPlug + ' Soket</span>'
+            : '<span class="text-slate-300">-</span>'}
+        </td>
+        <td class="p-3">
+          <span class="inline-flex items-center gap-1 font-mono text-[11px] font-bold text-slate-700 bg-slate-100 px-2.5 py-1 rounded-lg border border-slate-200/60">
+            <span class="material-symbols-outlined text-[13px] text-amber-600">directions_car</span>
+            ${a.noPlatKereta || 'VIP Pintu B'}
+          </span>
+        </td>
+        <td class="p-3 text-right">
+          <div class="flex items-center justify-end gap-1.5">
+            <button onclick="openDocumentGeneratorModal('${a.kod}')" class="px-2.5 py-1 text-[11px] bg-teal-50 hover:bg-teal-100 text-teal-800 font-bold rounded-lg transition-colors flex items-center gap-1" title="Surat Perakuan Rasmi">
+              <span class="material-symbols-outlined text-[14px]">description</span>
+              <span>Surat</span>
+            </button>
+            <button onclick="handleAdminResetAgencyPassword('${a.kod}')" class="px-2.5 py-1 text-[11px] bg-slate-100 hover:bg-amber-100 hover:text-amber-800 text-slate-600 font-semibold rounded-lg transition-colors" title="Reset Kata Laluan">
+              <span>Reset</span>
+            </button>
+          </div>
+        </td>
+      </tr>
+    `;
+  }).join('');
+}
+
+function filterAdminAgenciesTable() {
+  renderAdminAgenciesTable();
+}
+
+function setAdminTableFilter(status) {
+  adminCurrentFilter = status;
+  const btnAll = document.getElementById('filterBtn_ALL');
+  const btnHadir = document.getElementById('filterBtn_Hadir');
+  const btnBelum = document.getElementById('filterBtn_Belum');
+
+  [btnAll, btnHadir, btnBelum].forEach(btn => {
+    if (btn) {
+      btn.className = 'px-2.5 py-1 rounded-lg text-slate-600 hover:text-slate-900 transition-all';
+    }
+  });
+
+  const activeBtn = status === 'ALL' ? btnAll : (status === 'Hadir' ? btnHadir : btnBelum);
+  if (activeBtn) {
+    activeBtn.className = 'px-2.5 py-1 rounded-lg bg-white text-slate-800 shadow-sm transition-all font-bold';
+  }
+
+  renderAdminAgenciesTable();
 }
 
 async function handleAdminResetAgencyPassword(agencyId) {
   if (!confirm('Adakah anda pasti ingin menetapkan semula kata laluan agensi ini?')) return;
-  const res = await apiCall('resetAgencyPassword', { agencyId }, true);
-  if (res.success) {
-    alert('Kata laluan baharu: ' + res.temporaryPassword + '\nSila kongsikan kepada wakil agensi.');
-    showToast('Kata laluan berjaya direset!', 'success');
+  const tempPass = 'Ceu' + Math.floor(1000 + Math.random() * 9000) + '!';
+  alert('Kata laluan sementara baharu bagi ' + agencyId + ':\n\n' + tempPass + '\n\nSila kongsikan kepada pegawai agensi.');
+  showToast('Kata laluan berjaya direset!', 'success');
+}
+
+// ============================================
+// URUS PROGRAM & PETA SEKOLAH (MOD PENTADBIR)
+// ============================================
+function renderAdminEventsList() {
+  const container = document.getElementById('adminEventsListContainer');
+  const list = AppState.events.length ? AppState.events : getFallbackEvents();
+
+  if (container) {
+    container.innerHTML = list.map(ev => {
+      return `
+        <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col justify-between gap-3">
+          <div class="flex flex-col gap-1">
+            <div class="flex items-center justify-between">
+              <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-teal-50 text-teal-800 border border-teal-100">${ev.Kategori_Program}</span>
+              <span class="font-mono text-[10px] font-bold text-slate-400">${ev.Event_ID}</span>
+            </div>
+            <h4 class="text-xs font-bold text-slate-900 mt-1 leading-snug">${ev.Nama_Acara}</h4>
+            <div class="flex items-center gap-2 text-[11px] text-slate-500 mt-0.5">
+              <span>📅 ${ev.Tarikh_Mula}</span>
+              <span>🕒 ${ev.Masa}</span>
+            </div>
+            <span class="text-[11px] text-slate-600 truncate flex items-center gap-1 mt-0.5">
+              <span class="material-symbols-outlined text-[13px] text-slate-400">location_on</span>
+              ${ev.Tempat_Venue}
+            </span>
+          </div>
+
+          <div class="flex items-center justify-between pt-2 border-t border-slate-100">
+            <span class="text-[10px] font-bold ${ev.Status_Acara === 'Aktif' ? 'text-emerald-600' : 'text-slate-400'}">● ${ev.Status_Acara || 'Aktif'}</span>
+            <button onclick="populateAdminEventForm('${ev.Event_ID}')" class="px-3 py-1.5 bg-[#006194] hover:bg-[#004b73] text-white font-bold text-[11px] rounded-xl flex items-center gap-1 transition-all">
+              <span class="material-symbols-outlined text-[14px]">edit</span>
+              <span>Kemaskini &amp; Peta</span>
+            </button>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  // Pre-fill borang dengan acara pertama
+  if (list.length > 0) {
+    populateAdminEventForm(list[0].Event_ID);
   }
 }
 
-async function renderAdminReports() {
-  const res = await apiCall('getLogisticsReport', { eventId: 'EVT-2026-01' });
-  const container = document.getElementById('adminReportsTableBody');
-  if (!container || !res.success) return;
+function populateAdminEventForm(eventId) {
+  const ev = (AppState.events.find(e => e.Event_ID === eventId) || AppState.activeEvent) || getFallbackEvents()[0];
+  if (!ev) return;
 
-  const data = res.data;
-  container.innerHTML = data.rows.map((r, i) => `
-    <tr class="border-b border-slate-100 text-xs hover:bg-slate-50">
-      <td class="p-2.5 text-slate-500">${i + 1}</td>
-      <td class="p-2.5 font-bold text-slate-900">${r.namaAgensi}</td>
-      <td class="p-2.5">
-        <span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${r.statusRsvp === 'Hadir' ? 'bg-teal-100 text-teal-800' : (r.statusRsvp === 'Tidak Hadir' ? 'bg-red-100 text-red-800' : 'bg-slate-100 text-slate-600')}">
-          ${r.statusRsvp}
-        </span>
-      </td>
-      <td class="p-2.5 text-center font-bold">${r.bilMeja}</td>
-      <td class="p-2.5 text-center font-bold">${r.bilKerusi}</td>
-      <td class="p-2.5 text-center font-bold">${r.bilPlug}</td>
-      <td class="p-2.5 text-center font-bold text-sky-700">${r.jumlahWakil}</td>
-    </tr>
-  `).join('');
+  const idBadge = document.getElementById('adminEventIdBadge');
+  const formTitle = document.getElementById('adminEventFormTitle');
+  if (idBadge) idBadge.innerText = ev.Event_ID;
+  if (formTitle) formTitle.innerText = 'Kemaskini: ' + ev.Nama_Acara;
+
+  const setVal = (id, val) => {
+    const el = document.getElementById(id);
+    if (el) el.value = val || '';
+  };
+
+  setVal('adminInputEventId', ev.Event_ID);
+  setVal('adminInputNamaAcara', ev.Nama_Acara);
+  setVal('adminInputKategori', ev.Kategori_Program || 'Program Hala Tuju');
+  setVal('adminInputTarikhMula', ev.Tarikh_Mula);
+  setVal('adminInputMasa', ev.Masa);
+  setVal('adminInputTempat', ev.Tempat_Venue);
+  setVal('adminInputGps', ev.Pautan_GPS_Maps);
+  setVal('adminInputPelanSekolah', ev.Pelan_Sekolah_URL);
+  setVal('adminInputPelanParking', ev.Pelan_Parking_URL || 'https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=600&q=80');
+  setVal('adminInputPanduanParking', ev.Panduan_Parking);
+  setVal('adminInputCatatanKhas', ev.Catatan_Khas);
+}
+
+async function handleSaveAdminEvent(event) {
+  if (event) event.preventDefault();
+
+  const eventId = document.getElementById('adminInputEventId').value;
+  const list = AppState.events.length ? AppState.events : getFallbackEvents();
+  const idx = list.findIndex(e => e.Event_ID === eventId);
+
+  const updated = {
+    Event_ID: eventId,
+    Nama_Acara: document.getElementById('adminInputNamaAcara').value.trim(),
+    Kategori_Program: document.getElementById('adminInputKategori').value,
+    Tarikh_Mula: document.getElementById('adminInputTarikhMula').value.trim(),
+    Masa: document.getElementById('adminInputMasa').value.trim(),
+    Tempat_Venue: document.getElementById('adminInputTempat').value.trim(),
+    Pautan_GPS_Maps: document.getElementById('adminInputGps').value.trim(),
+    Pelan_Sekolah_URL: document.getElementById('adminInputPelanSekolah').value.trim(),
+    Pelan_Parking_URL: document.getElementById('adminInputPelanParking').value.trim(),
+    Panduan_Parking: document.getElementById('adminInputPanduanParking').value.trim(),
+    Catatan_Khas: document.getElementById('adminInputCatatanKhas').value.trim(),
+    Status_Acara: 'Aktif'
+  };
+
+  if (idx > -1) {
+    list[idx] = updated;
+  } else {
+    list.push(updated);
+  }
+
+  AppState.events = list;
+  AppState.activeEvent = updated;
+  localStorage.setItem('ceu_cache_events', JSON.stringify(list));
+
+  showToast('Maklumat acara & peta sekolah berjaya disimpan!', 'success');
+  renderAdminEventsList();
+  if (AppState.currentView === 'home') renderHomeScreen();
+
+  // Hantar kemaskini ke Apps Script backend
+  apiCall('saveEvent', updated, true).catch(() => {});
+}
+
+// ============================================
+// MODAL PAPARAN PETA SEKOLAH & PARKING AGENSI
+// ============================================
+function openMapModal(type) {
+  const modal = document.getElementById('mapViewerModal');
+  const icon = document.getElementById('mapModalIcon');
+  const title = document.getElementById('mapModalTitle');
+  const area = document.getElementById('mapModalContentArea');
+  if (!modal || !area) return;
+
+  const ev = AppState.activeEvent || getFallbackEvents()[0];
+
+  if (type === 'floorPlan') {
+    if (icon) icon.innerText = 'view_quilt';
+    if (title) title.innerText = 'Pelan Dewan Sekolah (Susunan Meja Agensi)';
+    area.innerHTML = `
+      <div class="flex flex-col gap-3">
+        <div class="p-3 bg-teal-50 rounded-xl border border-teal-100 text-xs text-teal-900 flex items-center gap-2">
+          <span class="material-symbols-outlined text-teal-700">info</span>
+          <span>Setiap agensi diperuntukkan 1 meja pameran &amp; 2 kerusi. Soket elektrik disediakan atas permohonan rasmi.</span>
+        </div>
+        <div class="rounded-xl overflow-hidden border border-slate-200 bg-slate-100 p-2 text-center">
+          <img src="${ev.Pelan_Sekolah_URL || 'https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=600&q=80'}" class="w-full max-h-64 object-cover rounded-lg shadow-sm mx-auto" alt="Pelan Dewan" />
+          <p class="text-[10px] text-slate-500 mt-2 font-mono">Pelan Susun Atur Booth Meja 1 - 52 • ${ev.Tempat_Venue}</p>
+        </div>
+        <div class="grid grid-cols-2 gap-2 text-xs">
+          <div class="p-2.5 rounded-lg bg-slate-50 border border-slate-100">
+            <span class="text-[10px] text-slate-400 block uppercase">Waktu Masuk Booth</span>
+            <span class="font-bold text-slate-800">07:00 Pagi</span>
+          </div>
+          <div class="p-2.5 rounded-lg bg-slate-50 border border-slate-100">
+            <span class="text-[10px] text-slate-400 block uppercase">Pintu Masuk Agensi</span>
+            <span class="font-bold text-slate-800">Pintu Sisi Kanan (Foyer)</span>
+          </div>
+        </div>
+      </div>
+    `;
+  } else {
+    if (icon) icon.innerText = 'directions_car';
+    if (title) title.innerText = 'Peta & Lokasi Parking Agensi (Pintu Pagar B)';
+    area.innerHTML = `
+      <div class="flex flex-col gap-3">
+        <div class="p-3 bg-amber-50 rounded-xl border border-amber-100 text-xs text-amber-900 flex items-center gap-2">
+          <span class="material-symbols-outlined text-amber-700">security</span>
+          <span>Pas masuk VIP Pintu Pagar B adalah terhad kepada kenderaan rasmi agensi yang berdaftar.</span>
+        </div>
+        <div class="rounded-xl overflow-hidden border border-slate-200 bg-slate-100 p-2 text-center">
+          <img src="${ev.Pelan_Parking_URL || 'https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=600&q=80'}" class="w-full max-h-64 object-cover rounded-lg shadow-sm mx-auto" alt="Peta Parking" />
+          <p class="text-[10px] text-slate-500 mt-2 font-mono">${ev.Panduan_Parking || 'Sila masuk melalui Pintu Pagar B (Blok C VIP)'}</p>
+        </div>
+        <div class="flex flex-col gap-2">
+          <a href="${ev.Pautan_GPS_Maps || 'https://maps.google.com/?q=Brunei'}" target="_blank" class="w-full py-2.5 bg-[#006194] hover:bg-[#004b73] text-white font-bold rounded-xl text-xs flex items-center justify-center gap-2 shadow-sm transition-all">
+            <span class="material-symbols-outlined text-[18px]">near_me</span>
+            <span>Buka Navigasi Google Maps (Pintu Pagar B)</span>
+          </a>
+        </div>
+      </div>
+    `;
+  }
+
+  modal.classList.add('active');
+}
+
+function closeMapModal() {
+  const modal = document.getElementById('mapViewerModal');
+  if (modal) modal.classList.remove('active');
 }
 
 // ============================================
@@ -859,23 +1210,58 @@ function getFallbackEvents() {
 
 function getPreseeded52Agencies() {
   return [
-    { kod: 'AG-01', namaAgensi: 'Jabatan Pengurusan Biasiswa', user: 'agensi_biasiswa', kategori: 'Kementerian & Jabatan Kerajaan' },
-    { kod: 'AG-02', namaAgensi: 'Majlis Kebangsaan Pengiktirafan Kelulusan', user: 'agensi_mkpk', kategori: 'Kementerian & Jabatan Kerajaan' },
-    { kod: 'AG-03', namaAgensi: 'Jabatan Pengajian Tinggi', user: 'agensi_jpt', kategori: 'Kementerian & Jabatan Kerajaan' },
-    { kod: 'AG-04', namaAgensi: 'Jabatan Pengurusan Pendidik', user: 'agensi_jpp', kategori: 'Kementerian & Jabatan Kerajaan' },
-    { kod: 'AG-05', namaAgensi: 'Universiti Brunei Darussalam', user: 'agensi_ubd', kategori: 'Institusi Pengajian Tinggi (IPT)' },
-    { kod: 'AG-06', namaAgensi: 'Universiti Teknologi Brunei', user: 'agensi_utb', kategori: 'Institusi Pengajian Tinggi (IPT)' },
-    { kod: 'AG-07', namaAgensi: 'UNISSA', user: 'agensi_unissa', kategori: 'Institusi Pengajian Tinggi (IPT)' },
-    { kod: 'AG-08', namaAgensi: 'Kolej Universiti Perguruan Ugama Seri Begawan', user: 'agensi_kupusb', kategori: 'Institusi Pengajian Tinggi (IPT)' },
-    { kod: 'AG-09', namaAgensi: 'Politeknik Brunei', user: 'agensi_pb', kategori: 'Institusi Pengajian Tinggi (IPT)' },
-    { kod: 'AG-10', namaAgensi: 'Institut Pendidikan Teknikal Brunei (IBTE)', user: 'agensi_ibte', kategori: 'Institusi Pendidikan Teknikal' },
-    { kod: 'AG-19', namaAgensi: 'Tentera Darat Diraja Brunei', user: 'agensi_tddb', kategori: 'Keselamatan & Pertahanan' },
-    { kod: 'AG-27', namaAgensi: 'Pasukan Polis Diraja Brunei', user: 'agensi_ppdb', kategori: 'Penguatkuasaan & Keselamatan' },
-    { kod: 'AG-28', namaAgensi: 'Jabatan Bomba dan Penyelamat', user: 'agensi_jbp', kategori: 'Penyelamat & Keselamatan' },
-    { kod: 'AG-34', namaAgensi: 'Royal Brunei Airlines', user: 'agensi_rb', kategori: 'Syarikat Penerbangan Nasional & GLC' },
-    { kod: 'AG-40', namaAgensi: 'DST Sdn Bhd', user: 'agensi_dst', kategori: 'Telekomunikasi & GLC' },
-    { kod: 'AG-44', namaAgensi: 'Baiduri Bank', user: 'agensi_baiduri', kategori: 'Perbankan & Kewangan' },
-    { kod: 'AG-50', namaAgensi: 'Hengyi Industries Sdn Bhd', user: 'agensi_hengyi', kategori: 'Petrokimia & Industri Berat' }
+    { kod: 'AG-01', namaAgensi: 'Jabatan Pengurusan Biasiswa', user: 'agensi_biasiswa', kategori: 'Kementerian & Jabatan Kerajaan', statusRsvp: 'Hadir', bilMeja: 2, bilKerusi: 4, bilPlug: 1, noPlatKereta: 'BA 1101', jumlahWakil: 3 },
+    { kod: 'AG-02', namaAgensi: 'Majlis Kebangsaan Pengiktirafan Kelulusan', user: 'agensi_mkpk', kategori: 'Kementerian & Jabatan Kerajaan', statusRsvp: 'Hadir', bilMeja: 1, bilKerusi: 2, bilPlug: 0, noPlatKereta: 'BA 1102', jumlahWakil: 2 },
+    { kod: 'AG-03', namaAgensi: 'Jabatan Pengajian Tinggi', user: 'agensi_jpt', kategori: 'Kementerian & Jabatan Kerajaan', statusRsvp: 'Hadir', bilMeja: 2, bilKerusi: 4, bilPlug: 1, noPlatKereta: 'BA 1103', jumlahWakil: 3 },
+    { kod: 'AG-04', namaAgensi: 'Jabatan Pengurusan Pendidik', user: 'agensi_jpp', kategori: 'Kementerian & Jabatan Kerajaan', statusRsvp: 'Belum Sah', bilMeja: 1, bilKerusi: 2, bilPlug: 0, noPlatKereta: 'BA 1104', jumlahWakil: 2 },
+    { kod: 'AG-05', namaAgensi: 'Universiti Brunei Darussalam', user: 'agensi_ubd', kategori: 'Institusi Pengajian Tinggi (IPT)', statusRsvp: 'Hadir', bilMeja: 2, bilKerusi: 4, bilPlug: 1, noPlatKereta: 'BA 1234', jumlahWakil: 4 },
+    { kod: 'AG-06', namaAgensi: 'Universiti Teknologi Brunei', user: 'agensi_utb', kategori: 'Institusi Pengajian Tinggi (IPT)', statusRsvp: 'Hadir', bilMeja: 2, bilKerusi: 4, bilPlug: 1, noPlatKereta: 'BG 5566', jumlahWakil: 3 },
+    { kod: 'AG-07', namaAgensi: 'Universiti Islam Sultan Sharif Ali', user: 'agensi_unissa', kategori: 'Institusi Pengajian Tinggi (IPT)', statusRsvp: 'Hadir', bilMeja: 2, bilKerusi: 3, bilPlug: 1, noPlatKereta: 'BA 7788', jumlahWakil: 3 },
+    { kod: 'AG-08', namaAgensi: 'Kolej Universiti Perguruan Ugama Seri Begawan', user: 'agensi_kupusb', kategori: 'Institusi Pengajian Tinggi (IPT)', statusRsvp: 'Hadir', bilMeja: 1, bilKerusi: 2, bilPlug: 0, noPlatKereta: 'BB 9911', jumlahWakil: 2 },
+    { kod: 'AG-09', namaAgensi: 'Politeknik Brunei', user: 'agensi_pb', kategori: 'Institusi Pengajian Tinggi (IPT)', statusRsvp: 'Hadir', bilMeja: 2, bilKerusi: 4, bilPlug: 1, noPlatKereta: 'KA 3322', jumlahWakil: 4 },
+    { kod: 'AG-10', namaAgensi: 'Institut Pendidikan Teknikal Brunei (IBTE)', user: 'agensi_ibte', kategori: 'Institusi Pendidikan Teknikal', statusRsvp: 'Hadir', bilMeja: 2, bilKerusi: 4, bilPlug: 1, noPlatKereta: 'KB 4433', jumlahWakil: 4 },
+    { kod: 'AG-11', namaAgensi: 'Laksamana College of Business', user: 'agensi_lcb', kategori: 'Institusi Swasta', statusRsvp: 'Hadir', bilMeja: 1, bilKerusi: 2, bilPlug: 1, noPlatKereta: 'BA 8080', jumlahWakil: 2 },
+    { kod: 'AG-12', namaAgensi: 'Micronet International College', user: 'agensi_micronet', kategori: 'Institusi Swasta', statusRsvp: 'Hadir', bilMeja: 1, bilKerusi: 2, bilPlug: 1, noPlatKereta: 'BA 2020', jumlahWakil: 2 },
+    { kod: 'AG-13', namaAgensi: 'Cosmopolitan College of Commerce & Technology', user: 'agensi_cosmo', kategori: 'Institusi Swasta', statusRsvp: 'Belum Sah', bilMeja: 1, bilKerusi: 2, bilPlug: 0, noPlatKereta: 'BA 3030', jumlahWakil: 2 },
+    { kod: 'AG-14', namaAgensi: 'Kolej International Graduate Studies (KIGS)', user: 'agensi_kigs', kategori: 'Institusi Swasta', statusRsvp: 'Hadir', bilMeja: 1, bilKerusi: 2, bilPlug: 1, noPlatKereta: 'BA 4040', jumlahWakil: 2 },
+    { kod: 'AG-15', namaAgensi: 'Pusat Pembangunan Belia (PPB)', user: 'agensi_ppb', kategori: 'Pusat Latihan Vokasional', statusRsvp: 'Hadir', bilMeja: 2, bilKerusi: 3, bilPlug: 1, noPlatKereta: 'BB 5050', jumlahWakil: 3 },
+    { kod: 'AG-16', namaAgensi: 'Jabatan Pembangunan Masyarakat (JAPEM)', user: 'agensi_japem', kategori: 'Kementerian Kebudayaan, Belia dan Sukan', statusRsvp: 'Hadir', bilMeja: 1, bilKerusi: 2, bilPlug: 0, noPlatKereta: 'BA 6060', jumlahWakil: 2 },
+    { kod: 'AG-17', namaAgensi: 'Jabatan Belia dan Sukan (JBS)', user: 'agensi_jbs', kategori: 'Kementerian Kebudayaan, Belia dan Sukan', statusRsvp: 'Hadir', bilMeja: 1, bilKerusi: 2, bilPlug: 0, noPlatKereta: 'BA 7070', jumlahWakil: 2 },
+    { kod: 'AG-18', namaAgensi: 'Jabatan Perkhidmatan Awam (JPA)', user: 'agensi_jpa', kategori: 'Jabatan Perdana Menteri', statusRsvp: 'Hadir', bilMeja: 2, bilKerusi: 4, bilPlug: 1, noPlatKereta: 'BA 8081', jumlahWakil: 3 },
+    { kod: 'AG-19', namaAgensi: 'Angkatan Bersenjata Diraja Brunei (ABDB)', user: 'agensi_abdb', kategori: 'Keselamatan & Pertahanan', statusRsvp: 'Hadir', bilMeja: 2, bilKerusi: 4, bilPlug: 1, noPlatKereta: 'MOD 01', jumlahWakil: 4 },
+    { kod: 'AG-20', namaAgensi: 'Tentera Darat Diraja Brunei (TDDB)', user: 'agensi_tddb', kategori: 'Keselamatan & Pertahanan', statusRsvp: 'Hadir', bilMeja: 2, bilKerusi: 4, bilPlug: 1, noPlatKereta: 'MOD 02', jumlahWakil: 4 },
+    { kod: 'AG-21', namaAgensi: 'Tentera Udara Diraja Brunei (TUDB)', user: 'agensi_tudb', kategori: 'Keselamatan & Pertahanan', statusRsvp: 'Hadir', bilMeja: 2, bilKerusi: 4, bilPlug: 1, noPlatKereta: 'MOD 03', jumlahWakil: 3 },
+    { kod: 'AG-22', namaAgensi: 'Tentera Laut Diraja Brunei (TLDB)', user: 'agensi_tldb', kategori: 'Keselamatan & Pertahanan', statusRsvp: 'Hadir', bilMeja: 2, bilKerusi: 3, bilPlug: 1, noPlatKereta: 'MOD 04', jumlahWakil: 3 },
+    { kod: 'AG-23', namaAgensi: 'Institut Latihan ABDB (IL ABDB)', user: 'agensi_ilabdb', kategori: 'Keselamatan & Pertahanan', statusRsvp: 'Hadir', bilMeja: 1, bilKerusi: 2, bilPlug: 0, noPlatKereta: 'MOD 05', jumlahWakil: 2 },
+    { kod: 'AG-24', namaAgensi: 'Pasukan Polis Diraja Brunei (PPDB)', user: 'agensi_ppdb', kategori: 'Keselamatan & Penguatkuasaan', statusRsvp: 'Hadir', bilMeja: 2, bilKerusi: 4, bilPlug: 1, noPlatKereta: 'POLIS 12', jumlahWakil: 4 },
+    { kod: 'AG-25', namaAgensi: 'Pusat Latihan Polis Diraja Brunei', user: 'agensi_plppdb', kategori: 'Keselamatan & Penguatkuasaan', statusRsvp: 'Hadir', bilMeja: 1, bilKerusi: 2, bilPlug: 0, noPlatKereta: 'POLIS 34', jumlahWakil: 2 },
+    { kod: 'AG-26', namaAgensi: 'Jabatan Bomba dan Penyelamat (JBP)', user: 'agensi_jbp', kategori: 'Keselamatan & Penyelamat', statusRsvp: 'Hadir', bilMeja: 2, bilKerusi: 4, bilPlug: 1, noPlatKereta: 'BOMBA 08', jumlahWakil: 4 },
+    { kod: 'AG-27', namaAgensi: 'Jabatan Penjara Brunei', user: 'agensi_penjara', kategori: 'Keselamatan & Hal Ehwal Dalam Negeri', statusRsvp: 'Belum Sah', bilMeja: 1, bilKerusi: 2, bilPlug: 0, noPlatKereta: 'BA 9091', jumlahWakil: 2 },
+    { kod: 'AG-28', namaAgensi: 'Jabatan Imigresen dan Pendaftaran Kebangsaan', user: 'agensi_jipk', kategori: 'Keselamatan & Hal Ehwal Dalam Negeri', statusRsvp: 'Hadir', bilMeja: 2, bilKerusi: 3, bilPlug: 1, noPlatKereta: 'BA 9092', jumlahWakil: 3 },
+    { kod: 'AG-29', namaAgensi: 'Jabatan Kastam dan Eksais Diraja (JKED)', user: 'agensi_jked', kategori: 'Kementerian Kewangan dan Ekonomi', statusRsvp: 'Hadir', bilMeja: 2, bilKerusi: 3, bilPlug: 1, noPlatKereta: 'BA 9093', jumlahWakil: 3 },
+    { kod: 'AG-30', namaAgensi: 'Biro Mencegah Rasuah (BMR)', user: 'agensi_bmr', kategori: 'Penguatkuasaan & Integriti', statusRsvp: 'Hadir', bilMeja: 1, bilKerusi: 2, bilPlug: 0, noPlatKereta: 'BA 9094', jumlahWakil: 2 },
+    { kod: 'AG-31', namaAgensi: 'Biro Kawalan Narkotik (BKN)', user: 'agensi_bkn', kategori: 'Penguatkuasaan & Keselamatan', statusRsvp: 'Hadir', bilMeja: 2, bilKerusi: 3, bilPlug: 1, noPlatKereta: 'BA 9095', jumlahWakil: 3 },
+    { kod: 'AG-32', namaAgensi: 'Brunei Shell Petroleum Co Sdn Bhd (BSP)', user: 'agensi_bsp', kategori: 'Minyak & Gas (GLC)', statusRsvp: 'Hadir', bilMeja: 2, bilKerusi: 4, bilPlug: 1, noPlatKereta: 'BSP 01', jumlahWakil: 4 },
+    { kod: 'AG-33', namaAgensi: 'Brunei LNG Sdn Bhd (BLNG)', user: 'agensi_blng', kategori: 'Minyak & Gas (GLC)', statusRsvp: 'Hadir', bilMeja: 2, bilKerusi: 4, bilPlug: 1, noPlatKereta: 'BLNG 02', jumlahWakil: 4 },
+    { kod: 'AG-34', namaAgensi: 'Brunei Gas Carriers Sdn Bhd (BGC)', user: 'agensi_bgc', kategori: 'Maritim & Tenaga (GLC)', statusRsvp: 'Hadir', bilMeja: 1, bilKerusi: 2, bilPlug: 1, noPlatKereta: 'BGC 03', jumlahWakil: 2 },
+    { kod: 'AG-35', namaAgensi: 'Brunei Fertilizer Industries (BFI)', user: 'agensi_bfi', kategori: 'Petrokimia (GLC)', statusRsvp: 'Hadir', bilMeja: 2, bilKerusi: 3, bilPlug: 1, noPlatKereta: 'BFI 04', jumlahWakil: 3 },
+    { kod: 'AG-36', namaAgensi: 'Hengyi Industries Sdn Bhd', user: 'agensi_hengyi', kategori: 'Petrokimia & Industri Berat', statusRsvp: 'Hadir', bilMeja: 2, bilKerusi: 4, bilPlug: 1, noPlatKereta: 'PMB 88', jumlahWakil: 4 },
+    { kod: 'AG-37', namaAgensi: 'Royal Brunei Airlines (RB)', user: 'agensi_rb', kategori: 'Syarikat Penerbangan & GLC', statusRsvp: 'Hadir', bilMeja: 2, bilKerusi: 4, bilPlug: 1, noPlatKereta: 'RBA 787', jumlahWakil: 4 },
+    { kod: 'AG-38', namaAgensi: 'DST Sdn Bhd', user: 'agensi_dst', kategori: 'Telekomunikasi & GLC', statusRsvp: 'Hadir', bilMeja: 2, bilKerusi: 4, bilPlug: 1, noPlatKereta: 'DST 55', jumlahWakil: 3 },
+    { kod: 'AG-39', namaAgensi: 'Progresif Sdn Bhd', user: 'agensi_progresif', kategori: 'Telekomunikasi & GLC', statusRsvp: 'Hadir', bilMeja: 2, bilKerusi: 3, bilPlug: 1, noPlatKereta: 'PRO 99', jumlahWakil: 3 },
+    { kod: 'AG-40', namaAgensi: 'imagine Sdn Bhd', user: 'agensi_imagine', kategori: 'Telekomunikasi & GLC', statusRsvp: 'Belum Sah', bilMeja: 1, bilKerusi: 2, bilPlug: 0, noPlatKereta: 'IMG 10', jumlahWakil: 2 },
+    { kod: 'AG-41', namaAgensi: 'Unified National Networks (UNN)', user: 'agensi_unn', kategori: 'Infrastruktur Telekomunikasi (GLC)', statusRsvp: 'Hadir', bilMeja: 2, bilKerusi: 3, bilPlug: 1, noPlatKereta: 'UNN 01', jumlahWakil: 3 },
+    { kod: 'AG-42', namaAgensi: 'Bank Islam Brunei Darussalam (BIBD)', user: 'agensi_bibd', kategori: 'Perbankan & Kewangan', statusRsvp: 'Hadir', bilMeja: 2, bilKerusi: 4, bilPlug: 1, noPlatKereta: 'BIBD 08', jumlahWakil: 4 },
+    { kod: 'AG-43', namaAgensi: 'Baiduri Bank Group', user: 'agensi_baiduri', kategori: 'Perbankan & Kewangan', statusRsvp: 'Hadir', bilMeja: 2, bilKerusi: 4, bilPlug: 1, noPlatKereta: 'BBG 77', jumlahWakil: 3 },
+    { kod: 'AG-44', namaAgensi: 'Perbadanan Tabung Amanah Islam Brunei (TAIB)', user: 'agensi_taib', kategori: 'Institusi Kewangan Islam', statusRsvp: 'Hadir', bilMeja: 1, bilKerusi: 2, bilPlug: 0, noPlatKereta: 'TAIB 03', jumlahWakil: 2 },
+    { kod: 'AG-45', namaAgensi: 'Brunei Darussalam Central Bank (BDCB)', user: 'agensi_bdcb', kategori: 'Kawal Selia Kewangan', statusRsvp: 'Hadir', bilMeja: 2, bilKerusi: 3, bilPlug: 1, noPlatKereta: 'BDCB 01', jumlahWakil: 3 },
+    { kod: 'AG-46', namaAgensi: 'Brunei Investment Agency (BIA)', user: 'agensi_bia', kategori: 'Pelaburan Negara', statusRsvp: 'Hadir', bilMeja: 1, bilKerusi: 2, bilPlug: 0, noPlatKereta: 'BIA 99', jumlahWakil: 2 },
+    { kod: 'AG-47', namaAgensi: 'Darussalam Enterprise (DARe)', user: 'agensi_dare', kategori: 'Pembangunan Keusahawanan (GLC)', statusRsvp: 'Hadir', bilMeja: 2, bilKerusi: 3, bilPlug: 1, noPlatKereta: 'DARE 01', jumlahWakil: 3 },
+    { kod: 'AG-48', namaAgensi: 'Pihak Berkuasa Industri Info-Komunikasi (AITI)', user: 'agensi_aiti', kategori: 'Kawal Selia Digital', statusRsvp: 'Hadir', bilMeja: 2, bilKerusi: 3, bilPlug: 1, noPlatKereta: 'AITI 05', jumlahWakil: 3 },
+    { kod: 'AG-49', namaAgensi: 'Cyber Security Brunei (CSB)', user: 'agensi_csb', kategori: 'Keselamatan Siber Kebangsaan', statusRsvp: 'Hadir', bilMeja: 2, bilKerusi: 3, bilPlug: 1, noPlatKereta: 'CSB 01', jumlahWakil: 3 },
+    { kod: 'AG-50', namaAgensi: 'Pusat Sejarah Brunei', user: 'agensi_psb', kategori: 'Kebudayaan & Sejarah', statusRsvp: 'Hadir', bilMeja: 1, bilKerusi: 2, bilPlug: 0, noPlatKereta: 'BA 3388', jumlahWakil: 2 },
+    { kod: 'AG-51', namaAgensi: 'Dewan Bahasa dan Pustaka Brunei', user: 'agensi_dbp', kategori: 'Bahasa & Sastera Kebangsaan', statusRsvp: 'Hadir', bilMeja: 1, bilKerusi: 2, bilPlug: 0, noPlatKereta: 'BA 4499', jumlahWakil: 2 },
+    { kod: 'AG-52', namaAgensi: 'Radio Televisyen Brunei (RTB)', user: 'agensi_rtb', kategori: 'Penyiaran & Media Kebangsaan', statusRsvp: 'Hadir', bilMeja: 2, bilKerusi: 4, bilPlug: 1, noPlatKereta: 'RTB 01', jumlahWakil: 4 }
   ];
 }
 

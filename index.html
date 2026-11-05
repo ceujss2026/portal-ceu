@@ -246,44 +246,28 @@
     <header id="desktopNavBar" class="w-full bg-white/95 backdrop-blur-md border-b border-slate-200 sticky top-0 z-50 shadow-sm" style="display: none;">
       <div class="max-w-[1280px] mx-auto px-6 h-16 flex items-center justify-between">
         <!-- Brand -->
-        <div class="flex items-center gap-3 cursor-pointer" onclick="navigateTo('home')">
+        <div class="flex items-center gap-3 cursor-pointer" onclick="navigateHomeRole()">
           <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-[#006194] to-[#148e82] text-white flex items-center justify-center shadow-sm">
             <span class="material-symbols-outlined text-[22px]">account_balance</span>
           </div>
           <div class="flex flex-col">
             <div class="flex items-center gap-1.5">
               <span class="font-extrabold text-base tracking-tight text-slate-900 leading-tight">PORTAL CEU</span>
-              <span class="text-[9px] bg-amber-100 text-amber-800 font-bold px-1.5 py-0.5 rounded-full uppercase">2026</span>
+              <span id="desktopNavModeBadge" class="text-[9px] bg-teal-100 text-teal-800 font-bold px-2 py-0.5 rounded-full uppercase">MOD AGENSI</span>
             </div>
             <span class="text-[11px] text-slate-500 font-medium">Unit Pendidikan Kerjaya • JSS • MOE</span>
           </div>
         </div>
 
-        <!-- Desktop Navigation Links -->
-        <nav class="flex items-center gap-1">
-          <button onclick="navigateTo('home')" data-nav-target="home" class="desktop-nav-link px-3.5 py-2 rounded-xl text-xs font-bold text-primary bg-primary/10 flex items-center gap-1.5 transition-all">
-            <span class="material-symbols-outlined text-[18px]">grid_view</span>
-            <span>Papan Pemuka</span>
-          </button>
-          <button onclick="navigateTo('rsvpForm')" data-nav-target="rsvpForm" class="desktop-nav-link px-3.5 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-100 flex items-center gap-1.5 transition-all">
-            <span class="material-symbols-outlined text-[18px]">how_to_reg</span>
-            <span>Borang RSVP</span>
-          </button>
-          <button onclick="navigateTo('floorPlan')" data-nav-target="floorPlan" class="desktop-nav-link px-3.5 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-100 flex items-center gap-1.5 transition-all">
-            <span class="material-symbols-outlined text-[18px]">view_quilt</span>
-            <span>Pelan Dewan</span>
-          </button>
-          <button onclick="navigateTo('parking')" data-nav-target="parking" class="desktop-nav-link px-3.5 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-100 flex items-center gap-1.5 transition-all">
-            <span class="material-symbols-outlined text-[18px]">directions_car</span>
-            <span>Peta Parking</span>
-          </button>
-          <button onclick="navigateTo('archive')" data-nav-target="archive" class="desktop-nav-link px-3.5 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-100 flex items-center gap-1.5 transition-all">
-            <span class="material-symbols-outlined text-[18px]">folder</span>
-            <span>Arkib Program</span>
-          </button>
+        <!-- Desktop Navigation Links: 2 Item Dinamik Mengikut Mod Pengguna -->
+        <nav id="desktopNavLinks" class="flex items-center gap-2">
+          <!-- Diisi dinamik oleh app.js: 
+               Mod Agensi: [Info Program] & [Borang RSVP]
+               Mod Pentadbir: [Papan Pemuka] & [Urus Program]
+          -->
         </nav>
 
-        <!-- Right Utility: Language, Notifications, Agency Badge & Logout -->
+        <!-- Right Utility: Language, User Badge & Logout -->
         <div class="flex items-center gap-3">
           <!-- Language toggle -->
           <div class="flex items-center bg-slate-100 rounded-full p-0.5">
@@ -291,20 +275,14 @@
             <button onclick="I18N.setLang('EN')" data-lang="EN" class="btn-lang-toggle px-2.5 py-0.5 rounded-full text-xs font-medium text-slate-600 hover:text-slate-900" type="button">EN</button>
           </div>
 
-          <!-- Notifications -->
-          <button onclick="navigateTo('notifications')" class="w-9 h-9 rounded-xl bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-700 relative transition-all" title="Notifikasi Rasmi">
-            <span class="material-symbols-outlined text-[20px]">notifications</span>
-            <span class="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-[#f59e0b]"></span>
-          </button>
-
-          <!-- Agency Profile Badge -->
-          <div onclick="navigateTo('profile')" class="flex items-center gap-2 pl-2 pr-3 py-1.5 rounded-xl bg-slate-50 border border-slate-200/80 cursor-pointer hover:bg-slate-100 transition-all">
+          <!-- User Role Badge -->
+          <div class="flex items-center gap-2 pl-2 pr-3 py-1.5 rounded-xl bg-slate-50 border border-slate-200/80">
             <div class="w-7 h-7 rounded-lg bg-[#006194] text-white flex items-center justify-center">
-              <span class="material-symbols-outlined text-[16px]">domain</span>
+              <span class="material-symbols-outlined text-[16px]">verified_user</span>
             </div>
             <div class="flex flex-col text-left">
-              <span id="desktopNavAgencyName" class="text-xs font-bold text-slate-800 leading-tight max-w-[140px] truncate">Universiti Brunei Darussalam</span>
-              <span class="text-[9px] text-teal-700 font-semibold uppercase">Agensi Jemputan</span>
+              <span id="desktopNavAgencyName" class="text-xs font-bold text-slate-800 leading-tight max-w-[180px] truncate">Universiti Brunei Darussalam</span>
+              <span id="desktopNavUserRole" class="text-[9px] text-[#148e82] font-semibold uppercase">Agensi Jemputan</span>
             </div>
           </div>
 
@@ -444,13 +422,25 @@
               </div>
             </div>
 
+            <!-- Mode Switcher Tabs (MOD AGENSI vs MOD PENTADBIR) -->
+            <div class="flex items-center gap-1.5 p-1 bg-slate-100 rounded-xl mb-4">
+              <button type="button" id="tabModeAgency" onclick="switchLoginMode('AGENCY')" class="flex-1 py-2 text-xs font-bold rounded-lg bg-[#148e82] text-white shadow-sm flex items-center justify-center gap-1.5 transition-all">
+                <span class="material-symbols-outlined text-[17px]">domain</span>
+                <span>Mod Agensi (52 Agensi)</span>
+              </button>
+              <button type="button" id="tabModeAdmin" onclick="switchLoginMode('ADMIN')" class="flex-1 py-2 text-xs font-semibold rounded-lg text-slate-600 hover:text-slate-900 flex items-center justify-center gap-1.5 transition-all">
+                <span class="material-symbols-outlined text-[17px]">shield_person</span>
+                <span>Mod Pentadbir CEU</span>
+              </button>
+            </div>
+
             <!-- Welcome Headings -->
             <div class="flex flex-col mb-4">
               <h2 class="text-lg md:text-xl text-on-surface font-bold">
                 Selamat Datang <span class="text-xs text-on-surface-variant font-normal">/ Welcome</span>
               </h2>
-              <p class="text-xs text-on-surface-variant mt-0.5 leading-relaxed">
-                Sila log masuk menggunakan akaun agensi anda untuk pengesahan kehadiran &amp; penyelarasan logistik.
+              <p id="loginModeSubtitle" class="text-xs text-on-surface-variant mt-0.5 leading-relaxed">
+                Log masuk agensi untuk melihat maklumat program, pelan dewan, parking &amp; pengesahan RSVP.
               </p>
             </div>
 
@@ -458,7 +448,7 @@
             <form onsubmit="handleLoginSubmit(event)" class="flex flex-col gap-3.5">
               <!-- Field 1: Agency Username -->
               <div class="flex flex-col gap-1.5">
-                <label class="text-xs text-on-surface font-semibold flex items-center justify-between" for="loginUsername">
+                <label id="labelLoginUsername" class="text-xs text-on-surface font-semibold flex items-center justify-between" for="loginUsername">
                   <span>Nama Pengguna Agensi</span>
                   <span class="text-[11px] text-primary font-medium">ID Institusi</span>
                 </label>
@@ -471,8 +461,8 @@
               <!-- Field 2: Password -->
               <div class="flex flex-col gap-1.5">
                 <label class="text-xs text-on-surface font-semibold flex items-center justify-between" for="loginPassword">
-                  <span>Kata Laluan Agensi</span>
-                  <span class="text-[11px] text-outline font-normal">Kredensial Rasmi</span>
+                  <span>Kata Laluan Rasmi</span>
+                  <span class="text-[11px] text-outline font-normal">Kredensial</span>
                 </label>
                 <div class="relative flex items-center">
                   <span class="material-symbols-outlined absolute left-3.5 text-outline text-[20px] pointer-events-none">lock</span>
@@ -485,7 +475,7 @@
 
               <!-- Action Link -->
               <div class="flex items-center justify-between text-xs pt-0.5">
-                <span class="text-[11px] text-slate-400">Default: <code class="bg-slate-100 px-1.5 py-0.5 rounded text-slate-600 font-mono text-[10px]">Agensi@2026</code></span>
+                <span id="loginDefaultHint" class="text-[11px] text-slate-400">Default: <code class="bg-slate-100 px-1.5 py-0.5 rounded text-slate-600 font-mono text-[10px]">Agensi@2026</code></span>
                 <a href="javascript:void(0)" onclick="alert('Urus Setia CEU:\nTalian: +673 2381224\nEmel: ceu@moe.gov.bn')" class="text-xs font-semibold text-primary hover:underline">
                   Bantuan Kredensial?
                 </a>
@@ -493,21 +483,21 @@
 
               <!-- Submit Button -->
               <button type="submit" id="btnLoginSubmit" class="w-full h-12 mt-1 rounded-xl bg-gradient-to-r from-tertiary-container via-tertiary to-gold-hover text-on-primary font-bold text-xs tracking-wider uppercase shadow-md hover:shadow-lg hover:brightness-105 transition-all flex items-center justify-center gap-2">
-                <span>LOG MASUK SISTEM</span>
+                <span>LOG MASUK AGENSI</span>
                 <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
               </button>
 
               <!-- Akses Pantas Demonstrasi 1-Klik -->
               <div class="mt-2 pt-3 border-t border-slate-100 flex flex-col gap-2">
-                <span class="text-[10px] text-slate-400 font-semibold uppercase tracking-wider text-center">Log Masuk Pantas (Akses Demonstrasi):</span>
+                <span class="text-[10px] text-slate-400 font-semibold uppercase tracking-wider text-center">Akses Terus (Ujian Demonstrasi 0ms):</span>
                 <div class="grid grid-cols-2 gap-2">
-                  <button type="button" onclick="quickLoginDemo('agensi_ubd')" class="px-2.5 py-2 rounded-xl bg-slate-50 hover:bg-[#e0f2fe] hover:border-[#0284c7] border border-slate-200 text-slate-700 hover:text-[#006194] text-[11px] font-bold flex items-center justify-center gap-1.5 transition-all shadow-sm">
+                  <button type="button" onclick="quickLoginDemo('agensi_ubd')" class="px-2.5 py-2.5 rounded-xl bg-slate-50 hover:bg-[#e0f2fe] hover:border-[#0284c7] border border-slate-200 text-slate-700 hover:text-[#006194] text-[11px] font-bold flex items-center justify-center gap-1.5 transition-all shadow-sm">
                     <span class="material-symbols-outlined text-[16px] text-[#006194]">apartment</span>
-                    <span class="truncate">Agensi: UBD</span>
+                    <span class="truncate">Mod Agensi (UBD)</span>
                   </button>
-                  <button type="button" onclick="quickLoginDemo('admin_ceu')" class="px-2.5 py-2 rounded-xl bg-slate-50 hover:bg-[#fef3c7] hover:border-[#d97706] border border-slate-200 text-slate-700 hover:text-[#b45309] text-[11px] font-bold flex items-center justify-center gap-1.5 transition-all shadow-sm">
-                    <span class="material-symbols-outlined text-[16px] text-[#d97706]">admin_panel_settings</span>
-                    <span class="truncate">Pentadbir CEU</span>
+                  <button type="button" onclick="quickLoginDemo('admin_ceu')" class="px-2.5 py-2.5 rounded-xl bg-slate-50 hover:bg-[#fef3c7] hover:border-[#d97706] border border-slate-200 text-slate-700 hover:text-[#b45309] text-[11px] font-bold flex items-center justify-center gap-1.5 transition-all shadow-sm">
+                    <span class="material-symbols-outlined text-[16px] text-[#d97706]">shield_person</span>
+                    <span class="truncate">Mod Pentadbir (CEU)</span>
                   </button>
                 </div>
               </div>
@@ -669,7 +659,7 @@
 
             <!-- 2 Pintasan Khas: Pelan Dewan & Peta Parking (Pintu Pagar B) -->
             <div class="grid grid-cols-2 gap-3">
-              <button onclick="navigateTo('floorPlan')" class="bg-white p-3.5 rounded-2xl shadow-sm border border-slate-100 flex items-center gap-3 text-left hover:bg-slate-50 hover:border-slate-200 transition-all">
+              <button type="button" onclick="openMapModal('floorPlan')" class="bg-white p-3.5 rounded-2xl shadow-sm border border-slate-100 flex items-center gap-3 text-left hover:bg-slate-50 hover:border-slate-200 transition-all">
                 <div class="w-10 h-10 rounded-xl bg-teal-50 text-[#148e82] flex items-center justify-center shrink-0">
                   <span class="material-symbols-outlined text-[22px]">view_quilt</span>
                 </div>
@@ -679,7 +669,7 @@
                 </div>
               </button>
 
-              <button onclick="navigateTo('parking')" class="bg-white p-3.5 rounded-2xl shadow-sm border border-slate-100 flex items-center gap-3 text-left hover:bg-slate-50 hover:border-slate-200 transition-all">
+              <button type="button" onclick="openMapModal('parking')" class="bg-white p-3.5 rounded-2xl shadow-sm border border-slate-100 flex items-center gap-3 text-left hover:bg-slate-50 hover:border-slate-200 transition-all">
                 <div class="w-10 h-10 rounded-xl bg-amber-50 text-[#d97706] flex items-center justify-center shrink-0">
                   <span class="material-symbols-outlined text-[22px]">directions_car</span>
                 </div>
@@ -1017,6 +1007,16 @@
               <textarea id="inputNamaWakil" rows="2" class="w-full p-2.5 rounded-xl border border-slate-200 text-xs outline-none focus:border-primary" placeholder="cth: 1. Awang Mohd Azmi, 2. Dayang Hjh Siti..."></textarea>
             </div>
 
+            <!-- Input No Plat Kereta bagi Pas Masuk Pintu Pagar B -->
+            <div>
+              <label class="block text-xs font-bold text-on-surface mb-1 flex items-center justify-between">
+                <span>No. Plat Kenderaan Rasmi (Pas Pintu Pagar B)</span>
+                <span class="text-[10px] text-amber-700 font-semibold bg-amber-50 px-2 py-0.5 rounded-full">1 Petak VIP</span>
+              </label>
+              <input type="text" id="inputNoPlatKereta" class="w-full h-10 px-3 rounded-xl border border-slate-200 text-xs outline-none focus:border-primary font-mono uppercase font-bold text-slate-800" placeholder="cth: BA 1234 / BG 9988" />
+              <p class="text-[10px] text-slate-500 mt-1">Nombor ini akan dipaparkan pada pas masuk keselamatan pengawal sekolah Pintu Pagar B.</p>
+            </div>
+
             <!-- Input Keperluan Tambahan -->
             <div>
               <label class="block text-xs font-bold text-on-surface mb-1">Keperluan Logistik Tambahan (Pilihan)</label>
@@ -1263,125 +1263,250 @@
       </section>
 
       <!-- ======================================== -->
-      <!-- SKRIN 09: PAPAN PEMUKA PENTADBIR CEU    -->
+      <!-- SKRIN PENTADBIR 1: PAPAN PEMUKA (DASHBOARD)-->
       <!-- ======================================== -->
-      <section id="screen_admin" class="view-screen pt-16 md:pt-6 pb-safe md:pb-16 px-4 md:px-6 max-w-6xl mx-auto w-full flex flex-col gap-4">
-        <div class="flex items-center justify-between">
+      <section id="screen_admin" class="view-screen pt-16 md:pt-6 pb-safe md:pb-16 px-4 md:px-6 max-w-6xl mx-auto w-full flex flex-col gap-6">
+        <!-- Header Pentadbir -->
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 border-b border-slate-200 pb-4">
           <div>
-            <span class="text-xs font-bold text-teal-accent uppercase">Unit Pendidikan Kerjaya</span>
-            <h2 class="text-base font-black text-on-surface">Papan Pemuka Pentadbir CEU</h2>
+            <div class="flex items-center gap-2">
+              <span class="text-xs font-bold text-[#148e82] uppercase tracking-wider">UNIT PENDIDIKAN KERJAYA • JSS</span>
+              <span class="text-[9px] bg-amber-100 text-amber-800 font-bold px-2 py-0.5 rounded-full uppercase">MOD PENTADBIR</span>
+            </div>
+            <h2 class="text-xl md:text-2xl font-black text-slate-900 mt-1">Papan Pemuka Pentadbir CEU</h2>
+            <p class="text-xs text-slate-500">Pemantauan masa nyata pengesahan RSVP, keperluan meja dewan &amp; logistik 52 agensi jemputan.</p>
           </div>
-          <div class="flex items-center gap-1.5 text-xs">
-            <button onclick="navigateTo('adminAgencies')" class="px-2.5 py-1.5 bg-surface-container text-on-surface font-bold rounded-lg">52 Agensi</button>
-            <button onclick="navigateTo('adminReports')" class="px-2.5 py-1.5 bg-primary text-on-primary font-bold rounded-lg">Laporan</button>
+          <div class="flex items-center gap-2">
+            <button onclick="window.print()" class="px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl flex items-center gap-1.5 transition-all shadow-sm">
+              <span class="material-symbols-outlined text-[16px]">print</span>
+              <span>Cetak Laporan PDF</span>
+            </button>
+            <button onclick="navigateTo('adminEvents')" class="px-3.5 py-2 bg-[#006194] hover:bg-[#004b73] text-white font-bold text-xs rounded-xl flex items-center gap-1.5 transition-all shadow-sm">
+              <span class="material-symbols-outlined text-[16px]">edit_calendar</span>
+              <span>Urus Program &amp; Peta</span>
+            </button>
           </div>
         </div>
 
         <!-- 4 Kad Metrik Agregat -->
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-4">
-          <div class="bg-surface-container-lowest p-3 rounded-xl shadow-sm border border-slate-100 flex flex-col">
-            <span class="text-[10px] text-on-surface-variant font-semibold">52 Agensi Jemputan</span>
-            <span id="adminStatTotalAgencies" class="text-lg font-black text-on-surface mt-1">52</span>
-            <span class="text-[10px] text-emerald-600 font-bold">Semua Zon Brunei</span>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
+          <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200/80 flex flex-col">
+            <div class="flex items-center justify-between">
+              <span class="text-[11px] text-slate-500 font-semibold uppercase">52 Agensi Jemputan</span>
+              <span class="material-symbols-outlined text-[#006194] text-[20px]">account_balance</span>
+            </div>
+            <span id="adminStatTotalAgencies" class="text-2xl font-black text-slate-900 mt-2">52</span>
+            <span class="text-[10px] text-emerald-600 font-bold mt-1">Seluruh Negara Brunei</span>
           </div>
 
-          <div class="bg-surface-container-lowest p-3 rounded-xl shadow-sm border border-slate-100 flex flex-col">
-            <span class="text-[10px] text-on-surface-variant font-semibold">Kadar Maklum Balas</span>
-            <span id="adminStatResponseRate" class="text-lg font-black text-primary mt-1">84%</span>
-            <span class="text-[10px] text-slate-500 font-bold">44 / 52 Disahkan</span>
+          <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200/80 flex flex-col">
+            <div class="flex items-center justify-between">
+              <span class="text-[11px] text-slate-500 font-semibold uppercase">Kadar Maklum Balas</span>
+              <span class="material-symbols-outlined text-emerald-600 text-[20px]">how_to_reg</span>
+            </div>
+            <span id="adminStatResponseRate" class="text-2xl font-black text-emerald-600 mt-2">84%</span>
+            <span class="text-[10px] text-slate-500 font-bold mt-1">Status Kehadiran Disahkan</span>
           </div>
 
-          <div class="bg-surface-container-lowest p-3 rounded-xl shadow-sm border border-slate-100 flex flex-col">
-            <span class="text-[10px] text-on-surface-variant font-semibold">Jumlah Meja Diperlukan</span>
-            <span id="adminStatTotalTables" class="text-lg font-black text-tertiary mt-1">88 Unit</span>
-            <span class="text-[10px] text-slate-500 font-bold">Penyediaan Sekolah</span>
+          <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200/80 flex flex-col">
+            <div class="flex items-center justify-between">
+              <span class="text-[11px] text-slate-500 font-semibold uppercase">Meja &amp; Kerusi Sekolah</span>
+              <span class="material-symbols-outlined text-amber-600 text-[20px]">table_restaurant</span>
+            </div>
+            <span id="adminStatTotalTables" class="text-2xl font-black text-amber-600 mt-2">88 Unit</span>
+            <span class="text-[10px] text-slate-500 font-bold mt-1">Keperluan Dewan Pameran</span>
           </div>
 
-          <div class="bg-surface-container-lowest p-3 rounded-xl shadow-sm border border-slate-100 flex flex-col">
-            <span class="text-[10px] text-on-surface-variant font-semibold">Extension Plug</span>
-            <span id="adminStatTotalPlugs" class="text-lg font-black text-teal-accent mt-1">36 Unit</span>
-            <span class="text-[10px] text-slate-500 font-bold">Kuasa Elektrik</span>
+          <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200/80 flex flex-col">
+            <div class="flex items-center justify-between">
+              <span class="text-[11px] text-slate-500 font-semibold uppercase">Soket Plug &amp; Parking VIP</span>
+              <span class="material-symbols-outlined text-teal-600 text-[20px]">power</span>
+            </div>
+            <span id="adminStatTotalPlugs" class="text-2xl font-black text-teal-600 mt-2">36 Unit</span>
+            <span class="text-[10px] text-slate-500 font-bold mt-1">Pintu Pagar B (VIP)</span>
           </div>
         </div>
 
-        <div class="bg-surface-container-lowest rounded-xl shadow-sm p-3.5 flex flex-col gap-2">
-          <div class="flex items-center justify-between">
-            <h3 class="text-xs font-bold uppercase tracking-wider text-on-surface">Pengesahan RSVP Terkini</h3>
-            <button onclick="navigateTo('adminReports')" class="text-xs font-bold text-primary hover:underline">Semua Laporan →</button>
+        <!-- Jadual Interaktif 52 Agensi Jemputan -->
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-200/80 p-5 flex flex-col gap-4">
+          <div class="flex flex-col md:flex-row md:items-center justify-between gap-3">
+            <div>
+              <h3 class="text-sm font-bold text-slate-900 uppercase tracking-wider flex items-center gap-2">
+                <span class="w-2.5 h-2.5 rounded-full bg-[#148e82]"></span>
+                Status Pengesahan RSVP 52 Agensi Jemputan
+              </h3>
+              <p class="text-xs text-slate-500 mt-0.5">Semak status delegasi, keperluan logistik, dan nombor kenderaan pintu pagar B.</p>
+            </div>
+
+            <!-- Carian & Penapis Pantas -->
+            <div class="flex flex-wrap items-center gap-2">
+              <div class="relative flex items-center">
+                <span class="material-symbols-outlined absolute left-3 text-slate-400 text-[18px]">search</span>
+                <input type="text" id="adminAgencySearchInput" oninput="filterAdminAgenciesTable()" placeholder="Cari agensi..." class="h-9 pl-9 pr-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#006194]/20" />
+              </div>
+
+              <div class="flex items-center bg-slate-100 rounded-xl p-0.5 text-xs font-bold">
+                <button type="button" onclick="setAdminTableFilter('ALL')" id="filterBtn_ALL" class="px-2.5 py-1 rounded-lg bg-white text-slate-800 shadow-sm transition-all">Semua (52)</button>
+                <button type="button" onclick="setAdminTableFilter('Hadir')" id="filterBtn_Hadir" class="px-2.5 py-1 rounded-lg text-slate-600 hover:text-slate-900 transition-all">Hadir</button>
+                <button type="button" onclick="setAdminTableFilter('Belum')" id="filterBtn_Belum" class="px-2.5 py-1 rounded-lg text-slate-600 hover:text-slate-900 transition-all">Belum Sah</button>
+              </div>
+            </div>
           </div>
-          <div id="adminRecentFeedList" class="flex flex-col gap-2">
+
+          <!-- Jadual Responsif -->
+          <div class="overflow-x-auto rounded-xl border border-slate-100">
+            <table class="w-full text-left border-collapse text-xs">
+              <thead>
+                <tr class="bg-slate-50 text-[10px] font-bold text-slate-600 border-b border-slate-200 uppercase tracking-wider">
+                  <th class="p-3">NO</th>
+                  <th class="p-3">KOD</th>
+                  <th class="p-3">NAMA AGENSI JEMPUTAN</th>
+                  <th class="p-3">STATUS RSVP</th>
+                  <th class="p-3 text-center">MEJA / KERUSI</th>
+                  <th class="p-3 text-center">PLUG</th>
+                  <th class="p-3">PAS PARKING (PINTU PAGAR B)</th>
+                  <th class="p-3 text-right">AKSI</th>
+                </tr>
+              </thead>
+              <tbody id="adminAgenciesTableBody">
+                <!-- Diisi dinamik oleh app.js -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ======================================== -->
+      <!-- SKRIN PENTADBIR 2: URUS PROGRAM & PETA   -->
+      <!-- ======================================== -->
+      <section id="screen_adminEvents" class="view-screen pt-16 md:pt-6 pb-safe md:pb-16 px-4 md:px-6 max-w-5xl mx-auto w-full flex flex-col gap-6">
+        <!-- Header -->
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-2 border-b border-slate-200 pb-4">
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="text-xs font-bold text-[#148e82] uppercase tracking-wider">PENTADBIR UNIT PENDIDIKAN KERJAYA</span>
+              <span class="text-[9px] bg-amber-100 text-amber-800 font-bold px-2 py-0.5 rounded-full uppercase">MOD PENTADBIR</span>
+            </div>
+            <h2 class="text-xl md:text-2xl font-black text-slate-900 mt-1">Pengurusan Program &amp; Peta Sekolah</h2>
+            <p class="text-xs text-slate-500">Urus maklumat acara, kemaskini dewan venue, pautan pelan dewan dan lokasi parking pintu pagar B.</p>
+          </div>
+          <button onclick="navigateTo('admin')" class="px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl flex items-center gap-1.5 transition-all">
+            <span class="material-symbols-outlined text-[16px]">arrow_back</span>
+            <span>Kembali ke Papan Pemuka</span>
+          </button>
+        </div>
+
+        <!-- Senarai Program Sedia Ada -->
+        <div class="flex flex-col gap-3">
+          <h3 class="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
+            <span class="w-2 h-2 rounded-full bg-[#148e82]"></span>
+            Program Aktif &amp; Takwim Semasa
+          </h3>
+          <div id="adminEventsListContainer" class="grid grid-cols-1 md:grid-cols-2 gap-3">
             <!-- Diisi oleh JS -->
           </div>
         </div>
-      </section>
 
-      <!-- ======================================== -->
-      <!-- SKRIN 11: DIREKTORI 52 AGENSI (ADMIN)   -->
-      <!-- ======================================== -->
-      <section id="screen_adminAgencies" class="view-screen pt-16 md:pt-6 pb-safe md:pb-16 px-4 md:px-6 max-w-6xl mx-auto w-full flex flex-col gap-4">
-        <div class="flex items-center justify-between">
-          <div class="flex items-center gap-2">
-            <button onclick="navigateTo('admin')" class="p-2 rounded-xl bg-surface-container text-on-surface">
-              <span class="material-symbols-outlined text-[20px]">arrow_back</span>
-            </button>
-            <h2 class="text-sm font-bold text-on-surface">Direktori 52 Agensi Jemputan</h2>
+        <!-- Borang Kemaskini / Tambah Acara -->
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-200/80 p-5 md:p-6 flex flex-col gap-4">
+          <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+            <div class="flex items-center gap-2">
+              <div class="w-8 h-8 rounded-lg bg-teal-50 text-[#148e82] flex items-center justify-center">
+                <span class="material-symbols-outlined text-[20px]">edit_calendar</span>
+              </div>
+              <h3 id="adminEventFormTitle" class="text-sm font-bold text-slate-900">Kemaskini Butiran Acara &amp; Logistik</h3>
+            </div>
+            <span id="adminEventIdBadge" class="text-[10px] font-mono font-bold bg-slate-100 text-slate-600 px-2 py-0.5 rounded">EVT-2026-01</span>
           </div>
-          <button onclick="apiCall('syncCRM').then(r => showToast(r.message, 'success'))" class="px-2.5 py-1 bg-primary text-on-primary text-xs font-bold rounded-lg flex items-center gap-1">
-            <span class="material-symbols-outlined text-[15px]">sync</span>
-            <span>Sync CRM</span>
-          </button>
-        </div>
 
-        <div class="bg-surface-container-lowest rounded-xl shadow-sm overflow-x-auto">
-          <table class="w-full text-left border-collapse text-xs">
-            <thead>
-              <tr class="bg-surface-container-low text-[10px] font-bold text-on-surface-variant border-b border-slate-200">
-                <th class="p-2.5">KOD</th>
-                <th class="p-2.5">NAMA AGENSI</th>
-                <th class="p-2.5">USERNAME</th>
-                <th class="p-2.5 text-right">AKSI</th>
-              </tr>
-            </thead>
-            <tbody id="adminAgenciesTableBody">
-              <!-- Diisi dinamik oleh app.js -->
-            </tbody>
-          </table>
-        </div>
-      </section>
+          <form onsubmit="handleSaveAdminEvent(event)" class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+            <input type="hidden" id="adminInputEventId" value="EVT-2026-01" />
 
-      <!-- ======================================== -->
-      <!-- SKRIN 12: LAPORAN INDUK LOGISTIK (ADMIN)-->
-      <!-- ======================================== -->
-      <section id="screen_adminReports" class="view-screen pt-16 md:pt-6 pb-safe md:pb-16 px-4 md:px-6 max-w-6xl mx-auto w-full flex flex-col gap-4">
-        <div class="flex items-center justify-between">
-          <div class="flex items-center gap-2">
-            <button onclick="navigateTo('admin')" class="p-2 rounded-xl bg-surface-container text-on-surface">
-              <span class="material-symbols-outlined text-[20px]">arrow_back</span>
-            </button>
-            <h2 class="text-sm font-bold text-on-surface">Laporan Induk Logistik Sekolah</h2>
-          </div>
-          <button onclick="window.print()" class="px-3 py-1.5 bg-tertiary text-on-primary font-bold rounded-lg text-xs flex items-center gap-1">
-            <span class="material-symbols-outlined text-[16px]">print</span>
-            <span>Cetak PDF</span>
-          </button>
-        </div>
+            <!-- Nama Acara -->
+            <div class="md:col-span-2 flex flex-col gap-1.5">
+              <label class="font-bold text-slate-800">Nama Acara / Program *</label>
+              <input type="text" id="adminInputNamaAcara" class="w-full h-11 px-3.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-[#006194]/20 focus:border-[#006194] text-xs font-semibold" required />
+            </div>
 
-        <div class="bg-surface-container-lowest rounded-xl shadow-sm overflow-x-auto">
-          <table class="w-full text-left border-collapse text-xs">
-            <thead>
-              <tr class="bg-surface-container-low text-[10px] font-bold text-on-surface-variant border-b border-slate-200">
-                <th class="p-2">NO</th>
-                <th class="p-2">AGENSI</th>
-                <th class="p-2">STATUS</th>
-                <th class="p-2 text-center">MEJA</th>
-                <th class="p-2 text-center">KERUSI</th>
-                <th class="p-2 text-center">PLUG</th>
-              </tr>
-            </thead>
-            <tbody id="adminReportsTableBody">
-              <!-- Diisi dinamik oleh app.js -->
-            </tbody>
-          </table>
+            <!-- Kategori -->
+            <div class="flex flex-col gap-1.5">
+              <label class="font-bold text-slate-800">Kategori Program</label>
+              <select id="adminInputKategori" class="w-full h-11 px-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold">
+                <option value="Program Hala Tuju">Program Hala Tuju (PHT)</option>
+                <option value="FutureLink">FutureLink</option>
+                <option value="Taklimat Tahunan Agensi">Taklimat Tahunan Agensi</option>
+              </select>
+            </div>
+
+            <!-- Tarikh Mula -->
+            <div class="flex flex-col gap-1.5">
+              <label class="font-bold text-slate-800">Tarikh Acara *</label>
+              <input type="text" id="adminInputTarikhMula" placeholder="cth: 15 Mac 2026" class="w-full h-11 px-3.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold" required />
+            </div>
+
+            <!-- Masa Program -->
+            <div class="flex flex-col gap-1.5">
+              <label class="font-bold text-slate-800">Masa Program *</label>
+              <input type="text" id="adminInputMasa" placeholder="cth: 08:00 - 16:30" class="w-full h-11 px-3.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold" required />
+            </div>
+
+            <!-- Tempat / Venue Sekolah -->
+            <div class="flex flex-col gap-1.5">
+              <label class="font-bold text-slate-800">Tempat / Venue Sekolah *</label>
+              <input type="text" id="adminInputTempat" placeholder="cth: Dewan Serbaguna Pusat Tingkatan Enam Belait" class="w-full h-11 px-3.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold" required />
+            </div>
+
+            <!-- Pautan GPS Google Maps -->
+            <div class="md:col-span-2 flex flex-col gap-1.5">
+              <label class="font-bold text-slate-800">Pautan GPS Google Maps (Venue Dewan)</label>
+              <input type="url" id="adminInputGps" placeholder="https://maps.google.com/?q=Pusat+Tingkatan+Enam+Belait" class="w-full h-11 px-3.5 bg-slate-50 border border-slate-200 rounded-xl text-xs" />
+            </div>
+
+            <!-- SEKSYEN KHAS PETA SEKOLAH & PARKING AGENSI -->
+            <div class="md:col-span-2 pt-2 border-t border-slate-100 flex flex-col gap-3">
+              <div class="flex items-center gap-1.5">
+                <span class="material-symbols-outlined text-[#148e82] text-[18px]">map</span>
+                <h4 class="text-xs font-bold uppercase tracking-wider text-slate-900">Tetapan Pelan Dewan Sekolah &amp; Peta Parking Agensi</h4>
+              </div>
+
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- Pelan Dewan Sekolah -->
+                <div class="p-3.5 bg-teal-50/50 rounded-xl border border-teal-100 flex flex-col gap-2">
+                  <label class="font-bold text-slate-800 flex items-center justify-between">
+                    <span>Pelan Dewan Sekolah (Susunan Meja)</span>
+                    <span class="text-[10px] text-[#148e82] font-semibold">Pautan Imej / URL</span>
+                  </label>
+                  <input type="url" id="adminInputPelanSekolah" placeholder="https://.../pelan-dewan.png" class="w-full h-10 px-3 bg-white border border-teal-200 rounded-lg text-xs" />
+                  <p class="text-[10px] text-slate-500 leading-relaxed">
+                    Pelan susun atur meja pameran nombor 1 hingga 52 untuk paparan agensi jemputan.
+                  </p>
+                </div>
+
+                <!-- Peta & Lokasi Parking Agensi (Pintu Pagar B) -->
+                <div class="p-3.5 bg-amber-50/50 rounded-xl border border-amber-100 flex flex-col gap-2">
+                  <label class="font-bold text-slate-800 flex items-center justify-between">
+                    <span>Lokasi Parking Agensi (Pintu Pagar B)</span>
+                    <span class="text-[10px] text-amber-700 font-semibold">Peta &amp; Panduan Arah</span>
+                  </label>
+                  <input type="url" id="adminInputPelanParking" placeholder="https://.../peta-parking.png" class="w-full h-10 px-3 bg-white border border-amber-200 rounded-lg text-xs" />
+                  <input type="text" id="adminInputPanduanParking" placeholder="Panduan: Sila masuk melalui Pintu Pagar B (Blok C VIP)" class="w-full h-10 px-3 bg-white border border-amber-200 rounded-lg text-xs" />
+                </div>
+              </div>
+            </div>
+
+            <!-- Catatan Khas -->
+            <div class="md:col-span-2 flex flex-col gap-1.5">
+              <label class="font-bold text-slate-800">Catatan Khas / Etika Pakaian Agensi</label>
+              <textarea id="adminInputCatatanKhas" rows="2" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs" placeholder="cth: Pakaian rasmi pejabat / kot. Meja boleh diatur seawal 06:45 pagi."></textarea>
+            </div>
+
+            <div class="md:col-span-2 pt-2 flex items-center justify-end gap-2">
+              <button type="submit" id="btnSaveAdminEvent" class="px-5 py-3 rounded-xl bg-gradient-to-r from-[#006194] to-[#148e82] text-white font-bold text-xs shadow-md hover:shadow-lg transition-all flex items-center gap-1.5">
+                <span class="material-symbols-outlined text-[18px]">save</span>
+                <span>Simpan Perubahan Acara &amp; Peta</span>
+              </button>
+            </div>
+          </form>
         </div>
       </section>
 
@@ -1391,43 +1516,37 @@
     <!-- BAR NAVIGASI BAWAH (MOBILE BOTTOM NAV)     -->
     <!-- ========================================== -->
     <nav id="bottomNavBar" class="hidden md:hidden fixed bottom-0 left-0 right-0 w-full z-40 bg-white/95 backdrop-blur-md border-t border-slate-200/80 shadow-[0_-4px_20px_rgba(0,0,0,0.05)] pb-safe">
-      <div class="h-16 px-2 flex items-center justify-around">
-        <button onclick="navigateTo('home')" data-target="home" class="bottom-nav-item flex flex-col items-center justify-center transition-all">
-          <div class="nav-pill px-3.5 py-1 rounded-full bg-[#fef3c7] text-[#d97706] flex items-center justify-center">
-            <span class="material-symbols-outlined text-[20px]">home</span>
-          </div>
-          <span class="nav-label text-[10px] font-bold text-[#d97706] mt-0.5">Utama</span>
-        </button>
-
-        <button onclick="navigateTo('rsvpForm')" data-target="rsvpForm" class="bottom-nav-item flex flex-col items-center justify-center text-slate-400 hover:text-slate-600 transition-all">
-          <div class="nav-pill px-3.5 py-1 rounded-full flex items-center justify-center">
-            <span class="material-symbols-outlined text-[20px]">how_to_reg</span>
-          </div>
-          <span class="nav-label text-[10px] font-medium mt-0.5">RSVP</span>
-        </button>
-
-        <button onclick="navigateTo('archive')" data-target="archive" class="bottom-nav-item flex flex-col items-center justify-center text-slate-400 hover:text-slate-600 transition-all">
-          <div class="nav-pill px-3.5 py-1 rounded-full flex items-center justify-center">
-            <span class="material-symbols-outlined text-[20px]">folder</span>
-          </div>
-          <span class="nav-label text-[10px] font-medium mt-0.5">Arkib</span>
-        </button>
-
-        <button onclick="navigateTo('notifications')" data-target="notifications" class="bottom-nav-item flex flex-col items-center justify-center text-slate-400 hover:text-slate-600 transition-all">
-          <div class="nav-pill px-3.5 py-1 rounded-full flex items-center justify-center">
-            <span class="material-symbols-outlined text-[20px]">notifications</span>
-          </div>
-          <span class="nav-label text-[10px] font-medium mt-0.5">Notifikasi</span>
-        </button>
-
-        <button onclick="navigateTo('profile')" data-target="profile" class="bottom-nav-item flex flex-col items-center justify-center text-slate-400 hover:text-slate-600 transition-all">
-          <div class="nav-pill px-3.5 py-1 rounded-full flex items-center justify-center">
-            <span class="material-symbols-outlined text-[20px]">person</span>
-          </div>
-          <span class="nav-label text-[10px] font-medium mt-0.5">Profil</span>
-        </button>
+      <div id="mobileNavItems" class="h-16 px-4 flex items-center justify-around">
+        <!-- Diisi dinamik oleh app.js mengikut role pengguna (2 butang sahaja) -->
       </div>
     </nav>
+
+  </div>
+
+  <!-- ============================================ -->
+  <!-- MODAL PAPARAN PETA SEKOLAH & PARKING        -->
+  <!-- ============================================ -->
+  <div id="mapViewerModal" class="modal-overlay">
+    <div class="bg-white rounded-2xl p-5 flex flex-col gap-4 w-full max-w-xl max-h-[90vh] shadow-2xl">
+      <div class="flex items-center justify-between border-b border-slate-100 pb-2">
+        <div class="flex items-center gap-2">
+          <span class="material-symbols-outlined text-[#148e82] text-[20px]" id="mapModalIcon">map</span>
+          <h3 id="mapModalTitle" class="text-xs font-bold text-slate-900 uppercase">Pelan Dewan Sekolah</h3>
+        </div>
+        <button onclick="closeMapModal()" class="text-slate-400 hover:text-slate-600">
+          <span class="material-symbols-outlined text-[20px]">close</span>
+        </button>
+      </div>
+
+      <div id="mapModalContentArea" class="max-h-[60vh] overflow-y-auto flex flex-col gap-3">
+        <!-- Diisi dinamik oleh JS -->
+      </div>
+
+      <div class="flex items-center justify-end gap-2 pt-2 border-t border-slate-100">
+        <button onclick="closeMapModal()" class="px-4 py-2 bg-slate-100 text-slate-700 font-bold rounded-xl text-xs">Tutup</button>
+      </div>
+    </div>
+  </div>
 
   </div>
 
