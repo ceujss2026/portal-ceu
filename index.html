@@ -317,9 +317,9 @@
           </div>
 
           <!-- Loceng Notifikasi -->
-          <button onclick="navigateTo('notifications')" class="w-10 h-10 flex items-center justify-center rounded-full text-on-primary hover:bg-surface-container-lowest/10 relative transition-colors">
+          <button onclick="navigateTo('notifications')" class="w-10 h-10 flex items-center justify-center rounded-full text-on-primary hover:bg-surface-container-lowest/10 relative transition-colors" title="Notifikasi Sistem">
             <span class="material-symbols-outlined text-[22px]">notifications</span>
-            <span class="absolute top-2.5 right-2.5 w-2 h-2 rounded-full bg-gold-hover ring-2 ring-primary"></span>
+            <span id="headerNotifBadge" class="absolute top-1.5 right-1.5 w-4 h-4 rounded-full bg-amber-400 text-slate-900 text-[9px] font-black flex items-center justify-center shadow-sm">2</span>
           </button>
 
           <!-- Profil Icon -->
@@ -521,9 +521,9 @@
                 <button onclick="I18N.setLang('BM')" data-lang="BM" class="btn-lang-toggle px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-[#f59e0b] text-slate-900 shadow-sm" type="button">BM</button>
                 <button onclick="I18N.setLang('EN')" data-lang="EN" class="btn-lang-toggle px-2.5 py-0.5 rounded-full text-[11px] font-medium text-white/80 hover:text-white" type="button">EN</button>
               </div>
-              <button onclick="navigateTo('notifications')" class="w-9 h-9 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white relative hover:bg-white/30 transition-all">
+              <button onclick="navigateTo('notifications')" class="w-9 h-9 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white relative hover:bg-white/30 transition-all" title="Notifikasi Sistem">
                 <span class="material-symbols-outlined text-[19px]">notifications</span>
-                <span class="absolute top-2 right-2 w-2 h-2 rounded-full bg-[#f59e0b] ring-2 ring-[#148e82]"></span>
+                <span id="homeNotifBadge" class="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full bg-amber-400 text-slate-900 text-[9px] font-black flex items-center justify-center shadow-sm">2</span>
               </button>
               <button onclick="navigateTo('profile')" class="w-9 h-9 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white hover:bg-white/30 transition-all">
                 <span class="material-symbols-outlined text-[19px]">person</span>
@@ -633,24 +633,24 @@
               <div class="flex items-center justify-between">
                 <label for="homeSessionDropdown" class="text-xs font-bold text-slate-800 flex items-center gap-1.5">
                   <span class="material-symbols-outlined text-[#148e82] text-[18px]">event_note</span>
-                  <span>Pilih Sesi Sekolah / Program (32 Sesi)</span>
+                  <span>Pilih Sesi Sekolah / Program (31 Sesi)</span>
                 </label>
                 <span class="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-100">Takwim Rasmi 2027</span>
               </div>
 
-              <!-- Dropdown 32 Sesi Sekolah -->
+              <!-- Dropdown 31 Sesi Sekolah -->
               <select id="homeSessionDropdown" onchange="selectActiveEvent(this.value)" class="w-full h-11 px-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-900 shadow-inner focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#148e82]/20">
                 <!-- Diisi dinamik oleh app.js -->
               </select>
 
               <!-- Penapis Kategori & Daerah Pantas -->
               <div class="flex items-center gap-1.5 overflow-x-auto pb-0.5 text-xs">
-                <button type="button" onclick="setHomeCategoryFilter('ALL')" id="filterCat_ALL" class="px-3 py-1 rounded-full text-xs font-bold bg-[#148e82] text-white shadow-sm shrink-0">Semua (32)</button>
+                <button type="button" onclick="setHomeCategoryFilter('ALL')" id="filterCat_ALL" class="px-3 py-1 rounded-full text-xs font-bold bg-[#148e82] text-white shadow-sm shrink-0">Semua (31)</button>
                 <button type="button" onclick="setHomeCategoryFilter('Program Hala Tuju')" id="filterCat_PHT" class="px-3 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 shrink-0">Hala Tuju (27)</button>
-                <button type="button" onclick="setHomeCategoryFilter('Program FutureLink')" id="filterCat_FL" class="px-3 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 shrink-0">FutureLink (5)</button>
+                <button type="button" onclick="setHomeCategoryFilter('Program FutureLink')" id="filterCat_FL" class="px-3 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 shrink-0">FutureLink (4)</button>
                 <span class="text-slate-300">|</span>
                 <button type="button" onclick="setHomeDistrictFilter('ALL')" id="filterDist_ALL" class="px-2.5 py-1 rounded-lg text-[11px] font-bold bg-slate-200 text-slate-800 shrink-0">Semua Daerah</button>
-                <button type="button" onclick="setHomeDistrictFilter('Brunei Muara')" id="filterDist_BM" class="px-2.5 py-1 rounded-lg text-[11px] font-medium text-slate-600 hover:bg-slate-100 shrink-0">Brunei Muara (22)</button>
+                <button type="button" onclick="setHomeDistrictFilter('Brunei Muara')" id="filterDist_BM" class="px-2.5 py-1 rounded-lg text-[11px] font-medium text-slate-600 hover:bg-slate-100 shrink-0">Brunei Muara (21)</button>
                 <button type="button" onclick="setHomeDistrictFilter('Tutong')" id="filterDist_Tutong" class="px-2.5 py-1 rounded-lg text-[11px] font-medium text-slate-600 hover:bg-slate-100 shrink-0">Tutong (6)</button>
                 <button type="button" onclick="setHomeDistrictFilter('Belait')" id="filterDist_Belait" class="px-2.5 py-1 rounded-lg text-[11px] font-medium text-slate-600 hover:bg-slate-100 shrink-0">Belait (3)</button>
                 <button type="button" onclick="setHomeDistrictFilter('Temburong')" id="filterDist_Temburong" class="px-2.5 py-1 rounded-lg text-[11px] font-medium text-slate-600 hover:bg-slate-100 shrink-0">Temburong (1)</button>
@@ -685,22 +685,53 @@
               <!-- Diisi dinamik oleh app.js mengikut reka bentuk persis screenshot -->
             </div>
 
-            <!-- Seksyen Takwim Penuh 32 Sesi Sekolah (2027) -->
+            <!-- Seksyen Takwim Penuh 31 Sesi Sekolah (2027) -->
             <div class="flex flex-col gap-3 pt-2">
-              <div class="flex flex-col md:flex-row md:items-center justify-between gap-2">
+              <div class="flex flex-col md:flex-row md:items-center justify-between gap-2.5">
                 <div class="flex items-center gap-1.5">
                   <span class="w-2.5 h-2.5 rounded-full bg-[#148e82]"></span>
-                  <h3 class="text-xs md:text-sm font-bold uppercase tracking-wider text-slate-900">Jadual Penuh Takwim 32 Sesi Sekolah (2027)</h3>
+                  <h3 class="text-xs md:text-sm font-bold uppercase tracking-wider text-slate-900">Jadual Takwim 31 Sesi Sekolah (2027)</h3>
                 </div>
-                <div class="relative flex items-center">
-                  <span class="material-symbols-outlined absolute left-2.5 text-slate-400 text-[16px]">search</span>
-                  <input type="text" id="homeScheduleSearch" oninput="renderHomeScheduleList()" placeholder="Cari sekolah, venue, daerah..." class="h-8 pl-8 pr-3 bg-white border border-slate-200 rounded-xl text-xs font-medium focus:outline-none focus:ring-2 focus:ring-[#148e82]/20" />
+
+                <!-- Togol Paparan: Semua / Bulanan (Monthly) / Mingguan (Weekly) -->
+                <div class="flex items-center gap-1 bg-slate-100 p-1 rounded-xl self-start md:self-auto">
+                  <button type="button" onclick="setHomeCalendarView('ALL')" id="viewMode_ALL" class="px-2.5 py-1 text-xs font-bold rounded-lg bg-white text-slate-900 shadow-sm transition-all flex items-center gap-1">
+                    <span class="material-symbols-outlined text-[15px]">list</span>
+                    <span>Semua</span>
+                  </button>
+                  <button type="button" onclick="setHomeCalendarView('MONTHLY')" id="viewMode_MONTHLY" class="px-2.5 py-1 text-xs font-semibold rounded-lg text-slate-600 hover:text-slate-900 transition-all flex items-center gap-1">
+                    <span class="material-symbols-outlined text-[15px]">calendar_month</span>
+                    <span>Bulanan</span>
+                  </button>
+                  <button type="button" onclick="setHomeCalendarView('WEEKLY')" id="viewMode_WEEKLY" class="px-2.5 py-1 text-xs font-semibold rounded-lg text-slate-600 hover:text-slate-900 transition-all flex items-center gap-1">
+                    <span class="material-symbols-outlined text-[15px]">date_range</span>
+                    <span>Mingguan</span>
+                  </button>
                 </div>
               </div>
 
-              <!-- Senarai Kad Sesi Sekolah Interaktif (32 Sesi) -->
+              <!-- Bar Carian & Sub-Pilihan Bulan / Minggu -->
+              <div class="flex flex-col md:flex-row md:items-center justify-between gap-2">
+                <!-- Penapis Sub-Bulan Pantas -->
+                <div id="homeCalendarMonthPills" class="flex items-center gap-1 overflow-x-auto pb-0.5 text-[11px]">
+                  <button type="button" onclick="setHomeCalendarMonth('ALL')" id="pillMonth_ALL" class="px-2.5 py-0.5 rounded-lg font-bold bg-[#148e82] text-white shrink-0">Semua Bulan</button>
+                  <button type="button" onclick="setHomeCalendarMonth('01')" id="pillMonth_01" class="px-2.5 py-0.5 rounded-lg font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 shrink-0">Jan (3)</button>
+                  <button type="button" onclick="setHomeCalendarMonth('02')" id="pillMonth_02" class="px-2.5 py-0.5 rounded-lg font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 shrink-0">Feb (3)</button>
+                  <button type="button" onclick="setHomeCalendarMonth('03')" id="pillMonth_03" class="px-2.5 py-0.5 rounded-lg font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 shrink-0">Mac (5)</button>
+                  <button type="button" onclick="setHomeCalendarMonth('04')" id="pillMonth_04" class="px-2.5 py-0.5 rounded-lg font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 shrink-0">Apr (13)</button>
+                  <button type="button" onclick="setHomeCalendarMonth('06')" id="pillMonth_06" class="px-2.5 py-0.5 rounded-lg font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 shrink-0">Jun (5)</button>
+                  <button type="button" onclick="setHomeCalendarMonth('07')" id="pillMonth_07" class="px-2.5 py-0.5 rounded-lg font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 shrink-0">Jul (2)</button>
+                </div>
+
+                <div class="relative flex items-center shrink-0">
+                  <span class="material-symbols-outlined absolute left-2.5 text-slate-400 text-[16px]">search</span>
+                  <input type="text" id="homeScheduleSearch" oninput="renderHomeScheduleList()" placeholder="Cari sekolah, venue, tarikh..." class="h-8 pl-8 pr-3 bg-white border border-slate-200 rounded-xl text-xs font-medium focus:outline-none focus:ring-2 focus:ring-[#148e82]/20 w-full md:w-56" />
+                </div>
+              </div>
+
+              <!-- Senarai Kad Sesi Sekolah Interaktif (31 Sesi) -->
               <div id="homeScheduleListContainer" class="flex flex-col gap-2.5">
-                <!-- Diisi dinamik oleh app.js mengikut 32 sesi sebenar -->
+                <!-- Diisi dinamik oleh app.js mengikut 31 sesi sebenar -->
               </div>
             </div>
 
@@ -868,7 +899,7 @@
           <div>
             <label for="rsvpSessionSelector" class="block text-xs font-bold text-slate-800 mb-1.5 flex items-center justify-between">
               <span>Pilih Sesi Sekolah / Program *</span>
-              <span class="text-[10px] text-teal-700 font-semibold bg-teal-50 px-2 py-0.5 rounded-full">32 Sesi Takwim</span>
+              <span class="text-[10px] text-teal-700 font-semibold bg-teal-50 px-2 py-0.5 rounded-full">31 Sesi Takwim</span>
             </label>
             <select id="rsvpSessionSelector" onchange="switchRsvpSession(this.value)" class="w-full h-11 px-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#148e82]/20">
               <!-- Diisi dinamik oleh app.js -->
@@ -1167,41 +1198,17 @@
       <!-- ======================================== -->
       <section id="screen_notifications" class="view-screen pt-16 md:pt-6 pb-safe md:pb-16 px-4 md:px-6 max-w-4xl mx-auto w-full flex flex-col gap-4">
         <div class="flex items-center justify-between">
-          <h2 class="text-sm font-bold text-on-surface">Notifikasi &amp; Peringatan Acara</h2>
-          <button onclick="showToast('Semua notifikasi ditandakan telah dibaca.', 'info')" class="text-xs font-semibold text-primary">Tanda Dibaca</button>
+          <div class="flex items-center gap-2">
+            <button onclick="navigateHomeRole()" class="w-8 h-8 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 flex items-center justify-center transition-all">
+              <span class="material-symbols-outlined text-[18px]">arrow_back</span>
+            </button>
+            <h2 class="text-sm font-bold text-on-surface">Notifikasi &amp; Peringatan Acara</h2>
+          </div>
+          <button onclick="markAllNotificationsRead()" class="text-xs font-semibold text-primary hover:underline">Tanda Semua Dibaca</button>
         </div>
 
-        <div class="flex flex-col gap-2.5">
-          <div class="bg-surface-container-lowest rounded-xl shadow-sm p-3.5 flex items-start gap-3 border-l-4 border-gold-hover">
-            <div class="w-8 h-8 rounded-full bg-gold-subtle text-tertiary flex items-center justify-center shrink-0 mt-0.5">
-              <span class="material-symbols-outlined text-[18px]">alarm</span>
-            </div>
-            <div class="flex-1 min-w-0">
-              <div class="flex items-center justify-between">
-                <h4 class="text-xs font-bold text-slate-900">Peringatan Acara H-1</h4>
-                <span class="text-[10px] text-slate-400">2 jam lepas</span>
-              </div>
-              <p class="text-xs text-on-surface-variant mt-1">Pameran Hala Tuju Zon Belait akan berlangsung esok jam 08:00 pagi. Sila gunakan Pintu Pagar B untuk Tempat Letak Kereta Agensi.</p>
-              <div class="flex items-center gap-2 mt-2">
-                <button onclick="navigateTo('floorPlan')" class="text-[11px] font-bold text-primary hover:underline">Pelan Dewan →</button>
-                <button onclick="navigateTo('parking')" class="text-[11px] font-bold text-tertiary hover:underline">Peta Parking →</button>
-              </div>
-            </div>
-          </div>
-
-          <div class="bg-surface-container-lowest rounded-xl shadow-sm p-3.5 flex items-start gap-3 border-l-4 border-primary">
-            <div class="w-8 h-8 rounded-full bg-ocean-wash text-primary flex items-center justify-center shrink-0 mt-0.5">
-              <span class="material-symbols-outlined text-[18px]">mark_email_read</span>
-            </div>
-            <div class="flex-1 min-w-0">
-              <div class="flex items-center justify-between">
-                <h4 class="text-xs font-bold text-slate-900">Surat Perakuan Logistik Diterbitkan</h4>
-                <span class="text-[10px] text-slate-400">1 hari lepas</span>
-              </div>
-              <p class="text-xs text-on-surface-variant mt-1">Surat perakuan logistik dan jemputan pameran telah sedia dimuat turun.</p>
-              <button onclick="openDocumentGeneratorModal()" class="text-[11px] font-bold text-primary hover:underline mt-1">Papar Surat Ber-QR →</button>
-            </div>
-          </div>
+        <div id="notificationsListContainer" class="flex flex-col gap-2.5">
+          <!-- Diisi dinamik oleh app.js mengikut aktiviti RSVP & Takwim -->
         </div>
       </section>
 
@@ -1381,7 +1388,7 @@
           <div class="flex flex-col md:flex-row md:items-center justify-between gap-2">
             <h3 class="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
               <span class="w-2 h-2 rounded-full bg-[#148e82]"></span>
-              Program Aktif &amp; Takwim Semasa (32 Sesi)
+              Program Aktif &amp; Takwim Semasa (31 Sesi)
             </h3>
             <div class="relative flex items-center">
               <span class="material-symbols-outlined absolute left-2.5 text-slate-400 text-[16px]">search</span>
@@ -1391,12 +1398,12 @@
 
           <!-- Penapis Kategori & Daerah Pentadbir -->
           <div class="flex items-center gap-1.5 overflow-x-auto pb-0.5 text-xs">
-            <button type="button" onclick="setAdminEventsCategoryFilter('ALL')" id="adminFilterCat_ALL" class="px-3 py-1 rounded-full text-xs font-bold bg-[#006194] text-white shadow-sm shrink-0">Semua (32)</button>
+            <button type="button" onclick="setAdminEventsCategoryFilter('ALL')" id="adminFilterCat_ALL" class="px-3 py-1 rounded-full text-xs font-bold bg-[#006194] text-white shadow-sm shrink-0">Semua (31)</button>
             <button type="button" onclick="setAdminEventsCategoryFilter('Program Hala Tuju')" id="adminFilterCat_PHT" class="px-3 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 shrink-0">Hala Tuju (27)</button>
-            <button type="button" onclick="setAdminEventsCategoryFilter('Program FutureLink')" id="adminFilterCat_FL" class="px-3 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 shrink-0">FutureLink (5)</button>
+            <button type="button" onclick="setAdminEventsCategoryFilter('Program FutureLink')" id="adminFilterCat_FL" class="px-3 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 shrink-0">FutureLink (4)</button>
             <span class="text-slate-300">|</span>
             <button type="button" onclick="setAdminEventsDistrictFilter('ALL')" id="adminFilterDist_ALL" class="px-2.5 py-1 rounded-lg text-[11px] font-bold bg-slate-200 text-slate-800 shrink-0">Semua Daerah</button>
-            <button type="button" onclick="setAdminEventsDistrictFilter('Brunei Muara')" id="adminFilterDist_BM" class="px-2.5 py-1 rounded-lg text-[11px] font-medium text-slate-600 hover:bg-slate-100 shrink-0">Brunei Muara (22)</button>
+            <button type="button" onclick="setAdminEventsDistrictFilter('Brunei Muara')" id="adminFilterDist_BM" class="px-2.5 py-1 rounded-lg text-[11px] font-medium text-slate-600 hover:bg-slate-100 shrink-0">Brunei Muara (21)</button>
             <button type="button" onclick="setAdminEventsDistrictFilter('Tutong')" id="adminFilterDist_Tutong" class="px-2.5 py-1 rounded-lg text-[11px] font-medium text-slate-600 hover:bg-slate-100 shrink-0">Tutong (6)</button>
             <button type="button" onclick="setAdminEventsDistrictFilter('Belait')" id="adminFilterDist_Belait" class="px-2.5 py-1 rounded-lg text-[11px] font-medium text-slate-600 hover:bg-slate-100 shrink-0">Belait (3)</button>
             <button type="button" onclick="setAdminEventsDistrictFilter('Temburong')" id="adminFilterDist_Temburong" class="px-2.5 py-1 rounded-lg text-[11px] font-medium text-slate-600 hover:bg-slate-100 shrink-0">Temburong (1)</button>

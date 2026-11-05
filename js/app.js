@@ -97,13 +97,13 @@ function navigateTo(viewId, param = null) {
   } else if (AppState.currentUser) {
     const isAdmin = AppState.currentUser.role === 'ADMIN';
     if (isAdmin) {
-      // Mod Pentadbir: HANYA Papan Pemuka ('admin') & Urus Program ('adminEvents')
-      if (viewId !== 'admin' && viewId !== 'adminEvents') {
+      // Mod Pentadbir: Papan Pemuka ('admin'), Urus Program ('adminEvents'), Notifikasi ('notifications'), Profil ('profile')
+      if (viewId !== 'admin' && viewId !== 'adminEvents' && viewId !== 'notifications' && viewId !== 'profile') {
         viewId = 'admin';
       }
     } else {
-      // Mod Agensi: HANYA Info Program ('home') & Borang RSVP ('rsvpForm')
-      if (viewId !== 'home' && viewId !== 'rsvpForm') {
+      // Mod Agensi: Info Program ('home'), Borang RSVP ('rsvpForm'), Notifikasi ('notifications'), Profil ('profile')
+      if (viewId !== 'home' && viewId !== 'rsvpForm' && viewId !== 'notifications' && viewId !== 'profile') {
         viewId = 'home';
       }
     }
@@ -140,6 +140,12 @@ function navigateTo(viewId, param = null) {
       break;
     case 'adminEvents':
       renderAdminEventsList();
+      break;
+    case 'notifications':
+      renderNotificationsScreen();
+      break;
+    case 'profile':
+      renderProfileScreen();
       break;
   }
 }
@@ -456,18 +462,21 @@ function renderHomeScreen(populateDropdown = true) {
     agencyNameEl.innerText = user.namaAgensi || 'UNIVERSITI BRUNEI DARUSSALAM';
   }
 
-  // 2. Metrik Pantas daripada Cache (Pastikan 32 Sesi)
-  if (!AppState.events || AppState.events.length < 32) {
+  // 2. Metrik Pantas daripada Cache (Pastikan 31 Sesi & Bebas Maktab Duli)
+  if (AppState.events && AppState.events.length > 0) {
+    AppState.events = AppState.events.filter(e => e.Event_ID !== 'EVT-FL-05' && !e.Nama_Acara.includes('Maktab Duli'));
+  }
+  if (!AppState.events || AppState.events.length < 31) {
     AppState.events = getFallbackEvents();
     localStorage.setItem('ceu_cache_events', JSON.stringify(AppState.events));
   }
 
-  if (!AppState.activeEvent) {
+  if (!AppState.activeEvent || AppState.activeEvent.Event_ID === 'EVT-FL-05' || AppState.activeEvent.Nama_Acara.includes('Maktab Duli')) {
     AppState.activeEvent = AppState.events[0];
   }
   const primaryEvent = AppState.activeEvent;
 
-  // 3. Dropdown Pemilih 32 Sesi
+  // 3. Dropdown Pemilih 31 Sesi
   const dropdown = document.getElementById('homeSessionDropdown');
   if (dropdown && populateDropdown) {
     dropdown.innerHTML = AppState.events.map(ev => {
@@ -546,8 +555,8 @@ function renderHomeScreen(populateDropdown = true) {
             </div>
           </div>
 
-          <!-- Butang Pengesahan Kehadiran (RSVP) & Muat Turun Surat -->
-          <div class="flex items-center gap-2 pt-2">
+          <!-- Butang Pengesahan Kehadiran (RSVP), Muat Turun Surat & WhatsApp -->
+          <div class="flex items-center gap-2 pt-2 flex-wrap">
             <button onclick="navigateTo('rsvpForm', '${primaryEvent.Event_ID}')" class="flex-1 h-11 bg-gradient-to-r from-[#f59e0b] to-[#d97706] hover:from-[#d97706] hover:to-[#b45309] text-white font-bold text-xs rounded-xl shadow-md hover:shadow-lg flex items-center justify-center gap-1.5 transition-all">
               <span class="material-symbols-outlined text-[18px]">how_to_reg</span>
               <span>${isAttending ? 'Kemaskini RSVP Sesi Ini' : 'Sahkan Kehadiran (RSVP)'}</span>
@@ -555,6 +564,12 @@ function renderHomeScreen(populateDropdown = true) {
             <button onclick="openDocumentGeneratorModal()" class="w-11 h-11 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 flex items-center justify-center transition-colors shadow-sm shrink-0" title="Muat Turun Surat Rasmi Ber-QR">
               <span class="material-symbols-outlined text-[20px]">description</span>
             </button>
+            ${isAttending ? `
+              <button onclick="shareRsvpWhatsApp('${primaryEvent.Event_ID}')" class="h-11 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs flex items-center gap-1.5 shadow-sm transition-all shrink-0" title="Hantar Notifikasi ke WhatsApp">
+                <span class="material-symbols-outlined text-[18px]">chat</span>
+                <span class="hidden sm:inline">WhatsApp</span>
+              </button>
+            ` : ''}
           </div>
         </div>
       </div>
@@ -563,6 +578,95 @@ function renderHomeScreen(populateDropdown = true) {
 
   // 5. Render Takwim Penuh 32 Sesi
   renderHomeScheduleList();
+}
+
+let homeCalendarView = 'ALL'; // 'ALL', 'MONTHLY', 'WEEKLY'
+let homeCalendarMonth = 'ALL'; // 'ALL', '01', '02', '03', '04', '06', '07'
+
+function setHomeCalendarView(viewMode) {
+  homeCalendarView = viewMode;
+  ['viewMode_ALL', 'viewMode_MONTHLY', 'viewMode_WEEKLY'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.className = 'px-2.5 py-1 text-xs font-semibold rounded-lg text-slate-600 hover:text-slate-900 transition-all flex items-center gap-1';
+    }
+  });
+  const activeEl = document.getElementById('viewMode_' + viewMode);
+  if (activeEl) {
+    activeEl.className = 'px-2.5 py-1 text-xs font-bold rounded-lg bg-white text-slate-900 shadow-sm transition-all flex items-center gap-1';
+  }
+
+  const monthPills = document.getElementById('homeCalendarMonthPills');
+  if (monthPills) {
+    monthPills.style.display = viewMode === 'WEEKLY' ? 'none' : 'flex';
+  }
+
+  renderHomeScheduleList();
+}
+
+function setHomeCalendarMonth(monthStr) {
+  homeCalendarMonth = monthStr;
+  const monthIds = ['pillMonth_ALL', 'pillMonth_01', 'pillMonth_02', 'pillMonth_03', 'pillMonth_04', 'pillMonth_06', 'pillMonth_07'];
+  monthIds.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.className = 'px-2.5 py-0.5 rounded-lg font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 shrink-0';
+  });
+  const activeEl = document.getElementById('pillMonth_' + monthStr);
+  if (activeEl) {
+    activeEl.className = 'px-2.5 py-0.5 rounded-lg font-bold bg-[#148e82] text-white shrink-0';
+  }
+  renderHomeScheduleList();
+}
+
+function renderEventCardHtml(ev) {
+  const isCurrentActive = AppState.activeEvent && AppState.activeEvent.Event_ID === ev.Event_ID;
+  const isAttending = (AppState.rsvps || []).some(r => r.Event_ID === ev.Event_ID && r.Status_RSVP === 'Hadir');
+  const isBelait = ev.Daerah === 'Belait';
+  const monthCode = (ev.Tarikh_Mula || '').slice(5, 7);
+  const monthNames = { '01': 'JAN', '02': 'FEB', '03': 'MAC', '04': 'APR', '05': 'MEI', '06': 'JUN', '07': 'JUL' };
+
+  return `
+    <div class="bg-white p-3.5 rounded-2xl border ${isCurrentActive ? 'border-[#148e82] ring-2 ring-[#148e82]/20' : 'border-slate-200/80'} shadow-sm hover:border-slate-300 transition-all flex flex-col md:flex-row md:items-center justify-between gap-3">
+      <div class="flex items-start gap-3 flex-1 min-w-0">
+        <div class="w-12 h-12 rounded-xl ${ev.Kategori_Program === 'Program FutureLink' ? 'bg-amber-50 text-amber-800' : 'bg-teal-50 text-[#148e82]'} flex flex-col items-center justify-center font-bold text-center shrink-0 border border-slate-100">
+          <span class="text-[9px] uppercase tracking-tighter">${monthNames[monthCode] || '2027'}</span>
+          <span class="text-base leading-none font-black">${(ev.Tarikh_Mula || '').slice(8, 10)}</span>
+        </div>
+        <div class="flex flex-col min-w-0">
+          <div class="flex items-center gap-1.5 flex-wrap">
+            <span class="text-[10px] font-bold px-2 py-0.5 rounded-full ${ev.Kategori_Program === 'Program FutureLink' ? 'bg-amber-100 text-amber-800' : 'bg-teal-100 text-teal-800'}">${ev.Kategori_Program}</span>
+            <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-slate-100 text-slate-700">Daerah ${ev.Daerah}</span>
+            ${isAttending ? '<span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-emerald-600"></span>RSVP Hadir</span>' : ''}
+          </div>
+          <h4 class="text-xs md:text-sm font-bold text-slate-900 mt-1 leading-snug truncate">${ev.Sekolah || ev.Nama_Acara}</h4>
+          <div class="flex items-center gap-2 text-[11px] text-slate-500 mt-0.5 flex-wrap">
+            <span>📅 ${ev.Tarikh_Paparan || ev.Tarikh_Mula}</span>
+            <span class="${isBelait ? 'font-bold text-amber-800' : ''}">🕒 ${ev.Masa}</span>
+          </div>
+          <span class="text-[11px] text-slate-600 truncate flex items-center gap-1 mt-0.5">
+            <span class="material-symbols-outlined text-[13px] text-slate-400">location_on</span>
+            ${ev.Tempat_Venue}
+          </span>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2 shrink-0 pt-2 md:pt-0 border-t md:border-t-0 border-slate-100 flex-wrap">
+        <button onclick="selectActiveEvent('${ev.Event_ID}'); window.scrollTo({top: 0, behavior: 'smooth'});" class="px-3 py-1.5 rounded-xl border border-slate-200 text-slate-700 font-bold text-xs hover:bg-slate-50 transition-all flex items-center gap-1">
+          <span class="material-symbols-outlined text-[15px]">visibility</span>
+          <span>Pilih</span>
+        </button>
+        <button onclick="navigateTo('rsvpForm', '${ev.Event_ID}')" class="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-[#f59e0b] to-[#d97706] text-white font-bold text-xs shadow-sm hover:shadow transition-all flex items-center gap-1">
+          <span class="material-symbols-outlined text-[15px]">how_to_reg</span>
+          <span>${isAttending ? 'Kemaskini' : 'RSVP Sesi Ini'}</span>
+        </button>
+        ${isAttending ? `
+          <button onclick="shareRsvpWhatsApp('${ev.Event_ID}')" class="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-700 hover:bg-emerald-100 flex items-center justify-center transition-all shadow-sm" title="Kongsi RSVP ke WhatsApp">
+            <span class="material-symbols-outlined text-[16px]">chat</span>
+          </button>
+        ` : ''}
+      </div>
+    </div>
+  `;
 }
 
 function renderHomeScheduleList() {
@@ -574,11 +678,17 @@ function renderHomeScheduleList() {
 
   let list = AppState.events.length ? AppState.events : getFallbackEvents();
 
+  // Pastikan Maktab Duli / EVT-FL-05 tidak dipaparkan
+  list = list.filter(e => e.Event_ID !== 'EVT-FL-05' && !(e.Nama_Acara || '').includes('Maktab Duli'));
+
   if (homeCategoryFilter && homeCategoryFilter !== 'ALL') {
     list = list.filter(e => e.Kategori_Program === homeCategoryFilter);
   }
   if (homeDistrictFilter && homeDistrictFilter !== 'ALL') {
     list = list.filter(e => e.Daerah === homeDistrictFilter);
+  }
+  if (homeCalendarMonth && homeCalendarMonth !== 'ALL') {
+    list = list.filter(e => (e.Tarikh_Mula || '').slice(5, 7) === homeCalendarMonth);
   }
   if (query) {
     list = list.filter(e => 
@@ -600,49 +710,94 @@ function renderHomeScheduleList() {
     return;
   }
 
-  container.innerHTML = list.map(ev => {
-    const isCurrentActive = AppState.activeEvent && AppState.activeEvent.Event_ID === ev.Event_ID;
-    const isAttending = (AppState.rsvps || []).some(r => r.Event_ID === ev.Event_ID && r.Status_RSVP === 'Hadir');
-    const isBelait = ev.Daerah === 'Belait';
+  // 1. PAPARAN BULANAN (MONTHLY VIEW)
+  if (homeCalendarView === 'MONTHLY') {
+    const monthMap = [
+      { code: '01', name: 'Januari 2027' },
+      { code: '02', name: 'Februari 2027' },
+      { code: '03', name: 'Mac 2027' },
+      { code: '04', name: 'April 2027' },
+      { code: '06', name: 'Jun 2027' },
+      { code: '07', name: 'Julai 2027' }
+    ];
 
-    return `
-      <div class="bg-white p-3.5 rounded-2xl border ${isCurrentActive ? 'border-[#148e82] ring-2 ring-[#148e82]/20' : 'border-slate-200/80'} shadow-sm hover:border-slate-300 transition-all flex flex-col md:flex-row md:items-center justify-between gap-3">
-        <div class="flex items-start gap-3 flex-1 min-w-0">
-          <div class="w-12 h-12 rounded-xl ${ev.Kategori_Program === 'Program FutureLink' ? 'bg-amber-50 text-amber-800' : 'bg-teal-50 text-[#148e82]'} flex flex-col items-center justify-center font-bold text-center shrink-0 border border-slate-100">
-            <span class="text-[9px] uppercase tracking-tighter">${(ev.Tarikh_Mula || '').slice(5, 7) === '01' ? 'JAN' : (ev.Tarikh_Mula || '').slice(5, 7) === '02' ? 'FEB' : (ev.Tarikh_Mula || '').slice(5, 7) === '03' ? 'MAC' : (ev.Tarikh_Mula || '').slice(5, 7) === '04' ? 'APR' : (ev.Tarikh_Mula || '').slice(5, 7) === '05' ? 'MEI' : (ev.Tarikh_Mula || '').slice(5, 7) === '06' ? 'JUN' : 'JUL'}</span>
-            <span class="text-base leading-none font-black">${(ev.Tarikh_Mula || '').slice(8, 10)}</span>
+    let html = '';
+    monthMap.forEach(m => {
+      const monthEvents = list.filter(e => (e.Tarikh_Mula || '').slice(5, 7) === m.code);
+      if (monthEvents.length > 0) {
+        html += `
+          <div class="flex flex-col gap-2 pt-2">
+            <div class="flex items-center justify-between bg-slate-100/90 px-3.5 py-2 rounded-xl border border-slate-200/60 shadow-xs">
+              <div class="flex items-center gap-2">
+                <span class="material-symbols-outlined text-[18px] text-[#148e82]">calendar_month</span>
+                <span class="text-xs font-bold text-slate-800 uppercase tracking-wide">${m.name}</span>
+              </div>
+              <span class="text-[10px] font-bold bg-white text-slate-700 px-2.5 py-0.5 rounded-full shadow-xs border border-slate-200/50">${monthEvents.length} Sesi Sekolah</span>
+            </div>
+            <div class="flex flex-col gap-2">
+              ${monthEvents.map(renderEventCardHtml).join('')}
+            </div>
           </div>
-          <div class="flex flex-col min-w-0">
-            <div class="flex items-center gap-1.5 flex-wrap">
-              <span class="text-[10px] font-bold px-2 py-0.5 rounded-full ${ev.Kategori_Program === 'Program FutureLink' ? 'bg-amber-100 text-amber-800' : 'bg-teal-100 text-teal-800'}">${ev.Kategori_Program}</span>
-              <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-slate-100 text-slate-700">Daerah ${ev.Daerah}</span>
-              ${isAttending ? '<span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-emerald-600"></span>RSVP Hadir</span>' : ''}
+        `;
+      }
+    });
+    container.innerHTML = html || `<div class="bg-white p-6 rounded-2xl border border-slate-200 text-center text-slate-400"><p class="text-xs">Tiada sesi untuk bulan ini.</p></div>`;
+    return;
+  }
+
+  // 2. PAPARAN MINGGUAN (WEEKLY VIEW)
+  if (homeCalendarView === 'WEEKLY') {
+    const getWeekKey = (dateStr) => {
+      if (!dateStr) return 'Lain-lain';
+      const parts = dateStr.split('-');
+      if (parts.length < 3) return 'Lain-lain';
+      const year = parseInt(parts[0], 10);
+      const month = parseInt(parts[1], 10) - 1;
+      const day = parseInt(parts[2], 10);
+      const d = new Date(year, month, day);
+
+      const dayOfWeek = d.getDay();
+      const diff = d.getDate() - dayOfWeek + (dayOfWeek === 0 ? -6 : 1);
+      const mon = new Date(d.setDate(diff));
+      const fri = new Date(mon);
+      fri.setDate(mon.getDate() + 4);
+      const formatD = (date) => ('0' + date.getDate()).slice(-2) + '/' + ('0' + (date.getMonth() + 1)).slice(-2);
+      return formatD(mon) + ' - ' + formatD(fri) + '/' + mon.getFullYear();
+    };
+
+    const weekGroups = {};
+    list.forEach(ev => {
+      const key = getWeekKey(ev.Tarikh_Mula);
+      if (!weekGroups[key]) weekGroups[key] = [];
+      weekGroups[key].push(ev);
+    });
+
+    let html = '';
+    let weekIndex = 1;
+    Object.keys(weekGroups).forEach(wKey => {
+      const wEvents = weekGroups[wKey];
+      html += `
+        <div class="flex flex-col gap-2 pt-2">
+          <div class="flex items-center justify-between bg-teal-50/90 px-3.5 py-2 rounded-xl border border-teal-100 shadow-xs">
+            <div class="flex items-center gap-2">
+              <span class="material-symbols-outlined text-[18px] text-[#148e82]">date_range</span>
+              <span class="text-xs font-bold text-teal-950 uppercase tracking-wide">Minggu ${weekIndex} (${wKey})</span>
             </div>
-            <h4 class="text-xs md:text-sm font-bold text-slate-900 mt-1 leading-snug truncate">${ev.Sekolah || ev.Nama_Acara}</h4>
-            <div class="flex items-center gap-2 text-[11px] text-slate-500 mt-0.5 flex-wrap">
-              <span>📅 ${ev.Tarikh_Paparan || ev.Tarikh_Mula}</span>
-              <span class="${isBelait ? 'font-bold text-amber-800' : ''}">🕒 ${ev.Masa}</span>
-            </div>
-            <span class="text-[11px] text-slate-600 truncate flex items-center gap-1 mt-0.5">
-              <span class="material-symbols-outlined text-[13px] text-slate-400">location_on</span>
-              ${ev.Tempat_Venue}
-            </span>
+            <span class="text-[10px] font-bold bg-[#148e82] text-white px-2.5 py-0.5 rounded-full shadow-xs">${wEvents.length} Sesi Sekolah</span>
+          </div>
+          <div class="flex flex-col gap-2">
+            ${wEvents.map(renderEventCardHtml).join('')}
           </div>
         </div>
+      `;
+      weekIndex++;
+    });
+    container.innerHTML = html || `<div class="bg-white p-6 rounded-2xl border border-slate-200 text-center text-slate-400"><p class="text-xs">Tiada sesi untuk minggu ini.</p></div>`;
+    return;
+  }
 
-        <div class="flex items-center gap-2 shrink-0 pt-2 md:pt-0 border-t md:border-t-0 border-slate-100">
-          <button onclick="selectActiveEvent('${ev.Event_ID}'); window.scrollTo({top: 0, behavior: 'smooth'});" class="px-3 py-1.5 rounded-xl border border-slate-200 text-slate-700 font-bold text-xs hover:bg-slate-50 transition-all flex items-center gap-1">
-            <span class="material-symbols-outlined text-[15px]">visibility</span>
-            <span>Pilih</span>
-          </button>
-          <button onclick="navigateTo('rsvpForm', '${ev.Event_ID}')" class="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-[#f59e0b] to-[#d97706] text-white font-bold text-xs shadow-sm hover:shadow transition-all flex items-center gap-1">
-            <span class="material-symbols-outlined text-[15px]">how_to_reg</span>
-            <span>RSVP Sesi Ini</span>
-          </button>
-        </div>
-      </div>
-    `;
-  }).join('');
+  // 3. PAPARAN SENARAI SEMUA (ALL LIST VIEW)
+  container.innerHTML = list.map(renderEventCardHtml).join('');
 }
 
 // ============================================
@@ -1030,11 +1185,15 @@ function renderAdminAgenciesTable() {
         </td>
         <td class="p-3 text-right">
           <div class="flex items-center justify-end gap-1.5">
+            <button onclick="adminSendAgencyWhatsApp('${a.kod}')" class="px-2 py-1 text-[11px] bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-bold rounded-lg transition-colors flex items-center gap-1" title="Hantar Peringatan WhatsApp">
+              <span class="material-symbols-outlined text-[14px]">chat</span>
+              <span>WA</span>
+            </button>
             <button onclick="openDocumentGeneratorModal('${a.kod}')" class="px-2.5 py-1 text-[11px] bg-teal-50 hover:bg-teal-100 text-teal-800 font-bold rounded-lg transition-colors flex items-center gap-1" title="Surat Perakuan Rasmi">
               <span class="material-symbols-outlined text-[14px]">description</span>
               <span>Surat</span>
             </button>
-            <button onclick="handleAdminResetAgencyPassword('${a.kod}')" class="px-2.5 py-1 text-[11px] bg-slate-100 hover:bg-amber-100 hover:text-amber-800 text-slate-600 font-semibold rounded-lg transition-colors" title="Reset Kata Laluan">
+            <button onclick="handleAdminResetAgencyPassword('${a.kod}')" class="px-2 py-1 text-[11px] bg-slate-100 hover:bg-amber-100 hover:text-amber-800 text-slate-600 font-semibold rounded-lg transition-colors" title="Reset Kata Laluan">
               <span>Reset</span>
             </button>
           </div>
@@ -1459,11 +1618,11 @@ function showToast(msg, type = 'info') {
 function fetchInitialDataSilently() {
   apiCall('getInitialData').then(res => {
     if (res && res.success) {
-      if (res.events && res.events.length >= 32) {
-        AppState.events = res.events;
-        localStorage.setItem('ceu_cache_events', JSON.stringify(res.events));
+      if (res.events && res.events.length >= 31) {
+        AppState.events = res.events.filter(e => e.Event_ID !== 'EVT-FL-05' && !(e.Nama_Acara || '').includes('Maktab Duli'));
+        localStorage.setItem('ceu_cache_events', JSON.stringify(AppState.events));
       } else {
-        if (!AppState.events || AppState.events.length < 32) {
+        if (!AppState.events || AppState.events.length < 31) {
           AppState.events = getFallbackEvents();
           localStorage.setItem('ceu_cache_events', JSON.stringify(AppState.events));
         }
@@ -2047,24 +2206,6 @@ function getFallbackEvents() {
       Panduan_Parking: 'Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi & VIP).',
       Catatan_Khas: 'Program FutureLink - Sesi pra-universiti.',
       Status_Acara: 'Aktif'
-    },
-    {
-      Event_ID: 'EVT-FL-05',
-      Kategori_Program: 'Program FutureLink',
-      Nama_Acara: 'Program FutureLink - Maktab Duli (Taklimat sahaja)',
-      Sekolah: 'Maktab Duli Pengiran Muda Al-Muhtadee Billah',
-      Daerah: 'Brunei Muara',
-      Tarikh_Mula: '2027-06-29',
-      Tarikh_Paparan: '29/06/2027 (Selasa)',
-      Hari: 'Selasa',
-      Masa: '09:00 - 11:30',
-      Tempat_Venue: 'Dewan Auditorium Maktab Duli Pengiran Muda Al-Muhtadee Billah',
-      Pautan_GPS_Maps: 'https://maps.google.com/?q=Maktab+Duli+Pengiran+Muda+Al-Muhtadee+Billah',
-      Pelan_Sekolah_URL: 'https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=600&q=80',
-      Pelan_Parking_URL: 'https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=600&q=80',
-      Panduan_Parking: 'Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi & VIP).',
-      Catatan_Khas: 'Taklimat sahaja',
-      Status_Acara: 'Aktif'
     }
   ];
 }
@@ -2126,6 +2267,170 @@ function getPreseeded52Agencies() {
   ];
 }
 
+// ============================================
+// 13. MODUL NOTIFIKASI DALAMAN & INTEGRASI WHATSAPP
+// ============================================
+function shareRsvpWhatsApp(eventId) {
+  const ev = (AppState.events || []).find(e => e.Event_ID === eventId) || AppState.activeEvent || getFallbackEvents()[0];
+  const user = AppState.currentUser;
+  const rsvp = (AppState.rsvps || []).find(r => r.Event_ID === ev.Event_ID && (r.Agensi_ID === (user && user.id) || r.Agensi_ID === 'AG-05')) || {};
+
+  const message = `*PENGESAHAN KEHADIRAN RSVP & LOGISTIK DEWAN RASMI*
+Unit Pendidikan Kerjaya (UPK), Jabatan Sekolah-Sekolah
+Kementerian Pendidikan Negara Brunei Darussalam
+
+Kepada: Penyelaras Program & Penganjur Sekolah
+Nama Agensi: *${user ? user.namaAgensi : 'Agensi Jemputan'}*
+Program: *${ev.Nama_Acara}*
+Tarikh: *${ev.Tarikh_Paparan || ev.Tarikh_Mula}*
+Masa: *${ev.Masa}*
+Tempat: *${ev.Tempat_Venue} (${ev.Daerah})*
+
+Status Kehadiran: *${rsvp.Status_RSVP || 'HADIR (DISAHKAN)'}*
+Perincian Kelengkapan Dewan:
+• Meja Pameran: ${rsvp.bilMeja || 1} Unit
+• Kerusi Booth: ${rsvp.bilKerusi || 2} Unit
+• Plug Elektrik: ${rsvp.bilPlug || 1} Unit
+• Jumlah Pegawai: ${rsvp.jumlahWakil || 2} Orang
+• Pegawai Bertugas: ${rsvp.namaWakilHadir || '-'}
+• No. Plat Kenderaan: ${rsvp.noPlatKereta || 'BA 1234'} (Pintu Pagar B)
+
+Pautan Portal Rasmi: https://ceujss2026.github.io/rsvp-ceu-portal/`;
+
+  const waUrl = 'https://api.whatsapp.com/send?text=' + encodeURIComponent(message);
+  window.open(waUrl, '_blank');
+  showToast('Membuka WhatsApp untuk menghantar perakuan RSVP...', 'success');
+}
+
+function adminSendAgencyWhatsApp(agencyCode) {
+  const agency = (AppState.agencies || getPreseeded52Agencies()).find(a => a.kod === agencyCode);
+  if (!agency) return;
+
+  const ev = AppState.activeEvent || getFallbackEvents()[0];
+  const rsvp = (AppState.rsvps || []).find(r => r.Agensi_ID === agency.kod && r.Event_ID === ev.Event_ID);
+  const status = rsvp ? rsvp.Status_RSVP : 'Belum Sah';
+
+  const message = `*PERINGATAN RASMI UNIT PENDIDIKAN KERJAYA (CEU / JSS)*
+Kementerian Pendidikan Negara Brunei Darussalam
+
+Assalamu'alaikum Warahmatullahi Wabarakatuh,
+Kepada: Pegawai Perhubungan *${agency.namaAgensi || agency.nama}*
+
+Sukacita dimaklumkan mengenai pengesahan kehadiran (RSVP) & penyelarasan logistik bagi:
+📌 *${ev.Nama_Acara}*
+📅 Tarikh: *${ev.Tarikh_Paparan || ev.Tarikh_Mula}*
+⏰ Masa: *${ev.Masa}*
+📍 Venue: *${ev.Tempat_Venue}*
+Status Semasa Agensi: *${status}*
+
+Sila layari portal rasmi untuk mengesahkan permohonan meja pameran & pas kenderaan Pintu Pagar B:
+https://ceujss2026.github.io/rsvp-ceu-portal/
+
+Sekian, terima kasih.
+— Unit Pendidikan Kerjaya (UPK), Jabatan Sekolah-Sekolah`;
+
+  const waUrl = 'https://api.whatsapp.com/send?text=' + encodeURIComponent(message);
+  window.open(waUrl, '_blank');
+  showToast('Membuka WhatsApp peringatan untuk ' + (agency.namaAgensi || agency.nama), 'info');
+}
+
+function getInAppNotifications() {
+  const user = AppState.currentUser;
+  const ev = AppState.activeEvent || getFallbackEvents()[0];
+  const rsvps = AppState.rsvps || [];
+  const userRsvp = user ? rsvps.find(r => r.Event_ID === ev.Event_ID && r.Agensi_ID === user.id) : null;
+
+  const notifs = [
+    {
+      id: 'notif-1',
+      title: 'Peringatan Acara H-1: ' + (ev.Sekolah || ev.Nama_Acara),
+      time: '2 jam lepas',
+      desc: 'Program ' + ev.Nama_Acara + ' akan berlangsung pada ' + (ev.Tarikh_Paparan || ev.Tarikh_Mula) + ' jam ' + ev.Masa + '. Pas parking VIP Pintu Pagar B telah aktif.',
+      type: 'warning',
+      actions: [
+        { label: 'Pelan Dewan →', onclick: "openMapModal('floorPlan')" },
+        { label: 'Peta Parking →', onclick: "openMapModal('parking')" }
+      ]
+    },
+    {
+      id: 'notif-2',
+      title: 'Surat Perakuan Rasmi Diterbitkan',
+      time: '1 hari lepas',
+      desc: 'Surat perakuan logistik dan kelengkapan meja booth rasmi ber-QR dan kod HMAC telah sedia dimuat turun.',
+      type: 'info',
+      actions: [
+        { label: 'Papar Surat Ber-QR →', onclick: "openDocumentGeneratorModal()" }
+      ]
+    }
+  ];
+
+  if (userRsvp) {
+    notifs.unshift({
+      id: 'notif-rsvp',
+      title: 'Pengesahan Kehadiran RSVP Diterima: ' + (userRsvp.Status_RSVP || 'Hadir'),
+      time: 'Baru sahaja',
+      desc: 'Permohonan ' + (userRsvp.bilMeja || 1) + ' meja pameran dan ' + (userRsvp.bilKerusi || 2) + ' kerusi untuk ' + (user ? user.namaAgensi : 'Agensi') + ' telah disahkan sistem.',
+      type: 'success',
+      actions: [
+        { label: 'Hantar ke WhatsApp 📲', onclick: `shareRsvpWhatsApp('${ev.Event_ID}')` },
+        { label: 'Papar Surat Ber-QR →', onclick: "openDocumentGeneratorModal()" }
+      ]
+    });
+  }
+
+  return notifs;
+}
+
+function renderNotificationsScreen() {
+  const container = document.getElementById('notificationsListContainer');
+  if (!container) return;
+
+  const notifs = getInAppNotifications();
+  container.innerHTML = notifs.map(n => {
+    const borderCol = n.type === 'success' ? 'border-emerald-500' : (n.type === 'warning' ? 'border-amber-500' : 'border-[#006194]');
+    const iconName = n.type === 'success' ? 'check_circle' : (n.type === 'warning' ? 'alarm' : 'mark_email_read');
+    const iconBg = n.type === 'success' ? 'bg-emerald-50 text-emerald-600' : (n.type === 'warning' ? 'bg-amber-50 text-amber-600' : 'bg-sky-50 text-[#006194]');
+
+    return `
+      <div class="bg-white rounded-xl shadow-sm p-4 flex items-start gap-3 border-l-4 ${borderCol} border border-slate-100">
+        <div class="w-8 h-8 rounded-full ${iconBg} flex items-center justify-center shrink-0 mt-0.5">
+          <span class="material-symbols-outlined text-[18px]">${iconName}</span>
+        </div>
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center justify-between">
+            <h4 class="text-xs font-bold text-slate-900">${n.title}</h4>
+            <span class="text-[10px] text-slate-400 shrink-0 ml-2">${n.time}</span>
+          </div>
+          <p class="text-xs text-slate-600 mt-1 leading-relaxed">${n.desc}</p>
+          <div class="flex items-center gap-3 mt-2 flex-wrap">
+            ${n.actions.map(act => `
+              <button onclick="${act.onclick}" class="text-[11px] font-bold text-[#148e82] hover:text-[#0f6b62] hover:underline flex items-center gap-1">
+                <span>${act.label}</span>
+              </button>
+            `).join('')}
+          </div>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function markAllNotificationsRead() {
+  const hBadge = document.getElementById('headerNotifBadge');
+  const mBadge = document.getElementById('homeNotifBadge');
+  if (hBadge) hBadge.style.display = 'none';
+  if (mBadge) mBadge.style.display = 'none';
+  showToast('Semua notifikasi ditandakan telah dibaca.', 'success');
+}
+
+function renderProfileScreen() {
+  const user = AppState.currentUser;
+  const title = document.getElementById('profileAgencyTitle');
+  if (title && user) {
+    title.innerText = user.namaAgensi || 'UNIVERSITI BRUNEI DARUSSALAM';
+  }
+}
+
 function handleOfflineFallback(action, data) {
   if (action === 'login') {
     const u = String(data.username || '').toLowerCase();
@@ -2161,12 +2466,15 @@ function handleOfflineFallback(action, data) {
 window.addEventListener('DOMContentLoaded', () => {
   I18N.applyToDOM();
 
-  // Pastikan data 32 sesi takwim rasmi terkini sentiasa aktif
-  if (!AppState.events || AppState.events.length < 32) {
+  // Pastikan data 31 sesi takwim rasmi terkini sentiasa aktif & Maktab Duli ditapis
+  if (AppState.events && AppState.events.length > 0) {
+    AppState.events = AppState.events.filter(e => e.Event_ID !== 'EVT-FL-05' && !(e.Nama_Acara || '').includes('Maktab Duli'));
+  }
+  if (!AppState.events || AppState.events.length < 31) {
     AppState.events = getFallbackEvents();
     localStorage.setItem('ceu_cache_events', JSON.stringify(AppState.events));
   }
-  if (!AppState.activeEvent && AppState.events.length > 0) {
+  if (!AppState.activeEvent || AppState.activeEvent.Event_ID === 'EVT-FL-05' || (AppState.activeEvent.Nama_Acara || '').includes('Maktab Duli')) {
     AppState.activeEvent = AppState.events[0];
   }
 
