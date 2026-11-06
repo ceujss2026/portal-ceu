@@ -9,9 +9,10 @@
 // ============================================
 // 1. STATE GLOBAL & CACHING SWR (Client-Side)
 // ============================================
+// Sesi log masuk dikunci pada sessionStorage agar log keluar berlaku secara automatik apabila tetingkap/pelayar ditutup
 const AppState = {
-  currentUser: JSON.parse(localStorage.getItem('ceu_user') || 'null'),
-  token: localStorage.getItem('ceu_token') || '',
+  currentUser: JSON.parse(sessionStorage.getItem('ceu_user') || 'null'),
+  token: sessionStorage.getItem('ceu_token') || '',
   currentView: 'home',
   events: JSON.parse(localStorage.getItem('ceu_cache_events') || '[]'),
   rsvps: JSON.parse(localStorage.getItem('ceu_cache_rsvps') || '[]'),
@@ -503,8 +504,14 @@ async function handleLoginSubmit(event) {
   if (res.success) {
     AppState.currentUser = res.user;
     AppState.token = res.token;
-    localStorage.setItem('ceu_user', JSON.stringify(res.user));
-    localStorage.setItem('ceu_token', res.token);
+    sessionStorage.setItem('ceu_user', JSON.stringify(res.user));
+    sessionStorage.setItem('ceu_token', res.token);
+    // Pastikan tiada sesi kekal tersisa dalam localStorage (auto log keluar apabila tetingkap ditutup)
+    localStorage.removeItem('ceu_user');
+    localStorage.removeItem('ceu_token');
+
+    // Mulakan pemasa aktiviti sesi
+    if (typeof resetInactivityTimer === 'function') resetInactivityTimer();
 
     showToast(isEn ? 'Login successful!' : (res.message || 'Log masuk berjaya!'), 'success');
 
@@ -522,14 +529,21 @@ async function handleLoginSubmit(event) {
   }
 }
 
-function logoutUser() {
+function logoutUser(silent = false) {
   const isEn = typeof I18N !== 'undefined' && I18N.currentLang === 'EN';
   AppState.currentUser = null;
   AppState.token = '';
+  sessionStorage.removeItem('ceu_user');
+  sessionStorage.removeItem('ceu_token');
   localStorage.removeItem('ceu_user');
   localStorage.removeItem('ceu_token');
-  showToast(isEn ? 'You have logged out successfully.' : 'Anda telah berjaya log keluar.', 'info');
-  navigateTo('login');
+  if (typeof _inactivityTimer !== 'undefined' && _inactivityTimer) {
+    clearTimeout(_inactivityTimer);
+  }
+  if (!silent) {
+    showToast(isEn ? 'You have logged out successfully.' : 'Anda telah berjaya log keluar.', 'info');
+    navigateTo('login');
+  }
 }
 
 // ============================================
@@ -3847,8 +3861,48 @@ function handleOfflineFallback(action, data) {
   return { success: true, message: 'Operasi berjaya.' };
 }
 
+// ============================================
+// PENGURUSAN KESELAMATAN SESI & LOG KELUAR AUTOMATIK
+// ============================================
+let _inactivityTimer = null;
+const INACTIVITY_TIMEOUT_MS = 30 * 60 * 1000; // 30 minit
+
+function resetInactivityTimer() {
+  if (_inactivityTimer) clearTimeout(_inactivityTimer);
+  if (!AppState.currentUser) return;
+
+  _inactivityTimer = setTimeout(() => {
+    if (AppState.currentUser) {
+      const isEn = typeof I18N !== 'undefined' && I18N.currentLang === 'EN';
+      logoutUser(true);
+      showToast(
+        isEn ? 'Session expired due to inactivity. Please log in again.' : 'Sesi anda tamat kerana tiada aktiviti. Sila log masuk semula.',
+        'warning'
+      );
+      navigateTo('login');
+    }
+  }, INACTIVITY_TIMEOUT_MS);
+}
+
+// Pantau aktiviti pengguna
+if (typeof window !== 'undefined') {
+  ['mousedown', 'keydown', 'touchstart', 'scroll'].forEach(evt => {
+    window.addEventListener(evt, resetInactivityTimer, { passive: true });
+  });
+
+  // Pembersihan sesi apabila tetingkap ditutup
+  window.addEventListener('pagehide', () => {
+    localStorage.removeItem('ceu_user');
+    localStorage.removeItem('ceu_token');
+  });
+}
+
 // Inisialisasi Aplikasi Semasa Dimuatkan
 window.addEventListener('DOMContentLoaded', () => {
+  // Keselamatan Sesi: Hapuskan sebarang token sesi lama dari localStorage kekal
+  localStorage.removeItem('ceu_user');
+  localStorage.removeItem('ceu_token');
+
   I18N.applyToDOM();
 
   // Pastikan data 31 sesi takwim rasmi terkini sentiasa aktif & Maktab Duli ditapis
@@ -3871,8 +3925,9 @@ window.addEventListener('DOMContentLoaded', () => {
   const hash = window.location.hash.replace('#', '') || (AppState.currentUser ? (AppState.currentUser.role === 'ADMIN' ? 'admin' : 'home') : 'login');
   navigateTo(hash);
 
-  // Ambil data senyap jika ada sesi aktif
+  // Ambil data senyap jika ada sesi aktif dan mulakan pemasa aktiviti
   if (AppState.currentUser) {
+    resetInactivityTimer();
     fetchInitialDataSilently();
   }
 });
