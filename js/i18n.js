@@ -126,7 +126,7 @@ const I18N = {
       cardHelpSub: 'Hubungi Urus Setia UPK',
       cardHelpPhone: 'Talian CEU:',
       cardHelpEmail: 'Emel Rasmi:',
-      cardHelpBtn: 'Borang RSVP & Lantik Wakil',
+      cardHelpBtn: 'Kemaskini Status RSVP',
 
       // RSVP Form Screen
       rsvpFormTitle: 'Pengesahan RSVP & Permohonan Logistik',
@@ -138,8 +138,10 @@ const I18N = {
       rsvpAttendingSub: 'Menyertai Pameran Booth',
       rsvpNotAttending: 'Tidak Hadir (Not Attending)',
       rsvpNotAttendingSub: 'Kekangan jadual',
-      rsvpRep: 'Lantik Wakil Rasmi',
-      rsvpRepSub: 'Wakil menggantikan',
+      rsvpEditBannerTitle: 'Mod Kemaskini RSVP',
+      rsvpEditBannerDesc: 'Anda sedang mengemaskini maklumat RSVP yang telah direkodkan sebelumnya. Sebarang perubahan boleh dihantar semula.',
+      notAttendingNoticeTitle: 'Pengesahan Tidak Hadir',
+      rsvpNotAttendingNoticeText: 'Agensi anda mengesahkan tidak dapat menyertai sesi pameran ini kerana kekangan jadual. Tiada kelengkapan dewan (meja/kerusi/plug) diperuntukkan.',
       rsvpLogisticsTitle: 'Keperluan Logistik Dewan Sekolah',
       rsvpLogisticsSub: 'Pihak penganjur akan menyediakan kelengkapan berikut di dewan:',
       labelTables: 'Bilangan Meja',
@@ -156,6 +158,12 @@ const I18N = {
       declarationText: 'Pihak agensi mengesahkan maklumat permohonan logistik ini adalah muktamad.',
       btnCancel: 'Batal',
       btnSubmitRsvp: 'Hantar Pengesahan (Submit RSVP)',
+      btnSubmitRsvpTextNew: 'Hantar Pengesahan (Submit RSVP)',
+      btnSubmitRsvpTextEdit: 'Kemaskini Pengesahan RSVP',
+      rsvpSuccessModalTitle: 'RSVP Berjaya Direkodkan!',
+      rsvpSuccessModalTitleEdit: 'RSVP Berjaya Dikemaskini!',
+      rsvpSuccessModalSub: 'Data kehadiran telah disimpan dalam sistem.',
+      btnSendWhatsAppModalText: 'Hantar Notifikasi ke WhatsApp (+6738669690)',
 
       // Admin Dashboard
       adminTitle: 'Papan Pemuka Pentadbir CEU',
@@ -380,7 +388,7 @@ const I18N = {
       cardHelpSub: 'Contact CEU Secretariat',
       cardHelpPhone: 'CEU Hotline:',
       cardHelpEmail: 'Official Email:',
-      cardHelpBtn: 'RSVP Form & Appoint Rep',
+      cardHelpBtn: 'Update RSVP Status',
 
       // RSVP Form Screen
       rsvpFormTitle: 'RSVP Confirmation & Logistics Request',
@@ -392,8 +400,10 @@ const I18N = {
       rsvpAttendingSub: 'Participating in Exhibition Booth',
       rsvpNotAttending: 'Not Attending',
       rsvpNotAttendingSub: 'Schedule constraints',
-      rsvpRep: 'Appoint Official Representative',
-      rsvpRepSub: 'Representative will attend',
+      rsvpEditBannerTitle: 'Edit RSVP Mode',
+      rsvpEditBannerDesc: 'You are editing your RSVP confirmation for this session. Any changes will be recorded.',
+      notAttendingNoticeTitle: 'Not Attending Confirmation',
+      rsvpNotAttendingNoticeText: 'Your agency has confirmed not attending this exhibition session due to schedule constraints. No hall logistics (tables/chairs/plugs) will be allocated.',
       rsvpLogisticsTitle: 'School Hall Logistics Requirements',
       rsvpLogisticsSub: 'The host school will prepare the following items at your booth:',
       labelTables: 'Number of Tables',
@@ -410,6 +420,12 @@ const I18N = {
       declarationText: 'The agency confirms that this logistics request is final and accurate.',
       btnCancel: 'Cancel',
       btnSubmitRsvp: 'Submit RSVP Confirmation',
+      btnSubmitRsvpTextNew: 'Submit RSVP Confirmation',
+      btnSubmitRsvpTextEdit: 'Update RSVP Confirmation',
+      rsvpSuccessModalTitle: 'RSVP Successfully Recorded!',
+      rsvpSuccessModalTitleEdit: 'RSVP Successfully Updated!',
+      rsvpSuccessModalSub: 'Attendance details have been saved to the system.',
+      btnSendWhatsAppModalText: 'Send Notification to WhatsApp (+6738669690)',
 
       // Admin Dashboard
       adminTitle: 'CEU Administrator Dashboard',
@@ -809,11 +825,16 @@ const I18N = {
     const sCard3Email = document.getElementById('sidebarCard3EmailLabel');
     if (sCard3Email) sCard3Email.innerText = isEn ? 'Official Email:' : 'Emel Rasmi:';
     const sCard3Btn = document.getElementById('sidebarCard3BtnText');
-    if (sCard3Btn) sCard3Btn.innerText = isEn ? 'RSVP Form & Appoint Rep' : 'Borang RSVP & Lantik Wakil';
+    if (sCard3Btn) sCard3Btn.innerText = isEn ? 'Update RSVP Status' : 'Kemaskini Status RSVP';
 
     // --- Skrin Borang RSVP ---
     const rHeaderTitle = document.getElementById('rsvpFormHeaderTitle');
     if (rHeaderTitle) rHeaderTitle.innerText = isEn ? 'RSVP Confirmation & Logistics Request' : 'Pengesahan RSVP & Permohonan Logistik';
+
+    const rEditTitle = document.getElementById('rsvpEditBannerTitle');
+    if (rEditTitle) rEditTitle.innerText = isEn ? 'Edit RSVP Mode' : 'Mod Kemaskini RSVP';
+    const rEditDesc = document.getElementById('rsvpEditBannerDesc');
+    if (rEditDesc) rEditDesc.innerText = isEn ? 'You are editing your RSVP confirmation for this session. Any changes will be recorded.' : 'Anda sedang mengemaskini maklumat RSVP yang telah direkodkan sebelumnya. Sebarang perubahan boleh dihantar semula.';
 
     const rSessTitle = document.getElementById('rsvpSessionSelectTitle');
     if (rSessTitle) rSessTitle.innerText = isEn ? 'Select School / Program Session *' : 'Pilih Sesi Sekolah / Program *';
@@ -825,24 +846,22 @@ const I18N = {
     const optAttending = document.getElementById('optStatusAttending');
     if (optAttending) {
       const title = optAttending.querySelector('.font-bold');
-      const sub = optAttending.querySelector('.text-on-surface-variant');
+      const sub = optAttending.querySelector('.text-slate-500') || optAttending.querySelector('.text-on-surface-variant');
       if (title) title.innerText = isEn ? 'Attending' : 'Hadir (Attending)';
       if (sub) sub.innerText = isEn ? 'Participating in Exhibition Booth' : 'Menyertai Pameran Booth';
     }
     const optNotAttending = document.getElementById('optStatusNotAttending');
     if (optNotAttending) {
       const title = optNotAttending.querySelector('.font-bold');
-      const sub = optNotAttending.querySelector('.text-on-surface-variant');
+      const sub = optNotAttending.querySelector('.text-slate-500') || optNotAttending.querySelector('.text-on-surface-variant');
       if (title) title.innerText = isEn ? 'Not Attending' : 'Tidak Hadir (Not Attending)';
-      if (sub) sub.innerText = isEn ? 'Schedule constraint' : 'Kekangan jadual';
+      if (sub) sub.innerText = isEn ? 'Schedule constraints' : 'Kekangan jadual';
     }
-    const optRep = document.getElementById('optStatusRep');
-    if (optRep) {
-      const title = optRep.querySelector('.font-bold');
-      const sub = optRep.querySelector('.text-on-surface-variant');
-      if (title) title.innerText = isEn ? 'Appoint Official Representative' : 'Lantik Wakil Rasmi';
-      if (sub) sub.innerText = isEn ? 'Representative will attend' : 'Wakil menggantikan';
-    }
+
+    const notAttTitle = document.getElementById('notAttendingNoticeTitle');
+    if (notAttTitle) notAttTitle.innerText = isEn ? 'Not Attending Confirmation' : 'Pengesahan Tidak Hadir';
+    const notAttText = document.getElementById('rsvpNotAttendingNoticeText');
+    if (notAttText) notAttText.innerText = isEn ? 'Your agency has confirmed not attending this exhibition session due to schedule constraints. No hall logistics (tables/chairs/plugs) will be allocated.' : 'Agensi anda mengesahkan tidak dapat menyertai sesi pameran ini kerana kekangan jadual. Tiada kelengkapan dewan (meja/kerusi/plug) diperuntukkan.';
 
     const rLogisticsHead = document.getElementById('rsvpLogisticsHeader');
     if (rLogisticsHead) rLogisticsHead.innerText = isEn ? 'School Hall Logistics Requirements' : 'Keperluan Logistik Dewan Sekolah';
@@ -882,13 +901,26 @@ const I18N = {
         : 'Pihak agensi mengesahkan maklumat permohonan logistik ini adalah muktamad.';
     }
 
-    const btnCancelR = document.getElementById('btnCancelRsvp');
+    const btnCancelR = document.getElementById('btnCancelRsvpText') || document.getElementById('btnCancelRsvp');
     if (btnCancelR) btnCancelR.innerText = isEn ? 'Cancel' : 'Batal';
 
-    const btnSubmitRsvp = document.getElementById('btnSubmitRsvpAction');
+    const btnSubmitRsvp = document.getElementById('btnSubmitRsvpText') || document.getElementById('btnSubmitRsvpAction');
     if (btnSubmitRsvp) {
-      btnSubmitRsvp.innerText = isEn ? 'Submit RSVP Confirmation' : 'Hantar Pengesahan (Submit RSVP)';
+      const isEdit = (typeof AppState !== 'undefined' && AppState.rsvps && AppState.activeEvent && AppState.currentUser)
+        ? AppState.rsvps.some(r => r.Event_ID === AppState.activeEvent.Event_ID && r.Agensi_ID === AppState.currentUser.id)
+        : false;
+      btnSubmitRsvp.innerText = isEdit
+        ? (isEn ? 'Update RSVP Confirmation' : 'Kemaskini Pengesahan RSVP')
+        : (isEn ? 'Submit RSVP Confirmation' : 'Hantar Pengesahan (Submit RSVP)');
     }
+
+    // Modal WhatsApp Success
+    const waModalBtn = document.getElementById('btnSendWhatsAppModalText');
+    if (waModalBtn) waModalBtn.innerText = isEn ? 'Send Notification to WhatsApp (+6738669690)' : 'Hantar Notifikasi ke WhatsApp (+6738669690)';
+    const waDocBtn = document.getElementById('btnRsvpSuccessViewLetter');
+    if (waDocBtn) waDocBtn.innerText = isEn ? 'Official Letter' : 'Surat Rasmi';
+    const waDoneBtn = document.getElementById('btnRsvpSuccessDone');
+    if (waDoneBtn) waDoneBtn.innerText = isEn ? 'Done (Calendar)' : 'Selesai (Takwim)';
 
     const lParkPass = document.getElementById('labelParkingPassHeader');
     if (lParkPass) lParkPass.innerText = isEn ? 'OFFICIAL AGENCY PARKING PASS' : 'PAS PARKING RASMI AGENSI';
