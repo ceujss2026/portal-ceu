@@ -13,6 +13,7 @@ const STATIC_ASSETS = [
   './js/app.js',
   './js/i18n.js',
   './manifest.json',
+  './apple-touch-icon.png',
   './icon-192.png',
   './icon-512.png'
 ];
