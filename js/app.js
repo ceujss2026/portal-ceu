@@ -1537,33 +1537,209 @@ function renderArchiveScreen() {
 // ============================================
 // 10. RENDERING SKRIN MOD PENTADBIR: PAPAN PEMUKA & URUS PROGRAM
 // ============================================
+let adminSelectedSchoolId = 'EVT-PHT-01';
+let adminDashboardViewMode = 'table';
 let adminCurrentFilter = 'ALL';
 
+function getAgencyRsvpForSchool(agencyKod, eventId) {
+  // 1. Semak rekod tersimpan eksplisit dalam AppState.rsvps
+  if (AppState.rsvps && Array.isArray(AppState.rsvps)) {
+    const found = AppState.rsvps.find(r => r.Event_ID === eventId && (r.Agensi_ID === agencyKod || r.agensiId === agencyKod));
+    if (found) return found;
+  }
+
+  // 2. Rujuk data agensi asas untuk paparan realistik mengikut sekolah
+  const agencies = (AppState.agenciesList && AppState.agenciesList.length === 50)
+    ? AppState.agenciesList
+    : getPreseededAgencies();
+  const agency = agencies.find(a => a.kod === agencyKod);
+
+  if (!agency) {
+    return {
+      Event_ID: eventId,
+      Agensi_ID: agencyKod,
+      Nama_Agensi: 'Agensi ' + agencyKod,
+      Status_RSVP: 'Belum Sah',
+      bilMeja: 1,
+      bilKerusi: 2,
+      bilPlug: 0,
+      namaWakilHadir: '-',
+      jumlahWakil: 2
+    };
+  }
+
+  return {
+    Event_ID: eventId,
+    Agensi_ID: agency.kod,
+    Nama_Agensi: agency.namaAgensi,
+    Status_RSVP: agency.statusRsvp || 'Hadir',
+    bilMeja: agency.bilMeja || 1,
+    bilKerusi: agency.bilKerusi || 2,
+    bilPlug: agency.bilPlug !== undefined ? agency.bilPlug : 1,
+    namaWakilHadir: agency.namaWakilHadir || '-',
+    jumlahWakil: agency.jumlahWakil || 2
+  };
+}
+
+function populateAdminSchoolSelector() {
+  const selector = document.getElementById('adminSchoolSelector');
+  if (!selector) return;
+
+  const isEn = typeof I18N !== 'undefined' && I18N.currentLang === 'EN';
+  const events = sortEventsChronologically(AppState.events && AppState.events.length > 0 ? AppState.events : getFallbackEvents());
+
+  if (!adminSelectedSchoolId || (adminSelectedSchoolId !== 'ALL' && !events.some(e => e.Event_ID === adminSelectedSchoolId))) {
+    adminSelectedSchoolId = events[0] ? events[0].Event_ID : 'EVT-PHT-01';
+  }
+
+  let html = `<option value="ALL" ${adminSelectedSchoolId === 'ALL' ? 'selected' : ''}>🌟 ${isEn ? 'All 31 Schools (Overall Summary)' : 'Semua 31 Sekolah / Sesi (Ringkasan Keseluruhan)'}</option>`;
+
+  events.forEach((ev, idx) => {
+    const isSel = (adminSelectedSchoolId === ev.Event_ID);
+    const dateStr = formatDisplayDate(ev.Tarikh_Paparan || ev.Tarikh_Mula, isEn);
+    const catShort = (ev.Kategori_Program || '').includes('Hala Tuju') ? 'PHT' : 'FutureLink';
+    html += `<option value="${ev.Event_ID}" ${isSel ? 'selected' : ''}>${idx + 1}. [${catShort}] ${dateStr} • ${ev.Sekolah || ev.Nama_Acara} (${ev.Daerah})</option>`;
+  });
+
+  selector.innerHTML = html;
+}
+
+function onAdminSchoolSelect(eventId) {
+  adminSelectedSchoolId = eventId || 'ALL';
+  renderAdminDashboard();
+}
+
+function setAdminDashboardView(mode) {
+  adminDashboardViewMode = mode;
+  const btnTable = document.getElementById('btnAdminViewTable');
+  const btnGrid = document.getElementById('btnAdminViewGrid');
+  const tableCont = document.getElementById('adminTableContainerView');
+  const gridCont = document.getElementById('adminGridContainerView');
+
+  if (mode === 'grid') {
+    if (btnGrid) {
+      btnGrid.className = 'px-3 py-2 text-xs font-bold rounded-lg bg-white text-[#006194] shadow-sm flex items-center gap-1.5 transition-all';
+    }
+    if (btnTable) {
+      btnTable.className = 'px-3 py-2 text-xs font-semibold rounded-lg text-slate-600 hover:text-slate-900 flex items-center gap-1.5 transition-all';
+    }
+    if (tableCont) tableCont.classList.add('hidden');
+    if (gridCont) gridCont.classList.remove('hidden');
+    renderAdminSchoolsGrid();
+  } else {
+    if (btnTable) {
+      btnTable.className = 'px-3 py-2 text-xs font-bold rounded-lg bg-white text-[#006194] shadow-sm flex items-center gap-1.5 transition-all';
+    }
+    if (btnGrid) {
+      btnGrid.className = 'px-3 py-2 text-xs font-semibold rounded-lg text-slate-600 hover:text-slate-900 flex items-center gap-1.5 transition-all';
+    }
+    if (tableCont) tableCont.classList.remove('hidden');
+    if (gridCont) gridCont.classList.add('hidden');
+    renderAdminAgenciesTable();
+  }
+}
+
+function selectSchoolAndShowTable(eventId) {
+  const sel = document.getElementById('adminSchoolSelector');
+  if (sel) sel.value = eventId;
+  onAdminSchoolSelect(eventId);
+  setAdminDashboardView('table');
+  const table = document.getElementById('adminTableContainerView');
+  if (table) table.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
 async function renderAdminDashboard() {
+  const isEn = typeof I18N !== 'undefined' && I18N.currentLang === 'EN';
   const agencies = (AppState.agenciesList && AppState.agenciesList.length === 50) 
     ? AppState.agenciesList 
     : getPreseededAgencies();
   AppState.agenciesList = agencies;
-  const isEn = typeof I18N !== 'undefined' && I18N.currentLang === 'EN';
 
-  // Kiraan metrik agregat
+  const events = sortEventsChronologically(AppState.events && AppState.events.length > 0 ? AppState.events : getFallbackEvents());
+  populateAdminSchoolSelector();
+
+  // Acara terpilih
+  const isAll = (adminSelectedSchoolId === 'ALL');
+  const currentEvent = events.find(e => e.Event_ID === adminSelectedSchoolId) || events[0];
+
+  // Kemaskini Kapsul Info Sekolah Terpilih
+  const catBadge = document.getElementById('adminSchoolCategoryBadge');
+  const distBadge = document.getElementById('adminSchoolDistrictBadge');
+  const titleEl = document.getElementById('adminSchoolCapsuleTitle');
+  const dateEl = document.getElementById('adminSchoolCapsuleDate');
+  const timeEl = document.getElementById('adminSchoolCapsuleTime');
+  const venueEl = document.getElementById('adminSchoolCapsuleVenue');
+
+  if (isAll) {
+    if (catBadge) catBadge.innerText = isEn ? 'All Programs' : 'Semua Program';
+    if (distBadge) distBadge.innerText = isEn ? '4 Districts (Nationwide)' : '4 Daerah (Seluruh Negara)';
+    if (titleEl) titleEl.innerText = isEn ? 'Comprehensive Summary of 31 School Sessions' : 'Ringkasan Menyeluruh 31 Sesi Sekolah & Institusi';
+    if (dateEl) dateEl.innerText = '📅 Jan – Mei 2027';
+    if (timeEl) timeEl.innerText = '🕒 Pagi & Petang';
+    if (venueEl) venueEl.innerHTML = `<span class="material-symbols-outlined text-[13px] text-slate-400">location_on</span>31 Dewan Sekolah & Institusi`;
+  } else if (currentEvent) {
+    if (catBadge) catBadge.innerText = currentEvent.Kategori_Program || 'Program Hala Tuju';
+    if (distBadge) distBadge.innerText = (isEn ? `${currentEvent.Daerah} District` : `Daerah ${currentEvent.Daerah}`);
+    if (titleEl) titleEl.innerText = currentEvent.Sekolah || currentEvent.Nama_Acara;
+    if (dateEl) dateEl.innerText = '📅 ' + formatDisplayDate(currentEvent.Tarikh_Paparan || currentEvent.Tarikh_Mula, isEn);
+    if (timeEl) timeEl.innerText = '🕒 ' + currentEvent.Masa;
+    if (venueEl) venueEl.innerHTML = `<span class="material-symbols-outlined text-[13px] text-slate-400">location_on</span>${currentEvent.Tempat_Venue}`;
+  }
+
+  // Kiraan metrik mengikut sekolah terpilih
   const totalAgencies = agencies.length;
-  const hadirAgencies = agencies.filter(a => a.statusRsvp === 'Hadir').length;
+  let hadirAgencies = 0;
+  let totalTables = 0;
+  let totalPlugs = 0;
+
+  agencies.forEach(a => {
+    const r = isAll
+      ? (a.statusRsvp === 'Hadir' ? a : { Status_RSVP: a.statusRsvp })
+      : getAgencyRsvpForSchool(a.kod, currentEvent.Event_ID);
+
+    const isHadir = (r.Status_RSVP === 'Hadir' || r.Status_RSVP === 'Hadir (Disahkan)');
+    if (isHadir) {
+      hadirAgencies++;
+      totalTables += (r.bilMeja !== undefined ? r.bilMeja : 1);
+      totalPlugs += (r.bilPlug !== undefined ? r.bilPlug : 1);
+    }
+  });
+
   const responseRate = Math.round((hadirAgencies / totalAgencies) * 100);
-  const totalTables = agencies.reduce((acc, a) => acc + (a.statusRsvp === 'Hadir' ? (a.bilMeja || 1) : 0), 0);
-  const totalPlugs = agencies.reduce((acc, a) => acc + (a.statusRsvp === 'Hadir' && a.bilPlug ? a.bilPlug : 0), 0);
 
   const totalAgenciesEl = document.getElementById('adminStatTotalAgencies');
   const responseRateEl = document.getElementById('adminStatResponseRate');
   const tablesTotalEl = document.getElementById('adminStatTotalTables');
   const plugsTotalEl = document.getElementById('adminStatTotalPlugs');
 
+  const statSub1 = document.getElementById('adminStatSub1');
+  const statSub2 = document.getElementById('adminStatSub2');
+  const statSub3 = document.getElementById('adminStatSub3');
+  const statSub4 = document.getElementById('adminStatSub4');
+
   if (totalAgenciesEl) totalAgenciesEl.innerText = totalAgencies;
-  if (responseRateEl) responseRateEl.innerText = responseRate + '%';
+  if (responseRateEl) responseRateEl.innerText = `${hadirAgencies} / 50 (${responseRate}%)`;
   if (tablesTotalEl) tablesTotalEl.innerText = totalTables + (isEn ? ' Units' : ' Unit');
   if (plugsTotalEl) plugsTotalEl.innerText = totalPlugs + (isEn ? ' Units' : ' Unit');
 
-  renderAdminAgenciesTable();
+  if (statSub1) statSub1.innerText = isAll ? (isEn ? 'Nationwide Brunei' : 'Seluruh Negara Brunei') : (currentEvent.Sekolah || currentEvent.Nama_Acara);
+  if (statSub2) statSub2.innerText = isEn ? 'Confirmed Attending' : 'Disahkan Hadir (RSVP)';
+  if (statSub3) statSub3.innerText = isEn ? 'Booth Tables Requested' : 'Meja Pameran Diperlukan';
+  if (statSub4) statSub4.innerText = isEn ? 'Power Plugs Requested' : 'Soket Elektrik & Parking';
+
+  // Tajuk jadual mengikut sekolah terpilih
+  const aTTitle = document.getElementById('adminTableTitle');
+  if (aTTitle) {
+    const schoolName = isAll ? (isEn ? 'All 31 Schools (Overall Summary)' : 'Semua 31 Sekolah (Ringkasan Keseluruhan)') : (currentEvent.Sekolah || currentEvent.Nama_Acara);
+    aTTitle.innerHTML = `<span class="w-2.5 h-2.5 rounded-full bg-[#148e82]"></span>${isEn ? 'RSVP Confirmation of 50 Agencies — ' : 'Status Pengesahan RSVP 50 Agensi — '}<span class="text-[#006194]">${schoolName}</span>`;
+  }
+
+  // Paparkan mod paparan yang aktif
+  if (adminDashboardViewMode === 'grid') {
+    renderAdminSchoolsGrid();
+  } else {
+    renderAdminAgenciesTable();
+  }
 }
 
 function renderAdminAgenciesTable() {
@@ -1571,31 +1747,70 @@ function renderAdminAgenciesTable() {
   if (!container) return;
   const isEn = typeof I18N !== 'undefined' && I18N.currentLang === 'EN';
 
+  const events = sortEventsChronologically(AppState.events && AppState.events.length > 0 ? AppState.events : getFallbackEvents());
+  const currentEvent = events.find(e => e.Event_ID === adminSelectedSchoolId) || events[0];
+
   const searchInput = document.getElementById('adminAgencySearchInput');
   const query = searchInput ? searchInput.value.toLowerCase().trim() : '';
 
-  let list = AppState.agenciesList || getPreseededAgencies();
+  let list = AppState.agenciesList && AppState.agenciesList.length === 50 ? AppState.agenciesList : getPreseededAgencies();
+
+  // Sediakan rekod RSVP bagi sekolah terpilih untuk setiap agensi
+  const mappedList = list.map(a => {
+    const r = getAgencyRsvpForSchool(a.kod, currentEvent.Event_ID);
+    return {
+      kod: a.kod,
+      namaAgensi: a.namaAgensi,
+      user: a.user,
+      kategori: a.kategori,
+      statusRsvp: r.Status_RSVP,
+      bilMeja: r.bilMeja !== undefined ? r.bilMeja : 1,
+      bilKerusi: r.bilKerusi !== undefined ? r.bilKerusi : 2,
+      bilPlug: r.bilPlug !== undefined ? r.bilPlug : 1,
+      namaWakilHadir: r.namaWakilHadir || '-',
+      jumlahWakil: r.jumlahWakil || 2
+    };
+  });
 
   // 1. Penapis Status
+  let filtered = mappedList;
   if (adminCurrentFilter === 'Hadir') {
-    list = list.filter(a => a.statusRsvp === 'Hadir');
+    filtered = filtered.filter(a => a.statusRsvp === 'Hadir' || a.statusRsvp === 'Hadir (Disahkan)');
   } else if (adminCurrentFilter === 'Belum') {
-    list = list.filter(a => a.statusRsvp !== 'Hadir');
+    filtered = filtered.filter(a => a.statusRsvp !== 'Hadir' && a.statusRsvp !== 'Hadir (Disahkan)' && a.statusRsvp !== 'Tidak Hadir');
+  } else if (adminCurrentFilter === 'Tidak') {
+    filtered = filtered.filter(a => a.statusRsvp === 'Tidak Hadir');
   }
 
   // 2. Carian Teks
   if (query) {
-    list = list.filter(a => 
+    filtered = filtered.filter(a => 
       (a.namaAgensi || '').toLowerCase().includes(query) ||
       (a.kod || '').toLowerCase().includes(query) ||
-      (a.user || '').toLowerCase().includes(query)
+      (a.user || '').toLowerCase().includes(query) ||
+      (a.namaWakilHadir || '').toLowerCase().includes(query)
     );
   }
 
-  if (list.length === 0) {
+  // Kemaskini jumlah pada butang penapis
+  const hadirCount = mappedList.filter(a => a.statusRsvp === 'Hadir' || a.statusRsvp === 'Hadir (Disahkan)').length;
+  const belumCount = mappedList.filter(a => a.statusRsvp !== 'Hadir' && a.statusRsvp !== 'Hadir (Disahkan)' && a.statusRsvp !== 'Tidak Hadir').length;
+  const tidakCount = mappedList.filter(a => a.statusRsvp === 'Tidak Hadir').length;
+
+  const btnAll = document.getElementById('filterBtn_ALL');
+  const btnHadir = document.getElementById('filterBtn_Hadir');
+  const btnBelum = document.getElementById('filterBtn_Belum');
+  const btnTidak = document.getElementById('filterBtn_Tidak');
+
+  if (btnAll) btnAll.innerText = `${isEn ? 'All' : 'Semua'} (50)`;
+  if (btnHadir) btnHadir.innerText = `${isEn ? 'Attending' : 'Hadir'} (${hadirCount})`;
+  if (btnBelum) btnBelum.innerText = `${isEn ? 'Pending' : 'Belum Sah'} (${belumCount})`;
+  if (btnTidak) btnTidak.innerText = `${isEn ? 'Not Attending' : 'Tidak Hadir'} (${tidakCount})`;
+
+  if (filtered.length === 0) {
     container.innerHTML = `
       <tr>
-        <td colspan="8" class="p-8 text-center text-slate-400">
+        <td colspan="9" class="p-8 text-center text-slate-400">
           <span class="material-symbols-outlined text-[32px] block mb-1">search_off</span>
           ${isEn ? 'No agencies found matching this filter.' : 'Tiada agensi ditemui padanan tapisan ini.'}
         </td>
@@ -1604,8 +1819,8 @@ function renderAdminAgenciesTable() {
     return;
   }
 
-  container.innerHTML = list.map((a, i) => {
-    const isHadir = a.statusRsvp === 'Hadir';
+  container.innerHTML = filtered.map((a, i) => {
+    const isHadir = a.statusRsvp === 'Hadir' || a.statusRsvp === 'Hadir (Disahkan)';
     const isTidakHadir = a.statusRsvp === 'Tidak Hadir';
     
     let badgeClass = 'bg-amber-100 text-amber-800 border border-amber-200';
@@ -1630,10 +1845,11 @@ function renderAdminAgenciesTable() {
           </div>
         </td>
         <td class="p-3">
-          <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold ${badgeClass}">
+          <button type="button" onclick="adminQuickToggleRsvp('${a.kod}', '${currentEvent.Event_ID}')" title="${isEn ? 'Click to toggle status (Attending / Not Attending / Pending)' : 'Klik untuk tukar status pantas (Hadir / Tidak Hadir / Belum Sah)'}" class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold ${badgeClass} hover:opacity-80 transition-opacity">
             <span class="w-1.5 h-1.5 rounded-full ${isHadir ? 'bg-emerald-600' : (isTidakHadir ? 'bg-rose-600' : 'bg-amber-600')}"></span>
-            ${statusLabel}
-          </span>
+            <span>${statusLabel}</span>
+            <span class="material-symbols-outlined text-[11px] text-slate-400">sync</span>
+          </button>
         </td>
         <td class="p-3 text-center font-semibold text-slate-700">
           ${isHadir ? (a.bilMeja + (isEn ? ' T / ' : ' M / ') + a.bilKerusi + (isEn ? ' C' : ' K')) : '-'}
@@ -1642,6 +1858,11 @@ function renderAdminAgenciesTable() {
           ${isHadir && a.bilPlug > 0 
             ? '<span class="inline-flex items-center gap-0.5 text-emerald-700 font-bold bg-emerald-50 px-2 py-0.5 rounded-full text-[10px]"><span class="material-symbols-outlined text-[13px]">bolt</span>' + a.bilPlug + (isEn ? ' Sockets' : ' Soket') + '</span>'
             : '<span class="text-slate-300">-</span>'}
+        </td>
+        <td class="p-3">
+          <span class="text-[11px] text-slate-700 max-w-xs truncate block" title="${a.namaWakilHadir}">
+            ${isHadir ? (a.namaWakilHadir !== '-' ? a.namaWakilHadir : (isEn ? 'Delegates assigned' : 'Wakil ditugaskan')) : '-'}
+          </span>
         </td>
         <td class="p-3">
           ${isHadir ? `
@@ -1653,11 +1874,11 @@ function renderAdminAgenciesTable() {
         </td>
         <td class="p-3 text-right">
           <div class="flex items-center justify-end gap-1.5">
-            <button onclick="adminSendAgencyWhatsApp('${a.kod}')" class="px-2 py-1 text-[11px] bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-bold rounded-lg transition-colors flex items-center gap-1" title="${isEn ? 'Send WhatsApp Reminder' : 'Hantar Peringatan WhatsApp'}">
+            <button onclick="adminSendAgencyWhatsApp('${a.kod}', '${currentEvent.Event_ID}')" class="px-2 py-1 text-[11px] bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-bold rounded-lg transition-colors flex items-center gap-1" title="${isEn ? 'Send WhatsApp Reminder for this school' : 'Hantar Peringatan WhatsApp untuk sekolah ini'}">
               <span class="material-symbols-outlined text-[14px]">chat</span>
               <span>WA</span>
             </button>
-            <button onclick="openDocumentGeneratorModal('${a.kod}')" class="px-2.5 py-1 text-[11px] bg-teal-50 hover:bg-teal-100 text-teal-800 font-bold rounded-lg transition-colors flex items-center gap-1" title="${isEn ? 'Official Logistics Letter' : 'Surat Perakuan Rasmi'}">
+            <button onclick="openDocumentGeneratorModal('${a.kod}', '${currentEvent.Event_ID}')" class="px-2.5 py-1 text-[11px] bg-teal-50 hover:bg-teal-100 text-teal-800 font-bold rounded-lg transition-colors flex items-center gap-1" title="${isEn ? 'Official Logistics Letter for this school' : 'Surat Perakuan Rasmi untuk sekolah ini'}">
               <span class="material-symbols-outlined text-[14px]">description</span>
               <span>${isEn ? 'Letter' : 'Surat'}</span>
             </button>
@@ -1671,6 +1892,71 @@ function renderAdminAgenciesTable() {
   }).join('');
 }
 
+function renderAdminSchoolsGrid() {
+  const container = document.getElementById('adminSchoolsGridContainer');
+  if (!container) return;
+  const isEn = typeof I18N !== 'undefined' && I18N.currentLang === 'EN';
+  const events = sortEventsChronologically(AppState.events && AppState.events.length > 0 ? AppState.events : getFallbackEvents());
+  const agencies = AppState.agenciesList && AppState.agenciesList.length === 50 ? AppState.agenciesList : getPreseededAgencies();
+
+  container.innerHTML = events.map((ev, i) => {
+    // Kiraan bagi acara ini
+    let hadirCount = 0;
+    let totalMeja = 0;
+    let totalKerusi = 0;
+    let totalPlug = 0;
+
+    agencies.forEach(a => {
+      const r = getAgencyRsvpForSchool(a.kod, ev.Event_ID);
+      if (r.Status_RSVP === 'Hadir' || r.Status_RSVP === 'Hadir (Disahkan)') {
+        hadirCount++;
+        totalMeja += (r.bilMeja !== undefined ? r.bilMeja : 1);
+        totalKerusi += (r.bilKerusi !== undefined ? r.bilKerusi : 2);
+        totalPlug += (r.bilPlug !== undefined ? r.bilPlug : 0);
+      }
+    });
+
+    const percent = Math.round((hadirCount / agencies.length) * 100);
+    const isPht = (ev.Kategori_Program || '').includes('Hala Tuju');
+    const catBadgeClass = isPht ? 'bg-teal-50 text-teal-800 border-teal-200' : 'bg-amber-50 text-amber-800 border-amber-200';
+    const isSelected = (adminSelectedSchoolId === ev.Event_ID);
+
+    return `
+      <div class="p-4 rounded-xl border ${isSelected ? 'border-[#006194] bg-sky-50/40 ring-2 ring-[#006194]/20' : 'border-slate-200/80 bg-white'} shadow-sm hover:shadow-md transition-all flex flex-col justify-between gap-3">
+        <div>
+          <div class="flex items-center justify-between gap-1.5 mb-1.5">
+            <span class="text-[10px] font-bold px-2 py-0.5 rounded-full border ${catBadgeClass}">${ev.Kategori_Program || 'Program Hala Tuju'}</span>
+            <span class="text-[10px] font-bold text-slate-600 bg-slate-100 px-2 py-0.5 rounded-full">${ev.Daerah}</span>
+          </div>
+          <h4 class="text-xs font-bold text-slate-900 leading-snug">${ev.Sekolah || ev.Nama_Acara}</h4>
+          <p class="text-[11px] text-slate-500 mt-1 flex items-center gap-1">
+            <span class="material-symbols-outlined text-[13px] text-slate-400">calendar_today</span>
+            ${formatDisplayDate(ev.Tarikh_Paparan || ev.Tarikh_Mula, isEn)}
+          </p>
+        </div>
+
+        <div class="flex flex-col gap-1.5 pt-2 border-t border-slate-100">
+          <div class="flex items-center justify-between text-[11px]">
+            <span class="text-slate-500 font-medium">${isEn ? 'Attendance Confirmed' : 'Pengesahan Hadir'}</span>
+            <span class="font-extrabold text-[#006194]">${hadirCount} / 50 (${percent}%)</span>
+          </div>
+          <div class="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
+            <div class="bg-gradient-to-r from-[#148e82] to-[#006194] h-2 rounded-full transition-all" style="width: ${percent}%"></div>
+          </div>
+          <div class="flex items-center justify-between text-[10px] text-slate-500 pt-0.5">
+            <span>🪑 ${totalMeja} ${isEn ? 'Tables' : 'Meja'} / ${totalKerusi} ${isEn ? 'Chairs' : 'Kerusi'}</span>
+            <span>⚡ ${totalPlug} Plug</span>
+          </div>
+        </div>
+
+        <button type="button" onclick="selectSchoolAndShowTable('${ev.Event_ID}')" class="w-full py-2 bg-slate-50 hover:bg-[#006194] text-slate-700 hover:text-white font-bold text-xs rounded-lg border border-slate-200/80 hover:border-[#006194] transition-all flex items-center justify-center gap-1.5 shadow-sm">
+          <span>${isEn ? 'View Agency RSVP Table →' : 'Lihat Jadual Agensi Sekolah Ini →'}</span>
+        </button>
+      </div>
+    `;
+  }).join('');
+}
+
 function filterAdminAgenciesTable() {
   renderAdminAgenciesTable();
 }
@@ -1680,19 +1966,77 @@ function setAdminTableFilter(status) {
   const btnAll = document.getElementById('filterBtn_ALL');
   const btnHadir = document.getElementById('filterBtn_Hadir');
   const btnBelum = document.getElementById('filterBtn_Belum');
+  const btnTidak = document.getElementById('filterBtn_Tidak');
 
-  [btnAll, btnHadir, btnBelum].forEach(btn => {
+  [btnAll, btnHadir, btnBelum, btnTidak].forEach(btn => {
     if (btn) {
       btn.className = 'px-2.5 py-1 rounded-lg text-slate-600 hover:text-slate-900 transition-all';
     }
   });
 
-  const activeBtn = status === 'ALL' ? btnAll : (status === 'Hadir' ? btnHadir : btnBelum);
+  const activeBtn = status === 'ALL' ? btnAll : (status === 'Hadir' ? btnHadir : (status === 'Tidak' ? btnTidak : btnBelum));
   if (activeBtn) {
     activeBtn.className = 'px-2.5 py-1 rounded-lg bg-white text-slate-800 shadow-sm transition-all font-bold';
   }
 
   renderAdminAgenciesTable();
+}
+
+function adminQuickToggleRsvp(agencyKod, eventId) {
+  const isEn = typeof I18N !== 'undefined' && I18N.currentLang === 'EN';
+  const ev = (AppState.events || getFallbackEvents()).find(e => e.Event_ID === eventId) || (AppState.events || getFallbackEvents())[0];
+  const currentRsvp = getAgencyRsvpForSchool(agencyKod, ev.Event_ID);
+  const agency = (AppState.agenciesList || getPreseededAgencies()).find(a => a.kod === agencyKod);
+  const agencyName = agency ? agency.namaAgensi : agencyKod;
+
+  // Kitaran status: Hadir -> Tidak Hadir -> Belum Sah -> Hadir
+  let nextStatus = 'Hadir';
+  if (currentRsvp.Status_RSVP === 'Hadir' || currentRsvp.Status_RSVP === 'Hadir (Disahkan)') {
+    nextStatus = 'Tidak Hadir';
+  } else if (currentRsvp.Status_RSVP === 'Tidak Hadir') {
+    nextStatus = 'Belum Sah';
+  } else {
+    nextStatus = 'Hadir';
+  }
+
+  if (!AppState.rsvps) AppState.rsvps = [];
+  const idx = AppState.rsvps.findIndex(r => r.Event_ID === ev.Event_ID && r.Agensi_ID === agencyKod);
+
+  const updatedRecord = Object.assign({}, currentRsvp, {
+    Event_ID: ev.Event_ID,
+    Agensi_ID: agencyKod,
+    Nama_Agensi: agencyName,
+    Status_RSVP: nextStatus,
+    bilMeja: nextStatus === 'Hadir' ? (currentRsvp.bilMeja || 1) : 0,
+    bilKerusi: nextStatus === 'Hadir' ? (currentRsvp.bilKerusi || 2) : 0,
+    bilPlug: nextStatus === 'Hadir' ? (currentRsvp.bilPlug || 1) : 0,
+    Tarikh_Hantar: new Date().toISOString()
+  });
+
+  if (idx > -1) {
+    AppState.rsvps[idx] = updatedRecord;
+  } else {
+    AppState.rsvps.push(updatedRecord);
+  }
+
+  localStorage.setItem('ceu_cache_rsvps', JSON.stringify(AppState.rsvps));
+  
+  const statusLabel = isEn ? (nextStatus === 'Hadir' ? 'Attending' : (nextStatus === 'Tidak Hadir' ? 'Not Attending' : 'Pending')) : nextStatus;
+  showToast(isEn ? `Updated status for ${agencyName} to ${statusLabel}` : `Status ${agencyName} ditukar ke ${statusLabel}`, 'success');
+
+  renderAdminDashboard();
+}
+
+function printSchoolRsvpReport() {
+  const isEn = typeof I18N !== 'undefined' && I18N.currentLang === 'EN';
+  const ev = (AppState.events || getFallbackEvents()).find(e => e.Event_ID === adminSelectedSchoolId) || (AppState.events || getFallbackEvents())[0];
+  const oldTitle = document.title;
+  const schoolName = (adminSelectedSchoolId === 'ALL')
+    ? (isEn ? 'All_31_Schools_Overall_Summary' : 'Semua_31_Sekolah_Ringkasan_Keseluruhan')
+    : (ev.Sekolah || ev.Nama_Acara).replace(/[^a-zA-Z0-9]/g, '_');
+  document.title = (isEn ? 'RSVP_Logistics_Report_' : 'Laporan_RSVP_Logistik_') + schoolName;
+  window.print();
+  document.title = oldTitle;
 }
 
 async function handleAdminResetAgencyPassword(agencyId) {
@@ -2174,10 +2518,11 @@ function closeMapModal() {
 // ============================================
 // 11. ENJIN DOKUMEN & PERSURATAN (gas-doc-engine)
 // ============================================
-function openDocumentGeneratorModal(agencyId = null) {
+function openDocumentGeneratorModal(agencyId = null, eventId = null) {
   const user = AppState.currentUser;
   const targetAgencyId = agencyId || (user ? user.id : 'AG-05');
-  const ev = AppState.activeEvent || getFallbackEvents()[0];
+  const targetEventId = eventId || (typeof adminSelectedSchoolId !== 'undefined' && adminSelectedSchoolId !== 'ALL' ? adminSelectedSchoolId : null);
+  const ev = (targetEventId ? (AppState.events || getFallbackEvents()).find(e => e.Event_ID === targetEventId) : null) || AppState.activeEvent || getFallbackEvents()[0];
   const isEn = typeof I18N !== 'undefined' && I18N.currentLang === 'EN';
 
   showToast(isEn ? 'Generating official Logistics Confirmation Letter...' : 'Menjana Surat Perakuan Logistik rasmi...', 'info');
@@ -3069,14 +3414,19 @@ Pautan Portal Rasmi: https://ceujss2026.github.io/rsvp-ceu-portal/`;
   showToast(isEn ? 'Opening WhatsApp (+6738669690) to share RSVP confirmation...' : 'Membuka WhatsApp (+6738669690) untuk menghantar perakuan RSVP...', 'success');
 }
 
-function adminSendAgencyWhatsApp(agencyCode) {
+function adminSendAgencyWhatsApp(agencyCode, eventId = null) {
   const isEn = typeof I18N !== 'undefined' && I18N.currentLang === 'EN';
-  const agency = (AppState.agencies || getPreseededAgencies()).find(a => a.kod === agencyCode);
+  const agency = (AppState.agenciesList || getPreseededAgencies()).find(a => a.kod === agencyCode) || (AppState.agencies || []).find(a => a.kod === agencyCode);
   if (!agency) return;
 
-  const ev = AppState.activeEvent || getFallbackEvents()[0];
-  const rsvp = (AppState.rsvps || []).find(r => r.Agensi_ID === agency.kod && r.Event_ID === ev.Event_ID);
-  const status = rsvp ? (isEn ? (rsvp.Status_RSVP === 'Hadir' ? 'Attending' : 'Not Attending') : rsvp.Status_RSVP) : (isEn ? 'Pending' : 'Belum Sah');
+  const targetEventId = eventId || (typeof adminSelectedSchoolId !== 'undefined' && adminSelectedSchoolId !== 'ALL' ? adminSelectedSchoolId : null);
+  const ev = (targetEventId ? (AppState.events || getFallbackEvents()).find(e => e.Event_ID === targetEventId) : null) || AppState.activeEvent || getFallbackEvents()[0];
+  const rsvp = (typeof getAgencyRsvpForSchool === 'function')
+    ? getAgencyRsvpForSchool(agency.kod, ev.Event_ID)
+    : ((AppState.rsvps || []).find(r => r.Agensi_ID === agency.kod && r.Event_ID === ev.Event_ID) || {});
+  const status = isEn 
+    ? (rsvp.Status_RSVP === 'Hadir' || rsvp.Status_RSVP === 'Hadir (Disahkan)' ? 'Attending' : (rsvp.Status_RSVP === 'Tidak Hadir' ? 'Not Attending' : 'Pending')) 
+    : (rsvp.Status_RSVP || 'Belum Sah');
 
   const message = isEn ? `*OFFICIAL REMINDER — CAREER EDUCATION UNIT (CEU / JSS)*
 Ministry of Education, Brunei Darussalam

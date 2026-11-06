@@ -1251,7 +1251,7 @@
             <p id="adminDashboardHeaderDesc" class="text-xs text-slate-500">Pemantauan masa nyata pengesahan RSVP, keperluan meja dewan &amp; logistik 50 agensi jemputan.</p>
           </div>
           <div class="flex items-center gap-2">
-            <button onclick="window.print()" class="px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl flex items-center gap-1.5 transition-all shadow-sm">
+            <button onclick="printSchoolRsvpReport()" class="px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl flex items-center gap-1.5 transition-all shadow-sm">
               <span class="material-symbols-outlined text-[16px]">print</span>
               <span id="adminBtnPrintPdf">Cetak Laporan PDF</span>
             </button>
@@ -1262,7 +1262,72 @@
           </div>
         </div>
 
-        <!-- 4 Kad Metrik Agregat -->
+        <!-- Kad Pemilih Sesi Sekolah & Mod Paparan -->
+        <div class="bg-white p-4 md:p-5 rounded-2xl shadow-sm border border-slate-200/80 flex flex-col gap-3.5">
+          <div class="flex flex-col md:flex-row md:items-center justify-between gap-3">
+            <div class="flex-1">
+              <label for="adminSchoolSelector" class="block text-xs font-bold text-slate-800 mb-1.5 flex items-center justify-between">
+                <span id="adminSchoolFilterLabel" class="flex items-center gap-1.5">
+                  <span class="material-symbols-outlined text-[#148e82] text-[18px]">school</span>
+                  <span>Pilih Sekolah / Sesi Program (Paparan RSVP)</span>
+                </span>
+                <span id="adminSchoolBadgeCount" class="text-[10px] text-[#006194] font-bold bg-sky-50 px-2.5 py-0.5 rounded-full border border-sky-100">31 Sesi Takwim</span>
+              </label>
+              <select id="adminSchoolSelector" onchange="onAdminSchoolSelect(this.value)" class="w-full h-11 px-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#148e82]/20">
+                <!-- Diisi dinamik oleh app.js: 31 sesi takwim kronologi & ringkasan semua -->
+              </select>
+            </div>
+
+            <!-- Butang Tukar Paparan: Jadual Agensi vs Ringkasan 31 Sekolah -->
+            <div class="flex items-center gap-1 bg-slate-100 p-1 rounded-xl self-start md:self-end">
+              <button type="button" id="btnAdminViewTable" onclick="setAdminDashboardView('table')" class="px-3 py-2 text-xs font-bold rounded-lg bg-white text-[#006194] shadow-sm flex items-center gap-1.5 transition-all">
+                <span class="material-symbols-outlined text-[17px]">table_chart</span>
+                <span id="labelAdminTabTable">Jadual Agensi</span>
+              </button>
+              <button type="button" id="btnAdminViewGrid" onclick="setAdminDashboardView('grid')" class="px-3 py-2 text-xs font-semibold rounded-lg text-slate-600 hover:text-slate-900 flex items-center gap-1.5 transition-all">
+                <span class="material-symbols-outlined text-[17px]">grid_view</span>
+                <span id="labelAdminTabGrid">Ringkasan 31 Sekolah</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Kapsul Maklumat Sesi Sekolah Terpilih -->
+          <div id="adminSelectedSchoolCapsule" class="p-3.5 bg-slate-50 rounded-xl border border-slate-200/80 text-xs flex flex-col md:flex-row md:items-center justify-between gap-3">
+            <div class="flex flex-col gap-1 min-w-0">
+              <div class="flex items-center gap-2">
+                <span id="adminSchoolCategoryBadge" class="text-[10px] font-bold text-teal-800 bg-teal-100 px-2 py-0.5 rounded-full">Program Hala Tuju</span>
+                <span id="adminSchoolDistrictBadge" class="text-[10px] font-bold text-slate-700 bg-slate-200 px-2 py-0.5 rounded-full">Daerah Tutong</span>
+              </div>
+              <h3 id="adminSchoolCapsuleTitle" class="text-sm font-bold text-slate-900 truncate">Sekolah Menengah Tanjong Maya</h3>
+              <div class="flex flex-wrap items-center gap-3 text-[11px] text-slate-600">
+                <span id="adminSchoolCapsuleDate">📅 25/01/2027 (Isnin)</span>
+                <span id="adminSchoolCapsuleTime">🕒 09:00 - 11:30 Pagi</span>
+                <span id="adminSchoolCapsuleVenue" class="font-semibold text-slate-800 flex items-center gap-0.5">
+                  <span class="material-symbols-outlined text-[13px] text-slate-400">location_on</span>
+                  Dewan Sekolah Menengah Tanjong Maya
+                </span>
+              </div>
+            </div>
+
+            <!-- Butang Aksi Pantas Sesi Sekolah -->
+            <div class="flex items-center gap-2 shrink-0">
+              <button type="button" onclick="openMapModal('floorPlan')" class="px-3 py-2 bg-white hover:bg-teal-50 text-teal-800 border border-teal-200 rounded-xl font-bold text-xs flex items-center gap-1.5 shadow-sm transition-all">
+                <span class="material-symbols-outlined text-[16px] text-teal-600">view_quilt</span>
+                <span id="adminSchoolCapsuleHallBtn">Pelan Dewan</span>
+              </button>
+              <button type="button" onclick="openMapModal('parking')" class="px-3 py-2 bg-white hover:bg-amber-50 text-amber-800 border border-amber-200 rounded-xl font-bold text-xs flex items-center gap-1.5 shadow-sm transition-all">
+                <span class="material-symbols-outlined text-[16px] text-amber-600">directions_car</span>
+                <span id="adminSchoolCapsuleParkingBtn">Peta Parking</span>
+              </button>
+              <button type="button" onclick="printSchoolRsvpReport()" class="px-3 py-2 bg-[#006194] hover:bg-[#004b73] text-white rounded-xl font-bold text-xs flex items-center gap-1.5 shadow-sm transition-all">
+                <span class="material-symbols-outlined text-[16px]">print</span>
+                <span id="adminSchoolCapsulePrintBtn">Cetak Lembaran</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 4 Kad Metrik Agregat Mengikut Sesi Sekolah -->
         <div class="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
           <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200/80 flex flex-col">
             <div class="flex items-center justify-between">
@@ -1301,8 +1366,8 @@
           </div>
         </div>
 
-        <!-- Jadual Interaktif 50 Agensi Jemputan -->
-        <div class="bg-white rounded-2xl shadow-sm border border-slate-200/80 p-5 flex flex-col gap-4">
+        <!-- PAPARAN 1: Jadual Interaktif 50 Agensi Jemputan bagi Sekolah Terpilih -->
+        <div id="adminTableContainerView" class="bg-white rounded-2xl shadow-sm border border-slate-200/80 p-5 flex flex-col gap-4">
           <div class="flex flex-col md:flex-row md:items-center justify-between gap-3">
             <div>
               <h3 id="adminTableTitle" class="text-sm font-bold text-slate-900 uppercase tracking-wider flex items-center gap-2">
@@ -1323,6 +1388,7 @@
                 <button type="button" onclick="setAdminTableFilter('ALL')" id="filterBtn_ALL" class="px-2.5 py-1 rounded-lg bg-white text-slate-800 shadow-sm transition-all">Semua (50)</button>
                 <button type="button" onclick="setAdminTableFilter('Hadir')" id="filterBtn_Hadir" class="px-2.5 py-1 rounded-lg text-slate-600 hover:text-slate-900 transition-all">Hadir</button>
                 <button type="button" onclick="setAdminTableFilter('Belum')" id="filterBtn_Belum" class="px-2.5 py-1 rounded-lg text-slate-600 hover:text-slate-900 transition-all">Belum Sah</button>
+                <button type="button" onclick="setAdminTableFilter('Tidak')" id="filterBtn_Tidak" class="px-2.5 py-1 rounded-lg text-slate-600 hover:text-slate-900 transition-all">Tidak Hadir</button>
               </div>
             </div>
           </div>
@@ -1338,14 +1404,34 @@
                   <th class="p-3">STATUS RSVP</th>
                   <th class="p-3 text-center">MEJA / KERUSI</th>
                   <th class="p-3 text-center">PLUG</th>
+                  <th class="p-3">PEGAWAI BERTUGAS</th>
                   <th class="p-3">PARKING AGENSI</th>
                   <th class="p-3 text-right">AKSI</th>
                 </tr>
               </thead>
               <tbody id="adminAgenciesTableBody">
-                <!-- Diisi dinamik oleh app.js -->
+                <!-- Diisi dinamik oleh app.js mengikut sekolah terpilih -->
               </tbody>
             </table>
+          </div>
+        </div>
+
+        <!-- PAPARAN 2: Ringkasan Pengesahan RSVP 31 Sesi Sekolah (Grid View) -->
+        <div id="adminGridContainerView" class="hidden bg-white rounded-2xl shadow-sm border border-slate-200/80 p-5 flex flex-col gap-4">
+          <div class="flex flex-col md:flex-row md:items-center justify-between gap-2 border-b border-slate-100 pb-3">
+            <div>
+              <h3 id="adminGridHeaderTitle" class="text-sm font-bold text-slate-900 uppercase tracking-wider flex items-center gap-2">
+                <span class="w-2.5 h-2.5 rounded-full bg-[#006194]"></span>
+                Ringkasan Pengesahan RSVP Mengikut 31 Sekolah / Sesi Program
+              </h3>
+              <p id="adminGridHeaderDesc" class="text-xs text-slate-500 mt-0.5">Pemantauan menyeluruh status penyertaan agensi bagi setiap sekolah di keempat-empat daerah.</p>
+            </div>
+            <span class="text-xs font-bold text-slate-500 bg-slate-100 px-3 py-1 rounded-lg self-start">31 Sesi Rasmi</span>
+          </div>
+
+          <!-- Grid Kad 31 Sekolah -->
+          <div id="adminSchoolsGridContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5">
+            <!-- Diisi dinamik oleh renderAdminSchoolsGrid() -->
           </div>
         </div>
       </section>

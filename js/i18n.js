@@ -1124,6 +1124,24 @@ const I18N = {
     const aBtnManage = document.getElementById('adminBtnManageEvents');
     if (aBtnManage) aBtnManage.innerText = isEn ? 'Manage Events & Maps' : 'Urus Program & Peta';
 
+    // Pemilih Sekolah & Tab Paparan Pentadbir
+    const aSchFiltLabel = document.getElementById('adminSchoolFilterLabel');
+    if (aSchFiltLabel) {
+      aSchFiltLabel.innerHTML = `<span class="material-symbols-outlined text-[#148e82] text-[18px]">school</span><span>${isEn ? 'Select School / Program Session (RSVP View)' : 'Pilih Sekolah / Sesi Program (Paparan RSVP)'}</span>`;
+    }
+    const aSchBadge = document.getElementById('adminSchoolBadgeCount');
+    if (aSchBadge) aSchBadge.innerText = isEn ? '31 Calendar Sessions' : '31 Sesi Takwim';
+    const aTabTable = document.getElementById('labelAdminTabTable');
+    if (aTabTable) aTabTable.innerText = isEn ? 'Agency Table' : 'Jadual Agensi';
+    const aTabGrid = document.getElementById('labelAdminTabGrid');
+    if (aTabGrid) aTabGrid.innerText = isEn ? '31 Schools Overview' : 'Ringkasan 31 Sekolah';
+    const aCapsuleHall = document.getElementById('adminSchoolCapsuleHallBtn');
+    if (aCapsuleHall) aCapsuleHall.innerText = isEn ? 'Hall Plan' : 'Pelan Dewan';
+    const aCapsulePark = document.getElementById('adminSchoolCapsuleParkingBtn');
+    if (aCapsulePark) aCapsulePark.innerText = isEn ? 'Parking Map' : 'Peta Parking';
+    const aCapsulePrint = document.getElementById('adminSchoolCapsulePrintBtn');
+    if (aCapsulePrint) aCapsulePrint.innerText = isEn ? 'Print Sheet' : 'Cetak Lembaran';
+
     const aStatL1 = document.getElementById('adminStatLabel1');
     if (aStatL1) aStatL1.innerText = isEn ? '50 Invited Agencies' : '50 Agensi Jemputan';
     const aStatS1 = document.getElementById('adminStatSub1');
@@ -1159,6 +1177,7 @@ const I18N = {
         <th class="p-3">${isEn ? 'RSVP STATUS' : 'STATUS RSVP'}</th>
         <th class="p-3 text-center">${isEn ? 'TABLES / CHAIRS' : 'MEJA / KERUSI'}</th>
         <th class="p-3 text-center">${isEn ? 'PLUG' : 'PLUG'}</th>
+        <th class="p-3">${isEn ? 'DUTY OFFICER' : 'PEGAWAI BERTUGAS'}</th>
         <th class="p-3">${isEn ? 'AGENCY PARKING' : 'PARKING AGENSI'}</th>
         <th class="p-3 text-right">${isEn ? 'ACTION' : 'AKSI'}</th>
       `;
@@ -1172,6 +1191,13 @@ const I18N = {
     if (filterHadirBtn) filterHadirBtn.innerText = isEn ? 'Attending' : 'Hadir';
     const filterBelumBtn = document.getElementById('filterBtn_Belum');
     if (filterBelumBtn) filterBelumBtn.innerText = isEn ? 'Pending' : 'Belum Sah';
+    const filterTidakBtn = document.getElementById('filterBtn_Tidak');
+    if (filterTidakBtn) filterTidakBtn.innerText = isEn ? 'Not Attending' : 'Tidak Hadir';
+
+    const aGridTitle = document.getElementById('adminGridHeaderTitle');
+    if (aGridTitle) aGridTitle.innerHTML = `<span class="w-2.5 h-2.5 rounded-full bg-[#006194]"></span>${isEn ? 'RSVP Confirmation Summary Across 31 School Sessions' : 'Ringkasan Pengesahan RSVP Mengikut 31 Sekolah / Sesi Program'}`;
+    const aGridDesc = document.getElementById('adminGridHeaderDesc');
+    if (aGridDesc) aGridDesc.innerText = isEn ? 'Comprehensive monitoring of agency participation status across each school in all four districts.' : 'Pemantauan menyeluruh status penyertaan agensi bagi setiap sekolah di keempat-empat daerah.';
 
     // --- Skrin Profil ---
     const pOptTitle = document.getElementById('profileSysOptionsTitle');
