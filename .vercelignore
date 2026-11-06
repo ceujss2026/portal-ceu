@@ -3,3 +3,4 @@ backend/
 .github/
 *.log
 scratch/
+android/
