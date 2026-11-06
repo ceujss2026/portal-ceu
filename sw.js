@@ -3,7 +3,7 @@
  * Unit Pendidikan Kerjaya (UPK / CEU), Jabatan Sekolah-Sekolah
  */
 
-const CACHE_NAME = 'ceu-pwa-v1.2';
+const CACHE_NAME = 'ceu-pwa-v1.3';
 const STATIC_ASSETS = [
   './',
   './index.html',
@@ -15,7 +15,9 @@ const STATIC_ASSETS = [
   './manifest.json',
   './apple-touch-icon.png',
   './icon-192.png',
-  './icon-512.png'
+  './icon-512.png',
+  './screenshot-desktop.png',
+  './screenshot-mobile.png'
 ];
 
 self.addEventListener('install', (event) => {

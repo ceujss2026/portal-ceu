@@ -1,4 +1,5 @@
 {
+  "id": "/",
   "name": "RSVP CEU",
   "short_name": "RSVP CEU",
   "description": "Sistem Pengesahan Kehadiran RSVP & Penyelarasan Logistik Program Hala Tuju & FutureLink - Unit Pendidikan Kerjaya, Jabatan Sekolah-Sekolah, Kementerian Pendidikan Brunei Darussalam",
@@ -8,6 +9,8 @@
   "orientation": "portrait-primary",
   "background_color": "#f8fafc",
   "theme_color": "#006194",
+  "lang": "ms",
+  "dir": "ltr",
   "categories": [
     "education",
     "government",
@@ -18,13 +21,53 @@
       "src": "./icon-192.png",
       "sizes": "192x192",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
+    },
+    {
+      "src": "./icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
     },
     {
       "src": "./icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
+    },
+    {
+      "src": "./icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "./screenshot-desktop.png",
+      "sizes": "1280x800",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Papan Pemuka Komputer RSVP CEU"
+    },
+    {
+      "src": "./screenshot-mobile.png",
+      "sizes": "720x1280",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Antara Muka Telefon Pintar RSVP CEU"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Borang RSVP",
+      "url": "./index.html#rsvpForm",
+      "description": "Buka borang pengesahan kehadiran agensi"
+    },
+    {
+      "name": "Takwim Program",
+      "url": "./index.html#home",
+      "description": "Lihat jadual 31 sesi PHT & FutureLink"
     }
   ]
 }
