@@ -275,8 +275,8 @@ function updateBottomNav(viewId) {
 
   if (desktopNavModeBadge) {
     desktopNavModeBadge.innerText = isAdmin 
-      ? (isEn ? 'ADMIN MODE' : 'MOD PENTADBIR') 
-      : (isEn ? 'AGENCY MODE' : 'MOD AGENSI');
+      ? 'ADMIN' 
+      : (isEn ? 'AGENCY' : 'AGENSI');
     desktopNavModeBadge.className = isAdmin 
       ? 'text-[9px] bg-amber-100 text-amber-800 font-bold px-2 py-0.5 rounded-full uppercase' 
       : 'text-[9px] bg-teal-100 text-teal-800 font-bold px-2 py-0.5 rounded-full uppercase';
@@ -416,11 +416,11 @@ function switchLoginMode(mode) {
   if (mode === 'ADMIN') {
     if (tabAdmin) {
       tabAdmin.className = 'flex-1 py-2 text-xs font-bold rounded-lg bg-[#006194] text-white shadow-sm flex items-center justify-center gap-1.5 transition-all';
-      tabAdmin.innerHTML = `<span class="material-symbols-outlined text-[17px]">shield_person</span><span>${isEn ? 'CEU Admin Mode' : 'Mod Pentadbir CEU'}</span>`;
+      tabAdmin.innerHTML = `<span class="material-symbols-outlined text-[17px]">shield_person</span><span>Admin</span>`;
     }
     if (tabAgency) {
       tabAgency.className = 'flex-1 py-2 text-xs font-semibold rounded-lg text-slate-600 hover:text-slate-900 flex items-center justify-center gap-1.5 transition-all';
-      tabAgency.innerHTML = `<span class="material-symbols-outlined text-[17px]">domain</span><span>${isEn ? 'Invited Agency Mode' : 'Mod Agensi Jemputan'}</span>`;
+      tabAgency.innerHTML = `<span class="material-symbols-outlined text-[17px]">domain</span><span>${isEn ? 'Agency' : 'Agensi'}</span>`;
     }
     
     if (usernameInput) {
@@ -430,7 +430,7 @@ function switchLoginMode(mode) {
       passwordInput.placeholder = isEn ? 'Enter administrator password...' : 'Masukkan kata laluan pentadbir...';
     }
     if (labelUsername) {
-      labelUsername.innerHTML = `<span>${isEn ? 'CEU Admin ID' : 'ID Pentadbir CEU'}</span><span class="text-[11px] text-primary font-medium">${isEn ? 'Manage Events' : 'Urus Acara'}</span>`;
+      labelUsername.innerHTML = `<span>${isEn ? 'Admin ID' : 'ID Admin'}</span><span class="text-[11px] text-primary font-medium">${isEn ? 'Manage Events' : 'Urus Acara'}</span>`;
     }
     if (subtitle) {
       subtitle.innerText = isEn 
@@ -439,7 +439,7 @@ function switchLoginMode(mode) {
     }
     if (btnSubmit) {
       btnSubmit.className = 'w-full h-12 mt-1 rounded-xl bg-gradient-to-r from-[#006194] to-[#0284c7] text-white font-bold text-xs tracking-wider uppercase shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2';
-      btnSubmit.innerHTML = `<span>${isEn ? 'ADMINISTRATOR LOG IN' : 'LOG MASUK PENTADBIR'}</span><span class="material-symbols-outlined text-[18px]">arrow_forward</span>`;
+      btnSubmit.innerHTML = `<span>${isEn ? 'ADMIN LOG IN' : 'LOG MASUK ADMIN'}</span><span class="material-symbols-outlined text-[18px]">arrow_forward</span>`;
     }
     if (defaultHint) {
       defaultHint.innerText = isEn ? 'Career Education Unit · JSS · MOE' : 'Unit Pendidikan Kerjaya · JSS · MOE';
@@ -447,11 +447,11 @@ function switchLoginMode(mode) {
   } else {
     if (tabAgency) {
       tabAgency.className = 'flex-1 py-2 text-xs font-bold rounded-lg bg-[#148e82] text-white shadow-sm flex items-center justify-center gap-1.5 transition-all';
-      tabAgency.innerHTML = `<span class="material-symbols-outlined text-[17px]">domain</span><span>${isEn ? 'Invited Agency Mode' : 'Mod Agensi Jemputan'}</span>`;
+      tabAgency.innerHTML = `<span class="material-symbols-outlined text-[17px]">domain</span><span>${isEn ? 'Agency' : 'Agensi'}</span>`;
     }
     if (tabAdmin) {
       tabAdmin.className = 'flex-1 py-2 text-xs font-semibold rounded-lg text-slate-600 hover:text-slate-900 flex items-center justify-center gap-1.5 transition-all';
-      tabAdmin.innerHTML = `<span class="material-symbols-outlined text-[17px]">shield_person</span><span>${isEn ? 'CEU Admin Mode' : 'Mod Pentadbir CEU'}</span>`;
+      tabAdmin.innerHTML = `<span class="material-symbols-outlined text-[17px]">shield_person</span><span>Admin</span>`;
     }
     
     if (usernameInput) {
@@ -1617,7 +1617,7 @@ function renderParkingScreen(eventId) {
               <span class="material-symbols-outlined text-[18px]">local_parking</span>
             </div>
             <div class="flex flex-col min-w-0">
-              <span class="font-bold text-xs text-amber-950 uppercase">${isEn ? 'Information Only Mode' : 'Mod Maklumat Sahaja'}</span>
+              <span class="font-bold text-xs text-amber-950 uppercase">${isEn ? 'Information Only' : 'Maklumat Sahaja'}</span>
               <span class="text-[11px] text-amber-800">${isEn ? 'The host school provides written instructions for visiting agencies:' : 'Pihak sekolah menyediakan panduan bertulis bagi agensi jemputan:'}</span>
             </div>
           </div>

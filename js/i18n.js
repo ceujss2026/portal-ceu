@@ -22,8 +22,8 @@ const I18N = {
       // Login
       loginAgencyAccess: 'AKSES AGENSI JEMPUTAN RASMI',
       loginAdminAccess: 'AKSES PENTADBIR CEU',
-      tabModeAgency: 'Mod Agensi Jemputan',
-      tabModeAdmin: 'Mod Pentadbir CEU',
+      tabModeAgency: 'Agensi',
+      tabModeAdmin: 'Admin',
       loginTitle: 'Selamat Datang',
       loginSubtitleAgency: 'Log masuk agensi untuk melihat maklumat program, pelan dewan, parking & pengesahan RSVP.',
       loginSubtitleAdmin: 'Log masuk pentadbir untuk memantau papan pemuka dan mengurus takwim program.',
@@ -57,8 +57,8 @@ const I18N = {
       navSignOut: 'Keluar',
       navRoleAgency: 'Agensi Jemputan',
       navRoleAdmin: 'Pentadbir CEU',
-      modeBadgeAgency: 'MOD AGENSI',
-      modeBadgeAdmin: 'MOD PENTADBIR',
+      modeBadgeAgency: 'AGENSI',
+      modeBadgeAdmin: 'ADMIN',
 
       // Home Screen - Hero & Metrics
       welcomeAgencyHeader: 'SELAMAT DATANG • AGENSI JEMPUTAN',
@@ -138,7 +138,7 @@ const I18N = {
       rsvpAttendingSub: 'Menyertai Pameran Booth',
       rsvpNotAttending: 'Tidak Hadir (Not Attending)',
       rsvpNotAttendingSub: 'Kekangan jadual',
-      rsvpEditBannerTitle: 'Mod Kemaskini RSVP',
+      rsvpEditBannerTitle: 'Kemaskini RSVP',
       rsvpEditBannerDesc: 'Anda sedang mengemaskini maklumat RSVP yang telah direkodkan sebelumnya. Sebarang perubahan boleh dihantar semula.',
       notAttendingNoticeTitle: 'Pengesahan Tidak Hadir',
       rsvpNotAttendingNoticeText: 'Agensi anda mengesahkan tidak dapat menyertai sesi pameran ini kerana kekangan jadual. Tiada kelengkapan dewan (meja/kerusi/plug) diperuntukkan.',
@@ -203,7 +203,7 @@ const I18N = {
 
       // Admin Events & Maps Manager
       adminEventsHeaderBadge: 'PENTADBIR UNIT PENDIDIKAN KERJAYA',
-      adminEventsRoleBadge: 'MOD PENTADBIR',
+      adminEventsRoleBadge: 'ADMIN',
       adminEventsTitle: 'Pengurusan Program & Peta Sekolah',
       adminEventsDesc: 'Urus maklumat acara, kemaskini dewan venue, muat naik pelan dewan dan tetapan parking sekolah.',
       adminEventsBtnBack: 'Kembali ke Papan Pemuka',
@@ -284,8 +284,8 @@ const I18N = {
       // Login
       loginAgencyAccess: 'OFFICIAL INVITED AGENCY ACCESS',
       loginAdminAccess: 'CEU ADMINISTRATOR ACCESS',
-      tabModeAgency: 'Invited Agency Mode',
-      tabModeAdmin: 'CEU Admin Mode',
+      tabModeAgency: 'Agency',
+      tabModeAdmin: 'Admin',
       loginTitle: 'Welcome Back',
       loginSubtitleAgency: 'Agency log in to view event details, floor plan, parking & RSVP confirmation.',
       loginSubtitleAdmin: 'Administrator log in to monitor dashboard and manage event calendar.',
@@ -319,8 +319,8 @@ const I18N = {
       navSignOut: 'Sign Out',
       navRoleAgency: 'Invited Agency',
       navRoleAdmin: 'CEU Administrator',
-      modeBadgeAgency: 'AGENCY MODE',
-      modeBadgeAdmin: 'ADMIN MODE',
+      modeBadgeAgency: 'AGENCY',
+      modeBadgeAdmin: 'ADMIN',
 
       // Home Screen - Hero & Metrics
       welcomeAgencyHeader: 'WELCOME • INVITED AGENCY',
@@ -400,7 +400,7 @@ const I18N = {
       rsvpAttendingSub: 'Participating in Exhibition Booth',
       rsvpNotAttending: 'Not Attending',
       rsvpNotAttendingSub: 'Schedule constraints',
-      rsvpEditBannerTitle: 'Edit RSVP Mode',
+      rsvpEditBannerTitle: 'Edit RSVP',
       rsvpEditBannerDesc: 'You are editing your RSVP confirmation for this session. Any changes will be recorded.',
       notAttendingNoticeTitle: 'Not Attending Confirmation',
       rsvpNotAttendingNoticeText: 'Your agency has confirmed not attending this exhibition session due to schedule constraints. No hall logistics (tables/chairs/plugs) will be allocated.',
@@ -465,7 +465,7 @@ const I18N = {
 
       // Admin Events & Maps Manager
       adminEventsHeaderBadge: 'CAREER EDUCATION UNIT ADMINISTRATOR',
-      adminEventsRoleBadge: 'ADMIN MODE',
+      adminEventsRoleBadge: 'ADMIN',
       adminEventsTitle: 'Program Management & School Maps',
       adminEventsDesc: 'Manage event details, update venues, upload hall floor plans, and configure school parking settings.',
       adminEventsBtnBack: 'Back to Dashboard',
@@ -688,12 +688,12 @@ const I18N = {
     const tabAgency = document.getElementById('tabModeAgency');
     if (tabAgency) {
       const span = tabAgency.querySelector('span:last-child') || tabAgency;
-      span.innerText = isEn ? 'Invited Agency Mode' : 'Mod Agensi Jemputan';
+      span.innerText = isEn ? 'Agency' : 'Agensi';
     }
     const tabAdmin = document.getElementById('tabModeAdmin');
     if (tabAdmin) {
       const span = tabAdmin.querySelector('span:last-child') || tabAdmin;
-      span.innerText = isEn ? 'CEU Admin Mode' : 'Mod Pentadbir CEU';
+      span.innerText = 'Admin';
     }
 
     const helpLink = document.querySelector('#formLogin a[onclick*="alert"]');
@@ -832,7 +832,7 @@ const I18N = {
     if (rHeaderTitle) rHeaderTitle.innerText = isEn ? 'RSVP Confirmation & Logistics Request' : 'Pengesahan RSVP & Permohonan Logistik';
 
     const rEditTitle = document.getElementById('rsvpEditBannerTitle');
-    if (rEditTitle) rEditTitle.innerText = isEn ? 'Edit RSVP Mode' : 'Mod Kemaskini RSVP';
+    if (rEditTitle) rEditTitle.innerText = isEn ? 'Edit RSVP' : 'Kemaskini RSVP';
     const rEditDesc = document.getElementById('rsvpEditBannerDesc');
     if (rEditDesc) rEditDesc.innerText = isEn ? 'You are editing your RSVP confirmation for this session. Any changes will be recorded.' : 'Anda sedang mengemaskini maklumat RSVP yang telah direkodkan sebelumnya. Sebarang perubahan boleh dihantar semula.';
 
@@ -1005,7 +1005,7 @@ const I18N = {
     const aeBadge = document.getElementById('adminEventsHeaderBadge');
     if (aeBadge) aeBadge.innerText = isEn ? 'CAREER EDUCATION UNIT ADMINISTRATOR' : 'PENTADBIR UNIT PENDIDIKAN KERJAYA';
     const aeRole = document.getElementById('adminEventsRoleBadge');
-    if (aeRole) aeRole.innerText = isEn ? 'ADMIN MODE' : 'MOD PENTADBIR';
+    if (aeRole) aeRole.innerText = 'ADMIN';
     const aeTitle = document.getElementById('adminEventsHeaderTitle');
     if (aeTitle) aeTitle.innerText = isEn ? 'Program Management & School Maps' : 'Pengurusan Program & Peta Sekolah';
     const aeDesc = document.getElementById('adminEventsHeaderDesc');
@@ -1114,7 +1114,7 @@ const I18N = {
     const aHeadUnit = document.getElementById('adminHeaderUnitBadge');
     if (aHeadUnit) aHeadUnit.innerText = isEn ? 'CAREER EDUCATION UNIT • JSS' : 'UNIT PENDIDIKAN KERJAYA • JSS';
     const aHeadMode = document.getElementById('adminHeaderModeBadge');
-    if (aHeadMode) aHeadMode.innerText = isEn ? 'ADMIN MODE' : 'MOD PENTADBIR';
+    if (aHeadMode) aHeadMode.innerText = 'ADMIN';
     const aDashTitle = document.getElementById('adminDashboardHeaderTitle');
     if (aDashTitle) aDashTitle.innerText = isEn ? 'CEU Administrator Dashboard' : 'Papan Pemuka Pentadbir CEU';
     const aDashDesc = document.getElementById('adminDashboardHeaderDesc');
