@@ -727,7 +727,7 @@
               </div>
               <div class="p-3 bg-amber-50 border border-amber-200/80 rounded-xl text-xs text-amber-900 flex flex-col gap-1">
                 <span id="sidebarCard1Title" class="font-bold">Pengesahan RSVP Sesi Takwim</span>
-                <span id="sidebarCard1Desc" class="text-[11px] text-amber-800">Sila sahkan kehadiran &amp; butiran delegasi agensi bagi penyediaan pelekat meja pameran &amp; pas parking VIP Pintu Pagar B.</span>
+                <span id="sidebarCard1Desc" class="text-[11px] text-amber-800">Sila sahkan kehadiran &amp; butiran delegasi agensi bagi penyediaan pelekat meja pameran &amp; tempat letak kereta.</span>
               </div>
               <button onclick="navigateTo('rsvpForm', AppState.activeEvent ? AppState.activeEvent.Event_ID : null)" class="w-full py-2.5 px-4 bg-[#f59e0b] hover:bg-[#d97706] text-slate-900 font-bold text-xs rounded-xl shadow-sm transition-all flex items-center justify-center gap-1.5">
                 <span class="material-symbols-outlined text-[16px]">edit_document</span>
@@ -756,12 +756,12 @@
                 </li>
                 <li class="flex items-center gap-2">
                   <span class="material-symbols-outlined text-teal-600 text-[18px]">directions_car</span>
-                  <span id="amenityLi4">1 Petak letak kereta VIP (Pintu Pagar B)</span>
+                  <span id="amenityLi4">1 Petak letak kereta khas agensi</span>
                 </li>
               </ul>
               <div class="pt-2 border-t border-slate-100 flex items-center justify-between text-xs">
                 <button type="button" onclick="openMapModal('floorPlan')" class="text-[#148e82] font-bold hover:underline flex items-center gap-0.5"><span class="material-symbols-outlined text-[15px]">view_quilt</span><span id="amenityFloorBtnText">Pelan Meja Booth →</span></button>
-                <button type="button" onclick="openMapModal('parking')" class="text-[#d97706] font-bold hover:underline flex items-center gap-0.5"><span class="material-symbols-outlined text-[15px]">directions_car</span><span id="amenityParkingBtnText">Peta Parking Pintu B →</span></button>
+                <button type="button" onclick="openMapModal('parking')" class="text-[#d97706] font-bold hover:underline flex items-center gap-0.5"><span class="material-symbols-outlined text-[15px]">directions_car</span><span id="amenityParkingBtnText">Panduan Parking →</span></button>
               </div>
             </div>
 
@@ -997,15 +997,15 @@
               <textarea id="inputNamaWakil" rows="2" class="w-full p-2.5 rounded-xl border border-slate-200 text-xs outline-none focus:border-primary" placeholder="cth: 1. Awang Mohd Azmi, 2. Dayang Hjh Siti..."></textarea>
             </div>
 
-            <!-- Makluman Pas Letak Kereta VIP Pintu Pagar B (Tanpa perlu daftar no plat) -->
+            <!-- Makluman Pas & Tempat Letak Kereta Agensi (Tanpa perlu daftar no plat) -->
             <div class="p-3 rounded-xl bg-amber-50/70 border border-amber-200/60 flex items-start gap-2.5">
               <span class="material-symbols-outlined text-amber-600 text-[20px] mt-0.5 shrink-0">local_parking</span>
               <div class="flex-1">
                 <div class="flex items-center justify-between">
-                  <span id="labelVipParkingInfo" class="text-xs font-bold text-slate-800">Pas Letak Kereta VIP (Pintu Pagar B)</span>
+                  <span id="labelVipParkingInfo" class="text-xs font-bold text-slate-800">Tempat Letak Kereta Agensi</span>
                   <span id="badgeVipCar" class="text-[10px] text-amber-800 font-bold bg-amber-100/80 px-2 py-0.5 rounded-full border border-amber-300/40">1 Petak Disediakan</span>
                 </div>
-                <p id="hintVipParkingInfo" class="text-[11px] text-slate-600 mt-0.5">1 petak letak kereta khas disediakan di Pintu Pagar B bagi agensi anda tanpa perlu mendaftar nombor plat.</p>
+                <p id="hintVipParkingInfo" class="text-[11px] text-slate-600 mt-0.5">1 petak letak kereta khas disediakan di kawasan sekolah bagi agensi anda tanpa perlu mendaftar nombor plat.</p>
               </div>
             </div>
 
@@ -1045,41 +1045,24 @@
             <h3 id="parkingEventName" class="text-sm font-bold text-on-surface mt-0.5">Program Hala Tuju &amp; FutureLink</h3>
           </div>
 
-          <!-- Peta Vektor Interaktif Zon Parking -->
-          <div class="w-full bg-surface-container-low rounded-xl p-3 border border-slate-200 flex flex-col items-center justify-center text-center">
-            <div class="w-full flex items-center justify-between text-[10px] font-bold text-on-surface-variant mb-2">
-              <span id="gateABadge" class="bg-red-100 text-red-700 px-2 py-0.5 rounded">PINTU PAGAR A (Bas)</span>
-              <span id="gateBBadge" class="bg-teal-soft text-teal-accent px-2 py-0.5 rounded border border-teal-300">PINTU PAGAR B (Khas Agensi)</span>
-            </div>
-
-            <div class="w-full h-32 bg-surface-container rounded-lg border-2 border-dashed border-teal-accent flex flex-col items-center justify-center p-3">
-              <span class="material-symbols-outlined text-teal-accent text-[32px] mb-1">local_parking</span>
-              <span id="parkingBlockCBadge" class="text-xs font-bold text-teal-accent uppercase">Zon Parking Agensi (Blok C)</span>
-              <span id="parkingReservedSub" class="text-[10px] text-on-surface-variant">Petak Rezab Bersebelahan Padang</span>
-            </div>
-          </div>
-
-          <!-- Arahan Parking -->
-          <div class="space-y-2 text-xs text-on-surface-variant bg-surface-container-low p-3 rounded-xl border border-slate-100">
-            <div class="flex items-start gap-2">
-              <span class="material-symbols-outlined text-teal-accent text-[18px] shrink-0">login</span>
-              <span id="parkingGuideText">Laluan Masuk: Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi &amp; VIP). Zon parking dikhaskan di Blok C.</span>
-            </div>
+          <!-- Kawasan Dinamik Peta / Maklumat Sahaja Mengikut Sekolah -->
+          <div id="parkingScreenDynamicArea" class="flex flex-col gap-3">
+            <!-- Diisi dinamik oleh app.js: Peta Imej Sekolah ATAU Kad Panduan Maklumat Teks Sahaja -->
           </div>
 
           <!-- Pas Masuk Digital Ber-QR -->
           <div class="border-2 border-dashed border-tertiary bg-gold-subtle/30 p-3 rounded-xl flex items-center justify-between gap-3">
             <div class="flex flex-col min-w-0">
-              <span id="labelParkingPassHeader" class="text-[10px] font-bold text-tertiary uppercase tracking-wider">PAS PARKING VIP AGENSI (PINTU B)</span>
+              <span id="labelParkingPassHeader" class="text-[10px] font-bold text-tertiary uppercase tracking-wider">PAS / MAKLUMAT PARKING AGENSI</span>
               <span id="parkingPassAgencyName" class="text-xs font-extrabold text-on-surface truncate mt-0.5">UNIVERSITI BRUNEI DARUSSALAM</span>
-              <span id="parkingPassStatusText" class="text-[10px] text-slate-500 mt-0.5">Status: Sah Berdaftar · Petak Rezab</span>
+              <span id="parkingPassStatusText" class="text-[10px] text-slate-500 mt-0.5">Status: Sah Berdaftar · Petak Rezab Disediakan</span>
             </div>
             <div class="w-14 h-14 bg-white rounded-lg p-1 border border-amber-200 flex items-center justify-center shadow-sm shrink-0">
               <span class="material-symbols-outlined text-slate-800 text-[36px]">qr_code_2</span>
             </div>
           </div>
 
-          <button onclick="window.open('https://maps.google.com/?q=Pusat+Tingkatan+Enam+Belait', '_blank')" class="w-full bg-teal-accent hover:bg-teal-700 text-on-primary font-bold py-2.5 px-4 rounded-xl flex items-center justify-center gap-2 text-xs shadow-md">
+          <button id="btnGpsParkingNav" onclick="window.open(AppState.activeEvent && AppState.activeEvent.Pautan_GPS_Maps ? AppState.activeEvent.Pautan_GPS_Maps : 'https://maps.google.com/?q=Brunei', '_blank')" class="w-full bg-teal-accent hover:bg-teal-700 text-on-primary font-bold py-2.5 px-4 rounded-xl flex items-center justify-center gap-2 text-xs shadow-md">
             <span class="material-symbols-outlined text-[18px]">navigation</span>
             <span id="btnGpsParkingNavText">Pandu Arah GPS ke Tempat Letak Kereta Agensi</span>
           </button>
@@ -1287,11 +1270,11 @@
 
           <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200/80 flex flex-col">
             <div class="flex items-center justify-between">
-              <span id="adminStatLabel4" class="text-[11px] text-slate-500 font-semibold uppercase">Soket Plug &amp; Parking VIP</span>
+              <span id="adminStatLabel4" class="text-[11px] text-slate-500 font-semibold uppercase">Soket Plug &amp; Parking Agensi</span>
               <span class="material-symbols-outlined text-teal-600 text-[20px]">power</span>
             </div>
             <span id="adminStatTotalPlugs" class="text-2xl font-black text-teal-600 mt-2">36 Unit</span>
-            <span id="adminStatSub4" class="text-[10px] text-slate-500 font-bold mt-1">Pintu Pagar B (VIP)</span>
+            <span id="adminStatSub4" class="text-[10px] text-slate-500 font-bold mt-1">Tempat Letak Kereta Agensi</span>
           </div>
         </div>
 
@@ -1303,7 +1286,7 @@
                 <span class="w-2.5 h-2.5 rounded-full bg-[#148e82]"></span>
                 Status Pengesahan RSVP 50 Agensi Jemputan
               </h3>
-              <p id="adminTableDesc" class="text-xs text-slate-500 mt-0.5">Semak status delegasi, keperluan logistik, dan nombor kenderaan pintu pagar B.</p>
+              <p id="adminTableDesc" class="text-xs text-slate-500 mt-0.5">Semak status delegasi, keperluan logistik, dan tempat letak kereta agensi.</p>
             </div>
 
             <!-- Carian & Penapis Pantas -->
@@ -1332,7 +1315,7 @@
                   <th class="p-3">STATUS RSVP</th>
                   <th class="p-3 text-center">MEJA / KERUSI</th>
                   <th class="p-3 text-center">PLUG</th>
-                  <th class="p-3">PARKING VIP (PINTU B)</th>
+                  <th class="p-3">PARKING AGENSI</th>
                   <th class="p-3 text-right">AKSI</th>
                 </tr>
               </thead>
@@ -1454,30 +1437,81 @@
             <div class="md:col-span-2 pt-2 border-t border-slate-100 flex flex-col gap-3">
               <div class="flex items-center gap-1.5">
                 <span class="material-symbols-outlined text-[#148e82] text-[18px]">map</span>
-                <h4 id="adminEventsMapSectionTitle" class="text-xs font-bold uppercase tracking-wider text-slate-900">Tetapan Pelan Dewan Sekolah &amp; Peta Parking Agensi</h4>
+                <h4 id="adminEventsMapSectionTitle" class="text-xs font-bold uppercase tracking-wider text-slate-900">Tetapan Pelan Dewan &amp; Parking Sekolah</h4>
               </div>
 
               <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <!-- Pelan Dewan Sekolah -->
-                <div class="p-3.5 bg-teal-50/50 rounded-xl border border-teal-100 flex flex-col gap-2">
-                  <label class="font-bold text-slate-800 flex items-center justify-between">
-                    <span id="labelAdminInputPelanSekolah">Pelan Dewan Sekolah (Susunan Meja)</span>
-                    <span id="badgeAdminInputPelanSekolah" class="text-[10px] text-[#148e82] font-semibold">Pautan Imej / URL</span>
-                  </label>
-                  <input type="url" id="adminInputPelanSekolah" placeholder="https://.../pelan-dewan.png" class="w-full h-10 px-3 bg-white border border-teal-200 rounded-lg text-xs" />
+                <!-- 1. Pelan Dewan Sekolah (Upload / URL) -->
+                <div class="p-3.5 bg-teal-50/50 rounded-xl border border-teal-100 flex flex-col gap-2.5">
+                  <div class="flex items-center justify-between">
+                    <span id="labelAdminInputPelanSekolah" class="font-bold text-xs text-slate-800">Pelan Dewan Sekolah (Susunan Meja)</span>
+                    <span id="badgeAdminInputPelanSekolah" class="text-[10px] text-[#148e82] font-semibold bg-teal-100/60 px-2 py-0.5 rounded">Muat Naik / Fail Peta</span>
+                  </div>
+                  
+                  <!-- Area Muat Naik Fail Imej -->
+                  <div class="flex flex-col gap-2">
+                    <label class="w-full flex items-center justify-center gap-2 py-2 px-3 border border-dashed border-teal-300 rounded-xl bg-white hover:bg-teal-50 cursor-pointer transition-all text-xs font-semibold text-teal-800 shadow-sm">
+                      <span class="material-symbols-outlined text-[18px]">cloud_upload</span>
+                      <span id="btnUploadHallMapText">Pilih Fail Imej Peta Dewan</span>
+                      <input type="file" id="adminUploadPelanSekolah" accept="image/*" class="hidden" onchange="handleAdminFileUpload(event, 'floorPlan')" />
+                    </label>
+
+                    <div id="previewContainerHallMap" class="relative rounded-lg overflow-hidden border border-slate-200 bg-white max-h-36 hidden">
+                      <img id="adminPreviewHallMap" src="" alt="Pratinjau Peta Dewan" class="w-full h-36 object-contain" />
+                      <button type="button" onclick="clearAdminMap('floorPlan')" class="absolute top-1 right-1 p-1 rounded-full bg-rose-600 text-white shadow-sm hover:bg-rose-700" title="Buang Peta">
+                        <span class="material-symbols-outlined text-[14px]">close</span>
+                      </button>
+                    </div>
+
+                    <input type="url" id="adminInputPelanSekolah" oninput="handleAdminUrlInput('floorPlan')" placeholder="https://.../hall-floorplan.png" class="w-full h-9 px-2.5 bg-white border border-teal-200 rounded-lg text-[11px]" />
+                  </div>
                   <p id="descAdminInputPelanSekolah" class="text-[10px] text-slate-500 leading-relaxed">
-                    Pelan susun atur meja pameran agensi untuk paparan agensi jemputan.
+                    Muat naik gambar pelan dewan atau susun atur meja pameran khusus untuk sekolah ini.
                   </p>
                 </div>
 
-                <!-- Peta & Lokasi Parking Agensi (Pintu Pagar B) -->
-                <div class="p-3.5 bg-amber-50/50 rounded-xl border border-amber-100 flex flex-col gap-2">
-                  <label class="font-bold text-slate-800 flex items-center justify-between">
-                    <span id="labelAdminInputPelanParking">Lokasi Parking Agensi (Pintu Pagar B)</span>
-                    <span id="badgeAdminInputPelanParking" class="text-[10px] text-amber-700 font-semibold">Peta &amp; Panduan Arah</span>
-                  </label>
-                  <input type="url" id="adminInputPelanParking" placeholder="https://.../peta-parking.png" class="w-full h-10 px-3 bg-white border border-amber-200 rounded-lg text-xs" />
-                  <input type="text" id="adminInputPanduanParking" placeholder="Panduan: Sila masuk melalui Pintu Pagar B (Blok C VIP)" class="w-full h-10 px-3 bg-white border border-amber-200 rounded-lg text-xs" />
+                <!-- 2. Tetapan Parking Agensi (Maklumat Sahaja vs Peta) -->
+                <div class="p-3.5 bg-amber-50/50 rounded-xl border border-amber-100 flex flex-col gap-2.5">
+                  <div class="flex items-center justify-between">
+                    <span id="labelAdminInputPelanParking" class="font-bold text-xs text-slate-800">Tempat Letak Kereta Agensi</span>
+                    <span id="badgeAdminInputPelanParking" class="text-[10px] text-amber-700 font-semibold bg-amber-100/60 px-2 py-0.5 rounded">Maklumat / Peta</span>
+                  </div>
+
+                  <!-- Suis Jenis Parking: Maklumat Sahaja VS Peta Imej -->
+                  <div class="grid grid-cols-2 gap-1.5 p-1 bg-white rounded-lg border border-amber-200 text-xs">
+                    <button type="button" id="btnParkingModeInfo" onclick="setAdminParkingMode('info_only')" class="py-1 px-2 rounded-md font-bold text-[11px] transition-all bg-amber-500 text-white shadow-sm flex items-center justify-center gap-1">
+                      <span class="material-symbols-outlined text-[14px]">info</span>
+                      <span id="labelParkingModeInfoText">Maklumat Sahaja</span>
+                    </button>
+                    <button type="button" id="btnParkingModeMap" onclick="setAdminParkingMode('map_info')" class="py-1 px-2 rounded-md font-semibold text-[11px] text-slate-600 hover:text-slate-900 transition-all flex items-center justify-center gap-1">
+                      <span class="material-symbols-outlined text-[14px]">map</span>
+                      <span id="labelParkingModeMapText">Peta &amp; Maklumat</span>
+                    </button>
+                  </div>
+
+                  <!-- Arahan / Panduan Teks Parking -->
+                  <div class="flex flex-col gap-1">
+                    <label id="labelAdminPanduanParking" class="text-[10px] font-bold text-slate-600 uppercase">Arahan / Panduan Parking Sekolah:</label>
+                    <textarea id="adminInputPanduanParking" rows="2" placeholder="Panduan: Sila masuk melalui pintu utama atau zon khas agensi..." class="w-full p-2.5 bg-white border border-amber-200 rounded-lg text-xs leading-relaxed"></textarea>
+                  </div>
+
+                  <!-- Container Muat Naik Peta Parking (Hanya Aktif jika Mod Peta) -->
+                  <div id="adminParkingMapUploadArea" class="hidden flex-col gap-2 pt-1 border-t border-amber-200/60">
+                    <label class="w-full flex items-center justify-center gap-2 py-2 px-3 border border-dashed border-amber-300 rounded-xl bg-white hover:bg-amber-50 cursor-pointer transition-all text-xs font-semibold text-amber-900 shadow-sm">
+                      <span class="material-symbols-outlined text-[18px]">cloud_upload</span>
+                      <span id="btnUploadParkingMapText">Pilih Fail Imej Peta Parking</span>
+                      <input type="file" id="adminUploadPelanParking" accept="image/*" class="hidden" onchange="handleAdminFileUpload(event, 'parking')" />
+                    </label>
+
+                    <div id="previewContainerParkingMap" class="relative rounded-lg overflow-hidden border border-slate-200 bg-white max-h-36 hidden">
+                      <img id="adminPreviewParkingMap" src="" alt="Pratinjau Peta Parking" class="w-full h-36 object-contain" />
+                      <button type="button" onclick="clearAdminMap('parking')" class="absolute top-1 right-1 p-1 rounded-full bg-rose-600 text-white shadow-sm hover:bg-rose-700" title="Buang Peta">
+                        <span class="material-symbols-outlined text-[14px]">close</span>
+                      </button>
+                    </div>
+
+                    <input type="url" id="adminInputPelanParking" oninput="handleAdminUrlInput('parking')" placeholder="https://.../parking-map.png" class="w-full h-9 px-2.5 bg-white border border-amber-200 rounded-lg text-[11px]" />
+                  </div>
                 </div>
               </div>
             </div>

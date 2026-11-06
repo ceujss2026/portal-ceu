@@ -719,7 +719,7 @@ function renderHomeScreen(populateDropdown = true) {
                 <span class="material-symbols-outlined text-[14px] text-amber-400">apartment</span>
                 <span class="truncate">${primaryEvent.Tempat_Venue}</span>
               </div>
-              <span class="text-[10px] text-teal-300 font-bold shrink-0">${isEn ? 'Gate B VIP' : 'Pintu B VIP'}</span>
+              <span class="text-[10px] text-teal-300 font-bold shrink-0">${isEn ? 'Agency Parking' : 'Parking Agensi'}</span>
             </div>
           </div>
         </div>
@@ -1256,13 +1256,14 @@ async function handleRsvpFormSubmit() {
 // 8. RENDERING SKRIN 08: PANDUAN PARKING AGENSI
 // ============================================
 function renderParkingScreen(eventId) {
-  const ev = (AppState.events.find(e => e.Event_ID === eventId) || AppState.activeEvent) || getFallbackEvents()[0];
+  const ev = (eventId ? AppState.events.find(e => e.Event_ID === eventId) : AppState.activeEvent) || getFallbackEvents()[0];
+  if (!ev) return;
   const user = AppState.currentUser;
   const isEn = typeof I18N !== 'undefined' && I18N.currentLang === 'EN';
 
   const passAgencyName = document.getElementById('parkingPassAgencyName');
   const parkingEventName = document.getElementById('parkingEventName');
-  const parkingGuideText = document.getElementById('parkingGuideText');
+  const dynamicArea = document.getElementById('parkingScreenDynamicArea');
 
   if (passAgencyName && user) {
     passAgencyName.innerText = user.namaAgensi || 'UNIVERSITI BRUNEI DARUSSALAM';
@@ -1270,12 +1271,61 @@ function renderParkingScreen(eventId) {
   if (parkingEventName) {
     parkingEventName.innerText = ev.Nama_Acara;
   }
-  if (parkingGuideText) {
-    parkingGuideText.innerText = ev.Panduan_Parking 
-      ? (isEn 
-          ? ev.Panduan_Parking.replace('Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi & VIP). Zon parking dikhaskan di Blok C, bersebelahan padang sekolah.', 'Please enter via Gate B (Designated Agency & VIP Gate). Parking zone is allocated at Block C, adjacent to the school field.').replace('Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi & VIP).', 'Please enter via Gate B (Designated Agency & VIP Gate).')
-          : ev.Panduan_Parking)
-      : (isEn ? 'Please enter via Gate B (Designated Agency & VIP Gate). Parking zone is allocated at Block C, adjacent to the school field.' : 'Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi & VIP). Zon parking dikhaskan di Blok C, bersebelahan padang sekolah.');
+
+  const isMapMode = (ev.Jenis_Parking === 'map_info') && !!ev.Pelan_Parking_URL;
+
+  if (dynamicArea) {
+    if (isMapMode) {
+      dynamicArea.innerHTML = `
+        <div class="rounded-xl overflow-hidden border border-slate-200 bg-white p-2.5 shadow-sm">
+          <img src="${ev.Pelan_Parking_URL}" class="w-full max-h-72 object-contain rounded-lg bg-slate-50" alt="Peta Parking ${ev.Sekolah || ev.Nama_Acara}" />
+          <p class="text-[10px] text-slate-500 mt-2 font-mono text-center">${isEn ? 'School Parking Map • ' : 'Peta Lokasi Parking Sekolah • '}${ev.Tempat_Venue}</p>
+        </div>
+        <div class="p-3.5 bg-amber-50/70 rounded-xl border border-amber-200/80 text-xs flex flex-col gap-1.5">
+          <div class="flex items-center gap-1.5 font-bold text-amber-900">
+            <span class="material-symbols-outlined text-[16px] text-amber-600">info</span>
+            <span>${isEn ? 'School Parking Instructions & Guide' : 'Maklumat & Arahan Tempat Letak Kereta'}</span>
+          </div>
+          <p class="text-[11px] text-slate-700 leading-relaxed">${ev.Panduan_Parking || (isEn ? 'Please follow host school guidance for designated agency representative parking.' : 'Sila patuhi panduan pihak sekolah bagi tempat letak kereta rasmi wakil agensi.')}</p>
+        </div>
+        <a href="${ev.Pautan_GPS_Maps || 'https://maps.google.com/?q=' + encodeURIComponent(ev.Tempat_Venue + ' Brunei')}" target="_blank" class="w-full py-2.5 bg-[#006194] hover:bg-[#004b73] text-white font-bold rounded-xl text-xs flex items-center justify-center gap-2 shadow-sm transition-all">
+          <span class="material-symbols-outlined text-[18px]">near_me</span>
+          <span>${isEn ? 'GPS Navigation to School Parking' : 'Pandu Arah GPS ke Tempat Letak Kereta Agensi'}</span>
+        </a>
+      `;
+    } else {
+      // Mod Maklumat Sahaja (Information Only)
+      dynamicArea.innerHTML = `
+        <div class="p-4 bg-gradient-to-br from-amber-50 to-orange-50/50 rounded-xl border border-amber-200 text-xs flex flex-col gap-3 shadow-sm">
+          <div class="flex items-center gap-2">
+            <div class="w-8 h-8 rounded-lg bg-amber-500 text-white flex items-center justify-center shrink-0 shadow-sm">
+              <span class="material-symbols-outlined text-[18px]">local_parking</span>
+            </div>
+            <div class="flex flex-col min-w-0">
+              <span class="font-bold text-xs text-amber-950 uppercase">${isEn ? 'Information Only Mode' : 'Mod Maklumat Sahaja'}</span>
+              <span class="text-[11px] text-amber-800">${isEn ? 'The host school provides written instructions for visiting agencies:' : 'Pihak sekolah menyediakan panduan bertulis bagi agensi jemputan:'}</span>
+            </div>
+          </div>
+          <div class="p-3 bg-white/90 rounded-lg border border-amber-200/80 text-slate-800 font-medium leading-relaxed">
+            ${ev.Panduan_Parking || (isEn ? 'Please follow host school guidance for designated agency representative parking in the school compound.' : 'Sila patuhi panduan pihak sekolah bagi tempat letak kereta rasmi wakil agensi di kawasan sekolah.')}
+          </div>
+          <div class="grid grid-cols-2 gap-2 text-[11px]">
+            <div class="p-2.5 rounded-lg bg-white border border-amber-100 flex items-center gap-2">
+              <span class="material-symbols-outlined text-amber-600 text-[16px]">check_circle</span>
+              <span class="font-semibold text-slate-700">${isEn ? '1 Slot Allocated' : '1 Petak Disediakan'}</span>
+            </div>
+            <div class="p-2.5 rounded-lg bg-white border border-amber-100 flex items-center gap-2">
+              <span class="material-symbols-outlined text-amber-600 text-[16px]">no_crash</span>
+              <span class="font-semibold text-slate-700">${isEn ? 'No License Plate Req.' : 'Tanpa Daftar Plat'}</span>
+            </div>
+          </div>
+        </div>
+        <a href="${ev.Pautan_GPS_Maps || 'https://maps.google.com/?q=' + encodeURIComponent(ev.Tempat_Venue + ' Brunei')}" target="_blank" class="w-full py-2.5 bg-[#006194] hover:bg-[#004b73] text-white font-bold rounded-xl text-xs flex items-center justify-center gap-2 shadow-sm transition-all">
+          <span class="material-symbols-outlined text-[18px]">near_me</span>
+          <span>${isEn ? 'GPS Navigation to School Parking' : 'Pandu Arah GPS ke Tempat Letak Kereta Agensi'}</span>
+        </a>
+      `;
+    }
   }
 }
 
@@ -1425,7 +1475,7 @@ function renderAdminAgenciesTable() {
           ${isHadir ? `
             <span class="inline-flex items-center gap-1 font-semibold text-[11px] text-slate-700 bg-slate-100 px-2.5 py-1 rounded-lg border border-slate-200/60">
               <span class="material-symbols-outlined text-[13px] text-amber-600">local_parking</span>
-              <span>${isEn ? '1 Slot (Gate B)' : '1 Petak (Pintu B)'}</span>
+              <span>${isEn ? '1 Slot Allocated' : '1 Petak Disediakan'}</span>
             </span>
           ` : '<span class="text-slate-300">-</span>'}
         </td>
@@ -1603,6 +1653,157 @@ function renderAdminEventsList() {
   }
 }
 
+// ============================================
+// PENGENDALI MUAT NAIK PETA & IMEJ ADMIN
+// ============================================
+function processUploadedImage(file, callback) {
+  if (!file) return;
+  const isEn = typeof I18N !== 'undefined' && I18N.currentLang === 'EN';
+  if (!file.type.match('image.*')) {
+    showToast(isEn ? 'Please select a valid image file (PNG, JPG, WEBP).' : 'Sila pilih fail imej yang sah (PNG, JPG, WEBP).', 'error');
+    return;
+  }
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const img = new Image();
+    img.onload = function() {
+      const maxDim = 1200;
+      let width = img.width;
+      let height = img.height;
+      if (width > maxDim || height > maxDim) {
+        if (width > height) {
+          height = Math.round((height * maxDim) / width);
+          width = maxDim;
+        } else {
+          width = Math.round((width * maxDim) / height);
+          height = maxDim;
+        }
+      }
+      const canvas = document.createElement('canvas');
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0, width, height);
+      const dataUrl = canvas.toDataURL('image/jpeg', 0.82);
+      callback(dataUrl);
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+function handleAdminFileUpload(event, type) {
+  const file = event.target.files && event.target.files[0];
+  if (!file) return;
+  const isEn = typeof I18N !== 'undefined' && I18N.currentLang === 'EN';
+  processUploadedImage(file, (dataUrl) => {
+    if (type === 'floorPlan') {
+      const input = document.getElementById('adminInputPelanSekolah');
+      if (input) input.value = dataUrl;
+      const previewCont = document.getElementById('previewContainerHallMap');
+      const previewImg = document.getElementById('adminPreviewHallMap');
+      if (previewCont && previewImg) {
+        previewImg.src = dataUrl;
+        previewCont.classList.remove('hidden');
+      }
+      showToast(isEn ? 'Hall floor plan image loaded!' : 'Pelan dewan berjaya dimuat naik!', 'success');
+    } else if (type === 'parking') {
+      const input = document.getElementById('adminInputPelanParking');
+      if (input) input.value = dataUrl;
+      const previewCont = document.getElementById('previewContainerParkingMap');
+      const previewImg = document.getElementById('adminPreviewParkingMap');
+      if (previewCont && previewImg) {
+        previewImg.src = dataUrl;
+        previewCont.classList.remove('hidden');
+      }
+      showToast(isEn ? 'Parking map image loaded!' : 'Peta parking berjaya dimuat naik!', 'success');
+    }
+  });
+}
+
+function clearAdminMap(type) {
+  const isEn = typeof I18N !== 'undefined' && I18N.currentLang === 'EN';
+  if (type === 'floorPlan') {
+    const input = document.getElementById('adminInputPelanSekolah');
+    const fileIn = document.getElementById('adminUploadPelanSekolah');
+    const previewCont = document.getElementById('previewContainerHallMap');
+    const previewImg = document.getElementById('adminPreviewHallMap');
+    if (input) input.value = '';
+    if (fileIn) fileIn.value = '';
+    if (previewCont) previewCont.classList.add('hidden');
+    if (previewImg) previewImg.src = '';
+    showToast(isEn ? 'Hall map removed.' : 'Pelan dewan dipadam.', 'info');
+  } else if (type === 'parking') {
+    const input = document.getElementById('adminInputPelanParking');
+    const fileIn = document.getElementById('adminUploadPelanParking');
+    const previewCont = document.getElementById('previewContainerParkingMap');
+    const previewImg = document.getElementById('adminPreviewParkingMap');
+    if (input) input.value = '';
+    if (fileIn) fileIn.value = '';
+    if (previewCont) previewCont.classList.add('hidden');
+    if (previewImg) previewImg.src = '';
+    showToast(isEn ? 'Parking map removed.' : 'Peta parking dipadam.', 'info');
+  }
+}
+
+function handleAdminUrlInput(type) {
+  if (type === 'floorPlan') {
+    const url = (document.getElementById('adminInputPelanSekolah')?.value || '').trim();
+    const previewCont = document.getElementById('previewContainerHallMap');
+    const previewImg = document.getElementById('adminPreviewHallMap');
+    if (url && previewCont && previewImg) {
+      previewImg.src = url;
+      previewCont.classList.remove('hidden');
+    } else if (previewCont) {
+      previewCont.classList.add('hidden');
+    }
+  } else if (type === 'parking') {
+    const url = (document.getElementById('adminInputPelanParking')?.value || '').trim();
+    const previewCont = document.getElementById('previewContainerParkingMap');
+    const previewImg = document.getElementById('adminPreviewParkingMap');
+    if (url && previewCont && previewImg) {
+      previewImg.src = url;
+      previewCont.classList.remove('hidden');
+    } else if (previewCont) {
+      previewCont.classList.add('hidden');
+    }
+  }
+}
+
+let adminSelectedParkingMode = 'info_only';
+
+function setAdminParkingMode(mode) {
+  adminSelectedParkingMode = mode;
+  const btnInfo = document.getElementById('btnParkingModeInfo');
+  const btnMap = document.getElementById('btnParkingModeMap');
+  const uploadArea = document.getElementById('adminParkingMapUploadArea');
+
+  if (mode === 'map_info') {
+    if (btnMap) {
+      btnMap.className = 'py-1 px-2 rounded-md font-bold text-[11px] transition-all bg-amber-500 text-white shadow-sm flex items-center justify-center gap-1';
+    }
+    if (btnInfo) {
+      btnInfo.className = 'py-1 px-2 rounded-md font-semibold text-[11px] text-slate-600 hover:text-slate-900 transition-all flex items-center justify-center gap-1';
+    }
+    if (uploadArea) {
+      uploadArea.classList.remove('hidden');
+      uploadArea.classList.add('flex');
+    }
+  } else {
+    // info_only
+    if (btnInfo) {
+      btnInfo.className = 'py-1 px-2 rounded-md font-bold text-[11px] transition-all bg-amber-500 text-white shadow-sm flex items-center justify-center gap-1';
+    }
+    if (btnMap) {
+      btnMap.className = 'py-1 px-2 rounded-md font-semibold text-[11px] text-slate-600 hover:text-slate-900 transition-all flex items-center justify-center gap-1';
+    }
+    if (uploadArea) {
+      uploadArea.classList.add('hidden');
+      uploadArea.classList.remove('flex');
+    }
+  }
+}
+
 function populateAdminEventForm(eventId) {
   const ev = (AppState.events.find(e => e.Event_ID === eventId) || AppState.activeEvent) || getFallbackEvents()[0];
   if (!ev) return;
@@ -1626,10 +1827,33 @@ function populateAdminEventForm(eventId) {
   setVal('adminInputMasa', ev.Masa);
   setVal('adminInputTempat', ev.Tempat_Venue);
   setVal('adminInputGps', ev.Pautan_GPS_Maps);
-  setVal('adminInputPelanSekolah', ev.Pelan_Sekolah_URL);
-  setVal('adminInputPelanParking', ev.Pelan_Parking_URL || 'https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=600&q=80');
-  setVal('adminInputPanduanParking', ev.Panduan_Parking);
-  setVal('adminInputCatatanKhas', ev.Catatan_Khas);
+  setVal('adminInputPelanSekolah', ev.Pelan_Sekolah_URL || '');
+  setVal('adminInputPelanParking', ev.Pelan_Parking_URL || '');
+  setVal('adminInputPanduanParking', ev.Panduan_Parking || '');
+  setVal('adminInputCatatanKhas', ev.Catatan_Khas || '');
+
+  // Pratinjau Pelan Dewan Sekolah
+  const previewHallCont = document.getElementById('previewContainerHallMap');
+  const previewHallImg = document.getElementById('adminPreviewHallMap');
+  if (ev.Pelan_Sekolah_URL && previewHallCont && previewHallImg) {
+    previewHallImg.src = ev.Pelan_Sekolah_URL;
+    previewHallCont.classList.remove('hidden');
+  } else if (previewHallCont) {
+    previewHallCont.classList.add('hidden');
+  }
+
+  // Mod & Pratinjau Parking Sekolah
+  const mode = ev.Jenis_Parking || (ev.Pelan_Parking_URL ? 'map_info' : 'info_only');
+  setAdminParkingMode(mode);
+
+  const previewParkCont = document.getElementById('previewContainerParkingMap');
+  const previewParkImg = document.getElementById('adminPreviewParkingMap');
+  if (ev.Pelan_Parking_URL && previewParkCont && previewParkImg) {
+    previewParkImg.src = ev.Pelan_Parking_URL;
+    previewParkCont.classList.remove('hidden');
+  } else if (previewParkCont) {
+    previewParkCont.classList.add('hidden');
+  }
 }
 
 async function handleSaveAdminEvent(event) {
@@ -1641,6 +1865,9 @@ async function handleSaveAdminEvent(event) {
   const idx = list.findIndex(e => e.Event_ID === eventId);
   const prev = idx > -1 ? list[idx] : {};
 
+  const parkingMode = adminSelectedParkingMode || 'info_only';
+  const parkingUrl = parkingMode === 'map_info' ? (document.getElementById('adminInputPelanParking')?.value || '').trim() : '';
+
   const updated = Object.assign({}, prev, {
     Event_ID: eventId,
     Nama_Acara: document.getElementById('adminInputNamaAcara').value.trim(),
@@ -1649,10 +1876,11 @@ async function handleSaveAdminEvent(event) {
     Masa: document.getElementById('adminInputMasa').value.trim(),
     Tempat_Venue: document.getElementById('adminInputTempat').value.trim(),
     Pautan_GPS_Maps: document.getElementById('adminInputGps').value.trim(),
-    Pelan_Sekolah_URL: document.getElementById('adminInputPelanSekolah').value.trim(),
-    Pelan_Parking_URL: document.getElementById('adminInputPelanParking').value.trim(),
-    Panduan_Parking: document.getElementById('adminInputPanduanParking').value.trim(),
-    Catatan_Khas: document.getElementById('adminInputCatatanKhas').value.trim(),
+    Pelan_Sekolah_URL: (document.getElementById('adminInputPelanSekolah')?.value || '').trim(),
+    Pelan_Parking_URL: parkingUrl,
+    Jenis_Parking: parkingMode,
+    Panduan_Parking: (document.getElementById('adminInputPanduanParking')?.value || '').trim(),
+    Catatan_Khas: (document.getElementById('adminInputCatatanKhas')?.value || '').trim(),
     Status_Acara: 'Aktif'
   });
 
@@ -1690,45 +1918,73 @@ function openMapModal(type) {
   if (type === 'floorPlan') {
     if (icon) icon.innerText = 'view_quilt';
     if (title) title.innerText = isEn ? 'School Hall Floor Plan (Booth Layout)' : 'Pelan Dewan Sekolah (Susunan Meja Agensi)';
+    const hasMapImage = !!ev.Pelan_Sekolah_URL;
     area.innerHTML = `
       <div class="flex flex-col gap-3">
         <div class="p-3 bg-teal-50 rounded-xl border border-teal-100 text-xs text-teal-900 flex items-center gap-2">
           <span class="material-symbols-outlined text-teal-700">info</span>
           <span>${isEn ? 'Each agency is allocated 1 exhibition table & 2 chairs. Power sockets are available upon request.' : 'Setiap agensi diperuntukkan 1 meja pameran &amp; 2 kerusi. Soket elektrik disediakan atas permohonan rasmi.'}</span>
         </div>
-        <div class="rounded-xl overflow-hidden border border-slate-200 bg-slate-100 p-2 text-center">
-          <img src="${ev.Pelan_Sekolah_URL || 'https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=600&q=80'}" class="w-full max-h-64 object-cover rounded-lg shadow-sm mx-auto" alt="Pelan Dewan" />
-          <p class="text-[10px] text-slate-500 mt-2 font-mono">${isEn ? 'Agency Exhibition Booth Layout • ' : 'Pelan Susun Atur Meja Pameran Agensi • '}${ev.Tempat_Venue}</p>
-        </div>
+        ${hasMapImage ? `
+          <div class="rounded-xl overflow-hidden border border-slate-200 bg-slate-100 p-2 text-center">
+            <img src="${ev.Pelan_Sekolah_URL}" class="w-full max-h-72 object-contain rounded-lg shadow-sm mx-auto" alt="Pelan Dewan ${ev.Sekolah || ev.Nama_Acara}" />
+            <p class="text-[10px] text-slate-500 mt-2 font-mono">${isEn ? 'Agency Exhibition Booth Layout • ' : 'Pelan Susun Atur Meja Pameran Agensi • '}${ev.Tempat_Venue}</p>
+          </div>
+        ` : `
+          <div class="p-6 rounded-xl border-2 border-dashed border-teal-200 bg-teal-50/40 text-center flex flex-col items-center gap-2">
+            <span class="material-symbols-outlined text-teal-600 text-[36px]">table_restaurant</span>
+            <h4 class="font-bold text-xs text-slate-800">${ev.Tempat_Venue}</h4>
+            <p class="text-[11px] text-slate-600 max-w-sm">${isEn ? 'Floor plan image has not been uploaded yet for this school. Booth tables are allocated upon arrival at the foyer/hall.' : 'Gambar pelan dewan belum dimuat naik untuk sekolah ini. Meja pameran akan dilabelkan di pintu masuk foyer/dewan semasa pendaftaran tiba.'}</p>
+          </div>
+        `}
         <div class="grid grid-cols-2 gap-2 text-xs">
           <div class="p-2.5 rounded-lg bg-slate-50 border border-slate-100">
-            <span class="text-[10px] text-slate-400 block uppercase">${isEn ? 'Booth Entry Time' : 'Waktu Masuk Booth'}</span>
+            <span class="text-[10px] text-slate-400 block uppercase">${isEn ? 'Booth Setup Time' : 'Waktu Susun Meja'}</span>
             <span class="font-bold text-slate-800">${isEn ? '07:00 AM' : '07:00 Pagi'}</span>
           </div>
           <div class="p-2.5 rounded-lg bg-slate-50 border border-slate-100">
             <span class="text-[10px] text-slate-400 block uppercase">${isEn ? 'Agency Entry Gate' : 'Pintu Masuk Agensi'}</span>
-            <span class="font-bold text-slate-800">${isEn ? 'Right Side Door (Foyer)' : 'Pintu Sisi Kanan (Foyer)'}</span>
+            <span class="font-bold text-slate-800">${isEn ? 'Main Hall Entrance' : 'Pintu Utama Dewan'}</span>
           </div>
         </div>
       </div>
     `;
   } else {
+    // parking
     if (icon) icon.innerText = 'directions_car';
-    if (title) title.innerText = isEn ? 'Agency Parking Guide & Map (Gate B)' : 'Peta & Lokasi Parking Agensi (Pintu Pagar B)';
+    if (title) title.innerText = isEn ? 'Agency Parking Guide & Location' : 'Panduan & Lokasi Parking Agensi';
+    const isMapMode = (ev.Jenis_Parking === 'map_info') && !!ev.Pelan_Parking_URL;
+
     area.innerHTML = `
       <div class="flex flex-col gap-3">
         <div class="p-3 bg-amber-50 rounded-xl border border-amber-100 text-xs text-amber-900 flex items-center gap-2">
-          <span class="material-symbols-outlined text-amber-700">security</span>
-          <span>${isEn ? 'Gate B VIP entry pass is restricted to registered official agency vehicles.' : 'Pas masuk VIP Pintu Pagar B adalah terhad kepada kenderaan rasmi agensi yang berdaftar.'}</span>
+          <span class="material-symbols-outlined text-amber-700">verified</span>
+          <span>${isEn ? 'Official agency parking pass is valid for registered participating representatives.' : 'Pas masuk parking rasmi agensi sah untuk wakil pegawai pempamer berdaftar.'}</span>
         </div>
-        <div class="rounded-xl overflow-hidden border border-slate-200 bg-slate-100 p-2 text-center">
-          <img src="${ev.Pelan_Parking_URL || 'https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=600&q=80'}" class="w-full max-h-64 object-cover rounded-lg shadow-sm mx-auto" alt="Peta Parking" />
-          <p class="text-[10px] text-slate-500 mt-2 font-mono">${ev.Panduan_Parking || (isEn ? 'Please enter via Gate B (Block C VIP)' : 'Sila masuk melalui Pintu Pagar B (Blok C VIP)')}</p>
-        </div>
+        ${isMapMode ? `
+          <div class="rounded-xl overflow-hidden border border-slate-200 bg-slate-100 p-2 text-center">
+            <img src="${ev.Pelan_Parking_URL}" class="w-full max-h-72 object-contain rounded-lg shadow-sm mx-auto" alt="Peta Parking" />
+            <p class="text-[10px] text-slate-500 mt-2 font-mono">${ev.Panduan_Parking || (isEn ? 'Official Agency Parking Area' : 'Kawasan Tempat Letak Kereta Agensi')}</p>
+          </div>
+        ` : `
+          <div class="p-4 rounded-xl border border-amber-200 bg-amber-50/50 flex flex-col gap-2">
+            <div class="flex items-center gap-2 font-bold text-xs text-amber-900">
+              <span class="material-symbols-outlined text-[18px] text-amber-600">info</span>
+              <span>${isEn ? 'School Parking Guidance (Information Only)' : 'Panduan Parking Sekolah (Maklumat Sahaja)'}</span>
+            </div>
+            <p class="text-xs text-slate-700 leading-relaxed bg-white p-3 rounded-lg border border-amber-100">
+              ${ev.Panduan_Parking || (isEn ? 'Please follow host school guidance for designated agency representative parking upon entering the compound.' : 'Sila patuhi panduan pihak sekolah bagi tempat letak kereta rasmi wakil agensi semasa memasuki kawasan sekolah.')}
+            </p>
+            <div class="flex items-center justify-between text-[11px] text-slate-600 px-1">
+              <span>● ${isEn ? '1 Dedicated Bay Allocated' : '1 Petak Khas Agensi Disediakan'}</span>
+              <span>● ${isEn ? 'No Plate Registration Required' : 'Tanpa Pendaftaran Plat'}</span>
+            </div>
+          </div>
+        `}
         <div class="flex flex-col gap-2">
-          <a href="${ev.Pautan_GPS_Maps || 'https://maps.google.com/?q=Brunei'}" target="_blank" class="w-full py-2.5 bg-[#006194] hover:bg-[#004b73] text-white font-bold rounded-xl text-xs flex items-center justify-center gap-2 shadow-sm transition-all">
+          <a href="${ev.Pautan_GPS_Maps || 'https://maps.google.com/?q=' + encodeURIComponent(ev.Tempat_Venue + ' Brunei')}" target="_blank" class="w-full py-2.5 bg-[#006194] hover:bg-[#004b73] text-white font-bold rounded-xl text-xs flex items-center justify-center gap-2 shadow-sm transition-all">
             <span class="material-symbols-outlined text-[18px]">near_me</span>
-            <span>${isEn ? 'Open Google Maps Navigation (Gate B)' : 'Buka Navigasi Google Maps (Pintu Pagar B)'}</span>
+            <span>${isEn ? 'Open Google Maps Navigation' : 'Buka Navigasi Google Maps'}</span>
           </a>
         </div>
       </div>
@@ -1977,7 +2233,7 @@ function getFallbackEvents() {
           "Pautan_GPS_Maps": "https://maps.google.com/?q=Sekolah+Menengah+Tanjong+Maya+Brunei",
           "Pelan_Sekolah_URL": "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=600&q=80",
           "Pelan_Parking_URL": "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=600&q=80",
-          "Panduan_Parking": "Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi & VIP). Zon parking dikhaskan di Blok C.",
+          "Panduan_Parking": "Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi). Zon parking dikhaskan di Blok C.",
           "Catatan_Khas": "Pakaian rasmi pejabat / kot. Meja pameran disediakan oleh pihak sekolah di dewan.",
           "Status_Acara": "Aktif"
     },
@@ -1995,7 +2251,7 @@ function getFallbackEvents() {
           "Pautan_GPS_Maps": "https://maps.google.com/?q=Sekolah+Menengah+Sayyidina+Othman+Brunei",
           "Pelan_Sekolah_URL": "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=600&q=80",
           "Pelan_Parking_URL": "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=600&q=80",
-          "Panduan_Parking": "Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi & VIP).",
+          "Panduan_Parking": "Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi).",
           "Catatan_Khas": "Pakaian rasmi pejabat / kot. Meja pameran disediakan di dewan.",
           "Status_Acara": "Aktif"
     },
@@ -2013,7 +2269,7 @@ function getFallbackEvents() {
           "Pautan_GPS_Maps": "https://maps.google.com/?q=Sekolah+Menengah+Sayyidina+Husain+Brunei",
           "Pelan_Sekolah_URL": "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=600&q=80",
           "Pelan_Parking_URL": "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=600&q=80",
-          "Panduan_Parking": "Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi & VIP).",
+          "Panduan_Parking": "Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi).",
           "Catatan_Khas": "Pakaian rasmi pejabat / kot.",
           "Status_Acara": "Aktif"
     },
@@ -2031,7 +2287,7 @@ function getFallbackEvents() {
           "Pautan_GPS_Maps": "https://maps.google.com/?q=Sekolah+Menengah+Katok+Brunei",
           "Pelan_Sekolah_URL": "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=600&q=80",
           "Pelan_Parking_URL": "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=600&q=80",
-          "Panduan_Parking": "Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi & VIP).",
+          "Panduan_Parking": "Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi).",
           "Catatan_Khas": "Pakaian rasmi pejabat / kot.",
           "Status_Acara": "Aktif"
     },
@@ -2049,7 +2305,7 @@ function getFallbackEvents() {
           "Pautan_GPS_Maps": "https://maps.google.com/?q=SMPAPH+Rashidah+Lumut+Brunei",
           "Pelan_Sekolah_URL": "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=600&q=80",
           "Pelan_Parking_URL": "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=600&q=80",
-          "Panduan_Parking": "Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi & VIP Daerah Belait).",
+          "Panduan_Parking": "Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi Daerah Belait).",
           "Catatan_Khas": "Penyertaan gabungan bersama Maktab Anthony Abell. Masa sesi Daerah Belait: 09:00 - 12:00.",
           "Status_Acara": "Aktif"
     },
@@ -2067,7 +2323,7 @@ function getFallbackEvents() {
           "Pautan_GPS_Maps": "https://maps.google.com/?q=Sekolah+Menengah+Sultan+Sharif+Ali+Brunei",
           "Pelan_Sekolah_URL": "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=600&q=80",
           "Pelan_Parking_URL": "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=600&q=80",
-          "Panduan_Parking": "Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi & VIP).",
+          "Panduan_Parking": "Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi).",
           "Catatan_Khas": "Pakaian rasmi pejabat / kot.",
           "Status_Acara": "Aktif"
     },
@@ -2085,7 +2341,7 @@ function getFallbackEvents() {
           "Pautan_GPS_Maps": "https://maps.google.com/?q=SMPIHM+Serasa+Muara+Brunei",
           "Pelan_Sekolah_URL": "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=600&q=80",
           "Pelan_Parking_URL": "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=600&q=80",
-          "Panduan_Parking": "Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi & VIP).",
+          "Panduan_Parking": "Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi).",
           "Catatan_Khas": "Pakaian rasmi pejabat / kot.",
           "Status_Acara": "Aktif"
     },
@@ -2103,7 +2359,7 @@ function getFallbackEvents() {
           "Pautan_GPS_Maps": "https://maps.google.com/?q=Sekolah+Menengah+Masin+Brunei",
           "Pelan_Sekolah_URL": "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=600&q=80",
           "Pelan_Parking_URL": "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=600&q=80",
-          "Panduan_Parking": "Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi & VIP).",
+          "Panduan_Parking": "Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi).",
           "Catatan_Khas": "Pakaian rasmi pejabat / kot.",
           "Status_Acara": "Aktif"
     },
@@ -2121,7 +2377,7 @@ function getFallbackEvents() {
           "Pautan_GPS_Maps": "https://maps.google.com/?q=SMPJN+PH+Abu+Bakar+Kuala+Belait",
           "Pelan_Sekolah_URL": "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=600&q=80",
           "Pelan_Parking_URL": "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=600&q=80",
-          "Panduan_Parking": "Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi & VIP Daerah Belait).",
+          "Panduan_Parking": "Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi Daerah Belait).",
           "Catatan_Khas": "Penyertaan gabungan bersama SM Perdana Wazir. Masa sesi Daerah Belait: 09:00 - 12:00.",
           "Status_Acara": "Aktif"
     },
@@ -2139,7 +2395,7 @@ function getFallbackEvents() {
           "Pautan_GPS_Maps": "https://maps.google.com/?q=Sekolah+Menengah+Rimba+II+Brunei",
           "Pelan_Sekolah_URL": "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=600&q=80",
           "Pelan_Parking_URL": "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=600&q=80",
-          "Panduan_Parking": "Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi & VIP).",
+          "Panduan_Parking": "Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi).",
           "Catatan_Khas": "Pakaian rasmi pejabat / kot.",
           "Status_Acara": "Aktif"
     },
@@ -2157,7 +2413,7 @@ function getFallbackEvents() {
           "Pautan_GPS_Maps": "https://maps.google.com/?q=Maktab+SOAS+Bandar+Seri+Begawan",
           "Pelan_Sekolah_URL": "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=600&q=80",
           "Pelan_Parking_URL": "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=600&q=80",
-          "Panduan_Parking": "Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi & VIP).",
+          "Panduan_Parking": "Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi).",
           "Catatan_Khas": "Pakaian rasmi pejabat / kot.",
           "Status_Acara": "Aktif"
     },
@@ -2175,7 +2431,7 @@ function getFallbackEvents() {
           "Pautan_GPS_Maps": "https://maps.google.com/?q=Maktab+Sains+Paduka+Seri+Begawan+Sultan",
           "Pelan_Sekolah_URL": "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=600&q=80",
           "Pelan_Parking_URL": "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=600&q=80",
-          "Panduan_Parking": "Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi & VIP).",
+          "Panduan_Parking": "Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi).",
           "Catatan_Khas": "Program FutureLink - Orientasi dan pendedahan kerjaya peringkat pra-universiti.",
           "Status_Acara": "Aktif"
     },
@@ -2193,7 +2449,7 @@ function getFallbackEvents() {
           "Pautan_GPS_Maps": "https://maps.google.com/?q=Sekolah+Sukan+Brunei",
           "Pelan_Sekolah_URL": "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=600&q=80",
           "Pelan_Parking_URL": "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=600&q=80",
-          "Panduan_Parking": "Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi & VIP ke Atrium Sekolah Sukan).",
+          "Panduan_Parking": "Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi ke Atrium Sekolah Sukan).",
           "Catatan_Khas": "Lokasi bertempat di Atrium Sekolah Sukan.",
           "Status_Acara": "Aktif"
     },
@@ -2211,7 +2467,7 @@ function getFallbackEvents() {
           "Pautan_GPS_Maps": "https://maps.google.com/?q=Sekolah+Menengah+Berakas+Brunei",
           "Pelan_Sekolah_URL": "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=600&q=80",
           "Pelan_Parking_URL": "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=600&q=80",
-          "Panduan_Parking": "Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi & VIP).",
+          "Panduan_Parking": "Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi).",
           "Catatan_Khas": "Pakaian rasmi pejabat / kot.",
           "Status_Acara": "Aktif"
     },
@@ -2229,7 +2485,7 @@ function getFallbackEvents() {
           "Pautan_GPS_Maps": "https://maps.google.com/?q=Pusat+Tingkatan+Enam+Belait",
           "Pelan_Sekolah_URL": "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=600&q=80",
           "Pelan_Parking_URL": "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=600&q=80",
-          "Panduan_Parking": "Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi & VIP Daerah Belait).",
+          "Panduan_Parking": "Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi Daerah Belait).",
           "Catatan_Khas": "Penyertaan gabungan bersama SM Sayyidina Ali. Masa sesi Daerah Belait: 09:00 - 12:00.",
           "Status_Acara": "Aktif"
     },
@@ -2247,7 +2503,7 @@ function getFallbackEvents() {
           "Pautan_GPS_Maps": "https://maps.google.com/?q=Sekolah+Menengah+Sayyidina+Hasan+Kilanas",
           "Pelan_Sekolah_URL": "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=600&q=80",
           "Pelan_Parking_URL": "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=600&q=80",
-          "Panduan_Parking": "Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi & VIP).",
+          "Panduan_Parking": "Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi).",
           "Catatan_Khas": "Pakaian rasmi pejabat / kot.",
           "Status_Acara": "Aktif"
     },
@@ -2265,7 +2521,7 @@ function getFallbackEvents() {
           "Pautan_GPS_Maps": "https://maps.google.com/?q=SMJA+School+Bandar+Seri+Begawan",
           "Pelan_Sekolah_URL": "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=600&q=80",
           "Pelan_Parking_URL": "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=600&q=80",
-          "Panduan_Parking": "Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi & VIP).",
+          "Panduan_Parking": "Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi).",
           "Catatan_Khas": "Pakaian rasmi pejabat / kot.",
           "Status_Acara": "Aktif"
     },
@@ -2283,7 +2539,7 @@ function getFallbackEvents() {
           "Pautan_GPS_Maps": "https://maps.google.com/?q=Sekolah+Menengah+Muda+Hashim+Tutong",
           "Pelan_Sekolah_URL": "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=600&q=80",
           "Pelan_Parking_URL": "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=600&q=80",
-          "Panduan_Parking": "Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi & VIP).",
+          "Panduan_Parking": "Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi).",
           "Catatan_Khas": "Pakaian rasmi pejabat / kot.",
           "Status_Acara": "Aktif"
     },
@@ -2301,7 +2557,7 @@ function getFallbackEvents() {
           "Pautan_GPS_Maps": "https://maps.google.com/?q=Sekolah+Menengah+Sayyidina+Umar+Al+Khattab",
           "Pelan_Sekolah_URL": "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=600&q=80",
           "Pelan_Parking_URL": "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=600&q=80",
-          "Panduan_Parking": "Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi & VIP).",
+          "Panduan_Parking": "Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi).",
           "Catatan_Khas": "Pakaian rasmi pejabat / kot.",
           "Status_Acara": "Aktif"
     },
@@ -2319,7 +2575,7 @@ function getFallbackEvents() {
           "Pautan_GPS_Maps": "https://maps.google.com/?q=Sekolah+Menengah+Rimba+I+Brunei",
           "Pelan_Sekolah_URL": "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=600&q=80",
           "Pelan_Parking_URL": "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=600&q=80",
-          "Panduan_Parking": "Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi & VIP).",
+          "Panduan_Parking": "Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi).",
           "Catatan_Khas": "Pakaian rasmi pejabat / kot.",
           "Status_Acara": "Aktif"
     },
@@ -2337,7 +2593,7 @@ function getFallbackEvents() {
           "Pautan_GPS_Maps": "https://maps.google.com/?q=Pusat+Tingkatan+Enam+Tutong",
           "Pelan_Sekolah_URL": "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=600&q=80",
           "Pelan_Parking_URL": "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=600&q=80",
-          "Panduan_Parking": "Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi & VIP ke Foyer PTE Tutong).",
+          "Panduan_Parking": "Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi ke Foyer PTE Tutong).",
           "Catatan_Khas": "Lokasi bertempat di Foyer Pusat Tingkatan Enam Tutong.",
           "Status_Acara": "Aktif"
     },
@@ -2355,7 +2611,7 @@ function getFallbackEvents() {
           "Pautan_GPS_Maps": "https://maps.google.com/?q=Sekolah+Menengah+Sayyidina+Abu+Bakar+Lambak+Kanan",
           "Pelan_Sekolah_URL": "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=600&q=80",
           "Pelan_Parking_URL": "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=600&q=80",
-          "Panduan_Parking": "Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi & VIP).",
+          "Panduan_Parking": "Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi).",
           "Catatan_Khas": "Pakaian rasmi pejabat / kot.",
           "Status_Acara": "Aktif"
     },
@@ -2373,7 +2629,7 @@ function getFallbackEvents() {
           "Pautan_GPS_Maps": "https://maps.google.com/?q=Sekolah+Menengah+Awang+Semaun+Sungai+Kebun",
           "Pelan_Sekolah_URL": "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=600&q=80",
           "Pelan_Parking_URL": "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=600&q=80",
-          "Panduan_Parking": "Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi & VIP).",
+          "Panduan_Parking": "Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi).",
           "Catatan_Khas": "Pakaian rasmi pejabat / kot.",
           "Status_Acara": "Aktif"
     },
@@ -2391,7 +2647,7 @@ function getFallbackEvents() {
           "Pautan_GPS_Maps": "https://maps.google.com/?q=Sekolah+Menengah+Sufri+Bolkiah+Tutong",
           "Pelan_Sekolah_URL": "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=600&q=80",
           "Pelan_Parking_URL": "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=600&q=80",
-          "Panduan_Parking": "Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi & VIP).",
+          "Panduan_Parking": "Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi).",
           "Catatan_Khas": "Pakaian rasmi pejabat / kot.",
           "Status_Acara": "Aktif"
     },
@@ -2409,7 +2665,7 @@ function getFallbackEvents() {
           "Pautan_GPS_Maps": "https://maps.google.com/?q=SMPAPH+Masna+Sungai+Akar+Brunei",
           "Pelan_Sekolah_URL": "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=600&q=80",
           "Pelan_Parking_URL": "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=600&q=80",
-          "Panduan_Parking": "Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi & VIP).",
+          "Panduan_Parking": "Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi).",
           "Catatan_Khas": "Pakaian rasmi pejabat / kot.",
           "Status_Acara": "Aktif"
     },
@@ -2427,7 +2683,7 @@ function getFallbackEvents() {
           "Pautan_GPS_Maps": "https://maps.google.com/?q=Sekolah+Menengah+Lambak+Kiri+Brunei",
           "Pelan_Sekolah_URL": "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=600&q=80",
           "Pelan_Parking_URL": "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=600&q=80",
-          "Panduan_Parking": "Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi & VIP).",
+          "Panduan_Parking": "Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi).",
           "Catatan_Khas": "Pakaian rasmi pejabat / kot.",
           "Status_Acara": "Aktif"
     },
@@ -2445,7 +2701,7 @@ function getFallbackEvents() {
           "Pautan_GPS_Maps": "https://maps.google.com/?q=Pusat+Tingkatan+Enam+Meragang+Brunei",
           "Pelan_Sekolah_URL": "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=600&q=80",
           "Pelan_Parking_URL": "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=600&q=80",
-          "Panduan_Parking": "Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi & VIP).",
+          "Panduan_Parking": "Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi).",
           "Catatan_Khas": "Program FutureLink - Sesi pra-universiti.",
           "Status_Acara": "Aktif"
     },
@@ -2463,7 +2719,7 @@ function getFallbackEvents() {
           "Pautan_GPS_Maps": "https://maps.google.com/?q=SM+RIPAS+Tutong+Brunei",
           "Pelan_Sekolah_URL": "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=600&q=80",
           "Pelan_Parking_URL": "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=600&q=80",
-          "Panduan_Parking": "Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi & VIP).",
+          "Panduan_Parking": "Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi).",
           "Catatan_Khas": "Pakaian rasmi pejabat / kot.",
           "Status_Acara": "Aktif"
     },
@@ -2481,7 +2737,7 @@ function getFallbackEvents() {
           "Pautan_GPS_Maps": "https://maps.google.com/?q=SM+Pehin+Datu+Seri+Maharaja+Mentiri",
           "Pelan_Sekolah_URL": "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=600&q=80",
           "Pelan_Parking_URL": "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=600&q=80",
-          "Panduan_Parking": "Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi & VIP).",
+          "Panduan_Parking": "Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi).",
           "Catatan_Khas": "Pakaian rasmi pejabat / kot.",
           "Status_Acara": "Aktif"
     },
@@ -2499,7 +2755,7 @@ function getFallbackEvents() {
           "Pautan_GPS_Maps": "https://maps.google.com/?q=STPRI+School+Bandar+Seri+Begawan",
           "Pelan_Sekolah_URL": "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=600&q=80",
           "Pelan_Parking_URL": "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=600&q=80",
-          "Panduan_Parking": "Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi & VIP).",
+          "Panduan_Parking": "Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi).",
           "Catatan_Khas": "Pakaian rasmi pejabat / kot.",
           "Status_Acara": "Aktif"
     },
@@ -2517,7 +2773,7 @@ function getFallbackEvents() {
           "Pautan_GPS_Maps": "https://maps.google.com/?q=Sekolah+Menengah+Sultan+Hassan+Bangar+Temburong",
           "Pelan_Sekolah_URL": "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=600&q=80",
           "Pelan_Parking_URL": "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=600&q=80",
-          "Panduan_Parking": "Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi & VIP Daerah Temburong).",
+          "Panduan_Parking": "Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi Daerah Temburong).",
           "Catatan_Khas": "Sesi khas Daerah Temburong. Pakaian rasmi pejabat / kot.",
           "Status_Acara": "Aktif"
     }
@@ -2613,9 +2869,8 @@ Exhibition Hall Amenities Summary:
 • Power Socket: ${rsvp.bilPlug || 1} Unit(s)
 • Total Officers: ${rsvp.jumlahWakil || 2} Pax
 • Duty Officer: ${rsvp.namaWakilHadir || '-'}
-• Parking Pass: 1 Designated VIP Bay (Gate B)
-
-Official Portal: https://ceujss2026.github.io/rsvp-ceu-portal/` : `*PENGESAHAN KEHADIRAN RSVP & LOGISTIK DEWAN RASMI*
+• Parking Pass: 1 Dedicated Agency Bay
+• Official Portal: https://ceujss2026.github.io/rsvp-ceu-portal/` : `*PENGESAHAN KEHADIRAN RSVP & LOGISTIK DEWAN RASMI*
 Unit Pendidikan Kerjaya (UPK), Jabatan Sekolah-Sekolah
 Kementerian Pendidikan Negara Brunei Darussalam
 
@@ -2633,7 +2888,7 @@ Perincian Kelengkapan Dewan:
 • Plug Elektrik: ${rsvp.bilPlug || 1} Unit
 • Jumlah Pegawai: ${rsvp.jumlahWakil || 2} Orang
 • Pegawai Bertugas: ${rsvp.namaWakilHadir || '-'}
-• Pas Letak Kereta: 1 Petak Khas VIP (Pintu Pagar B)
+• Pas Letak Kereta: 1 Petak Khas Agensi
 
 Pautan Portal Rasmi: https://ceujss2026.github.io/rsvp-ceu-portal/`;
 
@@ -2664,7 +2919,7 @@ We would like to gently remind your agency regarding RSVP confirmation & logisti
 📍 Venue: *${ev.Tempat_Venue}*
 Current Agency Status: *${status}*
 
-Please visit the official portal to confirm exhibition tables & Gate B VIP parking access:
+Please visit the official portal to confirm exhibition tables & agency parking access:
 https://ceujss2026.github.io/rsvp-ceu-portal/
 
 Thank you.
@@ -2681,7 +2936,7 @@ Sukacita dimaklumkan mengenai pengesahan kehadiran (RSVP) & penyelarasan logisti
 📍 Venue: *${ev.Tempat_Venue}*
 Status Semasa Agensi: *${status}*
 
-Sila layari portal rasmi untuk mengesahkan permohonan meja pameran & pas parking VIP Pintu Pagar B:
+Sila layari portal rasmi untuk mengesahkan permohonan meja pameran & pas parking agensi:
 https://ceujss2026.github.io/rsvp-ceu-portal/
 
 Sekian, terima kasih.
@@ -2705,8 +2960,8 @@ function getInAppNotifications() {
       title: isEn ? ('Event Reminder (T-1 Day): ' + (ev.Sekolah || ev.Nama_Acara)) : ('Peringatan Acara H-1: ' + (ev.Sekolah || ev.Nama_Acara)),
       time: isEn ? '2 hours ago' : '2 jam lepas',
       desc: isEn 
-        ? ('The ' + ev.Nama_Acara + ' event will take place on ' + formatDisplayDate(ev.Tarikh_Paparan || ev.Tarikh_Mula, isEn) + ' at ' + ev.Masa + '. Gate B VIP parking pass is now active.')
-        : ('Program ' + ev.Nama_Acara + ' akan berlangsung pada ' + (ev.Tarikh_Paparan || ev.Tarikh_Mula) + ' jam ' + ev.Masa + '. Pas parking VIP Pintu Pagar B telah aktif.'),
+        ? ('The ' + ev.Nama_Acara + ' event will take place on ' + formatDisplayDate(ev.Tarikh_Paparan || ev.Tarikh_Mula, isEn) + ' at ' + ev.Masa + '. Agency parking pass is now active.')
+        : ('Program ' + ev.Nama_Acara + ' akan berlangsung pada ' + (ev.Tarikh_Paparan || ev.Tarikh_Mula) + ' jam ' + ev.Masa + '. Pas parking agensi telah aktif.'),
       type: 'warning',
       actions: [
         { label: isEn ? 'Floor Plan →' : 'Pelan Dewan →', onclick: "openMapModal('floorPlan')" },

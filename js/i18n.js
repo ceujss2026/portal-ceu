@@ -89,7 +89,7 @@ const I18N = {
 
       // Hero Card
       heroMinistryUnit: 'JABATAN SEKOLAH-SEKOLAH • UNIT PENDIDIKAN KERJAYA',
-      heroGateB: 'Pintu B VIP',
+      heroGateB: 'Parking Agensi',
       heroDate: 'Tarikh',
       heroTime: 'Masa Sesi',
       heroBtnUpdate: 'Kemaskini RSVP Sesi Ini',
@@ -113,15 +113,15 @@ const I18N = {
       // Right Sidebar Cards
       cardActionRequired: 'Tindakan Diperlukan',
       cardActionTitle: 'Pengesahan RSVP Sesi Takwim',
-      cardActionDesc: 'Sila sahkan kehadiran & butiran delegasi agensi bagi penyediaan pelekat meja pameran & pas parking VIP Pintu Pagar B.',
+      cardActionDesc: 'Sila sahkan kehadiran & butiran delegasi agensi bagi penyediaan pelekat meja pameran & pas parking agensi.',
       cardActionBtn: 'Isi Borang RSVP Sesi Terpilih',
       cardAmenitiesHeader: 'Kemudahan Disediakan',
       amenityTable: '1 Meja Pameran standard (beralas)',
       amenityChairs: '2 Kerusi pegawai pempamer agensi',
       amenityPlug: '1 Soket plug elektrik (atas permintaan)',
-      amenityParking: '1 Petak letak kereta VIP (Pintu Pagar B)',
+      amenityParking: '1 Petak letak kereta khas agensi',
       amenityFloorPlanLink: 'Pelan Meja Booth →',
-      amenityParkingLink: 'Peta Parking Pintu B →',
+      amenityParkingLink: 'Panduan Parking Agensi →',
       cardHelpTitle: 'Ada Kekangan Kehadiran?',
       cardHelpSub: 'Hubungi Urus Setia UPK',
       cardHelpPhone: 'Talian CEU:',
@@ -148,9 +148,9 @@ const I18N = {
       labelStaffCount: 'Jumlah Wakil Hadir',
       labelStaffNames: 'Nama Pegawai Bertugas (Pilihan)',
       placeholderStaffNames: 'cth: 1. Awang Mohd Azmi, 2. Dayang Hjh Siti...',
-      labelVipParkingInfo: 'Pas Letak Kereta VIP (Pintu Pagar B)',
+      labelVipParkingInfo: 'Pas Letak Kereta Agensi',
       badgeVipCar: '1 Petak Disediakan',
-      hintVipParkingInfo: '1 petak letak kereta khas disediakan di Pintu Pagar B bagi agensi anda tanpa perlu mendaftar nombor plat.',
+      hintVipParkingInfo: '1 petak letak kereta khas disediakan di kawasan sekolah bagi agensi anda tanpa perlu mendaftar nombor plat.',
       labelAdditionalNotes: 'Keperluan Logistik Tambahan (Pilihan)',
       placeholderAdditionalNotes: 'cth: Perlukan ruang tambahan untuk bunting berdiri...',
       declarationText: 'Pihak agensi mengesahkan maklumat permohonan logistik ini adalah muktamad.',
@@ -168,10 +168,10 @@ const I18N = {
       adminStatusConfirmed: 'Status Kehadiran Disahkan',
       adminTablesAndChairs: 'Meja & Kerusi Sekolah',
       adminHallNeeds: 'Keperluan Dewan Pameran',
-      adminPlugsAndParking: 'Soket Plug & Parking VIP',
-      adminGateBVip: 'Pintu Pagar B (VIP)',
+      adminPlugsAndParking: 'Soket Plug & Parking Agensi',
+      adminGateBVip: 'Parking Khas Agensi',
       adminTableTitle: 'Status Pengesahan RSVP 50 Agensi Jemputan',
-      adminTableDesc: 'Semak status delegasi, keperluan logistik, dan pas parking VIP Pintu Pagar B.',
+      adminTableDesc: 'Semak status delegasi, keperluan logistik, dan pas parking agensi.',
       adminSearchPlaceholder: 'Cari agensi...',
       adminFilterAll: 'Semua (50)',
       adminFilterAttending: 'Hadir',
@@ -182,13 +182,13 @@ const I18N = {
       colStatus: 'STATUS RSVP',
       colTables: 'MEJA / KERUSI',
       colPlug: 'PLUG',
-      colParking: 'PARKING VIP (PINTU B)',
+      colParking: 'PARKING AGENSI',
       colAction: 'AKSI',
 
       // Parking & Floor Plan
       parkingTitle: 'Panduan & Lokasi Parking Agensi',
-      parkingGateGuide: 'Laluan Masuk: Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi & VIP). Zon parking dikhaskan di Blok C.',
-      parkingPassHeader: 'PAS PARKING VIP AGENSI (PINTU B)',
+      parkingGateGuide: 'Laluan Masuk: Sila patuhi panduan pihak sekolah bagi tempat letak kereta rasmi wakil agensi.',
+      parkingPassHeader: 'PAS PARKING RASMI AGENSI',
       floorPlanTitle: 'Pelan Susun Atur Dewan & Meja Pameran',
       floorPlanZoom: 'Besarkan Pelan Dewan (Fullscreen / Pinch-to-Zoom)',
       gpsNavigation: 'Pandu Arah GPS ke Tempat Letak Kereta Agensi',
@@ -197,7 +197,7 @@ const I18N = {
       adminEventsHeaderBadge: 'PENTADBIR UNIT PENDIDIKAN KERJAYA',
       adminEventsRoleBadge: 'MOD PENTADBIR',
       adminEventsTitle: 'Pengurusan Program & Peta Sekolah',
-      adminEventsDesc: 'Urus maklumat acara, kemaskini dewan venue, pautan pelan dewan dan lokasi parking pintu pagar B.',
+      adminEventsDesc: 'Urus maklumat acara, kemaskini dewan venue, muat naik pelan dewan dan tetapan parking sekolah.',
       adminEventsBtnBack: 'Kembali ke Papan Pemuka',
       adminEventsSectionTitle: 'Program Aktif & Takwim Semasa (31 Sesi)',
       adminEventsSearchPlaceholder: 'Cari sekolah atau dewan...',
@@ -211,13 +211,21 @@ const I18N = {
       labelAdminInputTempat: 'Tempat / Venue Sekolah *',
       placeholderAdminInputTempat: 'cth: Dewan Serbaguna Pusat Tingkatan Enam Belait',
       labelAdminInputGps: 'Pautan GPS Google Maps (Venue Dewan)',
-      adminEventsMapSectionTitle: 'Tetapan Pelan Dewan Sekolah & Peta Parking Agensi',
+      adminEventsMapSectionTitle: 'Tetapan Pelan Dewan Sekolah & Parking Agensi',
       labelAdminInputPelanSekolah: 'Pelan Dewan Sekolah (Susunan Meja)',
-      badgeAdminInputPelanSekolah: 'Pautan Imej / URL',
-      descAdminInputPelanSekolah: 'Pelan susun atur meja pameran agensi untuk paparan agensi jemputan.',
-      labelAdminInputPelanParking: 'Lokasi Parking Agensi (Pintu Pagar B)',
-      badgeAdminInputPelanParking: 'Peta & Panduan Arah',
-      placeholderAdminInputPanduanParking: 'Panduan: Sila masuk melalui Pintu Pagar B (Blok C VIP)',
+      badgeAdminInputPelanSekolah: 'Muat Naik / Pautan URL',
+      descAdminInputPelanSekolah: 'Muat naik gambar pelan dewan atau susun atur meja pameran khusus untuk sekolah ini.',
+      labelAdminInputPelanParking: 'Tempat Letak Kereta Agensi',
+      badgeAdminInputPelanParking: 'Maklumat / Peta',
+      placeholderAdminInputPanduanParking: 'Panduan: Sila masuk melalui pintu utama atau zon khas agensi...',
+      btnUploadHallMapText: 'Pilih Fail Imej Peta Dewan',
+      labelParkingModeInfoText: 'Maklumat Sahaja',
+      labelParkingModeMapText: 'Peta & Maklumat',
+      btnUploadParkingMapText: 'Pilih Fail Imej Peta Parking',
+      labelAdminPanduanParking: 'Arahan / Panduan Parking Sekolah:',
+      parkingInfoCardTitle: 'Maklumat & Arahan Tempat Letak Kereta',
+      parkingInfoNoticeText: 'Pihak sekolah menyediakan maklumat bertulis bagi kemudahan tempat letak kereta wakil agensi seperti di bawah.',
+      parkingPassStatusText: 'Status: Sah Berdaftar · 1 Petak Disediakan',
       labelAdminInputCatatanKhas: 'Catatan Khas / Etika Pakaian Agensi',
       placeholderAdminInputCatatanKhas: 'cth: Pakaian rasmi pejabat / kot. Meja boleh diatur seawal 06:45 pagi.',
       btnSaveAdminEventText: 'Simpan Perubahan Acara & Peta',
@@ -335,7 +343,7 @@ const I18N = {
 
       // Hero Card
       heroMinistryUnit: 'DEPARTMENT OF SCHOOLS • CAREER EDUCATION UNIT',
-      heroGateB: 'Gate B VIP',
+      heroGateB: 'Agency Parking',
       heroDate: 'Date',
       heroTime: 'Session Time',
       heroBtnUpdate: 'Update RSVP for this Session',
@@ -359,15 +367,15 @@ const I18N = {
       // Right Sidebar Cards
       cardActionRequired: 'Action Required',
       cardActionTitle: 'Calendar Session RSVP Confirmation',
-      cardActionDesc: 'Please confirm agency attendance & delegation details for exhibition booth labelling & Gate B VIP parking passes.',
+      cardActionDesc: 'Please confirm agency attendance & delegation details for exhibition booth labelling & agency parking passes.',
       cardActionBtn: 'Fill RSVP Form for Selected Session',
       cardAmenitiesHeader: 'Provided Amenities',
       amenityTable: '1 Standard Exhibition Table (covered)',
       amenityChairs: '2 Agency exhibitor chairs',
       amenityPlug: '1 Electrical extension plug (upon request)',
-      amenityParking: '1 VIP Parking slot (Gate B)',
+      amenityParking: '1 Dedicated agency parking slot',
       amenityFloorPlanLink: 'Booth Layout Plan →',
-      amenityParkingLink: 'Gate B Parking Map →',
+      amenityParkingLink: 'Agency Parking Guide →',
       cardHelpTitle: 'Attendance Constraints?',
       cardHelpSub: 'Contact CEU Secretariat',
       cardHelpPhone: 'CEU Hotline:',
@@ -394,9 +402,9 @@ const I18N = {
       labelStaffCount: 'Number of Attending Staff',
       labelStaffNames: 'Officers On Duty Names (Optional)',
       placeholderStaffNames: 'e.g., 1. Awang Mohd Azmi, 2. Dayang Hjh Siti...',
-      labelVipParkingInfo: 'VIP Parking Pass (Gate B)',
-      badgeVipCar: '1 Slot Reserved',
-      hintVipParkingInfo: '1 reserved parking slot is provided at Gate B for your agency without requiring vehicle license plate registration.',
+      labelVipParkingInfo: 'Agency Parking Pass',
+      badgeVipCar: '1 Slot Allocated',
+      hintVipParkingInfo: '1 reserved parking slot is provided in the school compound for your agency without requiring vehicle license plate registration.',
       labelAdditionalNotes: 'Special Logistics Requests / Notes (Optional)',
       placeholderAdditionalNotes: 'e.g., Require extra space for roll-up banners...',
       declarationText: 'The agency confirms that this logistics request is final and accurate.',
@@ -414,10 +422,10 @@ const I18N = {
       adminStatusConfirmed: 'Confirmed Attendance Status',
       adminTablesAndChairs: 'School Tables & Chairs',
       adminHallNeeds: 'Exhibition Hall Requirements',
-      adminPlugsAndParking: 'Power Plugs & VIP Parking',
-      adminGateBVip: 'Gate B (VIP Access)',
+      adminPlugsAndParking: 'Power Plugs & Agency Parking',
+      adminGateBVip: 'Agency Parking',
       adminTableTitle: 'RSVP Confirmation Status of 50 Invited Agencies',
-      adminTableDesc: 'Review delegation status, logistics requests, and Gate B VIP parking passes.',
+      adminTableDesc: 'Review delegation status, logistics requests, and agency parking passes.',
       adminSearchPlaceholder: 'Search agency...',
       adminFilterAll: 'All (50)',
       adminFilterAttending: 'Attending',
@@ -428,13 +436,13 @@ const I18N = {
       colStatus: 'RSVP STATUS',
       colTables: 'TABLES / CHAIRS',
       colPlug: 'PLUG',
-      colParking: 'VIP PARKING (GATE B)',
+      colParking: 'AGENCY PARKING',
       colAction: 'ACTION',
 
       // Parking & Floor Plan
       parkingTitle: 'Agency Parking Guide & Location',
-      parkingGateGuide: 'Access Route: Please enter via Gate B (Designated Agency & VIP Gate). Parking is designated at Block C.',
-      parkingPassHeader: 'AGENCY VIP PARKING PASS (GATE B)',
+      parkingGateGuide: 'Access Route: Please follow host school guidance for designated agency representative parking.',
+      parkingPassHeader: 'OFFICIAL AGENCY PARKING PASS',
       floorPlanTitle: 'Hall Floor Plan & Exhibition Booth Layout',
       floorPlanZoom: 'Expand Floor Plan (Fullscreen / Pinch-to-Zoom)',
       gpsNavigation: 'GPS Navigation to Agency Parking Lot',
@@ -443,7 +451,7 @@ const I18N = {
       adminEventsHeaderBadge: 'CAREER EDUCATION UNIT ADMINISTRATOR',
       adminEventsRoleBadge: 'ADMIN MODE',
       adminEventsTitle: 'Program Management & School Maps',
-      adminEventsDesc: 'Manage event details, update venues, hall floor plans, and Gate B parking locations.',
+      adminEventsDesc: 'Manage event details, update venues, upload hall floor plans, and configure school parking settings.',
       adminEventsBtnBack: 'Back to Dashboard',
       adminEventsSectionTitle: 'Active Programs & Current Calendar (31 Sessions)',
       adminEventsSearchPlaceholder: 'Search school or hall...',
@@ -459,11 +467,19 @@ const I18N = {
       labelAdminInputGps: 'Google Maps GPS Link (Hall Venue)',
       adminEventsMapSectionTitle: 'School Hall Floor Plan & Agency Parking Settings',
       labelAdminInputPelanSekolah: 'School Hall Floor Plan (Booth Layout)',
-      badgeAdminInputPelanSekolah: 'Image Link / URL',
-      descAdminInputPelanSekolah: 'Agency booth layout plan for invited agencies.',
-      labelAdminInputPelanParking: 'Agency Parking Location (Gate B)',
-      badgeAdminInputPelanParking: 'Map & Directions',
-      placeholderAdminInputPanduanParking: 'Guide: Please enter via Gate B (Block C VIP)',
+      badgeAdminInputPelanSekolah: 'Upload / Image URL',
+      descAdminInputPelanSekolah: 'Upload hall floor plan or booth layout image specifically for this school.',
+      labelAdminInputPelanParking: 'Agency Parking Location',
+      badgeAdminInputPelanParking: 'Information / Map',
+      placeholderAdminInputPanduanParking: 'Guide: Please enter via the main entrance or designated area for invited agencies...',
+      btnUploadHallMapText: 'Select Hall Map Image File',
+      labelParkingModeInfoText: 'Information Only',
+      labelParkingModeMapText: 'Map & Information',
+      btnUploadParkingMapText: 'Select Parking Map File',
+      labelAdminPanduanParking: 'School Parking Instructions / Guide:',
+      parkingInfoCardTitle: 'Parking Instructions & Guidance',
+      parkingInfoNoticeText: 'The host school provides written parking guidance for invited agency representatives as detailed below.',
+      parkingPassStatusText: 'Status: Valid Registered · 1 Slot Allocated',
       labelAdminInputCatatanKhas: 'Special Notes / Agency Dress Code',
       placeholderAdminInputCatatanKhas: 'e.g., Formal office attire / blazer. Booth setup starts at 06:45 AM.',
       btnSaveAdminEventText: 'Save Event & Map Changes',
@@ -765,7 +781,7 @@ const I18N = {
     const sCard1Title = document.getElementById('sidebarCard1Title');
     if (sCard1Title) sCard1Title.innerText = isEn ? 'Calendar Session RSVP Confirmation' : 'Pengesahan RSVP Sesi Takwim';
     const sCard1Desc = document.getElementById('sidebarCard1Desc');
-    if (sCard1Desc) sCard1Desc.innerText = isEn ? 'Please confirm agency attendance & delegation details for exhibition booth labelling & Gate B VIP parking passes.' : 'Sila sahkan kehadiran & butiran delegasi agensi bagi penyediaan pelekat meja pameran & pas parking VIP Pintu Pagar B.';
+    if (sCard1Desc) sCard1Desc.innerText = isEn ? 'Please confirm agency attendance & delegation details for exhibition booth labelling & agency parking passes.' : 'Sila sahkan kehadiran & butiran delegasi agensi bagi penyediaan pelekat meja pameran & pas parking agensi.';
     const sCard1Btn = document.getElementById('sidebarCard1BtnText');
     if (sCard1Btn) sCard1Btn.innerText = isEn ? 'Fill RSVP Form for Selected Session' : 'Isi Borang RSVP Sesi Terpilih';
 
@@ -778,11 +794,11 @@ const I18N = {
     const aLi3 = document.getElementById('amenityLi3');
     if (aLi3) aLi3.innerText = isEn ? '1 Electrical extension plug (upon request)' : '1 Soket plug elektrik (atas permintaan)';
     const aLi4 = document.getElementById('amenityLi4');
-    if (aLi4) aLi4.innerText = isEn ? '1 VIP Parking slot (Gate B)' : '1 Petak letak kereta VIP (Pintu Pagar B)';
+    if (aLi4) aLi4.innerText = isEn ? '1 Dedicated agency parking slot' : '1 Petak letak kereta khas agensi';
     const aFloorBtn = document.getElementById('amenityFloorBtnText');
     if (aFloorBtn) aFloorBtn.innerText = isEn ? 'Booth Layout Plan →' : 'Pelan Meja Booth →';
     const aParkingBtn = document.getElementById('amenityParkingBtnText');
-    if (aParkingBtn) aParkingBtn.innerText = isEn ? 'Gate B Parking Map →' : 'Peta Parking Pintu B →';
+    if (aParkingBtn) aParkingBtn.innerText = isEn ? 'Agency Parking Guide →' : 'Panduan Parking Agensi →';
 
     const sCard3Title = document.getElementById('sidebarCard3Title');
     if (sCard3Title) sCard3Title.innerText = isEn ? 'Attendance Constraints?' : 'Ada Kekangan Kehadiran?';
@@ -848,11 +864,11 @@ const I18N = {
     if (inNamaWakil) inNamaWakil.placeholder = isEn ? 'e.g., 1. Awang Mohd Azmi, 2. Dayang Hjh Siti...' : 'cth: 1. Awang Mohd Azmi, 2. Dayang Hjh Siti...';
 
     const lVipPark = document.getElementById('labelVipParkingInfo');
-    if (lVipPark) lVipPark.innerText = isEn ? 'VIP Parking Pass (Gate B)' : 'Pas Letak Kereta VIP (Pintu Pagar B)';
+    if (lVipPark) lVipPark.innerText = isEn ? 'Agency Parking Pass' : 'Pas Letak Kereta Agensi';
     const bVipCar = document.getElementById('badgeVipCar');
-    if (bVipCar) bVipCar.innerText = isEn ? '1 Slot Reserved' : '1 Petak Disediakan';
+    if (bVipCar) bVipCar.innerText = isEn ? '1 Slot Allocated' : '1 Petak Disediakan';
     const hVipPark = document.getElementById('hintVipParkingInfo');
-    if (hVipPark) hVipPark.innerText = isEn ? '1 reserved parking slot is provided at Gate B for your agency without requiring vehicle license plate registration.' : '1 petak letak kereta khas disediakan di Pintu Pagar B bagi agensi anda tanpa perlu mendaftar nombor plat.';
+    if (hVipPark) hVipPark.innerText = isEn ? '1 reserved parking slot is provided in the school compound for your agency without requiring vehicle license plate registration.' : '1 petak letak kereta khas disediakan di kawasan sekolah bagi agensi anda tanpa perlu mendaftar nombor plat.';
 
     const lKepLain = document.getElementById('labelInputKeperluanLain');
     if (lKepLain) lKepLain.innerText = isEn ? 'Special Logistics Requests / Notes (Optional)' : 'Keperluan Logistik Tambahan (Pilihan)';
@@ -875,7 +891,7 @@ const I18N = {
     }
 
     const lParkPass = document.getElementById('labelParkingPassHeader');
-    if (lParkPass) lParkPass.innerText = isEn ? 'AGENCY VIP PARKING PASS (GATE B)' : 'PAS PARKING VIP AGENSI (PINTU B)';
+    if (lParkPass) lParkPass.innerText = isEn ? 'OFFICIAL AGENCY PARKING PASS' : 'PAS PARKING RASMI AGENSI';
 
     // --- Skrin Butiran Acara (screen_eventDetails) ---
     const edTitle = document.getElementById('eventDetailsHeaderTitle');
@@ -907,9 +923,9 @@ const I18N = {
     const pReserved = document.getElementById('parkingReservedSub');
     if (pReserved) pReserved.innerText = isEn ? 'Reserved Slots Beside School Field' : 'Petak Rezab Bersebelahan Padang';
     const pGuide = document.getElementById('parkingGuideText');
-    if (pGuide) pGuide.innerText = isEn ? 'Access Route: Please enter via Gate B (Designated Agency & VIP Gate). Parking is designated at Block C.' : 'Laluan Masuk: Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi & VIP). Zon parking dikhaskan di Blok C.';
+    if (pGuide) pGuide.innerText = isEn ? 'Access Route: Please follow host school guidance for designated agency representative parking.' : 'Laluan Masuk: Sila patuhi panduan pihak sekolah bagi tempat letak kereta rasmi wakil agensi.';
     const pPassStatus = document.getElementById('parkingPassStatusText');
-    if (pPassStatus) pPassStatus.innerText = isEn ? 'Status: Valid Registered · Reserved Slot' : 'Status: Sah Berdaftar · Petak Rezab';
+    if (pPassStatus) pPassStatus.innerText = isEn ? 'Status: Valid Registered · 1 Slot Allocated' : 'Status: Sah Berdaftar · 1 Petak Disediakan';
     const btnGpsNav = document.getElementById('btnGpsParkingNavText');
     if (btnGpsNav) btnGpsNav.innerText = isEn ? 'GPS Navigation to Agency Parking Lot' : 'Pandu Arah GPS ke Tempat Letak Kereta Agensi';
 
@@ -998,24 +1014,34 @@ const I18N = {
     if (lAeGps) lAeGps.innerText = isEn ? 'Google Maps GPS Link (Hall Venue)' : 'Pautan GPS Google Maps (Venue Dewan)';
 
     const aeMapSec = document.getElementById('adminEventsMapSectionTitle');
-    if (aeMapSec) aeMapSec.innerText = isEn ? 'School Hall Floor Plan & Agency Parking Settings' : 'Tetapan Pelan Dewan Sekolah & Peta Parking Agensi';
+    if (aeMapSec) aeMapSec.innerText = isEn ? 'School Hall Floor Plan & Agency Parking Settings' : 'Tetapan Pelan Dewan Sekolah & Parking Agensi';
     const lAePlan = document.getElementById('labelAdminInputPelanSekolah');
     if (lAePlan) lAePlan.innerText = isEn ? 'School Hall Floor Plan (Booth Layout)' : 'Pelan Dewan Sekolah (Susunan Meja)';
     const bAePlan = document.getElementById('badgeAdminInputPelanSekolah');
-    if (bAePlan) bAePlan.innerText = isEn ? 'Image Link / URL' : 'Pautan Imej / URL';
+    if (bAePlan) bAePlan.innerText = isEn ? 'Upload / Image URL' : 'Muat Naik / Pautan URL';
+    const btnUpHall = document.getElementById('btnUploadHallMapText');
+    if (btnUpHall) btnUpHall.innerText = isEn ? 'Select Hall Map Image File' : 'Pilih Fail Imej Peta Dewan';
     const inAePlanUrl = document.getElementById('adminInputPelanSekolah');
     if (inAePlanUrl) inAePlanUrl.placeholder = isEn ? 'https://.../hall-floorplan.png' : 'https://.../pelan-dewan.png';
     const dAePlan = document.getElementById('descAdminInputPelanSekolah');
-    if (dAePlan) dAePlan.innerText = isEn ? 'Agency booth layout plan for invited agencies.' : 'Pelan susun atur meja pameran agensi untuk paparan agensi jemputan.';
+    if (dAePlan) dAePlan.innerText = isEn ? 'Upload hall floor plan or booth layout image specifically for this school.' : 'Muat naik gambar pelan dewan atau susun atur meja pameran khusus untuk sekolah ini.';
 
     const lAePark = document.getElementById('labelAdminInputPelanParking');
-    if (lAePark) lAePark.innerText = isEn ? 'Agency Parking Location (Gate B)' : 'Lokasi Parking Agensi (Pintu Pagar B)';
+    if (lAePark) lAePark.innerText = isEn ? 'Agency Parking Location' : 'Tempat Letak Kereta Agensi';
     const bAePark = document.getElementById('badgeAdminInputPelanParking');
-    if (bAePark) bAePark.innerText = isEn ? 'Map & Directions' : 'Peta & Panduan Arah';
+    if (bAePark) bAePark.innerText = isEn ? 'Information / Map' : 'Maklumat / Peta';
+    const lModeInfo = document.getElementById('labelParkingModeInfoText');
+    if (lModeInfo) lModeInfo.innerText = isEn ? 'Information Only' : 'Maklumat Sahaja';
+    const lModeMap = document.getElementById('labelParkingModeMapText');
+    if (lModeMap) lModeMap.innerText = isEn ? 'Map & Information' : 'Peta & Maklumat';
+    const lAdminPanduan = document.getElementById('labelAdminPanduanParking');
+    if (lAdminPanduan) lAdminPanduan.innerText = isEn ? 'School Parking Instructions / Guide:' : 'Arahan / Panduan Parking Sekolah:';
     const inAeParkUrl = document.getElementById('adminInputPelanParking');
     if (inAeParkUrl) inAeParkUrl.placeholder = isEn ? 'https://.../parking-map.png' : 'https://.../peta-parking.png';
     const inAeGuide = document.getElementById('adminInputPanduanParking');
-    if (inAeGuide) inAeGuide.placeholder = isEn ? 'Guide: Please enter via Gate B (Block C VIP)' : 'Panduan: Sila masuk melalui Pintu Pagar B (Blok C VIP)';
+    if (inAeGuide) inAeGuide.placeholder = isEn ? 'Guide: Please enter via the main entrance or designated area for invited agencies...' : 'Panduan: Sila masuk melalui pintu utama atau zon khas agensi...';
+    const btnUpPark = document.getElementById('btnUploadParkingMapText');
+    if (btnUpPark) btnUpPark.innerText = isEn ? 'Select Parking Map File' : 'Pilih Fail Imej Peta Parking';
 
     const lAeNotes = document.getElementById('labelAdminInputCatatanKhas');
     if (lAeNotes) lAeNotes.innerText = isEn ? 'Special Notes / Agency Dress Code' : 'Catatan Khas / Etika Pakaian Agensi';
@@ -1082,15 +1108,15 @@ const I18N = {
     if (aStatS3) aStatS3.innerText = isEn ? 'Exhibition Hall Requirements' : 'Keperluan Dewan Pameran';
 
     const aStatL4 = document.getElementById('adminStatLabel4');
-    if (aStatL4) aStatL4.innerText = isEn ? 'Power Plugs & VIP Parking' : 'Soket Plug & Parking VIP';
+    if (aStatL4) aStatL4.innerText = isEn ? 'Power Plugs & Agency Parking' : 'Soket Plug & Parking Agensi';
     const aStatS4 = document.getElementById('adminStatSub4');
-    if (aStatS4) aStatS4.innerText = isEn ? 'Gate B (VIP Access)' : 'Pintu Pagar B (VIP)';
+    if (aStatS4) aStatS4.innerText = isEn ? 'Agency Parking Area' : 'Kawasan Parking Agensi';
 
     const aTTitle = document.getElementById('adminTableTitle');
     if (aTTitle) aTTitle.innerHTML = `<span class="w-2.5 h-2.5 rounded-full bg-[#148e82]"></span>${isEn ? 'RSVP Confirmation Status of 50 Invited Agencies' : 'Status Pengesahan RSVP 50 Agensi Jemputan'}`;
 
     const aTDesc = document.getElementById('adminTableDesc');
-    if (aTDesc) aTDesc.innerText = isEn ? 'Review delegation status, logistics requests, and Gate B VIP parking passes.' : 'Semak status delegasi, keperluan logistik, dan pas parking VIP Pintu Pagar B.';
+    if (aTDesc) aTDesc.innerText = isEn ? 'Review delegation status, logistics requests, and agency parking passes.' : 'Semak status delegasi, keperluan logistik, dan pas parking agensi.';
 
     const aHeadRow = document.getElementById('adminTableHeaderRow');
     if (aHeadRow) {
@@ -1101,7 +1127,7 @@ const I18N = {
         <th class="p-3">${isEn ? 'RSVP STATUS' : 'STATUS RSVP'}</th>
         <th class="p-3 text-center">${isEn ? 'TABLES / CHAIRS' : 'MEJA / KERUSI'}</th>
         <th class="p-3 text-center">${isEn ? 'PLUG' : 'PLUG'}</th>
-        <th class="p-3">${isEn ? 'VIP PARKING (GATE B)' : 'PARKING VIP (PINTU B)'}</th>
+        <th class="p-3">${isEn ? 'AGENCY PARKING' : 'PARKING AGENSI'}</th>
         <th class="p-3 text-right">${isEn ? 'ACTION' : 'AKSI'}</th>
       `;
     }
