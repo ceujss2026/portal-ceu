@@ -69,74 +69,32 @@ function isAgencyMatch(recordAgencyId, userOrKod) {
 }
 
 function ensureInitialRsvpsSeeded() {
-  const RSVP_SEED_VERSION = 'v2_sync_20261106_c';
+  const RSVP_SEED_VERSION = 'v5_clean_production_20261106';
   const existingVersion = localStorage.getItem('ceu_rsvps_version');
-  const storedRsvps = localStorage.getItem('ceu_cache_rsvps');
 
-  if (existingVersion === RSVP_SEED_VERSION && storedRsvps) {
+  // Jika pelayar masih mempunyai mock demo daripada sesi pengujian lama, bersihkan cache
+  if (existingVersion !== RSVP_SEED_VERSION) {
+    localStorage.removeItem('ceu_cache_rsvps');
+    localStorage.setItem('ceu_rsvps_version', RSVP_SEED_VERSION);
+    AppState.rsvps = [];
+    return;
+  }
+
+  // Muat rekod sebenar yang telah dihantar oleh agensi (jika ada)
+  const storedRsvps = localStorage.getItem('ceu_cache_rsvps');
+  if (storedRsvps) {
     try {
       const parsed = JSON.parse(storedRsvps);
-      if (Array.isArray(parsed) && parsed.length > 0) {
+      if (Array.isArray(parsed)) {
         AppState.rsvps = parsed;
         return;
       }
     } catch (e) {
-      console.warn('Failed parsing cached RSVPs, reseeding...', e);
+      console.warn('Failed parsing cached RSVPs...', e);
     }
   }
 
-  const events = sortEventsChronologically(AppState.events && AppState.events.length > 0 ? AppState.events : getFallbackEvents());
-  const agencies = getPreseededAgencies();
-  const seededRsvps = [];
-
-  events.forEach((ev, evIdx) => {
-    agencies.forEach((ag, agIdx) => {
-      let status = null; // null = Belum Sah (Pending tindakan)
-
-      if (ag.kod === 'AG-23') {
-        // Universiti Brunei Darussalam (UBD)
-        // Disahkan Hadir bagi Sesi 1 dan Sesi 2; sesi lain Belum Sah agar ada tindakan RSVP
-        if (evIdx === 0 || evIdx === 1) {
-          status = 'Hadir';
-        } else {
-          status = null;
-        }
-      } else {
-        // Agihan realistik bagi 49 agensi lain
-        const hash = (evIdx * 7 + agIdx * 13) % 50;
-        if (hash < 38) {
-          status = 'Hadir';
-        } else if (hash < 42) {
-          status = 'Tidak Hadir';
-        } else {
-          status = null; // Belum Sah
-        }
-      }
-
-      if (status) {
-        const isHadir = status === 'Hadir';
-        seededRsvps.push({
-          Event_ID: ev.Event_ID,
-          Agensi_ID: ag.kod,
-          Nama_Agensi: ag.namaAgensi,
-          Status_RSVP: status,
-          statusRsvp: status,
-          bilMeja: isHadir ? (ag.bilMeja || 1) : 0,
-          bilKerusi: isHadir ? (ag.bilKerusi || 2) : 0,
-          bilPlug: isHadir ? (ag.bilPlug !== undefined ? ag.bilPlug : 1) : 0,
-          jumlahWakil: isHadir ? (ag.jumlahWakil || 2) : 0,
-          namaWakilHadir: isHadir ? (ag.namaWakilHadir || 'Pegawai Bertugas') : '-',
-          noPlatKereta: isHadir ? (ag.noPlatKereta || 'BA 1234') : '-',
-          keperluanLain: '',
-          Tarikh_Hantar: '2026-11-0' + ((agIdx % 5) + 1) + 'T08:30:00.000Z'
-        });
-      }
-    });
-  });
-
-  AppState.rsvps = seededRsvps;
-  localStorage.setItem('ceu_cache_rsvps', JSON.stringify(AppState.rsvps));
-  localStorage.setItem('ceu_rsvps_version', RSVP_SEED_VERSION);
+  AppState.rsvps = [];
 }
 
 // Deduplikasi panggilan API in-flight
@@ -187,7 +145,15 @@ async function apiCall(action, data = {}, isWrite = false) {
         }
       }
 
-      // Jika backend GAS menyekat akaun sementara (rate-limit / lockout), beralih ke cache tempatan yang sah
+      // Jika backend GAS gagal atau menyekat akaun sementara (rate-limit / lockout / belum diselaraskan)
+      if (!json.success && action === 'login') {
+        const offlineRes = handleOfflineFallback(action, data);
+        if (offlineRes && offlineRes.success) {
+          console.warn('Backend GAS out-of-sync or rate-limited. Falling back to official local credentials.');
+          return offlineRes;
+        }
+      }
+
       if (!json.success && json.message && (json.message.includes('disekat sementara') || json.message.includes('cubaan gagal'))) {
         console.warn('Backend GAS rate-limited. Falling back to local offline authentication.');
         return handleOfflineFallback(action, data);
