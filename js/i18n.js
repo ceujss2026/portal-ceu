@@ -191,7 +191,69 @@ const I18N = {
       parkingPassHeader: 'PAS PARKING VIP AGENSI (PINTU B)',
       floorPlanTitle: 'Pelan Susun Atur Dewan & Meja Pameran',
       floorPlanZoom: 'Besarkan Pelan Dewan (Fullscreen / Pinch-to-Zoom)',
-      gpsNavigation: 'Pandu Arah GPS ke Tempat Letak Kereta Agensi'
+      gpsNavigation: 'Pandu Arah GPS ke Tempat Letak Kereta Agensi',
+
+      // Admin Events & Maps Manager
+      adminEventsHeaderBadge: 'PENTADBIR UNIT PENDIDIKAN KERJAYA',
+      adminEventsRoleBadge: 'MOD PENTADBIR',
+      adminEventsTitle: 'Pengurusan Program & Peta Sekolah',
+      adminEventsDesc: 'Urus maklumat acara, kemaskini dewan venue, pautan pelan dewan dan lokasi parking pintu pagar B.',
+      adminEventsBtnBack: 'Kembali ke Papan Pemuka',
+      adminEventsSectionTitle: 'Program Aktif & Takwim Semasa (31 Sesi)',
+      adminEventsSearchPlaceholder: 'Cari sekolah atau dewan...',
+      adminEventFormTitle: 'Kemaskini Butiran Acara & Logistik',
+      labelAdminInputNamaAcara: 'Nama Acara / Program *',
+      labelAdminInputKategori: 'Kategori Program',
+      labelAdminInputTarikhMula: 'Tarikh Acara *',
+      placeholderAdminInputTarikhMula: 'cth: 15 Mac 2026',
+      labelAdminInputMasa: 'Masa Program *',
+      placeholderAdminInputMasa: 'cth: 08:00 - 16:30',
+      labelAdminInputTempat: 'Tempat / Venue Sekolah *',
+      placeholderAdminInputTempat: 'cth: Dewan Serbaguna Pusat Tingkatan Enam Belait',
+      labelAdminInputGps: 'Pautan GPS Google Maps (Venue Dewan)',
+      adminEventsMapSectionTitle: 'Tetapan Pelan Dewan Sekolah & Peta Parking Agensi',
+      labelAdminInputPelanSekolah: 'Pelan Dewan Sekolah (Susunan Meja)',
+      badgeAdminInputPelanSekolah: 'Pautan Imej / URL',
+      descAdminInputPelanSekolah: 'Pelan susun atur meja pameran agensi untuk paparan agensi jemputan.',
+      labelAdminInputPelanParking: 'Lokasi Parking Agensi (Pintu Pagar B)',
+      badgeAdminInputPelanParking: 'Peta & Panduan Arah',
+      placeholderAdminInputPanduanParking: 'Panduan: Sila masuk melalui Pintu Pagar B (Blok C VIP)',
+      labelAdminInputCatatanKhas: 'Catatan Khas / Etika Pakaian Agensi',
+      placeholderAdminInputCatatanKhas: 'cth: Pakaian rasmi pejabat / kot. Meja boleh diatur seawal 06:45 pagi.',
+      btnSaveAdminEventText: 'Simpan Perubahan Acara & Peta',
+
+      // Modals & Extras
+      mapModalCloseBtn: 'Tutup',
+      docModalTitle: 'Pratinjau Surat Rasmi Ber-QR',
+      docModalCloseBtn: 'Tutup',
+      docModalPrintBtnText: 'Cetak PDF',
+      eventDetailsHeaderTitle: 'Butiran Acara & Panduan Penganjur',
+      btnOpenGpsMapsText: 'Buka Peta GPS Dewan di Google Maps',
+      labelEventDetailsNotes: 'Catatan Khas untuk Agensi:',
+      btnEventDetailsFloorText: 'Pelan Dewan',
+      btnEventDetailsParkingText: 'Peta Parking',
+      btnEventDetailsRsvpText: 'Isi / Kemaskini Borang RSVP & Logistik →',
+      parkingScreenTitle: 'Panduan & Lokasi Parking Agensi',
+      parkingZoneBadge: 'ZON LETAK KERETA AGENSI JEMPUTAN',
+      gateABadge: 'PINTU PAGAR A (Bas)',
+      gateBBadge: 'PINTU PAGAR B (Khas Agensi)',
+      parkingBlockCBadge: 'Zon Parking Agensi (Blok C)',
+      parkingReservedSub: 'Petak Rezab Bersebelahan Padang',
+      parkingPassStatusText: 'Status: Sah Berdaftar · Petak Rezab',
+      btnGpsParkingNavText: 'Pandu Arah GPS ke Tempat Letak Kereta Agensi',
+      floorPlanScreenTitle: 'Pelan Susun Atur Dewan & Meja Pameran',
+      floorPlanVenueLabel: 'Dewan Sekolah / Tempat Acara',
+      floorPlanBoothAvailableLabel: 'Petak Booth Disediakan',
+      floorPlanMainStage: 'Pentas Utama & Perasmian Ekspo',
+      floorPlanStudentEntrance: 'Pintu Masuk Utama Dewan (Pelajar)',
+      btnFloorPlanZoomText: 'Besarkan Pelan Dewan (Fullscreen / Pinch-to-Zoom)',
+      archiveScreenTitle: 'Takwim Tahunan Program',
+      notifScreenTitle: 'Notifikasi & Peringatan Acara',
+      btnMarkAllNotifsRead: 'Tanda Semua Dibaca',
+      profileScreenTitle: 'Profil Agensi & Tetapan',
+      profileRegisteredAccountLabel: 'Akaun Agensi Berdaftar',
+      profileAgencyStatusText: 'Status: Agensi Jemputan Rasmi CEU JSS',
+      syncCalendarThisSession: 'Sesi Ini'
     },
 
     EN: {
@@ -375,7 +437,69 @@ const I18N = {
       parkingPassHeader: 'AGENCY VIP PARKING PASS (GATE B)',
       floorPlanTitle: 'Hall Floor Plan & Exhibition Booth Layout',
       floorPlanZoom: 'Expand Floor Plan (Fullscreen / Pinch-to-Zoom)',
-      gpsNavigation: 'GPS Navigation to Agency Parking Lot'
+      gpsNavigation: 'GPS Navigation to Agency Parking Lot',
+
+      // Admin Events & Maps Manager
+      adminEventsHeaderBadge: 'CAREER EDUCATION UNIT ADMINISTRATOR',
+      adminEventsRoleBadge: 'ADMIN MODE',
+      adminEventsTitle: 'Program Management & School Maps',
+      adminEventsDesc: 'Manage event details, update venues, hall floor plans, and Gate B parking locations.',
+      adminEventsBtnBack: 'Back to Dashboard',
+      adminEventsSectionTitle: 'Active Programs & Current Calendar (31 Sessions)',
+      adminEventsSearchPlaceholder: 'Search school or hall...',
+      adminEventFormTitle: 'Update Event & Logistics Details',
+      labelAdminInputNamaAcara: 'Event / Program Name *',
+      labelAdminInputKategori: 'Program Category',
+      labelAdminInputTarikhMula: 'Event Date *',
+      placeholderAdminInputTarikhMula: 'e.g., 25 Jan 2027',
+      labelAdminInputMasa: 'Program Time *',
+      placeholderAdminInputMasa: 'e.g., 08:00 - 16:30',
+      labelAdminInputTempat: 'School Venue / Hall *',
+      placeholderAdminInputTempat: 'e.g., Multipurpose Hall, PTE Belait',
+      labelAdminInputGps: 'Google Maps GPS Link (Hall Venue)',
+      adminEventsMapSectionTitle: 'School Hall Floor Plan & Agency Parking Settings',
+      labelAdminInputPelanSekolah: 'School Hall Floor Plan (Booth Layout)',
+      badgeAdminInputPelanSekolah: 'Image Link / URL',
+      descAdminInputPelanSekolah: 'Agency booth layout plan for invited agencies.',
+      labelAdminInputPelanParking: 'Agency Parking Location (Gate B)',
+      badgeAdminInputPelanParking: 'Map & Directions',
+      placeholderAdminInputPanduanParking: 'Guide: Please enter via Gate B (Block C VIP)',
+      labelAdminInputCatatanKhas: 'Special Notes / Agency Dress Code',
+      placeholderAdminInputCatatanKhas: 'e.g., Formal office attire / blazer. Booth setup starts at 06:45 AM.',
+      btnSaveAdminEventText: 'Save Event & Map Changes',
+
+      // Modals & Extras
+      mapModalCloseBtn: 'Close',
+      docModalTitle: 'Official QR Letter Preview',
+      docModalCloseBtn: 'Close',
+      docModalPrintBtnText: 'Print PDF',
+      eventDetailsHeaderTitle: 'Event Details & Organizer Guide',
+      btnOpenGpsMapsText: 'Open Hall GPS Navigation in Google Maps',
+      labelEventDetailsNotes: 'Special Notes for Agencies:',
+      btnEventDetailsFloorText: 'Floor Plan',
+      btnEventDetailsParkingText: 'Parking Map',
+      btnEventDetailsRsvpText: 'Fill / Update RSVP & Logistics Form →',
+      parkingScreenTitle: 'Agency Parking Guide & Location',
+      parkingZoneBadge: 'INVITED AGENCY PARKING ZONE',
+      gateABadge: 'GATE A (Buses)',
+      gateBBadge: 'GATE B (Agencies Only)',
+      parkingBlockCBadge: 'Agency Parking Zone (Block C)',
+      parkingReservedSub: 'Reserved Slots Beside School Field',
+      parkingPassStatusText: 'Status: Valid Registered · Reserved Slot',
+      btnGpsParkingNavText: 'GPS Navigation to Agency Parking Lot',
+      floorPlanScreenTitle: 'Hall Floor Plan & Exhibition Booth Layout',
+      floorPlanVenueLabel: 'School Hall / Event Venue',
+      floorPlanBoothAvailableLabel: 'Exhibition Booths Provided',
+      floorPlanMainStage: 'Main Stage & Opening Ceremony',
+      floorPlanStudentEntrance: 'Main Hall Entrance (Students)',
+      btnFloorPlanZoomText: 'Fullscreen / Zoom Floor Plan',
+      archiveScreenTitle: 'Annual Program Calendar',
+      notifScreenTitle: 'Notifications & Event Alerts',
+      btnMarkAllNotifsRead: 'Mark All as Read',
+      profileScreenTitle: 'Agency Profile & Settings',
+      profileRegisteredAccountLabel: 'Registered Agency Account',
+      profileAgencyStatusText: 'Status: Official Invited Agency CEU JSS',
+      syncCalendarThisSession: 'This Session'
     }
   },
 
@@ -422,6 +546,16 @@ const I18N = {
         renderAdminEventsList();
       } else if (AppState.currentView === 'rsvpForm' && typeof renderRsvpFormScreen === 'function') {
         renderRsvpFormScreen(AppState.activeEvent ? AppState.activeEvent.Event_ID : null);
+      } else if (AppState.currentView === 'eventDetails' && typeof renderEventDetailsScreen === 'function') {
+        renderEventDetailsScreen(AppState.activeEvent ? AppState.activeEvent.Event_ID : null);
+      } else if (AppState.currentView === 'notifications' && typeof renderNotificationsScreen === 'function') {
+        renderNotificationsScreen();
+      } else if (AppState.currentView === 'profile' && typeof renderProfileScreen === 'function') {
+        renderProfileScreen();
+      } else if (AppState.currentView === 'parking' && typeof renderParkingScreen === 'function') {
+        renderParkingScreen(AppState.activeEvent ? AppState.activeEvent.Event_ID : null);
+      } else if (AppState.currentView === 'archive' && typeof renderArchiveScreen === 'function') {
+        renderArchiveScreen();
       }
     }
   },
@@ -465,6 +599,60 @@ const I18N = {
     // 4. Penterjemahan Elemen Statik Khusus Mengikut ID DOM
 
     // --- Skrin Log Masuk ---
+    const accessBadge = document.getElementById('loginAgencyAccessBadge');
+    if (accessBadge) {
+      const isAgencyTab = document.getElementById('tabModeAgency') && document.getElementById('tabModeAgency').classList.contains('bg-[#148e82]');
+      if (isAgencyTab) {
+        accessBadge.innerText = isEn ? 'OFFICIAL INVITED AGENCY ACCESS' : 'AKSES AGENSI JEMPUTAN RASMI';
+      } else {
+        accessBadge.innerText = isEn ? 'CEU ADMINISTRATOR ACCESS' : 'AKSES PENTADBIR CEU';
+      }
+    }
+
+    const emblemMinistry = document.getElementById('loginEmblemMinistry');
+    if (emblemMinistry) emblemMinistry.innerText = isEn ? 'MINISTRY OF EDUCATION' : 'KEMENTERIAN PENDIDIKAN';
+
+    const loginSub = document.getElementById('loginSystemSubtitle');
+    if (loginSub) {
+      loginSub.innerHTML = isEn 
+        ? 'Career Education Unit • Department of Schools<br/><span class="opacity-80">Brunei Darussalam</span>'
+        : 'Unit Pendidikan Kerjaya • Jabatan Sekolah-Sekolah<br/><span class="opacity-80">Negara Brunei Darussalam</span>';
+    }
+
+    const f1 = document.getElementById('featureItem1');
+    if (f1) f1.innerText = isEn ? 'Delegation & Attendance Confirmation (RSVP)' : 'Pengesahan Delegasi & Kehadiran (RSVP)';
+    const f2 = document.getElementById('featureItem2');
+    if (f2) f2.innerText = isEn ? 'Hall Exhibition Tables & Power Sockets' : 'Tempahan Meja Dewan & Soket Elektrik';
+    const f3 = document.getElementById('featureItem3');
+    if (f3) f3.innerText = isEn ? 'Designated Gate B Parking Lots' : 'Tempat Letak Kereta Khusus Pintu Pagar B';
+    const f4 = document.getElementById('featureItem4');
+    if (f4) f4.innerText = isEn ? 'Official Invitation Letters with QR Security' : 'Surat Jemputan Rasmi Ber-QR Keselamatan';
+
+    const loginLeftFoot = document.getElementById('loginLeftFooter');
+    if (loginLeftFoot) {
+      loginLeftFoot.innerText = isEn ? 'Hala Tuju & FutureLink 2026 Event Management System' : 'Sistem Pengurusan Acara Hala Tuju & FutureLink 2026';
+    }
+
+    const loginWelcome = document.getElementById('loginWelcomeHeading');
+    if (loginWelcome) {
+      loginWelcome.innerHTML = isEn 
+        ? 'Welcome Back <span class="text-xs text-on-surface-variant font-normal">/ Selamat Datang</span>'
+        : 'Selamat Datang <span class="text-xs text-on-surface-variant font-normal">/ Welcome</span>';
+    }
+
+    const lPassText = document.getElementById('labelLoginPasswordText');
+    if (lPassText) lPassText.innerText = isEn ? 'Official Password' : 'Kata Laluan Rasmi';
+    const lPassSub = document.getElementById('labelLoginPasswordSubtext');
+    if (lPassSub) lPassSub.innerText = isEn ? 'Credentials' : 'Kredensial';
+
+    const lHelpCred = document.getElementById('loginHelpCredentials');
+    if (lHelpCred) lHelpCred.innerText = isEn ? 'Need Credential Help?' : 'Bantuan Kredensial?';
+
+    const lMinFoot = document.getElementById('loginMinistryFooter');
+    if (lMinFoot) {
+      lMinFoot.innerText = isEn ? 'Ministry of Education, Brunei Darussalam · v2.1.0' : 'Kementerian Pendidikan, Negara Brunei Darussalam · v2.1.0';
+    }
+
     const tabAgency = document.getElementById('tabModeAgency');
     if (tabAgency) {
       const span = tabAgency.querySelector('span:last-child') || tabAgency;
@@ -480,6 +668,12 @@ const I18N = {
     if (helpLink) helpLink.innerText = isEn ? 'Need Credential Help?' : 'Bantuan Kredensial?';
 
     // --- Home Screen: Header, Mini Kalendar & Metrik ---
+    const mobileUnit = document.getElementById('homeMobileEmblemUnit');
+    if (mobileUnit) mobileUnit.innerText = isEn ? 'MOE • CAREER UNIT' : 'KPM • UNIT KERJAYA';
+
+    const btnSyncCal = document.getElementById('btnSyncCalToActive');
+    if (btnSyncCal) btnSyncCal.innerText = isEn ? 'This Session' : 'Sesi Ini';
+
     const hWelcome = document.getElementById('homeWelcomeBadge');
     if (hWelcome) hWelcome.innerText = isEn ? 'WELCOME • INVITED AGENCY' : 'SELAMAT DATANG • AGENSI JEMPUTAN';
 
@@ -605,6 +799,13 @@ const I18N = {
     const rHeaderTitle = document.getElementById('rsvpFormHeaderTitle');
     if (rHeaderTitle) rHeaderTitle.innerText = isEn ? 'RSVP Confirmation & Logistics Request' : 'Pengesahan RSVP & Permohonan Logistik';
 
+    const rSessTitle = document.getElementById('rsvpSessionSelectTitle');
+    if (rSessTitle) rSessTitle.innerText = isEn ? 'Select School / Program Session *' : 'Pilih Sesi Sekolah / Program *';
+    const rSessBadge = document.getElementById('rsvpSessionBadge');
+    if (rSessBadge) rSessBadge.innerText = isEn ? '31 Calendar Sessions' : '31 Sesi Takwim';
+    const rStatHead = document.getElementById('rsvpStatusHeading');
+    if (rStatHead) rStatHead.innerText = isEn ? 'Agency Attendance Status *' : 'Status Kehadiran Agensi *';
+
     const optAttending = document.getElementById('optStatusAttending');
     if (optAttending) {
       const title = optAttending.querySelector('.font-bold');
@@ -675,6 +876,181 @@ const I18N = {
 
     const lParkPass = document.getElementById('labelParkingPassHeader');
     if (lParkPass) lParkPass.innerText = isEn ? 'AGENCY VIP PARKING PASS (GATE B)' : 'PAS PARKING VIP AGENSI (PINTU B)';
+
+    // --- Skrin Butiran Acara (screen_eventDetails) ---
+    const edTitle = document.getElementById('eventDetailsHeaderTitle');
+    if (edTitle) edTitle.innerText = isEn ? 'Event Details & Organizer Guide' : 'Butiran Acara & Panduan Penganjur';
+    const edBadge = document.getElementById('eventDetailsBadge');
+    if (edBadge) edBadge.innerText = isEn ? 'Official 2027 Calendar Session' : 'Program Hala Tuju 2026';
+    const edGpsBtnText = document.getElementById('btnOpenGpsMapsText');
+    if (edGpsBtnText) edGpsBtnText.innerText = isEn ? 'Open Hall GPS Navigation in Google Maps' : 'Buka Peta GPS Dewan di Google Maps';
+    const edNotesLabel = document.getElementById('labelEventDetailsNotes');
+    if (edNotesLabel) edNotesLabel.innerText = isEn ? 'Special Notes for Agencies:' : 'Catatan Khas untuk Agensi:';
+    const edFloorBtnText = document.getElementById('btnEventDetailsFloorText');
+    if (edFloorBtnText) edFloorBtnText.innerText = isEn ? 'Floor Plan' : 'Pelan Dewan';
+    const edParkingBtnText = document.getElementById('btnEventDetailsParkingText');
+    if (edParkingBtnText) edParkingBtnText.innerText = isEn ? 'Parking Map' : 'Peta Parking';
+    const edRsvpBtnText = document.getElementById('btnEventDetailsRsvpText');
+    if (edRsvpBtnText) edRsvpBtnText.innerText = isEn ? 'Fill / Update RSVP & Logistics Form →' : 'Isi / Kemaskini Borang RSVP & Logistik →';
+
+    // --- Skrin Panduan Parking (screen_parking) ---
+    const parkTitle = document.getElementById('parkingScreenTitle');
+    if (parkTitle) parkTitle.innerText = isEn ? 'Agency Parking Guide & Location' : 'Panduan & Lokasi Parking Agensi';
+    const parkZoneBadge = document.getElementById('parkingZoneBadge');
+    if (parkZoneBadge) parkZoneBadge.innerText = isEn ? 'INVITED AGENCY PARKING ZONE' : 'ZON LETAK KERETA AGENSI JEMPUTAN';
+    const gABadge = document.getElementById('gateABadge');
+    if (gABadge) gABadge.innerText = isEn ? 'GATE A (Buses)' : 'PINTU PAGAR A (Bas)';
+    const gBBadge = document.getElementById('gateBBadge');
+    if (gBBadge) gBBadge.innerText = isEn ? 'GATE B (Agencies Only)' : 'PINTU PAGAR B (Khas Agensi)';
+    const pBlockC = document.getElementById('parkingBlockCBadge');
+    if (pBlockC) pBlockC.innerText = isEn ? 'Agency Parking Zone (Block C)' : 'Zon Parking Agensi (Blok C)';
+    const pReserved = document.getElementById('parkingReservedSub');
+    if (pReserved) pReserved.innerText = isEn ? 'Reserved Slots Beside School Field' : 'Petak Rezab Bersebelahan Padang';
+    const pGuide = document.getElementById('parkingGuideText');
+    if (pGuide) pGuide.innerText = isEn ? 'Access Route: Please enter via Gate B (Designated Agency & VIP Gate). Parking is designated at Block C.' : 'Laluan Masuk: Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi & VIP). Zon parking dikhaskan di Blok C.';
+    const pPassStatus = document.getElementById('parkingPassStatusText');
+    if (pPassStatus) pPassStatus.innerText = isEn ? 'Status: Valid Registered · Reserved Slot' : 'Status: Sah Berdaftar · Petak Rezab';
+    const btnGpsNav = document.getElementById('btnGpsParkingNavText');
+    if (btnGpsNav) btnGpsNav.innerText = isEn ? 'GPS Navigation to Agency Parking Lot' : 'Pandu Arah GPS ke Tempat Letak Kereta Agensi';
+
+    // --- Skrin Pelan Dewan (screen_floorPlan) ---
+    const fPlanTitle = document.getElementById('floorPlanScreenTitle');
+    if (fPlanTitle) fPlanTitle.innerText = isEn ? 'Hall Floor Plan & Exhibition Booth Layout' : 'Pelan Susun Atur Dewan & Meja Pameran';
+    const fVenueLabel = document.getElementById('floorPlanVenueLabel');
+    if (fVenueLabel) fVenueLabel.innerText = isEn ? 'School Hall / Event Venue' : 'Dewan Sekolah / Tempat Acara';
+    const fBoothAvail = document.getElementById('floorPlanBoothAvailableLabel');
+    if (fBoothAvail) fBoothAvail.innerText = isEn ? 'Exhibition Booths Provided' : 'Petak Booth Disediakan';
+    const fStage = document.getElementById('floorPlanMainStage');
+    if (fStage) fStage.innerText = isEn ? 'Main Stage & Opening Ceremony' : 'Pentas Utama & Perasmian Ekspo';
+    const fEntrance = document.getElementById('floorPlanStudentEntrance');
+    if (fEntrance) fEntrance.innerText = isEn ? 'Main Hall Entrance (Students)' : 'Pintu Masuk Utama Dewan (Pelajar)';
+    const fZoomBtn = document.getElementById('btnFloorPlanZoomText');
+    if (fZoomBtn) fZoomBtn.innerText = isEn ? 'Fullscreen / Zoom Floor Plan' : 'Besarkan Pelan Dewan (Fullscreen / Pinch-to-Zoom)';
+
+    // --- Skrin Takwim & Arkib (screen_archive) ---
+    const archTitle = document.getElementById('archiveScreenTitle');
+    if (archTitle) archTitle.innerText = isEn ? 'Annual Program Calendar' : 'Takwim Tahunan Program';
+    const archFAll = document.getElementById('archiveFilterAll');
+    if (archFAll) archFAll.innerText = isEn ? 'All' : 'Semua';
+    const archFPht = document.getElementById('archiveFilterPht');
+    if (archFPht) archFPht.innerText = isEn ? 'Hala Tuju' : 'Hala Tuju';
+    const archFFl = document.getElementById('archiveFilterFl');
+    if (archFFl) archFFl.innerText = isEn ? 'FutureLink' : 'FutureLink';
+    const archFBrief = document.getElementById('archiveFilterBriefing');
+    if (archFBrief) archFBrief.innerText = isEn ? 'Briefing' : 'Taklimat';
+
+    // --- Skrin Notifikasi (screen_notifications) ---
+    const notifTitle = document.getElementById('notifScreenTitle');
+    if (notifTitle) notifTitle.innerText = isEn ? 'Notifications & Event Alerts' : 'Notifikasi & Peringatan Acara';
+    const btnMarkAll = document.getElementById('btnMarkAllNotifsRead');
+    if (btnMarkAll) btnMarkAll.innerText = isEn ? 'Mark All as Read' : 'Tanda Semua Dibaca';
+
+    // --- Skrin Profil (screen_profile) ---
+    const profTitle = document.getElementById('profileScreenTitle');
+    if (profTitle) profTitle.innerText = isEn ? 'Agency Profile & Settings' : 'Profil Agensi & Tetapan';
+    const profAccLabel = document.getElementById('profileRegisteredAccountLabel');
+    if (profAccLabel) profAccLabel.innerText = isEn ? 'Registered Agency Account' : 'Akaun Agensi Berdaftar';
+    const profStatus = document.getElementById('profileAgencyStatusText');
+    if (profStatus) profStatus.innerText = isEn ? 'Status: Official Invited Agency CEU JSS' : 'Status: Agensi Jemputan Rasmi CEU JSS';
+
+    // --- Skrin Urus Program Pentadbir (screen_adminEvents) ---
+    const aeBadge = document.getElementById('adminEventsHeaderBadge');
+    if (aeBadge) aeBadge.innerText = isEn ? 'CAREER EDUCATION UNIT ADMINISTRATOR' : 'PENTADBIR UNIT PENDIDIKAN KERJAYA';
+    const aeRole = document.getElementById('adminEventsRoleBadge');
+    if (aeRole) aeRole.innerText = isEn ? 'ADMIN MODE' : 'MOD PENTADBIR';
+    const aeTitle = document.getElementById('adminEventsHeaderTitle');
+    if (aeTitle) aeTitle.innerText = isEn ? 'Program Management & School Maps' : 'Pengurusan Program & Peta Sekolah';
+    const aeDesc = document.getElementById('adminEventsHeaderDesc');
+    if (aeDesc) aeDesc.innerText = isEn ? 'Manage event details, update venues, hall floor plans, and Gate B parking locations.' : 'Urus maklumat acara, kemaskini dewan venue, pautan pelan dewan dan lokasi parking pintu pagar B.';
+    const aeBackBtn = document.getElementById('adminEventsBtnBackText');
+    if (aeBackBtn) aeBackBtn.innerText = isEn ? 'Back to Dashboard' : 'Kembali ke Papan Pemuka';
+    const aeSecTitle = document.getElementById('adminEventsSectionTitle');
+    if (aeSecTitle) aeSecTitle.innerText = isEn ? 'Active Programs & Current Calendar (31 Sessions)' : 'Program Aktif & Takwim Semasa (31 Sesi)';
+    const aeSearch = document.getElementById('adminEventsSearchInput');
+    if (aeSearch) aeSearch.placeholder = isEn ? 'Search school or hall...' : 'Cari sekolah atau dewan...';
+
+    const aeCatAll = document.getElementById('adminFilterCat_ALL');
+    if (aeCatAll) aeCatAll.innerText = isEn ? 'All (31)' : 'Semua (31)';
+    const aeDistAll = document.getElementById('adminFilterDist_ALL');
+    if (aeDistAll) aeDistAll.innerText = isEn ? 'All Districts' : 'Semua Daerah';
+
+    const aeFormTitle = document.getElementById('adminEventFormTitle');
+    if (aeFormTitle && (typeof AppState === 'undefined' || !AppState.activeAdminEditId)) {
+      aeFormTitle.innerText = isEn ? 'Update Event & Logistics Details' : 'Kemaskini Butiran Acara & Logistik';
+    }
+    const lAeNama = document.getElementById('labelAdminInputNamaAcara');
+    if (lAeNama) lAeNama.innerText = isEn ? 'Event / Program Name *' : 'Nama Acara / Program *';
+    const lAeCat = document.getElementById('labelAdminInputKategori');
+    if (lAeCat) lAeCat.innerText = isEn ? 'Program Category' : 'Kategori Program';
+    const lAeDate = document.getElementById('labelAdminInputTarikhMula');
+    if (lAeDate) lAeDate.innerText = isEn ? 'Event Date *' : 'Tarikh Acara *';
+    const inAeDate = document.getElementById('adminInputTarikhMula');
+    if (inAeDate) inAeDate.placeholder = isEn ? 'e.g., 25 Jan 2027' : 'cth: 15 Mac 2026';
+    const lAeTime = document.getElementById('labelAdminInputMasa');
+    if (lAeTime) lAeTime.innerText = isEn ? 'Program Time *' : 'Masa Program *';
+    const inAeTime = document.getElementById('adminInputMasa');
+    if (inAeTime) inAeTime.placeholder = isEn ? 'e.g., 08:00 - 16:30' : 'cth: 08:00 - 16:30';
+    const lAeVenue = document.getElementById('labelAdminInputTempat');
+    if (lAeVenue) lAeVenue.innerText = isEn ? 'School Venue / Hall *' : 'Tempat / Venue Sekolah *';
+    const inAeVenue = document.getElementById('adminInputTempat');
+    if (inAeVenue) inAeVenue.placeholder = isEn ? 'e.g., Multipurpose Hall, PTE Belait' : 'cth: Dewan Serbaguna Pusat Tingkatan Enam Belait';
+    const lAeGps = document.getElementById('labelAdminInputGps');
+    if (lAeGps) lAeGps.innerText = isEn ? 'Google Maps GPS Link (Hall Venue)' : 'Pautan GPS Google Maps (Venue Dewan)';
+
+    const aeMapSec = document.getElementById('adminEventsMapSectionTitle');
+    if (aeMapSec) aeMapSec.innerText = isEn ? 'School Hall Floor Plan & Agency Parking Settings' : 'Tetapan Pelan Dewan Sekolah & Peta Parking Agensi';
+    const lAePlan = document.getElementById('labelAdminInputPelanSekolah');
+    if (lAePlan) lAePlan.innerText = isEn ? 'School Hall Floor Plan (Booth Layout)' : 'Pelan Dewan Sekolah (Susunan Meja)';
+    const bAePlan = document.getElementById('badgeAdminInputPelanSekolah');
+    if (bAePlan) bAePlan.innerText = isEn ? 'Image Link / URL' : 'Pautan Imej / URL';
+    const inAePlanUrl = document.getElementById('adminInputPelanSekolah');
+    if (inAePlanUrl) inAePlanUrl.placeholder = isEn ? 'https://.../hall-floorplan.png' : 'https://.../pelan-dewan.png';
+    const dAePlan = document.getElementById('descAdminInputPelanSekolah');
+    if (dAePlan) dAePlan.innerText = isEn ? 'Agency booth layout plan for invited agencies.' : 'Pelan susun atur meja pameran agensi untuk paparan agensi jemputan.';
+
+    const lAePark = document.getElementById('labelAdminInputPelanParking');
+    if (lAePark) lAePark.innerText = isEn ? 'Agency Parking Location (Gate B)' : 'Lokasi Parking Agensi (Pintu Pagar B)';
+    const bAePark = document.getElementById('badgeAdminInputPelanParking');
+    if (bAePark) bAePark.innerText = isEn ? 'Map & Directions' : 'Peta & Panduan Arah';
+    const inAeParkUrl = document.getElementById('adminInputPelanParking');
+    if (inAeParkUrl) inAeParkUrl.placeholder = isEn ? 'https://.../parking-map.png' : 'https://.../peta-parking.png';
+    const inAeGuide = document.getElementById('adminInputPanduanParking');
+    if (inAeGuide) inAeGuide.placeholder = isEn ? 'Guide: Please enter via Gate B (Block C VIP)' : 'Panduan: Sila masuk melalui Pintu Pagar B (Blok C VIP)';
+
+    const lAeNotes = document.getElementById('labelAdminInputCatatanKhas');
+    if (lAeNotes) lAeNotes.innerText = isEn ? 'Special Notes / Agency Dress Code' : 'Catatan Khas / Etika Pakaian Agensi';
+    const inAeNotes = document.getElementById('adminInputCatatanKhas');
+    if (inAeNotes) inAeNotes.placeholder = isEn ? 'e.g., Formal office attire / blazer. Booth setup starts at 06:45 AM.' : 'cth: Pakaian rasmi pejabat / kot. Meja boleh diatur seawal 06:45 pagi.';
+
+    const btnSaveAe = document.getElementById('btnSaveAdminEventText');
+    if (btnSaveAe) btnSaveAe.innerText = isEn ? 'Save Event & Map Changes' : 'Simpan Perubahan Acara & Peta';
+
+    // Tooltips & Navigation Buttons
+    const btnLogoutD = document.getElementById('btnLogoutDesktop');
+    if (btnLogoutD) btnLogoutD.title = isEn ? 'Sign Out' : 'Log Keluar';
+    const hNotifBtn = document.getElementById('headerNotifBtn');
+    if (hNotifBtn) hNotifBtn.title = isEn ? 'System Notifications' : 'Notifikasi Sistem';
+    const hmNotifBtn = document.getElementById('homeNotifBtn');
+    if (hmNotifBtn) hmNotifBtn.title = isEn ? 'System Notifications' : 'Notifikasi Sistem';
+    const bCalPrev = document.getElementById('btnCalPrevWeek');
+    if (bCalPrev) bCalPrev.title = isEn ? 'Previous Week' : 'Minggu Sebelumnya';
+    const bCalNext = document.getElementById('btnCalNextWeek');
+    if (bCalNext) bCalNext.title = isEn ? 'Next Week' : 'Minggu Seterusnya';
+    const bSyncCal = document.getElementById('btnSyncCalToActive');
+    if (bSyncCal) {
+      bSyncCal.innerText = isEn ? 'This Session' : 'Sesi Ini';
+      bSyncCal.title = isEn ? 'View Selected Session Week' : 'Papar Minggu Sesi Terpilih';
+    }
+
+    // --- Modals ---
+    const mmClose = document.getElementById('mapModalCloseBtn');
+    if (mmClose) mmClose.innerText = isEn ? 'Close' : 'Tutup';
+    const dmTitle = document.getElementById('docModalTitle');
+    if (dmTitle) dmTitle.innerText = isEn ? 'Official QR Letter Preview' : 'Pratinjau Surat Rasmi Ber-QR';
+    const dmClose = document.getElementById('docModalCloseBtn');
+    if (dmClose) dmClose.innerText = isEn ? 'Close' : 'Tutup';
+    const dmPrint = document.getElementById('docModalPrintBtnText');
+    if (dmPrint) dmPrint.innerText = isEn ? 'Print PDF' : 'Cetak PDF';
 
     // --- Skrin Papan Pemuka Pentadbir ---
     const aHeadUnit = document.getElementById('adminHeaderUnitBadge');

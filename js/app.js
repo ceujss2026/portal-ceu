@@ -20,6 +20,22 @@ const AppState = {
   agenciesList: []
 };
 
+// ============================================
+// PEMBANTU FORMAT TARIKH DWIBAHASA (BM & EN)
+// ============================================
+function formatDisplayDate(dateStr, isEn) {
+  if (!dateStr) return '';
+  if (!isEn) return dateStr;
+  return dateStr
+    .replace(/\(Isnin\)/gi, '(Monday)')
+    .replace(/\(Selasa\)/gi, '(Tuesday)')
+    .replace(/\(Rabu\)/gi, '(Wednesday)')
+    .replace(/\(Khamis\)/gi, '(Thursday)')
+    .replace(/\(Jumaat\)/gi, '(Friday)')
+    .replace(/\(Sabtu\)/gi, '(Saturday)')
+    .replace(/\(Ahad\)/gi, '(Sunday)');
+}
+
 // Deduplikasi panggilan API in-flight
 const _inflight = {};
 let _writeEpoch = 0;
@@ -386,9 +402,10 @@ async function handleLoginSubmit(event) {
 
   const username = usernameInput.value.trim();
   const password = passwordInput.value.trim();
+  const isEn = typeof I18N !== 'undefined' && I18N.currentLang === 'EN';
 
   if (!username || !password) {
-    showToast('Sila masukkan nama pengguna dan kata laluan.', 'error');
+    showToast(isEn ? 'Please enter username and password.' : 'Sila masukkan nama pengguna dan kata laluan.', 'error');
     return;
   }
 
@@ -406,7 +423,7 @@ async function handleLoginSubmit(event) {
     localStorage.setItem('ceu_user', JSON.stringify(res.user));
     localStorage.setItem('ceu_token', res.token);
 
-    showToast(res.message || 'Log masuk berjaya!', 'success');
+    showToast(isEn ? 'Login successful!' : (res.message || 'Log masuk berjaya!'), 'success');
 
     // Halakan mengikut peranan pengguna
     if (res.user.role === 'ADMIN') {
@@ -418,16 +435,17 @@ async function handleLoginSubmit(event) {
     // Muat semula data di latar belakang
     fetchInitialDataSilently();
   } else {
-    showToast(res.message || 'Nama pengguna atau kata laluan salah.', 'error');
+    showToast(isEn ? 'Invalid username or password.' : (res.message || 'Nama pengguna atau kata laluan salah.'), 'error');
   }
 }
 
 function logoutUser() {
+  const isEn = typeof I18N !== 'undefined' && I18N.currentLang === 'EN';
   AppState.currentUser = null;
   AppState.token = '';
   localStorage.removeItem('ceu_user');
   localStorage.removeItem('ceu_token');
-  showToast('Anda telah berjaya log keluar.', 'info');
+  showToast(isEn ? 'You have logged out successfully.' : 'Anda telah berjaya log keluar.', 'info');
   navigateTo('login');
 }
 
@@ -653,7 +671,9 @@ function renderHomeScreen(populateDropdown = true) {
     dropdown.innerHTML = AppState.events.map(ev => {
       const isSelected = ev.Event_ID === primaryEvent.Event_ID ? 'selected' : '';
       const prefix = ev.Kategori_Program === 'Program FutureLink' ? '[FutureLink]' : '[Hala Tuju]';
-      return `<option value="${ev.Event_ID}" ${isSelected}>${prefix} ${ev.Tarikh_Paparan || ev.Tarikh_Mula} - ${ev.Sekolah || ev.Nama_Acara} (${ev.Daerah})</option>`;
+      const displayDate = formatDisplayDate(ev.Tarikh_Paparan || ev.Tarikh_Mula, isEn);
+      const distStr = isEn ? `${ev.Daerah} District` : `Daerah ${ev.Daerah}`;
+      return `<option value="${ev.Event_ID}" ${isSelected}>${prefix} ${displayDate} - ${ev.Sekolah || ev.Nama_Acara} (${distStr})</option>`;
     }).join('');
   } else if (dropdown) {
     dropdown.value = primaryEvent.Event_ID;
@@ -722,7 +742,7 @@ function renderHomeScreen(populateDropdown = true) {
               <span class="material-symbols-outlined text-[#148e82] text-[18px]">calendar_month</span>
               <div class="flex flex-col min-w-0">
                 <span class="text-[9px] text-slate-400 font-medium">${isEn ? 'Date' : 'Tarikh'}</span>
-                <span class="text-[11px] font-bold text-slate-800 truncate">${primaryEvent.Tarikh_Paparan || primaryEvent.Tarikh_Mula}</span>
+                <span class="text-[11px] font-bold text-slate-800 truncate">${formatDisplayDate(primaryEvent.Tarikh_Paparan || primaryEvent.Tarikh_Mula, isEn)}</span>
               </div>
             </div>
             <div class="flex items-center gap-1.5 p-2 rounded-xl bg-slate-50 border border-slate-100">
@@ -740,11 +760,11 @@ function renderHomeScreen(populateDropdown = true) {
               <span class="material-symbols-outlined text-[18px]">how_to_reg</span>
               <span>${isAttending ? (isEn ? 'Update RSVP for this Session' : 'Kemaskini RSVP Sesi Ini') : (isEn ? 'Confirm Attendance (RSVP)' : 'Sahkan Kehadiran (RSVP)')}</span>
             </button>
-            <button onclick="openDocumentGeneratorModal()" class="w-11 h-11 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 flex items-center justify-center transition-colors shadow-sm shrink-0" title="Muat Turun Surat Rasmi Ber-QR">
+            <button onclick="openDocumentGeneratorModal()" class="w-11 h-11 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 flex items-center justify-center transition-colors shadow-sm shrink-0" title="${isEn ? 'Download Official QR Letter' : 'Muat Turun Surat Rasmi Ber-QR'}">
               <span class="material-symbols-outlined text-[20px]">description</span>
             </button>
             ${isAttending ? `
-              <button onclick="shareRsvpWhatsApp('${primaryEvent.Event_ID}')" class="h-11 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs flex items-center gap-1.5 shadow-sm transition-all shrink-0" title="Hantar Notifikasi ke WhatsApp">
+              <button onclick="shareRsvpWhatsApp('${primaryEvent.Event_ID}')" class="h-11 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs flex items-center gap-1.5 shadow-sm transition-all shrink-0" title="${isEn ? 'Send Notification to WhatsApp' : 'Hantar Notifikasi ke WhatsApp'}">
                 <span class="material-symbols-outlined text-[18px]">chat</span>
                 <span class="hidden sm:inline">WhatsApp</span>
               </button>
@@ -835,7 +855,7 @@ function renderEventCardHtml(ev) {
           </div>
           <h4 class="text-xs md:text-sm font-bold text-slate-900 mt-1 leading-snug truncate">${ev.Sekolah || ev.Nama_Acara}</h4>
           <div class="flex items-center gap-2 text-[11px] text-slate-500 mt-0.5 flex-wrap">
-            <span>📅 ${ev.Tarikh_Paparan || ev.Tarikh_Mula}</span>
+            <span>📅 ${formatDisplayDate(ev.Tarikh_Paparan || ev.Tarikh_Mula, isEn)}</span>
             <span class="${isBelait ? 'font-bold text-amber-800' : ''}">🕒 ${ev.Masa}</span>
           </div>
           <span class="text-[11px] text-slate-600 truncate flex items-center gap-1 mt-0.5">
@@ -1005,7 +1025,7 @@ function renderHomeScheduleList() {
       `;
       weekIndex++;
     });
-    container.innerHTML = html || `<div class="bg-white p-6 rounded-2xl border border-slate-200 text-center text-slate-400"><p class="text-xs">Tiada sesi untuk minggu ini.</p></div>`;
+    container.innerHTML = html || `<div class="bg-white p-6 rounded-2xl border border-slate-200 text-center text-slate-400"><p class="text-xs">${isEn ? 'No sessions for this week.' : 'Tiada sesi untuk minggu ini.'}</p></div>`;
     return;
   }
 
@@ -1027,11 +1047,12 @@ function renderEventDetailsScreen(eventId) {
   const notesEl = document.getElementById('detailsEventNotes');
   const gpsBtn = document.getElementById('btnOpenGpsMaps');
 
+  const isEn = typeof I18N !== 'undefined' && I18N.currentLang === 'EN';
   if (titleEl) titleEl.innerText = ev.Sekolah || ev.Nama_Acara;
   if (venueEl) venueEl.innerText = ev.Tempat_Venue;
-  if (dateEl) dateEl.innerText = ev.Tarikh_Paparan || ev.Tarikh_Mula;
+  if (dateEl) dateEl.innerText = formatDisplayDate(ev.Tarikh_Paparan || ev.Tarikh_Mula, isEn);
   if (timeEl) timeEl.innerText = ev.Masa;
-  if (notesEl) notesEl.innerText = ev.Catatan_Khas || 'Pakaian rasmi pejabat / kot. Meja pameran disediakan oleh sekolah.';
+  if (notesEl) notesEl.innerText = ev.Catatan_Khas || (isEn ? 'Formal office attire / blazer. Exhibition table prepared by host school.' : 'Pakaian rasmi pejabat / kot. Meja pameran disediakan oleh sekolah.');
 
   if (gpsBtn) {
     gpsBtn.onclick = () => {
@@ -1065,7 +1086,7 @@ function switchRsvpSession(eventId, updateDropdown = true) {
   if (catEl) catEl.innerText = ev.Kategori_Program;
   if (distEl) distEl.innerText = isEn ? `${ev.Daerah} District` : 'Daerah ' + ev.Daerah;
   if (nameEl) nameEl.innerText = ev.Sekolah || ev.Nama_Acara;
-  if (dateEl) dateEl.innerText = '📅 ' + (ev.Tarikh_Paparan || ev.Tarikh_Mula);
+  if (dateEl) dateEl.innerText = '📅 ' + formatDisplayDate(ev.Tarikh_Paparan || ev.Tarikh_Mula, isEn);
   if (timeEl) timeEl.innerText = '🕒 ' + ev.Masa;
   if (venueEl) venueEl.innerHTML = `<span class="material-symbols-outlined text-[13px] text-slate-400">location_on</span> ${ev.Tempat_Venue}`;
 
@@ -1120,7 +1141,9 @@ function renderRsvpFormScreen(eventId) {
     rsvpSelector.innerHTML = (AppState.events || []).map(e => {
       const isSelected = e.Event_ID === ev.Event_ID ? 'selected' : '';
       const prefix = e.Kategori_Program === 'Program FutureLink' ? '[FutureLink]' : '[Hala Tuju]';
-      return `<option value="${e.Event_ID}" ${isSelected}>${prefix} ${e.Tarikh_Paparan || e.Tarikh_Mula} - ${e.Sekolah || e.Nama_Acara} (${e.Daerah})</option>`;
+      const displayDate = formatDisplayDate(e.Tarikh_Paparan || e.Tarikh_Mula, isEn);
+      const distStr = isEn ? `${e.Daerah} District` : `Daerah ${e.Daerah}`;
+      return `<option value="${e.Event_ID}" ${isSelected}>${prefix} ${displayDate} - ${e.Sekolah || e.Nama_Acara} (${distStr})</option>`;
     }).join('');
     rsvpSelector.value = ev.Event_ID;
   }
@@ -1170,11 +1193,12 @@ async function handleRsvpFormSubmit() {
   const ev = AppState.activeEvent || getFallbackEvents()[0];
   const user = AppState.currentUser;
   if (!user) return;
+  const isEn = typeof I18N !== 'undefined' && I18N.currentLang === 'EN';
 
   const btn = document.getElementById('btnSubmitRsvpAction');
   if (btn) {
     btn.disabled = true;
-    btn.innerText = (typeof I18N !== 'undefined' ? I18N.t('submitting') : 'Menghantar RSVP...') || 'Menghantar RSVP...';
+    btn.innerText = isEn ? 'Submitting RSVP...' : 'Menghantar RSVP...';
   }
 
   const payload = {
@@ -1216,10 +1240,10 @@ async function handleRsvpFormSubmit() {
 
   if (btn) {
     btn.disabled = false;
-    btn.innerText = (typeof I18N !== 'undefined' ? I18N.t('btnSubmitRsvp') : 'Hantar Pengesahan RSVP') || 'Hantar Pengesahan RSVP';
+    btn.innerText = isEn ? 'Submit RSVP Confirmation' : 'Hantar Pengesahan (Submit RSVP)';
   }
 
-  showToast('Pengesahan RSVP berjaya direkodkan!', 'success');
+  showToast(isEn ? 'RSVP confirmation successfully recorded!' : 'Pengesahan RSVP berjaya direkodkan!', 'success');
   navigateTo('home');
 
   // Panggil backend secara selamat di latar belakang (non-blocking)
@@ -1234,6 +1258,7 @@ async function handleRsvpFormSubmit() {
 function renderParkingScreen(eventId) {
   const ev = (AppState.events.find(e => e.Event_ID === eventId) || AppState.activeEvent) || getFallbackEvents()[0];
   const user = AppState.currentUser;
+  const isEn = typeof I18N !== 'undefined' && I18N.currentLang === 'EN';
 
   const passAgencyName = document.getElementById('parkingPassAgencyName');
   const parkingEventName = document.getElementById('parkingEventName');
@@ -1246,7 +1271,11 @@ function renderParkingScreen(eventId) {
     parkingEventName.innerText = ev.Nama_Acara;
   }
   if (parkingGuideText) {
-    parkingGuideText.innerText = ev.Panduan_Parking || 'Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi & VIP). Zon parking dikhaskan di Blok C, bersebelahan padang sekolah.';
+    parkingGuideText.innerText = ev.Panduan_Parking 
+      ? (isEn 
+          ? ev.Panduan_Parking.replace('Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi & VIP). Zon parking dikhaskan di Blok C, bersebelahan padang sekolah.', 'Please enter via Gate B (Designated Agency & VIP Gate). Parking zone is allocated at Block C, adjacent to the school field.').replace('Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi & VIP).', 'Please enter via Gate B (Designated Agency & VIP Gate).')
+          : ev.Panduan_Parking)
+      : (isEn ? 'Please enter via Gate B (Designated Agency & VIP Gate). Parking zone is allocated at Block C, adjacent to the school field.' : 'Sila masuk melalui Pintu Pagar B (Pagar Khas Agensi & VIP). Zon parking dikhaskan di Blok C, bersebelahan padang sekolah.');
   }
 }
 
@@ -1256,6 +1285,7 @@ function renderParkingScreen(eventId) {
 function renderArchiveScreen() {
   const container = document.getElementById('archiveTimelineList');
   if (!container) return;
+  const isEn = typeof I18N !== 'undefined' && I18N.currentLang === 'EN';
 
   const list = AppState.events.length ? AppState.events : getFallbackEvents();
 
@@ -1269,7 +1299,7 @@ function renderArchiveScreen() {
         <div class="flex flex-col flex-1 min-w-0 justify-center">
           <div class="flex items-center gap-1.5">
             <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-700">${ev.Kategori_Program}</span>
-            <span class="text-[10px] text-teal-700 font-semibold">• ${ev.Status_Acara || 'Aktif'}</span>
+            <span class="text-[10px] text-teal-700 font-semibold">• ${ev.Status_Acara === 'Aktif' ? (isEn ? 'Active' : 'Aktif') : (ev.Status_Acara || (isEn ? 'Active' : 'Aktif'))}</span>
           </div>
           <h4 class="text-sm font-bold text-slate-900 truncate mt-0.5">${ev.Nama_Acara}</h4>
           <span class="text-xs text-slate-500 truncate flex items-center gap-1 mt-0.5">
@@ -1292,6 +1322,7 @@ async function renderAdminDashboard() {
     ? AppState.agenciesList 
     : getPreseededAgencies();
   AppState.agenciesList = agencies;
+  const isEn = typeof I18N !== 'undefined' && I18N.currentLang === 'EN';
 
   // Kiraan metrik agregat
   const totalAgencies = agencies.length;
@@ -1307,8 +1338,8 @@ async function renderAdminDashboard() {
 
   if (totalAgenciesEl) totalAgenciesEl.innerText = totalAgencies;
   if (responseRateEl) responseRateEl.innerText = responseRate + '%';
-  if (tablesTotalEl) tablesTotalEl.innerText = totalTables + ' Unit';
-  if (plugsTotalEl) plugsTotalEl.innerText = totalPlugs + ' Unit';
+  if (tablesTotalEl) tablesTotalEl.innerText = totalTables + (isEn ? ' Units' : ' Unit');
+  if (plugsTotalEl) plugsTotalEl.innerText = totalPlugs + (isEn ? ' Units' : ' Unit');
 
   renderAdminAgenciesTable();
 }
@@ -1443,10 +1474,18 @@ function setAdminTableFilter(status) {
 }
 
 async function handleAdminResetAgencyPassword(agencyId) {
-  if (!confirm('Adakah anda pasti ingin menetapkan semula kata laluan agensi ini?')) return;
+  const isEn = typeof I18N !== 'undefined' && I18N.currentLang === 'EN';
+  const confirmMsg = isEn 
+    ? 'Are you sure you want to reset the password for this agency?' 
+    : 'Adakah anda pasti ingin menetapkan semula kata laluan agensi ini?';
+  if (!confirm(confirmMsg)) return;
+
   const tempPass = 'Ceu' + Math.floor(1000 + Math.random() * 9000) + '!';
-  alert('Kata laluan sementara baharu bagi ' + agencyId + ':\n\n' + tempPass + '\n\nSila kongsikan kepada pegawai agensi.');
-  showToast('Kata laluan berjaya direset!', 'success');
+  const alertMsg = isEn
+    ? `New temporary password for ${agencyId}:\n\n${tempPass}\n\nPlease share this with the agency officer.`
+    : `Kata laluan sementara baharu bagi ${agencyId}:\n\n${tempPass}\n\nSila kongsikan kepada pegawai agensi.`;
+  alert(alertMsg);
+  showToast(isEn ? 'Password reset successfully!' : 'Kata laluan berjaya direset!', 'success');
 }
 
 // ============================================
@@ -1493,6 +1532,7 @@ function setAdminEventsDistrictFilter(dist) {
 function renderAdminEventsList() {
   const container = document.getElementById('adminEventsListContainer');
   if (!container) return;
+  const isEn = typeof I18N !== 'undefined' && I18N.currentLang === 'EN';
 
   const searchInput = document.getElementById('adminEventsSearchInput');
   const query = searchInput ? searchInput.value.toLowerCase().trim() : '';
@@ -1519,7 +1559,7 @@ function renderAdminEventsList() {
     container.innerHTML = `
       <div class="col-span-full bg-white p-6 rounded-2xl border border-slate-200/80 text-center text-slate-400">
         <span class="material-symbols-outlined text-[32px] block mb-1">search_off</span>
-        <p class="text-xs">Tiada program ditemui padanan carian ini.</p>
+        <p class="text-xs">${isEn ? 'No programs found matching this search.' : 'Tiada program ditemui padanan carian ini.'}</p>
       </div>
     `;
     return;
@@ -1536,9 +1576,9 @@ function renderAdminEventsList() {
           </div>
           <h4 class="text-xs font-bold text-slate-900 mt-1 leading-snug">${ev.Sekolah || ev.Nama_Acara}</h4>
           <div class="flex items-center gap-2 text-[11px] text-slate-500 mt-0.5 flex-wrap">
-            <span>📅 ${ev.Tarikh_Paparan || ev.Tarikh_Mula}</span>
+            <span>📅 ${formatDisplayDate(ev.Tarikh_Paparan || ev.Tarikh_Mula, isEn)}</span>
             <span class="${isBelait ? 'font-bold text-amber-800' : ''}">🕒 ${ev.Masa}</span>
-            <span class="text-[10px] font-semibold bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded">Daerah ${ev.Daerah}</span>
+            <span class="text-[10px] font-semibold bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded">${isEn ? `${ev.Daerah} District` : `Daerah ${ev.Daerah}`}</span>
           </div>
           <span class="text-[11px] text-slate-600 truncate flex items-center gap-1 mt-0.5">
             <span class="material-symbols-outlined text-[13px] text-slate-400">location_on</span>
@@ -1547,10 +1587,10 @@ function renderAdminEventsList() {
         </div>
 
         <div class="flex items-center justify-between pt-2 border-t border-slate-100">
-          <span class="text-[10px] font-bold ${ev.Status_Acara === 'Aktif' ? 'text-emerald-600' : 'text-slate-400'}">● ${ev.Status_Acara || 'Aktif'}</span>
+          <span class="text-[10px] font-bold ${ev.Status_Acara === 'Aktif' ? 'text-emerald-600' : 'text-slate-400'}">● ${ev.Status_Acara === 'Aktif' ? (isEn ? 'Active' : 'Aktif') : (ev.Status_Acara || (isEn ? 'Active' : 'Aktif'))}</span>
           <button onclick="populateAdminEventForm('${ev.Event_ID}')" class="px-3 py-1.5 bg-[#006194] hover:bg-[#004b73] text-white font-bold text-[11px] rounded-xl flex items-center gap-1 transition-all shadow-sm">
             <span class="material-symbols-outlined text-[14px]">edit</span>
-            <span>Kemaskini &amp; Peta</span>
+            <span>${isEn ? 'Edit &amp; Maps' : 'Kemaskini &amp; Peta'}</span>
           </button>
         </div>
       </div>
@@ -1566,12 +1606,13 @@ function renderAdminEventsList() {
 function populateAdminEventForm(eventId) {
   const ev = (AppState.events.find(e => e.Event_ID === eventId) || AppState.activeEvent) || getFallbackEvents()[0];
   if (!ev) return;
+  const isEn = typeof I18N !== 'undefined' && I18N.currentLang === 'EN';
   AppState.activeAdminEditId = eventId;
 
   const idBadge = document.getElementById('adminEventIdBadge');
   const formTitle = document.getElementById('adminEventFormTitle');
   if (idBadge) idBadge.innerText = ev.Event_ID;
-  if (formTitle) formTitle.innerText = 'Kemaskini: ' + (ev.Sekolah || ev.Nama_Acara);
+  if (formTitle) formTitle.innerText = (isEn ? 'Update: ' : 'Kemaskini: ') + (ev.Sekolah || ev.Nama_Acara);
 
   const setVal = (id, val) => {
     const el = document.getElementById(id);
@@ -1593,6 +1634,7 @@ function populateAdminEventForm(eventId) {
 
 async function handleSaveAdminEvent(event) {
   if (event) event.preventDefault();
+  const isEn = typeof I18N !== 'undefined' && I18N.currentLang === 'EN';
 
   const eventId = document.getElementById('adminInputEventId').value;
   const list = AppState.events.length ? AppState.events : getFallbackEvents();
@@ -1624,7 +1666,7 @@ async function handleSaveAdminEvent(event) {
   AppState.activeEvent = updated;
   localStorage.setItem('ceu_cache_events', JSON.stringify(list));
 
-  showToast('Maklumat acara & peta sekolah berjaya disimpan!', 'success');
+  showToast(isEn ? 'Event details & school maps saved successfully!' : 'Maklumat acara & peta sekolah berjaya disimpan!', 'success');
   renderAdminEventsList();
   if (AppState.currentView === 'home') renderHomeScreen();
 
@@ -1708,33 +1750,40 @@ function openDocumentGeneratorModal(agencyId = null) {
   const user = AppState.currentUser;
   const targetAgencyId = agencyId || (user ? user.id : 'AG-05');
   const ev = AppState.activeEvent || getFallbackEvents()[0];
+  const isEn = typeof I18N !== 'undefined' && I18N.currentLang === 'EN';
 
-  showToast('Menjana Surat Perakuan Logistik rasmi...', 'info');
+  showToast(isEn ? 'Generating official Logistics Confirmation Letter...' : 'Menjana Surat Perakuan Logistik rasmi...', 'info');
 
   // Jana data perakuan rasmi serta-merta di sisi klien (0ms Instant UX)
   const agensi = (AppState.agencies || []).find(a => a.kod === targetAgencyId) || {
     nama: user ? user.namaAgensi : 'UNIVERSITI BRUNEI DARUSSALAM',
-    kategori: 'Institusi Pengajian Tinggi (IPT)'
+    kategori: isEn ? 'Higher Education Institution (HEI)' : 'Institusi Pengajian Tinggi (IPT)'
   };
   const rsvp = (AppState.rsvps || []).find(r => r.Event_ID === ev.Event_ID && (r.Agensi_ID === targetAgencyId || r.Agensi_ID === (user && user.id))) || {};
   const refNo = 'CEU/JSS/' + (ev.Event_ID || 'EVT') + '/' + targetAgencyId + '/' + new Date().getFullYear();
-  const todayStr = new Date().toLocaleDateString('ms-MY', { day: 'numeric', month: 'long', year: 'numeric' });
+  const todayStr = isEn 
+    ? new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })
+    : new Date().toLocaleDateString('ms-MY', { day: 'numeric', month: 'long', year: 'numeric' });
   const hmacCode = 'CEU-' + Math.random().toString(36).substring(2, 10).toUpperCase();
+
+  const statusDisplay = isEn 
+    ? (rsvp.Status_RSVP === 'Hadir' || rsvp.Status_RSVP === 'Hadir (Disahkan)' ? 'Attending (Confirmed)' : (rsvp.Status_RSVP === 'Tidak Hadir' ? 'Declined / Not Attending' : 'Pending / Not Confirmed'))
+    : (rsvp.Status_RSVP || 'Hadir (Disahkan)');
 
   const d = {
     NOMOR: refNo,
     TANGGAL: todayStr,
-    NAMA_AGENSI: agensi.nama || (user && user.namaAgensi) || 'Agensi Jemputan',
-    KATEGORI_AGENSI: agensi.kategori || 'Agensi / Institusi Jemputan',
+    NAMA_AGENSI: agensi.nama || (user && user.namaAgensi) || (isEn ? 'Invited Agency' : 'Agensi Jemputan'),
+    KATEGORI_AGENSI: agensi.kategori || (user && user.kategori) || (isEn ? 'Official Invited Agency / Institution' : 'Agensi / Institusi Jemputan'),
     NAMA_ACARA: ev.Nama_Acara,
-    TARIKH_ACARA: ev.Tarikh_Paparan || ev.Tarikh_Mula,
-    TEMPAT_ACARA: (ev.Tempat_Venue || 'Dewan Sekolah') + ' (' + (ev.Daerah || '') + ')',
-    STATUS_RSVP: rsvp.Status_RSVP || 'Hadir (Disahkan)',
+    TARIKH_ACARA: formatDisplayDate(ev.Tarikh_Paparan || ev.Tarikh_Mula, isEn),
+    TEMPAT_ACARA: (ev.Tempat_Venue || (isEn ? 'School Hall' : 'Dewan Sekolah')) + ' (' + (isEn ? `${ev.Daerah} District` : ev.Daerah || '') + ')',
+    STATUS_RSVP: statusDisplay,
     BIL_MEJA: rsvp.Bil_Meja || rsvp.bilMeja || 1,
     BIL_KERUSI: rsvp.Bil_Kerusi || rsvp.bilKerusi || 2,
     BIL_PLUG: rsvp.Bil_Plug || rsvp.bilPlug || 1,
     JUMLAH_WAKIL: rsvp.Jumlah_Wakil || rsvp.jumlahWakil || 2,
-    PEGAWAI_PENGESAH: 'Pegawai Perkembangan Kerjaya CEU / JSS',
+    PEGAWAI_PENGESAH: isEn ? 'Career Development Officer, CEU / JSS' : 'Pegawai Perkembangan Kerjaya CEU / JSS',
     KODE_VERIFIKASI: hmacCode
   };
 
@@ -1742,7 +1791,58 @@ function openDocumentGeneratorModal(agencyId = null) {
   const previewArea = document.getElementById('docPreviewArea');
 
   if (previewArea && d) {
-    previewArea.innerHTML = `
+    previewArea.innerHTML = isEn ? `
+      <div class="border-2 border-slate-800 p-6 bg-white rounded-xl shadow-lg font-serif text-slate-900 space-y-4 text-xs leading-relaxed">
+        <div class="text-center border-b-2 border-slate-800 pb-3">
+          <h2 class="text-base font-bold uppercase tracking-wider">MINISTRY OF EDUCATION</h2>
+          <h3 class="text-xs font-semibold uppercase">DEPARTMENT OF SCHOOLS · CAREER EDUCATION UNIT</h3>
+          <p class="text-[10px] italic text-slate-600">Negara Brunei Darussalam</p>
+        </div>
+
+        <div class="flex justify-between text-[11px] font-sans">
+          <div><strong>Our Ref:</strong> <span id="docRefNoPlaceholder">${d.NOMOR}</span></div>
+          <div><strong>Date:</strong> ${d.TANGGAL}</div>
+        </div>
+
+        <div class="pt-1 font-sans">
+          <div>To:</div>
+          <div class="font-bold text-sm text-slate-900 uppercase">${d.NAMA_AGENSI}</div>
+          <div class="text-slate-600">${d.KATEGORI_AGENSI}</div>
+        </div>
+
+        <div class="font-bold underline text-xs font-sans uppercase pt-2">
+          CONFIRMATION OF RSVP ACCEPTANCE & SCHOOL LOGISTICS PROVISION: ${d.NAMA_ACARA}
+        </div>
+
+        <p class="font-sans">
+          We are pleased to inform that the organizer, Career Education Unit, has received official confirmation of attendance from your esteemed agency for the aforementioned program scheduled on <strong>${d.TARIKH_ACARA}</strong> at <strong>${d.TEMPAT_ACARA}</strong>.
+        </p>
+
+        <div class="bg-slate-50 p-3 rounded-lg border border-slate-200 font-sans">
+          <div class="font-bold text-slate-800 mb-1">Details of Amenities Prepared at Hall:</div>
+          <ul class="list-disc list-inside space-y-0.5 text-slate-700">
+            <li>Attendance Status: <strong>${d.STATUS_RSVP}</strong></li>
+            <li>Exhibition Tables: <strong>${d.BIL_MEJA} Unit(s)</strong></li>
+            <li>Booth Chairs: <strong>${d.BIL_KERUSI} Unit(s)</strong></li>
+            <li>Power Extension: <strong>${d.BIL_PLUG} Unit(s)</strong></li>
+            <li>Expected Representatives: <strong>${d.JUMLAH_WAKIL} Pax</strong></li>
+          </ul>
+        </div>
+
+        <div class="flex justify-between items-end pt-4 font-sans">
+          <div>
+            <p class="text-[10px] text-slate-500">Digitally signed:</p>
+            <p class="font-bold mt-1">${d.PEGAWAI_PENGESAH}</p>
+          </div>
+          <div class="flex flex-col items-center">
+            <div class="w-16 h-16 bg-slate-100 border border-dashed border-slate-400 flex items-center justify-center p-1 rounded">
+              <span class="material-symbols-outlined text-[36px] text-slate-700">qr_code_2</span>
+            </div>
+            <span class="text-[9px] font-mono text-slate-500 mt-0.5">CODE: ${String(d.KODE_VERIFIKASI).slice(0, 8)}</span>
+          </div>
+        </div>
+      </div>
+    ` : `
       <div class="border-2 border-slate-800 p-6 bg-white rounded-xl shadow-lg font-serif text-slate-900 space-y-4 text-xs leading-relaxed">
         <div class="text-center border-b-2 border-slate-800 pb-3">
           <h2 class="text-base font-bold uppercase tracking-wider">KEMENTERIAN PENDIDIKAN</h2>
@@ -2486,11 +2586,36 @@ const getPreseeded52Agencies = getPreseededAgencies;
 // 13. MODUL NOTIFIKASI DALAMAN & INTEGRASI WHATSAPP
 // ============================================
 function shareRsvpWhatsApp(eventId) {
+  const isEn = typeof I18N !== 'undefined' && I18N.currentLang === 'EN';
   const ev = (AppState.events || []).find(e => e.Event_ID === eventId) || AppState.activeEvent || getFallbackEvents()[0];
   const user = AppState.currentUser;
   const rsvp = (AppState.rsvps || []).find(r => r.Event_ID === ev.Event_ID && (r.Agensi_ID === (user && user.id) || r.Agensi_ID === 'AG-05')) || {};
 
-  const message = `*PENGESAHAN KEHADIRAN RSVP & LOGISTIK DEWAN RASMI*
+  const displayStatus = isEn
+    ? (rsvp.Status_RSVP === 'Hadir' || rsvp.Status_RSVP === 'Hadir (Disahkan)' ? 'ATTENDING (CONFIRMED)' : (rsvp.Status_RSVP === 'Tidak Hadir' ? 'NOT ATTENDING' : 'PENDING CONFIRMATION'))
+    : (rsvp.Status_RSVP || 'HADIR (DISAHKAN)');
+
+  const message = isEn ? `*OFFICIAL RSVP ATTENDANCE & HALL LOGISTICS CONFIRMATION*
+Career Education Unit (CEU), Department of Schools
+Ministry of Education, Brunei Darussalam
+
+To: Program Coordinator & School Organizing Committee
+Agency Name: *${user ? user.namaAgensi : 'Invited Agency'}*
+Program: *${ev.Nama_Acara}*
+Date: *${formatDisplayDate(ev.Tarikh_Paparan || ev.Tarikh_Mula, isEn)}*
+Time: *${ev.Masa}*
+Venue: *${ev.Tempat_Venue} (${ev.Daerah} District)*
+
+Attendance Status: *${displayStatus}*
+Exhibition Hall Amenities Summary:
+• Exhibition Table: ${rsvp.bilMeja || 1} Unit(s)
+• Booth Chairs: ${rsvp.bilKerusi || 2} Unit(s)
+• Power Socket: ${rsvp.bilPlug || 1} Unit(s)
+• Total Officers: ${rsvp.jumlahWakil || 2} Pax
+• Duty Officer: ${rsvp.namaWakilHadir || '-'}
+• Parking Pass: 1 Designated VIP Bay (Gate B)
+
+Official Portal: https://ceujss2026.github.io/rsvp-ceu-portal/` : `*PENGESAHAN KEHADIRAN RSVP & LOGISTIK DEWAN RASMI*
 Unit Pendidikan Kerjaya (UPK), Jabatan Sekolah-Sekolah
 Kementerian Pendidikan Negara Brunei Darussalam
 
@@ -2514,18 +2639,36 @@ Pautan Portal Rasmi: https://ceujss2026.github.io/rsvp-ceu-portal/`;
 
   const waUrl = 'https://api.whatsapp.com/send?text=' + encodeURIComponent(message);
   window.open(waUrl, '_blank');
-  showToast('Membuka WhatsApp untuk menghantar perakuan RSVP...', 'success');
+  showToast(isEn ? 'Opening WhatsApp to share RSVP confirmation...' : 'Membuka WhatsApp untuk menghantar perakuan RSVP...', 'success');
 }
 
 function adminSendAgencyWhatsApp(agencyCode) {
+  const isEn = typeof I18N !== 'undefined' && I18N.currentLang === 'EN';
   const agency = (AppState.agencies || getPreseededAgencies()).find(a => a.kod === agencyCode);
   if (!agency) return;
 
   const ev = AppState.activeEvent || getFallbackEvents()[0];
   const rsvp = (AppState.rsvps || []).find(r => r.Agensi_ID === agency.kod && r.Event_ID === ev.Event_ID);
-  const status = rsvp ? rsvp.Status_RSVP : 'Belum Sah';
+  const status = rsvp ? (isEn ? (rsvp.Status_RSVP === 'Hadir' ? 'Attending' : 'Not Attending') : rsvp.Status_RSVP) : (isEn ? 'Pending' : 'Belum Sah');
 
-  const message = `*PERINGATAN RASMI UNIT PENDIDIKAN KERJAYA (CEU / JSS)*
+  const message = isEn ? `*OFFICIAL REMINDER — CAREER EDUCATION UNIT (CEU / JSS)*
+Ministry of Education, Brunei Darussalam
+
+Assalamu'alaikum Warahmatullahi Wabarakatuh,
+To: Liaison Officer of *${agency.namaAgensi || agency.nama}*
+
+We would like to gently remind your agency regarding RSVP confirmation & logistics coordination for:
+📌 *${ev.Nama_Acara}*
+📅 Date: *${formatDisplayDate(ev.Tarikh_Paparan || ev.Tarikh_Mula, isEn)}*
+⏰ Time: *${ev.Masa}*
+📍 Venue: *${ev.Tempat_Venue}*
+Current Agency Status: *${status}*
+
+Please visit the official portal to confirm exhibition tables & Gate B VIP parking access:
+https://ceujss2026.github.io/rsvp-ceu-portal/
+
+Thank you.
+— Career Education Unit (CEU), Department of Schools` : `*PERINGATAN RASMI UNIT PENDIDIKAN KERJAYA (CEU / JSS)*
 Kementerian Pendidikan Negara Brunei Darussalam
 
 Assalamu'alaikum Warahmatullahi Wabarakatuh,
@@ -2546,10 +2689,11 @@ Sekian, terima kasih.
 
   const waUrl = 'https://api.whatsapp.com/send?text=' + encodeURIComponent(message);
   window.open(waUrl, '_blank');
-  showToast('Membuka WhatsApp peringatan untuk ' + (agency.namaAgensi || agency.nama), 'info');
+  showToast(isEn ? ('Opening WhatsApp reminder for ' + (agency.namaAgensi || agency.nama)) : ('Membuka WhatsApp peringatan untuk ' + (agency.namaAgensi || agency.nama)), 'info');
 }
 
 function getInAppNotifications() {
+  const isEn = typeof I18N !== 'undefined' && I18N.currentLang === 'EN';
   const user = AppState.currentUser;
   const ev = AppState.activeEvent || getFallbackEvents()[0];
   const rsvps = AppState.rsvps || [];
@@ -2558,23 +2702,27 @@ function getInAppNotifications() {
   const notifs = [
     {
       id: 'notif-1',
-      title: 'Peringatan Acara H-1: ' + (ev.Sekolah || ev.Nama_Acara),
-      time: '2 jam lepas',
-      desc: 'Program ' + ev.Nama_Acara + ' akan berlangsung pada ' + (ev.Tarikh_Paparan || ev.Tarikh_Mula) + ' jam ' + ev.Masa + '. Pas parking VIP Pintu Pagar B telah aktif.',
+      title: isEn ? ('Event Reminder (T-1 Day): ' + (ev.Sekolah || ev.Nama_Acara)) : ('Peringatan Acara H-1: ' + (ev.Sekolah || ev.Nama_Acara)),
+      time: isEn ? '2 hours ago' : '2 jam lepas',
+      desc: isEn 
+        ? ('The ' + ev.Nama_Acara + ' event will take place on ' + formatDisplayDate(ev.Tarikh_Paparan || ev.Tarikh_Mula, isEn) + ' at ' + ev.Masa + '. Gate B VIP parking pass is now active.')
+        : ('Program ' + ev.Nama_Acara + ' akan berlangsung pada ' + (ev.Tarikh_Paparan || ev.Tarikh_Mula) + ' jam ' + ev.Masa + '. Pas parking VIP Pintu Pagar B telah aktif.'),
       type: 'warning',
       actions: [
-        { label: 'Pelan Dewan →', onclick: "openMapModal('floorPlan')" },
-        { label: 'Peta Parking →', onclick: "openMapModal('parking')" }
+        { label: isEn ? 'Floor Plan →' : 'Pelan Dewan →', onclick: "openMapModal('floorPlan')" },
+        { label: isEn ? 'Parking Map →' : 'Peta Parking →', onclick: "openMapModal('parking')" }
       ]
     },
     {
       id: 'notif-2',
-      title: 'Surat Perakuan Rasmi Diterbitkan',
-      time: '1 hari lepas',
-      desc: 'Surat perakuan logistik dan kelengkapan meja booth rasmi ber-QR dan kod HMAC telah sedia dimuat turun.',
+      title: isEn ? 'Official Confirmation Letter Issued' : 'Surat Perakuan Rasmi Diterbitkan',
+      time: isEn ? '1 day ago' : '1 hari lepas',
+      desc: isEn 
+        ? 'Official logistics & booth confirmation letter with QR code and HMAC code is ready for download.'
+        : 'Surat perakuan logistik dan kelengkapan meja booth rasmi ber-QR dan kod HMAC telah sedia dimuat turun.',
       type: 'info',
       actions: [
-        { label: 'Papar Surat Ber-QR →', onclick: "openDocumentGeneratorModal()" }
+        { label: isEn ? 'View QR Letter →' : 'Papar Surat Ber-QR →', onclick: "openDocumentGeneratorModal()" }
       ]
     }
   ];
@@ -2582,13 +2730,17 @@ function getInAppNotifications() {
   if (userRsvp) {
     notifs.unshift({
       id: 'notif-rsvp',
-      title: 'Pengesahan Kehadiran RSVP Diterima: ' + (userRsvp.Status_RSVP || 'Hadir'),
-      time: 'Baru sahaja',
-      desc: 'Permohonan ' + (userRsvp.bilMeja || 1) + ' meja pameran dan ' + (userRsvp.bilKerusi || 2) + ' kerusi untuk ' + (user ? user.namaAgensi : 'Agensi') + ' telah disahkan sistem.',
+      title: isEn 
+        ? ('RSVP Attendance Confirmed: ' + (userRsvp.Status_RSVP === 'Hadir' ? 'Attending' : (userRsvp.Status_RSVP || 'Attending')))
+        : ('Pengesahan Kehadiran RSVP Diterima: ' + (userRsvp.Status_RSVP || 'Hadir')),
+      time: isEn ? 'Just now' : 'Baru sahaja',
+      desc: isEn
+        ? ('Request for ' + (userRsvp.bilMeja || 1) + ' exhibition table(s) and ' + (userRsvp.bilKerusi || 2) + ' chair(s) for ' + (user ? user.namaAgensi : 'Agency') + ' has been confirmed by the system.')
+        : ('Permohonan ' + (userRsvp.bilMeja || 1) + ' meja pameran dan ' + (userRsvp.bilKerusi || 2) + ' kerusi untuk ' + (user ? user.namaAgensi : 'Agensi') + ' telah disahkan sistem.'),
       type: 'success',
       actions: [
-        { label: 'Hantar ke WhatsApp 📲', onclick: `shareRsvpWhatsApp('${ev.Event_ID}')` },
-        { label: 'Papar Surat Ber-QR →', onclick: "openDocumentGeneratorModal()" }
+        { label: isEn ? 'Share to WhatsApp 📲' : 'Hantar ke WhatsApp 📲', onclick: `shareRsvpWhatsApp('${ev.Event_ID}')` },
+        { label: isEn ? 'View QR Letter →' : 'Papar Surat Ber-QR →', onclick: "openDocumentGeneratorModal()" }
       ]
     });
   }
@@ -2631,11 +2783,12 @@ function renderNotificationsScreen() {
 }
 
 function markAllNotificationsRead() {
+  const isEn = typeof I18N !== 'undefined' && I18N.currentLang === 'EN';
   const hBadge = document.getElementById('headerNotifBadge');
   const mBadge = document.getElementById('homeNotifBadge');
   if (hBadge) hBadge.style.display = 'none';
   if (mBadge) mBadge.style.display = 'none';
-  showToast('Semua notifikasi ditandakan telah dibaca.', 'success');
+  showToast(isEn ? 'All notifications marked as read.' : 'Semua notifikasi ditandakan telah dibaca.', 'success');
 }
 
 function renderProfileScreen() {
