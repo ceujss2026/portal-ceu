@@ -66,7 +66,12 @@ const MASTER_52_AGENSI = MASTER_AGENSI;
 /**
  * FUNGSI SETUP UTAMA (Jalankan sekali daripada Apps Script Editor)
  * Sifat: Idempoten (Aman dijalankan berulang tanpa merosakkan data sedia ada)
+ * Boleh dipilih sebagai "runInitialSetup" atau "setupAppEnvironment"
  */
+function runInitialSetup() {
+  return setupAppEnvironment();
+}
+
 function setupAppEnvironment() {
   const APP_NAME = 'PORTAL CEU - Event Management & RSVP';
   Logger.log('🚀 Memulakan persediaan persekitaran ' + APP_NAME + '...');
