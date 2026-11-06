@@ -89,11 +89,20 @@ function bumpVersion_(scope) {
 
 /**
  * Mengakses lembaran kerja Google Sheets berdasarkan ID dari Script Properties
+ * Menyokong sandaran automatik ke getActiveSpreadsheet() jika skrip dipasang pada helaian
  */
 function getSpreadsheet_() {
-  const ssId = prop_('SPREADSHEET_ID');
+  let ssId = prop_('SPREADSHEET_ID');
   if (!ssId) {
-    throw new Error('SPREADSHEET_ID belum dikonfigurasi. Sila jalankan setupAppEnvironment().');
+    try {
+      const active = SpreadsheetApp.getActiveSpreadsheet();
+      if (active) {
+        ssId = active.getId();
+        setProp_('SPREADSHEET_ID', ssId);
+        return active;
+      }
+    } catch (e) {}
+    throw new Error('SPREADSHEET_ID belum disambungkan. Sila jalankan runInitialSetup() atau tetapkan SPREADSHEET_ID dalam Project Settings.');
   }
   return SpreadsheetApp.openById(ssId);
 }

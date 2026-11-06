@@ -108,6 +108,14 @@ function setupAppEnvironment() {
     try { ss = SpreadsheetApp.openById(existingSsId); } catch(e) {}
   }
   if (!ss) {
+    try {
+      ss = SpreadsheetApp.getActiveSpreadsheet();
+      if (ss) {
+        setProp_('SPREADSHEET_ID', ss.getId());
+      }
+    } catch(e) {}
+  }
+  if (!ss) {
     ss = SpreadsheetApp.create('🗃️ Database — ' + APP_NAME);
     DriveApp.getFileById(ss.getId()).moveTo(rootFolder);
     setProp_('SPREADSHEET_ID', ss.getId());
@@ -273,4 +281,36 @@ function setupSheets_(ss) {
   if (defSheet && ss.getSheets().length > 1) {
     ss.deleteSheet(defSheet);
   }
+}
+
+/**
+ * FUNGSI PEMBANTU: Hubungkan Google Sheet sedia ada ke Apps Script secara terus
+ * Boleh dijalankan jika anda ingin menghubungkan spreadsheet yang telah anda buat secara manual.
+ * 
+ * Cara guna:
+ * Gantikan SPREADSHEET_URL_ATAU_ID di bawah dengan pautan atau ID Google Sheet anda, kemudian klik Run.
+ */
+function hubungkanSpreadsheetSediaAda() {
+  // Gantikan nilai ini dengan URL penuh atau ID Google Sheet anda:
+  const SPREADSHEET_URL_ATAU_ID = 'MASUKKAN_URL_ATAU_ID_GOOGLE_SHEET_DI_SINI';
+
+  if (!SPREADSHEET_URL_ATAU_ID || SPREADSHEET_URL_ATAU_ID.indexOf('MASUKKAN_') !== -1) {
+    throw new Error('Sila masukkan URL atau ID Google Sheet anda pada pembolehubah SPREADSHEET_URL_ATAU_ID di dalam fungsi hubungkanSpreadsheetSediaAda().');
+  }
+
+  let id = SPREADSHEET_URL_ATAU_ID.trim();
+  const match = id.match(/\/spreadsheets\/d\/([a-zA-Z0-9-_]+)/);
+  if (match) id = match[1];
+
+  const ss = SpreadsheetApp.openById(id);
+  setProp_('SPREADSHEET_ID', ss.getId());
+
+  Logger.log('🔗 BERJAYA DIHUBUNGKAN:');
+  Logger.log('   Nama Spreadsheet: ' + ss.getName());
+  Logger.log('   ID Spreadsheet  : ' + ss.getId());
+  Logger.log('   Pautan Helaian  : ' + ss.getUrl());
+
+  // Jana struktur 50 agensi dan 31 sesi jika belum wujud
+  setupSheets_(ss);
+  Logger.log('✅ Skema 50 Agensi & 31 Sesi Takwim selesai diselaraskan ke helaian!');
 }
