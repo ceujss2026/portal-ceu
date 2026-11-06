@@ -121,9 +121,10 @@ async function apiCall(action, data = {}, isWrite = false) {
       };
 
       // WAJIB: 'Content-Type': 'text/plain;charset=utf-8' mengikut gas-pro-api
-      // Ditambah timeout 2500ms untuk tindak balas pantas jika GAS sedang cold-start atau offline
+      // Timeout dinamik: 15 saat untuk mutasi tulis (submitRSVP/updateEvent), 6 saat untuk bacaan
+      const timeoutMs = isWrite ? 15000 : 6000;
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 2500);
+      const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
 
       const res = await fetch(CONFIG.GAS_URL, {
         method: 'POST',
@@ -234,6 +235,7 @@ function navigateTo(viewId, param = null) {
       break;
     case 'admin':
       renderAdminDashboard();
+      fetchInitialDataSilently();
       break;
     case 'adminEvents':
       renderAdminEventsList();
@@ -1539,10 +1541,16 @@ Pautan Portal: https://ceujss2026.github.io/rsvp-ceu-portal/`;
 
   showToast(isEn ? 'RSVP saved! Opening WhatsApp notification for Secretariat (+6738669690)...' : 'RSVP disimpan! Membuka WhatsApp untuk makluman Urus Setia (+6738669690)...', 'success');
 
-  // Hantar maklumat ke backend secara asynchronous
-  apiCall('submitRSVP', payload, true).catch(err => {
-    console.warn('Sync submitRSVP offline/error:', err);
-  });
+  // Hantar maklumat ke backend secara asynchronous & segerakkan data terkini
+  apiCall('submitRSVP', payload, true)
+    .then(res => {
+      if (res && res.success) {
+        fetchInitialDataSilently();
+      }
+    })
+    .catch(err => {
+      console.warn('Sync submitRSVP offline/error:', err);
+    });
 }
 
 // ============================================
@@ -1666,7 +1674,18 @@ function getAgencyRsvpForSchool(agencyKod, eventId) {
   // 1. Semak rekod tersimpan eksplisit dalam AppState.rsvps
   if (AppState.rsvps && Array.isArray(AppState.rsvps)) {
     const found = AppState.rsvps.find(r => r.Event_ID === eventId && isAgencyMatch(r.Agensi_ID, agencyKod));
-    if (found) return found;
+    if (found) {
+      return {
+        ...found,
+        bilMeja: found.bilMeja !== undefined ? Number(found.bilMeja) : (found.Bil_Meja !== undefined ? Number(found.Bil_Meja) : 1),
+        bilKerusi: found.bilKerusi !== undefined ? Number(found.bilKerusi) : (found.Bil_Kerusi !== undefined ? Number(found.Bil_Kerusi) : 2),
+        bilPlug: found.bilPlug !== undefined ? Number(found.bilPlug) : (found.Bil_Plug !== undefined ? Number(found.Bil_Plug) : 1),
+        namaWakilHadir: found.namaWakilHadir || found.Nama_Wakil_Hadir || '-',
+        jumlahWakil: found.jumlahWakil !== undefined ? Number(found.jumlahWakil) : (found.Jumlah_Wakil !== undefined ? Number(found.Jumlah_Wakil) : 2),
+        statusRsvp: found.Status_RSVP || found.statusRsvp || 'Belum Sah',
+        Status_RSVP: found.Status_RSVP || found.statusRsvp || 'Belum Sah'
+      };
+    }
   }
 
   // 2. Jika tiada rekod, bermakna agensi BELUM SAH (Pending) bagi sesi ini
@@ -2025,11 +2044,10 @@ function renderAdminAgenciesTable() {
           </div>
         </td>
         <td class="p-3">
-          <button type="button" onclick="adminQuickToggleRsvp('${a.kod}', '${currentEvent.Event_ID}')" title="${isEn ? 'Click to toggle status (Attending / Not Attending / Pending)' : 'Klik untuk tukar status pantas (Hadir / Tidak Hadir / Belum Sah)'}" class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold ${badgeClass} hover:opacity-80 transition-opacity">
+          <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold ${badgeClass} shadow-xs">
             <span class="w-1.5 h-1.5 rounded-full ${isHadir ? 'bg-emerald-600' : (isTidakHadir ? 'bg-rose-600' : 'bg-amber-600')}"></span>
             <span>${statusLabel}</span>
-            <span class="material-symbols-outlined text-[11px] text-slate-400">sync</span>
-          </button>
+          </span>
         </td>
         <td class="p-3 text-center font-semibold text-slate-700">
           ${isHadir ? (a.bilMeja + (isEn ? ' T / ' : ' M / ') + a.bilKerusi + (isEn ? ' C' : ' K')) : '-'}
@@ -2163,48 +2181,8 @@ function setAdminTableFilter(status) {
 }
 
 function adminQuickToggleRsvp(agencyKod, eventId) {
-  const isEn = typeof I18N !== 'undefined' && I18N.currentLang === 'EN';
-  const ev = (AppState.events || getFallbackEvents()).find(e => e.Event_ID === eventId) || (AppState.events || getFallbackEvents())[0];
-  const currentRsvp = getAgencyRsvpForSchool(agencyKod, ev.Event_ID);
-  const agency = (AppState.agenciesList || getPreseededAgencies()).find(a => a.kod === agencyKod);
-  const agencyName = agency ? agency.namaAgensi : agencyKod;
-
-  // Kitaran status: Hadir -> Tidak Hadir -> Belum Sah -> Hadir
-  let nextStatus = 'Hadir';
-  if (currentRsvp.Status_RSVP === 'Hadir' || currentRsvp.Status_RSVP === 'Hadir (Disahkan)') {
-    nextStatus = 'Tidak Hadir';
-  } else if (currentRsvp.Status_RSVP === 'Tidak Hadir') {
-    nextStatus = 'Belum Sah';
-  } else {
-    nextStatus = 'Hadir';
-  }
-
-  if (!AppState.rsvps) AppState.rsvps = [];
-  const idx = AppState.rsvps.findIndex(r => r.Event_ID === ev.Event_ID && r.Agensi_ID === agencyKod);
-
-  const updatedRecord = Object.assign({}, currentRsvp, {
-    Event_ID: ev.Event_ID,
-    Agensi_ID: agencyKod,
-    Nama_Agensi: agencyName,
-    Status_RSVP: nextStatus,
-    bilMeja: nextStatus === 'Hadir' ? (currentRsvp.bilMeja || 1) : 0,
-    bilKerusi: nextStatus === 'Hadir' ? (currentRsvp.bilKerusi || 2) : 0,
-    bilPlug: nextStatus === 'Hadir' ? (currentRsvp.bilPlug || 1) : 0,
-    Tarikh_Hantar: new Date().toISOString()
-  });
-
-  if (idx > -1) {
-    AppState.rsvps[idx] = updatedRecord;
-  } else {
-    AppState.rsvps.push(updatedRecord);
-  }
-
-  localStorage.setItem('ceu_cache_rsvps', JSON.stringify(AppState.rsvps));
-  
-  const statusLabel = isEn ? (nextStatus === 'Hadir' ? 'Attending' : (nextStatus === 'Tidak Hadir' ? 'Not Attending' : 'Pending')) : nextStatus;
-  showToast(isEn ? `Updated status for ${agencyName} to ${statusLabel}` : `Status ${agencyName} ditukar ke ${statusLabel}`, 'success');
-
-  renderAdminDashboard();
+  // Papan Pentadbir adalah mod pemantauan 100% automatik tanpa input manual
+  console.info('Mod Pentadbir: Pengesahan status RSVP dikemas kini secara automatik daripada serahan rasmi agensi.');
 }
 
 function printSchoolRsvpReport() {
@@ -2885,19 +2863,23 @@ function showToast(msg, type = 'info') {
 }
 
 function fetchInitialDataSilently() {
-  // 1. Tarik RSVP awam daripada Google Sheets melalui GET (bebas masalah token tamat)
+  // 1. Tarik RSVP awam daripada Google Sheets secara automatik (bebas masalah token tamat)
   if (CONFIG && CONFIG.GAS_URL) {
     fetch(CONFIG.GAS_URL + '?action=getRsvps')
       .then(r => r.json())
       .then(res => {
-        if (res && res.success && Array.isArray(res.rsvps) && res.rsvps.length > 0) {
-          const merged = AppState.rsvps ? [...AppState.rsvps] : [];
-          res.rsvps.forEach(serverR => {
-            const idx = merged.findIndex(r => r.Event_ID === serverR.Event_ID && isAgencyMatch(r.Agensi_ID, serverR.Agensi_ID));
-            if (idx > -1) merged[idx] = serverR;
-            else merged.push(serverR);
-          });
-          AppState.rsvps = merged;
+        if (res && res.success && Array.isArray(res.rsvps)) {
+          const normalized = res.rsvps.map(sr => ({
+            ...sr,
+            bilMeja: sr.bilMeja !== undefined ? Number(sr.bilMeja) : (sr.Bil_Meja !== undefined ? Number(sr.Bil_Meja) : 1),
+            bilKerusi: sr.bilKerusi !== undefined ? Number(sr.bilKerusi) : (sr.Bil_Kerusi !== undefined ? Number(sr.Bil_Kerusi) : 2),
+            bilPlug: sr.bilPlug !== undefined ? Number(sr.bilPlug) : (sr.Bil_Plug !== undefined ? Number(sr.Bil_Plug) : 1),
+            namaWakilHadir: sr.namaWakilHadir || sr.Nama_Wakil_Hadir || '-',
+            jumlahWakil: sr.jumlahWakil !== undefined ? Number(sr.jumlahWakil) : (sr.Jumlah_Wakil !== undefined ? Number(sr.Jumlah_Wakil) : 2),
+            statusRsvp: sr.Status_RSVP || sr.statusRsvp || 'Belum Sah',
+            Status_RSVP: sr.Status_RSVP || sr.statusRsvp || 'Belum Sah'
+          }));
+          AppState.rsvps = normalized;
           localStorage.setItem('ceu_cache_rsvps', JSON.stringify(AppState.rsvps));
           if (AppState.currentView === 'home') renderHomeScreen(false);
           if (AppState.currentView === 'admin') renderAdminDashboard();
@@ -2918,14 +2900,18 @@ function fetchInitialDataSilently() {
           localStorage.setItem('ceu_cache_events', JSON.stringify(AppState.events));
         }
       }
-      if (res.rsvps && Array.isArray(res.rsvps)) {
-        const merged = AppState.rsvps ? [...AppState.rsvps] : [];
-        res.rsvps.forEach(serverR => {
-          const idx = merged.findIndex(r => r.Event_ID === serverR.Event_ID && isAgencyMatch(r.Agensi_ID, serverR.Agensi_ID));
-          if (idx > -1) merged[idx] = serverR;
-          else merged.push(serverR);
-        });
-        AppState.rsvps = merged;
+      if (res.rsvps && Array.isArray(res.rsvps) && (!AppState.rsvps || AppState.rsvps.length === 0)) {
+        const normalized = res.rsvps.map(sr => ({
+          ...sr,
+          bilMeja: sr.bilMeja !== undefined ? Number(sr.bilMeja) : (sr.Bil_Meja !== undefined ? Number(sr.Bil_Meja) : 1),
+          bilKerusi: sr.bilKerusi !== undefined ? Number(sr.bilKerusi) : (sr.Bil_Kerusi !== undefined ? Number(sr.Bil_Kerusi) : 2),
+          bilPlug: sr.bilPlug !== undefined ? Number(sr.bilPlug) : (sr.Bil_Plug !== undefined ? Number(sr.Bil_Plug) : 1),
+          namaWakilHadir: sr.namaWakilHadir || sr.Nama_Wakil_Hadir || '-',
+          jumlahWakil: sr.jumlahWakil !== undefined ? Number(sr.jumlahWakil) : (sr.Jumlah_Wakil !== undefined ? Number(sr.Jumlah_Wakil) : 2),
+          statusRsvp: sr.Status_RSVP || sr.statusRsvp || 'Belum Sah',
+          Status_RSVP: sr.Status_RSVP || sr.statusRsvp || 'Belum Sah'
+        }));
+        AppState.rsvps = normalized;
         localStorage.setItem('ceu_cache_rsvps', JSON.stringify(AppState.rsvps));
       }
       if (AppState.currentView === 'home') renderHomeScreen(false);
@@ -2933,6 +2919,24 @@ function fetchInitialDataSilently() {
       if (AppState.currentView === 'admin') renderAdminDashboard();
     }
   }).catch(() => {});
+}
+
+// Auto-Sync Latar Belakang: Segerakkan RSVP secara automatik tanpa perlu refresh manual
+setInterval(() => {
+  if (typeof AppState !== 'undefined' && (AppState.currentView === 'admin' || AppState.currentView === 'home')) {
+    fetchInitialDataSilently();
+  }
+}, 15000);
+
+if (typeof window !== 'undefined') {
+  window.addEventListener('focus', () => {
+    fetchInitialDataSilently();
+  });
+  if (typeof document !== 'undefined') {
+    document.addEventListener('visibilitychange', () => {
+      if (!document.hidden) fetchInitialDataSilently();
+    });
+  }
 }
 
 function getFallbackEvents() {

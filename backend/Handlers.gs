@@ -73,13 +73,18 @@ function handleSubmitRSVP_(auth, data) {
   const events = getSheetData_('Events');
   let ev = events.find(e => e.Event_ID === eventId);
   if (!ev) {
+    ev = {
+      Event_ID: eventId,
+      Nama_Acara: data.namaAcara || ('Program Rasmi - ' + eventId),
+      Kategori_Program: data.kategoriProgram || 'Program Hala Tuju'
+    };
     try {
       const shEvents = getSheet_('Events');
       const nowEv = Utilities.formatDate(new Date(), 'GMT+8', 'yyyy-MM-dd HH:mm:ss');
       shEvents.appendRow([
         eventId,
-        data.kategoriProgram || 'Program Hala Tuju',
-        data.namaAcara || ('Program Rasmi - ' + eventId),
+        ev.Kategori_Program,
+        ev.Nama_Acara,
         data.tarikhMula || '2027-01-25',
         data.tarikhMula || '2027-01-25',
         data.masa || '09:00 - 11:30',
@@ -158,7 +163,7 @@ function handleSubmitRSVP_(auth, data) {
     No_Telefon_Agensi: data.telefon || '',
     Emel_Rasmi: data.emel || ''
   }, {
-    namaAcara: ev.Nama_Acara,
+    namaAcara: (ev && ev.Nama_Acara) || data.namaAcara || ('Program Rasmi - ' + eventId),
     statusRsvp: statusRsvp,
     meja: bilMeja,
     kerusi: bilKerusi,
