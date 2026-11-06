@@ -7,6 +7,8 @@ const CACHE_NAME = 'ceu-pwa-v1.1';
 const STATIC_ASSETS = [
   './',
   './index.html',
+  './css/style.css',
+  './js/config.js',
   './js/app.js',
   './js/i18n.js',
   './manifest.json',
