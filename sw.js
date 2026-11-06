@@ -3,11 +3,12 @@
  * Unit Pendidikan Kerjaya (UPK / CEU), Jabatan Sekolah-Sekolah
  */
 
-const CACHE_NAME = 'ceu-pwa-v1.1';
+const CACHE_NAME = 'ceu-pwa-v1.2';
 const STATIC_ASSETS = [
   './',
   './index.html',
   './css/style.css',
+  './img/logo.png',
   './js/config.js',
   './js/app.js',
   './js/i18n.js',

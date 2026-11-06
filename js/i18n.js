@@ -11,7 +11,7 @@ const I18N = {
 
   translations: {
     BM: {
-      appName: 'PORTAL CEU',
+      appName: 'RSVP CEU',
       appSubtext: 'UPK · JSS · MOE',
       ministryEmblem: 'KEMENTERIAN PENDIDIKAN',
       ministryTitle: 'Kementerian Pendidikan, Negara Brunei Darussalam · v2.1.0',
@@ -273,7 +273,7 @@ const I18N = {
     },
 
     EN: {
-      appName: 'PORTAL CEU',
+      appName: 'RSVP CEU',
       appSubtext: 'UPK · JSS · MOE',
       ministryEmblem: 'MINISTRY OF EDUCATION',
       ministryTitle: 'Ministry of Education, Brunei Darussalam · v2.1.0',

@@ -3,14 +3,14 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
-  <title>PORTAL CEU - Kementerian Pendidikan</title>
+  <title>RSVP CEU - Kementerian Pendidikan</title>
 
   <!-- PWA & Mobile Web App Meta -->
   <meta name="theme-color" content="#006194" />
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <meta name="apple-mobile-web-app-title" content="Portal CEU" />
+  <meta name="apple-mobile-web-app-title" content="RSVP CEU" />
   <link rel="manifest" href="./manifest.json" />
   <link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png" />
   <link rel="apple-touch-icon" href="./icon-192.png" />
@@ -257,12 +257,10 @@
       <div class="max-w-[1280px] mx-auto px-6 h-16 flex items-center justify-between">
         <!-- Brand -->
         <div class="flex items-center gap-3 cursor-pointer" onclick="navigateHomeRole()">
-          <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-[#006194] to-[#148e82] text-white flex items-center justify-center shadow-sm">
-            <span class="material-symbols-outlined text-[22px]">account_balance</span>
-          </div>
+          <img src="img/logo.png" alt="Logo UPK CEU" class="w-10 h-10 rounded-xl object-contain shadow-sm" />
           <div class="flex flex-col">
             <div class="flex items-center gap-1.5">
-              <span class="font-extrabold text-base tracking-tight text-slate-900 leading-tight">PORTAL CEU</span>
+              <span class="font-extrabold text-base tracking-tight text-slate-900 leading-tight">RSVP CEU</span>
               <span id="desktopNavModeBadge" class="text-[9px] bg-teal-100 text-teal-800 font-bold px-2 py-0.5 rounded-full uppercase">AGENSI</span>
             </div>
             <span class="text-[11px] text-slate-500 font-medium">Unit Pendidikan Kerjaya • JSS • MOE</span>
@@ -310,11 +308,9 @@
     <header id="appHeader" class="hidden md:hidden fixed top-0 left-0 right-0 w-full z-50 pt-safe bg-gradient-to-r from-[#148e82] via-[#0284c7] to-[#006194] text-white shadow-md">
       <div class="h-16 px-4 flex items-center justify-between">
         <div class="flex items-center gap-2 cursor-pointer" onclick="navigateTo('home')">
-          <div class="w-10 h-10 rounded-lg bg-surface-container-lowest/15 backdrop-blur-md flex items-center justify-center p-1 shadow-[0_2px_8px_rgba(0,0,0,0.06)]">
-            <span class="material-symbols-outlined text-gold-subtle text-[22px]">account_balance</span>
-          </div>
+          <img src="img/logo.png" alt="Logo UPK CEU" class="w-10 h-10 rounded-lg object-contain bg-white/95 p-0.5 shadow-sm" />
           <div class="flex flex-col">
-            <span class="font-bold text-sm tracking-tight text-on-primary leading-tight">PORTAL CEU</span>
+            <span class="font-bold text-sm tracking-tight text-on-primary leading-tight">RSVP CEU</span>
             <span class="text-[10px] text-ocean-wash/80 font-semibold uppercase tracking-wider">UPK · JSS · MOE</span>
           </div>
         </div>
@@ -369,19 +365,17 @@
 
               <!-- Centered Circular Emblem & Authority Identity -->
               <div class="flex flex-col items-center md:items-start text-center md:text-left">
-                <div class="relative w-16 h-16 md:w-20 md:h-20 mb-3 rounded-full bg-surface-container-lowest p-1 shadow-lg flex items-center justify-center">
-                  <div class="w-full h-full rounded-full bg-gradient-to-tr from-ocean-dark to-primary flex flex-col items-center justify-center text-on-primary relative overflow-hidden">
-                    <span class="font-serif font-black text-2xl text-tertiary-fixed tracking-wider">UPK</span>
-                  </div>
-                  <div class="absolute -bottom-1 -right-1 bg-tertiary text-on-tertiary-fixed w-6 h-6 rounded-full flex items-center justify-center shadow-md">
-                    <span class="material-symbols-outlined text-[14px]">verified</span>
+                <div class="relative w-20 h-20 md:w-24 md:h-24 mb-3 rounded-full bg-white p-1 shadow-xl flex items-center justify-center">
+                  <img src="img/logo.png" alt="Logo Rasmi UPK CEU" class="w-full h-full object-contain rounded-full" />
+                  <div class="absolute -bottom-1 -right-1 bg-[#f59e0b] text-slate-900 w-6 h-6 rounded-full flex items-center justify-center shadow-md">
+                    <span class="material-symbols-outlined text-[14px] font-bold">verified</span>
                   </div>
                 </div>
 
                 <div class="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-surface-container-lowest/15 backdrop-blur-sm mb-1">
                   <span id="loginEmblemMinistry" class="text-tertiary-fixed-dim text-[10px] font-bold tracking-widest uppercase">KEMENTERIAN PENDIDIKAN</span>
                 </div>
-                <h1 class="text-2xl md:text-3xl font-extrabold tracking-tight text-on-primary">PORTAL CEU</h1>
+                <h1 class="text-2xl md:text-3xl font-extrabold tracking-tight text-on-primary">RSVP CEU</h1>
                 <p id="loginSystemSubtitle" class="text-xs text-ocean-wash/90 max-w-xs mt-1 leading-snug">
                   Unit Pendidikan Kerjaya • Jabatan Sekolah-Sekolah<br/>
                   <span class="opacity-80">Negara Brunei Darussalam</span>
@@ -517,11 +511,9 @@
           <!-- Baris 1: Jenama Aplikasi Mobile Sahaja (Di Desktop diuruskan oleh Desktop Top Navbar) -->
           <div class="relative z-10 flex md:hidden items-center justify-between pb-3">
             <div class="flex items-center gap-2.5 cursor-pointer" onclick="navigateTo('home')">
-              <div class="w-9 h-9 rounded-xl bg-white/20 backdrop-blur-md flex items-center justify-center shadow-sm">
-                <span class="material-symbols-outlined text-white text-[20px]">grid_view</span>
-              </div>
+              <img src="img/logo.png" alt="Logo UPK CEU" class="w-9 h-9 rounded-xl object-contain bg-white/95 p-0.5 shadow-sm" />
               <div class="flex flex-col">
-                <span class="text-sm font-black tracking-tight text-white leading-tight">PORTAL CEU</span>
+                <span class="text-sm font-black tracking-tight text-white leading-tight">RSVP CEU</span>
                 <span id="homeMobileEmblemUnit" class="text-[10px] text-white/80 font-bold uppercase tracking-wider">KPM • UNIT KERJAYA</span>
               </div>
             </div>

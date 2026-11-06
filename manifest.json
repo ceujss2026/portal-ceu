@@ -1,6 +1,6 @@
 {
-  "name": "Portal RSVP CEU - MOE Brunei",
-  "short_name": "Portal CEU",
+  "name": "RSVP CEU",
+  "short_name": "RSVP CEU",
   "description": "Sistem Pengesahan Kehadiran RSVP & Penyelarasan Logistik Program Hala Tuju & FutureLink - Unit Pendidikan Kerjaya, Jabatan Sekolah-Sekolah, Kementerian Pendidikan Brunei Darussalam",
   "start_url": "./index.html",
   "scope": "./",
