@@ -196,12 +196,12 @@ function navigateTo(viewId, param = null) {
   } else if (AppState.currentUser) {
     const isAdmin = AppState.currentUser.role === 'ADMIN';
     if (isAdmin) {
-      // Mod Pentadbir: Papan Pemuka ('admin'), Urus Program ('adminEvents'), Notifikasi ('notifications'), Profil ('profile')
+      // Pentadbir CEU: Papan Pemuka ('admin'), Urus Program ('adminEvents'), Notifikasi ('notifications'), Profil ('profile')
       if (viewId !== 'admin' && viewId !== 'adminEvents' && viewId !== 'notifications' && viewId !== 'profile') {
         viewId = 'admin';
       }
     } else {
-      // Mod Agensi: Info Program ('home'), Borang RSVP ('rsvpForm'), Notifikasi ('notifications'), Profil ('profile')
+      // Agensi: Info Program ('home'), Borang RSVP ('rsvpForm'), Notifikasi ('notifications'), Profil ('profile')
       if (viewId !== 'home' && viewId !== 'rsvpForm' && viewId !== 'notifications' && viewId !== 'profile') {
         viewId = 'home';
       }
@@ -383,7 +383,7 @@ function updateBottomNav(viewId) {
     if (appHeader) appHeader.style.display = (viewId === 'home' || viewId === 'admin') ? 'none' : 'block';
   }
 
-  // Mod Pentadbir Lebar Maksimum di Skrin Komputer
+  // Paparan Pentadbir Lebar Maksimum di Skrin Komputer
   if (viewport) {
     if (isAdmin) {
       viewport.classList.add('admin-mode');
@@ -1678,7 +1678,7 @@ function renderArchiveScreen() {
 }
 
 // ============================================
-// 10. RENDERING SKRIN MOD PENTADBIR: PAPAN PEMUKA & URUS PROGRAM
+// 10. RENDERING SKRIN PENTADBIR CEU: PAPAN PEMUKA & URUS PROGRAM
 // ============================================
 let adminSelectedSchoolId = 'EVT-PHT-01';
 let adminDashboardViewMode = 'table';
@@ -2195,8 +2195,8 @@ function setAdminTableFilter(status) {
 }
 
 function adminQuickToggleRsvp(agencyKod, eventId) {
-  // Papan Pentadbir adalah mod pemantauan 100% automatik tanpa input manual
-  console.info('Mod Pentadbir: Pengesahan status RSVP dikemas kini secara automatik daripada serahan rasmi agensi.');
+  // Papan Pentadbir adalah pemantauan 100% automatik tanpa input manual
+  console.info('Pentadbir CEU: Pengesahan status RSVP dikemas kini secara automatik daripada serahan rasmi agensi.');
 }
 
 function printSchoolRsvpReport() {
@@ -2227,7 +2227,7 @@ async function handleAdminResetAgencyPassword(agencyId) {
 }
 
 // ============================================
-// URUS PROGRAM & PETA SEKOLAH (MOD PENTADBIR)
+// URUS PROGRAM & PETA SEKOLAH (PENTADBIR CEU)
 // ============================================
 let adminEventsFilterCat = 'ALL';
 let adminEventsFilterDist = 'ALL';

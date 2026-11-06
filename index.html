@@ -5,6 +5,16 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
   <title>PORTAL CEU - Kementerian Pendidikan</title>
 
+  <!-- PWA & Mobile Web App Meta -->
+  <meta name="theme-color" content="#006194" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Portal CEU" />
+  <link rel="manifest" href="./manifest.json" />
+  <link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png" />
+  <link rel="apple-touch-icon" href="./icon-192.png" />
+
   <!-- Google Fonts & Material Symbols -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -164,7 +174,7 @@
       }
     }
 
-    /* Mod Lebar untuk Pentadbir di Skrin Komputer (Admin Mode) */
+    /* Skrin Lebar untuk Pentadbir di Komputer (Admin View) */
     .app-viewport.admin-mode {
       max-width: 1360px;
     }
@@ -259,11 +269,11 @@
           </div>
         </div>
 
-        <!-- Desktop Navigation Links: 2 Item Dinamik Mengikut Mod Pengguna -->
+        <!-- Desktop Navigation Links: 2 Item Dinamik Mengikut Peranan Pengguna -->
         <nav id="desktopNavLinks" class="flex items-center gap-2">
           <!-- Diisi dinamik oleh app.js: 
-               Mod Agensi: [Info Program] & [Borang RSVP]
-               Mod Pentadbir: [Papan Pemuka] & [Urus Program]
+               Agensi: [Info Program] & [Borang RSVP]
+               Admin: [Papan Pemuka] & [Urus Program]
           -->
         </nav>
 
@@ -1771,5 +1781,20 @@
   <script src="js/config.js"></script>
   <script src="js/i18n.js"></script>
   <script src="js/app.js"></script>
+
+  <!-- PWA & APK Service Worker Registration -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js')
+          .then((reg) => {
+            console.log('PWA Service Worker registered:', reg.scope);
+          })
+          .catch((err) => {
+            console.warn('PWA Service Worker registration failed:', err);
+          });
+      });
+    }
+  </script>
 </body>
 </html>
