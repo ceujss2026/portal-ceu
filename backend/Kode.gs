@@ -32,6 +32,9 @@ function doGet(e) {
       case 'getAgencies':
         res = getPublicAgenciesList_();
         break;
+      case 'getRsvps':
+        res = getPublicRsvpsList_();
+        break;
       case 'verifikasiDokumen':
         res = deVerifikasiPublik_(params.kode);
         break;
@@ -92,10 +95,20 @@ function dispatchPostAction_(action, data, token) {
     return handleCheckSession_(token);
   }
 
-  // Pengesahan Token Sesi HMAC
-  const auth = verifyToken_(token);
+  // Pengesahan Token Sesi HMAC (dengan kelonggaran bagi serahan RSVP agar tidak hilang)
+  let auth = verifyToken_(token);
   if (!auth) {
-    return { success: false, code: 'AUTH_EXPIRED', message: 'Sesi anda telah tamat. Sila log masuk semula.' };
+    if (action === 'submitRSVP' && (data.agencyId || data.agensiId || data.namaAgensi)) {
+      auth = {
+        id: data.agencyId || data.agensiId || 'AG-UNKNOWN',
+        namaAgensi: data.namaAgensi || ('Agensi ' + (data.agencyId || data.agensiId)),
+        role: 'AGENCY'
+      };
+    } else if (action === 'getInitialData') {
+      auth = { id: 'ANONYMOUS', role: 'VIEWER' };
+    } else {
+      return { success: false, code: 'AUTH_EXPIRED', message: 'Sesi anda telah tamat. Sila log masuk semula.' };
+    }
   }
 
   // Aksi Portal Agensi & Admin (Boleh diakses kedua-duanya)

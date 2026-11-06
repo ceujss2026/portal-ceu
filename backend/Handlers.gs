@@ -63,6 +63,9 @@ function handleSubmitRSVP_(auth, data) {
   const namaWakil = data.namaWakilHadir || '';
   const keperluanLain = data.keperluanLain || '';
 
+  const agencyId = (auth && auth.id && auth.id !== 'ANONYMOUS') ? auth.id : (data.agencyId || data.agensiId || 'AG-UNKNOWN');
+  const namaAgensi = (auth && auth.namaAgensi) ? auth.namaAgensi : (data.namaAgensi || ('Agensi ' + agencyId));
+
   if (!eventId) {
     return { success: false, message: 'ID Acara diperlukan.' };
   }
@@ -101,7 +104,10 @@ function handleSubmitRSVP_(auth, data) {
 
   let rowIndex = -1;
   for (let r = 1; r < vals.length; r++) {
-    if (vals[r][evIdx] === eventId && vals[r][agIdx] === auth.id) {
+    const rowEv = String(vals[r][evIdx]).trim();
+    const rowAg = String(vals[r][agIdx]).trim().toLowerCase();
+    const targetAg = String(agencyId).trim().toLowerCase();
+    if (rowEv === eventId && (rowAg === targetAg || (data.username && rowAg === String(data.username).trim().toLowerCase()))) {
       rowIndex = r + 1;
       break;
     }
@@ -127,8 +133,8 @@ function handleSubmitRSVP_(auth, data) {
     sh.appendRow([
       rsvpId,
       eventId,
-      auth.id,
-      auth.namaAgensi,
+      agencyId,
+      namaAgensi,
       statusRsvp,
       bilMeja,
       bilKerusi,
@@ -440,5 +446,16 @@ function handleUploadEventMedia_(data) {
     fileId: file.getId(),
     url: fileUrl,
     message: 'Fail media berjaya dimuat naik ke Google Drive!'
+  };
+}
+
+/**
+ * Mengambil senarai RSVP awam untuk paparan portal decoupled
+ */
+function getPublicRsvpsList_() {
+  const rsvps = getSheetData_('RSVP_Logistik');
+  return {
+    success: true,
+    rsvps: rsvps
   };
 }

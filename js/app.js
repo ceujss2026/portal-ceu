@@ -1353,8 +1353,13 @@ async function handleRsvpFormSubmit() {
   const isEdit = existingIdx > -1;
 
   const isHadir = (currentRsvpStatus === 'Hadir');
+  const agencyKod = user.id || user.kod || 'AG-23';
   const payload = {
     eventId: ev.Event_ID,
+    agencyId: agencyKod,
+    agensiId: agencyKod,
+    namaAgensi: user.namaAgensi || '',
+    username: user.username || '',
     kategoriProgram: ev.Kategori_Program,
     namaAcara: ev.Nama_Acara,
     tarikhMula: ev.Tarikh_Mula,
@@ -1375,7 +1380,7 @@ async function handleRsvpFormSubmit() {
   // Optimistic UI: Segera simpan rekod RSVP agensi
   const updatedRecord = Object.assign({}, payload, {
     Event_ID: ev.Event_ID,
-    Agensi_ID: user.id || user.kod || 'AG-23',
+    Agensi_ID: agencyKod,
     Nama_Agensi: user.namaAgensi,
     Status_RSVP: currentRsvpStatus,
     statusRsvp: currentRsvpStatus,
@@ -2880,6 +2885,28 @@ function showToast(msg, type = 'info') {
 }
 
 function fetchInitialDataSilently() {
+  // 1. Tarik RSVP awam daripada Google Sheets melalui GET (bebas masalah token tamat)
+  if (CONFIG && CONFIG.GAS_URL) {
+    fetch(CONFIG.GAS_URL + '?action=getRsvps')
+      .then(r => r.json())
+      .then(res => {
+        if (res && res.success && Array.isArray(res.rsvps) && res.rsvps.length > 0) {
+          const merged = AppState.rsvps ? [...AppState.rsvps] : [];
+          res.rsvps.forEach(serverR => {
+            const idx = merged.findIndex(r => r.Event_ID === serverR.Event_ID && isAgencyMatch(r.Agensi_ID, serverR.Agensi_ID));
+            if (idx > -1) merged[idx] = serverR;
+            else merged.push(serverR);
+          });
+          AppState.rsvps = merged;
+          localStorage.setItem('ceu_cache_rsvps', JSON.stringify(AppState.rsvps));
+          if (AppState.currentView === 'home') renderHomeScreen(false);
+          if (AppState.currentView === 'admin') renderAdminDashboard();
+        }
+      })
+      .catch(() => {});
+  }
+
+  // 2. Tarik data sesi acara & notifikasi pentadbir
   apiCall('getInitialData').then(res => {
     if (res && res.success) {
       if (res.events && res.events.length >= 31) {
@@ -2894,7 +2921,7 @@ function fetchInitialDataSilently() {
       if (res.rsvps && Array.isArray(res.rsvps)) {
         const merged = AppState.rsvps ? [...AppState.rsvps] : [];
         res.rsvps.forEach(serverR => {
-          const idx = merged.findIndex(r => r.Event_ID === serverR.Event_ID && r.Agensi_ID === serverR.Agensi_ID);
+          const idx = merged.findIndex(r => r.Event_ID === serverR.Event_ID && isAgencyMatch(r.Agensi_ID, serverR.Agensi_ID));
           if (idx > -1) merged[idx] = serverR;
           else merged.push(serverR);
         });
