@@ -266,6 +266,7 @@ const I18N = {
       archiveScreenTitle: 'Takwim Tahunan Program',
       notifScreenTitle: 'Notifikasi & Peringatan Acara',
       btnMarkAllNotifsRead: 'Tanda Semua Dibaca',
+      btnClearAllNotifs: 'Kosongkan Semua',
       profileScreenTitle: 'Profil Agensi & Tetapan',
       profileRegisteredAccountLabel: 'Akaun Agensi Berdaftar',
       profileAgencyStatusText: 'Status: Agensi Jemputan Rasmi CEU JSS',
@@ -528,6 +529,7 @@ const I18N = {
       archiveScreenTitle: 'Annual Program Calendar',
       notifScreenTitle: 'Notifications & Event Alerts',
       btnMarkAllNotifsRead: 'Mark All as Read',
+      btnClearAllNotifs: 'Clear All',
       profileScreenTitle: 'Agency Profile & Settings',
       profileRegisteredAccountLabel: 'Registered Agency Account',
       profileAgencyStatusText: 'Status: Official Invited Agency CEU JSS',
@@ -992,6 +994,8 @@ const I18N = {
     if (notifTitle) notifTitle.innerText = isEn ? 'Notifications & Event Alerts' : 'Notifikasi & Peringatan Acara';
     const btnMarkAll = document.getElementById('btnMarkAllNotifsRead');
     if (btnMarkAll) btnMarkAll.innerText = isEn ? 'Mark All as Read' : 'Tanda Semua Dibaca';
+    const btnClearAll = document.getElementById('btnClearAllNotifs');
+    if (btnClearAll) btnClearAll.innerText = isEn ? 'Clear All' : 'Kosongkan Semua';
 
     // --- Skrin Profil (screen_profile) ---
     const profTitle = document.getElementById('profileScreenTitle');

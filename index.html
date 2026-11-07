@@ -1204,7 +1204,11 @@
             </button>
             <h2 id="notifScreenTitle" class="text-sm font-bold text-on-surface">Notifikasi &amp; Peringatan Acara</h2>
           </div>
-          <button id="btnMarkAllNotifsRead" onclick="markAllNotificationsRead()" class="text-xs font-semibold text-primary hover:underline">Tanda Semua Dibaca</button>
+          <div class="flex items-center gap-2">
+            <button id="btnMarkAllNotifsRead" onclick="markAllNotificationsRead()" class="text-xs font-semibold text-primary hover:underline">Tanda Semua Dibaca</button>
+            <span class="text-slate-300">•</span>
+            <button id="btnClearAllNotifs" onclick="clearAllNotifications()" class="text-xs font-semibold text-rose-600 hover:text-rose-700 hover:underline">Kosongkan Semua</button>
+          </div>
         </div>
 
         <div id="notificationsListContainer" class="flex flex-col gap-2.5">

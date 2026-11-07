@@ -253,6 +253,7 @@ function navigateTo(viewId, param = null) {
 
   // Kemaskini Navigasi (Desktop Top Bar & Mobile Bottom Bar)
   updateBottomNav(viewId);
+  if (AppState.currentUser) updateNotifBadges();
 
   // Render view spesifik
   switch (viewId) {
@@ -1439,6 +1440,13 @@ async function handleRsvpFormSubmit() {
   localStorage.setItem('ceu_cache_rsvps', JSON.stringify(AppState.rsvps));
   try { renderHomeScreen(false); } catch(e) {}
 
+  // Pulihkan notif-rsvp jika pernah dipadam oleh agensi
+  try {
+    let dismissed = JSON.parse(localStorage.getItem('ceu_dismissed_notifs') || '[]');
+    dismissed = dismissed.filter(id => id !== 'notif-rsvp');
+    localStorage.setItem('ceu_dismissed_notifs', JSON.stringify(dismissed));
+  } catch(e) {}
+
   // Pulihkan butang hantar
   if (btn) btn.disabled = false;
   if (btnText) btnText.innerText = isEn ? 'Update RSVP Confirmation' : 'Kemaskini Pengesahan RSVP';
@@ -1480,17 +1488,7 @@ async function handleRsvpFormSubmit() {
   localStorage.setItem('ceu_admin_notifications', JSON.stringify(AppState.adminNotifications));
 
   // Tunjukkan lencana notifikasi
-  const hBadge = document.getElementById('headerNotifBadge');
-  const mBadge = document.getElementById('homeNotifBadge');
-  const unreadCount = AppState.adminNotifications.filter(x => !x.read).length;
-  if (hBadge) {
-    hBadge.style.display = 'block';
-    hBadge.innerText = String(Math.min(unreadCount, 9));
-  }
-  if (mBadge) {
-    mBadge.style.display = 'block';
-    mBadge.innerText = String(Math.min(unreadCount, 9));
-  }
+  updateNotifBadges();
 
   // Push Notification Pelayar (Native Notification API)
   if (typeof window !== 'undefined' && 'Notification' in window) {
@@ -3762,12 +3760,21 @@ Sekian, terima kasih.
   showToast(isEn ? ('Opening WhatsApp reminder for ' + (agency.namaAgensi || agency.nama)) : ('Membuka WhatsApp peringatan untuk ' + (agency.namaAgensi || agency.nama)), 'info');
 }
 
+function getDismissedNotificationIds() {
+  try {
+    return JSON.parse(localStorage.getItem('ceu_dismissed_notifs') || '[]');
+  } catch(e) {
+    return [];
+  }
+}
+
 function getInAppNotifications() {
   const isEn = typeof I18N !== 'undefined' && I18N.currentLang === 'EN';
   const user = AppState.currentUser;
   const ev = AppState.activeEvent || getFallbackEvents()[0];
   const rsvps = AppState.rsvps || [];
   const userRsvp = user ? rsvps.find(r => r.Event_ID === ev.Event_ID && r.Agensi_ID === user.id) : null;
+  const dismissedIds = getDismissedNotificationIds();
 
   let notifs = [];
 
@@ -3787,6 +3794,7 @@ function getInAppNotifications() {
       time: an.time || (isEn ? 'Recent' : 'Terkini'),
       desc: an.desc,
       type: an.type || 'info',
+      read: !!an.read,
       actions: [
         { label: isEn ? 'View Agency RSVP →' : 'Lihat Rekod Agensi →', onclick: "navigateTo('admin')" },
         { label: isEn ? 'WhatsApp Secretariat (+6738669690) 📲' : 'WhatsApp Urus Setia (+6738669690) 📲', onclick: "window.open('https://wa.me/6738669690', '_blank')" }
@@ -3842,41 +3850,120 @@ function getInAppNotifications() {
     });
   }
 
-  return notifs;
+  // Tapis keluar notifikasi yang telah dipadam / dismissed oleh pengguna
+  return notifs.filter(n => !dismissedIds.includes(n.id));
 }
 
 function renderNotificationsScreen() {
   const container = document.getElementById('notificationsListContainer');
   if (!container) return;
 
+  const isEn = typeof I18N !== 'undefined' && I18N.currentLang === 'EN';
   const notifs = getInAppNotifications();
+
+  if (!notifs || notifs.length === 0) {
+    container.innerHTML = `
+      <div class="bg-white rounded-2xl p-8 text-center flex flex-col items-center justify-center border border-dashed border-slate-200 shadow-sm my-4">
+        <div class="w-14 h-14 rounded-full bg-slate-100 text-slate-400 flex items-center justify-center mb-3">
+          <span class="material-symbols-outlined text-3xl">notifications_off</span>
+        </div>
+        <h3 class="text-sm font-bold text-slate-700">${isEn ? 'No Notifications' : 'Tiada Notifikasi'}</h3>
+        <p class="text-xs text-slate-500 mt-1 max-w-sm">${isEn ? 'Your inbox is clear. New RSVP submissions and event reminders will appear here.' : 'Peti masuk anda kosong. Sebarang serahan RSVP dan peringatan acara baharu akan dipaparkan di sini.'}</p>
+      </div>
+    `;
+    updateNotifBadges();
+    return;
+  }
+
   container.innerHTML = notifs.map(n => {
     const borderCol = n.type === 'success' ? 'border-emerald-500' : (n.type === 'warning' ? 'border-amber-500' : 'border-[#006194]');
     const iconName = n.type === 'success' ? 'check_circle' : (n.type === 'warning' ? 'alarm' : 'mark_email_read');
     const iconBg = n.type === 'success' ? 'bg-emerald-50 text-emerald-600' : (n.type === 'warning' ? 'bg-amber-50 text-amber-600' : 'bg-sky-50 text-[#006194]');
 
     return `
-      <div class="bg-white rounded-xl shadow-sm p-4 flex items-start gap-3 border-l-4 ${borderCol} border border-slate-100">
+      <div id="notif-card-${n.id}" class="bg-white rounded-xl shadow-sm p-4 flex items-start gap-3 border-l-4 ${borderCol} border border-slate-100 transition-all hover:shadow-md relative group">
         <div class="w-8 h-8 rounded-full ${iconBg} flex items-center justify-center shrink-0 mt-0.5">
           <span class="material-symbols-outlined text-[18px]">${iconName}</span>
         </div>
-        <div class="flex-1 min-w-0">
+        <div class="flex-1 min-w-0 pr-6">
           <div class="flex items-center justify-between">
             <h4 class="text-xs font-bold text-slate-900">${n.title}</h4>
             <span class="text-[10px] text-slate-400 shrink-0 ml-2">${n.time}</span>
           </div>
           <p class="text-xs text-slate-600 mt-1 leading-relaxed">${n.desc}</p>
           <div class="flex items-center gap-3 mt-2 flex-wrap">
-            ${n.actions.map(act => `
+            ${(n.actions || []).map(act => `
               <button onclick="${act.onclick}" class="text-[11px] font-bold text-[#148e82] hover:text-[#0f6b62] hover:underline flex items-center gap-1">
                 <span>${act.label}</span>
               </button>
             `).join('')}
           </div>
         </div>
+        <button onclick="deleteNotification('${n.id}')" title="${isEn ? 'Delete this notification' : 'Padam notifikasi ini'}" class="absolute top-3 right-3 w-7 h-7 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 flex items-center justify-center transition-colors">
+          <span class="material-symbols-outlined text-[18px]">close</span>
+        </button>
       </div>
     `;
   }).join('');
+
+  updateNotifBadges();
+}
+
+function deleteNotification(id) {
+  const isEn = typeof I18N !== 'undefined' && I18N.currentLang === 'EN';
+
+  // 1. Buang daripada AppState.adminNotifications jika ada
+  if (AppState.adminNotifications && AppState.adminNotifications.length > 0) {
+    AppState.adminNotifications = AppState.adminNotifications.filter(n => n.id !== id);
+    localStorage.setItem('ceu_admin_notifications', JSON.stringify(AppState.adminNotifications));
+  }
+
+  // 2. Simpan ke dalam senarai dismissed
+  const dismissed = getDismissedNotificationIds();
+  if (!dismissed.includes(id)) {
+    dismissed.push(id);
+    localStorage.setItem('ceu_dismissed_notifs', JSON.stringify(dismissed));
+  }
+
+  // 3. Kemaskini paparan skrin & lencana
+  renderNotificationsScreen();
+  updateNotifBadges();
+  showToast(isEn ? 'Notification deleted.' : 'Notifikasi telah dipadam.', 'info');
+}
+
+function clearAllNotifications() {
+  const isEn = typeof I18N !== 'undefined' && I18N.currentLang === 'EN';
+  const currentNotifs = getInAppNotifications();
+
+  if (!currentNotifs || currentNotifs.length === 0) {
+    showToast(isEn ? 'No notifications to clear.' : 'Tiada notifikasi untuk dipadam.', 'info');
+    return;
+  }
+
+  const confirmMsg = isEn 
+    ? 'Are you sure you want to clear all notifications?' 
+    : 'Adakah anda pasti ingin mengosongkan semua notifikasi?';
+
+  if (!confirm(confirmMsg)) return;
+
+  // 1. Kosongkan senarai adminNotifications
+  AppState.adminNotifications = [];
+  localStorage.setItem('ceu_admin_notifications', JSON.stringify([]));
+
+  // 2. Masukkan kesemua ID notifikasi ke senarai dismissed
+  const dismissed = getDismissedNotificationIds();
+  currentNotifs.forEach(n => {
+    if (!dismissed.includes(n.id)) dismissed.push(n.id);
+  });
+  ['notif-1', 'notif-2', 'notif-rsvp'].forEach(id => {
+    if (!dismissed.includes(id)) dismissed.push(id);
+  });
+  localStorage.setItem('ceu_dismissed_notifs', JSON.stringify(dismissed));
+
+  // 3. Kemaskini paparan & lencana
+  renderNotificationsScreen();
+  updateNotifBadges();
+  showToast(isEn ? 'All notifications cleared.' : 'Semua notifikasi telah dikosongkan.', 'success');
 }
 
 function markAllNotificationsRead() {
@@ -3890,6 +3977,43 @@ function markAllNotificationsRead() {
     localStorage.setItem('ceu_admin_notifications', JSON.stringify(AppState.adminNotifications));
   }
   showToast(isEn ? 'All notifications marked as read.' : 'Semua notifikasi ditandakan telah dibaca.', 'success');
+}
+
+function updateNotifBadges() {
+  const hBadge = document.getElementById('headerNotifBadge');
+  const mBadge = document.getElementById('homeNotifBadge');
+  const user = AppState.currentUser;
+  const isAdmin = user && (user.role || '').toUpperCase() === 'ADMIN';
+  const dismissed = getDismissedNotificationIds();
+
+  let unreadCount = 0;
+  if (isAdmin) {
+    if (!AppState.adminNotifications) {
+      try {
+        AppState.adminNotifications = JSON.parse(localStorage.getItem('ceu_admin_notifications') || '[]');
+      } catch(e) {
+        AppState.adminNotifications = [];
+      }
+    }
+    unreadCount = (AppState.adminNotifications || []).filter(n => !n.read && !dismissed.includes(n.id)).length;
+  } else {
+    const notifs = getInAppNotifications();
+    unreadCount = notifs.length;
+  }
+
+  if (unreadCount > 0) {
+    if (hBadge) {
+      hBadge.style.display = 'flex';
+      hBadge.innerText = String(Math.min(unreadCount, 9));
+    }
+    if (mBadge) {
+      mBadge.style.display = 'flex';
+      mBadge.innerText = String(Math.min(unreadCount, 9));
+    }
+  } else {
+    if (hBadge) hBadge.style.display = 'none';
+    if (mBadge) mBadge.style.display = 'none';
+  }
 }
 
 function renderProfileScreen() {
@@ -4000,6 +4124,7 @@ window.addEventListener('DOMContentLoaded', () => {
   // Tangani hash navigation awal
   const hash = window.location.hash.replace('#', '') || (AppState.currentUser ? (AppState.currentUser.role === 'ADMIN' ? 'admin' : 'home') : 'login');
   navigateTo(hash);
+  updateNotifBadges();
 
   // Ambil data senyap jika ada sesi aktif dan mulakan pemasa aktiviti
   if (AppState.currentUser) {
