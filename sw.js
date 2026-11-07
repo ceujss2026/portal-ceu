@@ -3,7 +3,7 @@
  * Unit Pendidikan Kerjaya (UPK / CEU), Jabatan Sekolah-Sekolah
  */
 
-const CACHE_NAME = 'ceu-pwa-v1.5';
+const CACHE_NAME = 'ceu-pwa-v1.6';
 const STATIC_ASSETS = [
   './',
   './index.html',
@@ -14,7 +14,11 @@ const STATIC_ASSETS = [
   './js/i18n.js',
   './manifest.json',
   './apple-touch-icon.png',
+  './icon-96.png',
+  './icon-128.png',
   './icon-192.png',
+  './icon-256.png',
+  './icon-384.png',
   './icon-512.png',
   './screenshot-desktop.png',
   './screenshot-mobile.png'
@@ -68,6 +72,54 @@ self.addEventListener('fetch', (event) => {
           return caches.match('./index.html');
         }
       });
+    })
+  );
+});
+
+// Periodic Background Sync (PWA Capability)
+self.addEventListener('periodicsync', (event) => {
+  if (event.tag === 'ceu-sync-rsvps') {
+    event.waitUntil(
+      caches.open(CACHE_NAME).then((cache) => cache.add('./index.html')).catch(() => {})
+    );
+  }
+});
+
+// Background Sync (PWA Capability)
+self.addEventListener('sync', (event) => {
+  if (event.tag === 'ceu-bg-sync') {
+    event.waitUntil(
+      caches.open(CACHE_NAME).then((cache) => cache.add('./index.html')).catch(() => {})
+    );
+  }
+});
+
+// Push Notifications (PWA Capability)
+self.addEventListener('push', (event) => {
+  const dataText = event.data ? event.data.text() : 'Pemberitahuan RSVP Program CEU';
+  event.waitUntil(
+    self.registration.showNotification('RSVP CEU', {
+      body: dataText,
+      icon: './icon-192.png',
+      badge: './icon-96.png',
+      data: { url: './index.html' }
+    })
+  );
+});
+
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close();
+  const urlToOpen = (event.notification.data && event.notification.data.url) || './index.html';
+  event.waitUntil(
+    clients.matchAll({ type: 'window', includeUncontrolled: true }).then((windowClients) => {
+      for (const client of windowClients) {
+        if (client.url.includes('index.html') && 'focus' in client) {
+          return client.focus();
+        }
+      }
+      if (clients.openWindow) {
+        return clients.openWindow(urlToOpen);
+      }
     })
   );
 });
