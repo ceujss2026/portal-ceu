@@ -77,6 +77,38 @@ class MainActivity : AppCompatActivity() {
                 swipeRefreshLayout.isRefreshing = false
             }
 
+            override fun onReceivedError(view: WebView?, request: WebResourceRequest?, error: WebResourceError?) {
+                super.onReceivedError(view, request, error)
+                if (request?.isForMainFrame == true) {
+                    progressBar.visibility = View.GONE
+                    swipeRefreshLayout.isRefreshing = false
+                    val offlineHtml = """
+                        <!DOCTYPE html>
+                        <html>
+                        <head>
+                            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                            <title>RSVP CEU</title>
+                            <style>
+                                body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; text-align: center; padding: 48px 24px; background: #f8fafc; color: #1e293b; margin: 0; }
+                                .card { background: white; border-radius: 16px; padding: 32px 24px; box-shadow: 0 4px 12px rgba(0,0,0,0.06); max-width: 360px; margin: 0 auto; }
+                                h2 { color: #006194; margin: 0 0 10px; font-size: 18px; }
+                                p { font-size: 13px; color: #64748b; line-height: 1.5; margin: 0 0 24px; }
+                                button { width: 100%; padding: 14px; background: #006194; color: white; border: none; border-radius: 12px; font-size: 14px; font-weight: bold; cursor: pointer; }
+                            </style>
+                        </head>
+                        <body>
+                            <div class="card">
+                                <h2>Semak Sambungan Internet</h2>
+                                <p>Sila pastikan telefon anda disambungkan ke Wi-Fi atau Data Mudah Alih yang mempunyai akses internet, kemudian tekan butang di bawah.</p>
+                                <button onclick="window.location.href='https://rsvp-ceu.vercel.app'">Cuba Semula (Muat Laman)</button>
+                            </div>
+                        </body>
+                        </html>
+                    """.trimIndent()
+                    view?.loadDataWithBaseURL("https://rsvp-ceu.vercel.app", offlineHtml, "text/html", "UTF-8", null)
+                }
+            }
+
             override fun shouldOverrideUrlLoading(view: WebView?, request: WebResourceRequest?): Boolean {
                 val url = request?.url?.toString() ?: return false
 

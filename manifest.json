@@ -1,10 +1,10 @@
 {
-  "id": "./index.html",
+  "id": "/",
   "name": "RSVP CEU",
   "short_name": "RSVP CEU",
   "description": "Sistem Pengesahan Kehadiran RSVP & Penyelarasan Logistik Program Hala Tuju & FutureLink - Unit Pendidikan Kerjaya, Jabatan Sekolah-Sekolah, Kementerian Pendidikan Brunei Darussalam",
-  "start_url": "./index.html",
-  "scope": "./",
+  "start_url": "/",
+  "scope": "/",
   "display": "standalone",
   "display_override": [
     "tabbed",
@@ -22,11 +22,11 @@
       ]
     },
     "new_tab_button": {
-      "url": "./index.html#home"
+      "url": "/#home"
     }
   },
   "note_taking": {
-    "new_note_url": "./index.html#note"
+    "new_note_url": "/#note"
   },
   "orientation": "portrait-primary",
   "background_color": "#f8fafc",
@@ -126,7 +126,7 @@
     {
       "name": "Borang RSVP",
       "short_name": "RSVP",
-      "url": "./index.html#rsvpForm",
+      "url": "/#rsvpForm",
       "description": "Buka borang pengesahan kehadiran agensi",
       "icons": [
         {
@@ -138,7 +138,7 @@
     {
       "name": "Takwim Program",
       "short_name": "Takwim",
-      "url": "./index.html#home",
+      "url": "/#home",
       "description": "Lihat jadual 31 sesi PHT & FutureLink",
       "icons": [
         {
@@ -149,7 +149,7 @@
     }
   ],
   "share_target": {
-    "action": "./index.html",
+    "action": "/",
     "method": "GET",
     "params": {
       "title": "title",
@@ -160,12 +160,12 @@
   "protocol_handlers": [
     {
       "protocol": "web+rsvp",
-      "url": "./index.html?rsvp=%s"
+      "url": "/?rsvp=%s"
     }
   ],
   "file_handlers": [
     {
-      "action": "./index.html",
+      "action": "/",
       "name": "Dokumen RSVP CEU",
       "accept": {
         "application/json": [
