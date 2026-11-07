@@ -173,18 +173,28 @@
         display: none !important;
       }
     }
-    @media (min-width: 768px) {
-      #bottomNavBar {
-        display: none !important;
-      }
+
+    /* Bar Navigasi Bawah Sentiasa Kekal di Bawah Skrin (Fixed Bottom Nav) */
+    #bottomNavBar {
+      position: fixed !important;
+      bottom: 0 !important;
+      left: 0 !important;
+      right: 0 !important;
+      width: 100% !important;
+      z-index: 50 !important;
+      background-color: rgba(255, 255, 255, 0.96) !important;
+      backdrop-filter: blur(12px) !important;
+      -webkit-backdrop-filter: blur(12px) !important;
+      border-top: 1px solid rgba(226, 232, 240, 0.9) !important;
+      box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.06) !important;
+      padding-bottom: max(env(safe-area-inset-bottom, 0px), 4px) !important;
     }
 
     /* Skrin Lebar untuk Pentadbir di Komputer (Admin View) */
     .app-viewport.admin-mode {
       max-width: 1360px;
     }
-    .admin-mode #appHeader,
-    .admin-mode #bottomNavBar {
+    .admin-mode #appHeader {
       max-width: 1360px !important;
     }
 
@@ -1660,16 +1670,16 @@
 
     </main>
 
-    <!-- ========================================== -->
-    <!-- BAR NAVIGASI BAWAH (MOBILE BOTTOM NAV)     -->
-    <!-- ========================================== -->
-    <nav id="bottomNavBar" class="hidden md:hidden fixed bottom-0 left-0 right-0 w-full z-40 bg-white/95 backdrop-blur-md border-t border-slate-200/80 shadow-[0_-4px_20px_rgba(0,0,0,0.05)] pb-safe">
-      <div id="mobileNavItems" class="h-16 px-4 flex items-center justify-around">
-        <!-- Diisi dinamik oleh app.js mengikut role pengguna (2 butang sahaja) -->
-      </div>
-    </nav>
-
   </div>
+
+  <!-- ========================================== -->
+  <!-- BAR NAVIGASI BAWAH (FIXED BOTTOM NAV)      -->
+  <!-- ========================================== -->
+  <nav id="bottomNavBar" class="fixed bottom-0 left-0 right-0 w-full z-50 bg-white/95 backdrop-blur-md border-t border-slate-200/90 shadow-[0_-4px_24px_rgba(0,0,0,0.08)]" style="display: none;">
+    <div id="mobileNavItems" class="h-16 px-4 max-w-xl mx-auto flex items-center justify-around">
+      <!-- Diisi dinamik oleh app.js mengikut role pengguna (2 butang sahaja) -->
+    </div>
+  </nav>
 
   <!-- ============================================ -->
   <!-- MODAL PAPARAN PETA SEKOLAH & PARKING        -->

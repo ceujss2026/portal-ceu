@@ -400,15 +400,14 @@ function updateBottomNav(viewId) {
     }
   }
 
-  // Tunjukkan Nav yang sesuai mengikut lebar skrin
+  // Tunjukkan Nav yang sesuai mengikut lebar skrin (Bar Navigasi Bawah SENTIASA Aktif di Bawah Skrin)
   const isDesktop = window.innerWidth >= 768;
+  if (bottomNav) bottomNav.style.display = 'block';
   if (isDesktop) {
     if (desktopNav) desktopNav.style.display = 'block';
-    if (bottomNav) bottomNav.style.display = 'none';
     if (appHeader) appHeader.style.display = 'none';
   } else {
     if (desktopNav) desktopNav.style.display = 'none';
-    if (bottomNav) bottomNav.style.display = 'block';
     if (appHeader) appHeader.style.display = (viewId === 'home' || viewId === 'admin') ? 'none' : 'block';
   }
 
