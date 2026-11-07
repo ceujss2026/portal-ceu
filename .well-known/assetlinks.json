@@ -1,0 +1,14 @@
+[
+  {
+    "relation": [
+      "delegate_permission/common.handle_all_urls"
+    ],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "app.vercel.rsvp_ceu.twa",
+      "sha256_cert_fingerprints": [
+        "F9:53:52:F7:65:28:D2:27:68:2D:D3:02:5B:13:75:6B:81:51:6F:19:E6:C3:0F:F4:9B:6F:D1:F3:5B:19:A5:D2"
+      ]
+    }
+  }
+]
