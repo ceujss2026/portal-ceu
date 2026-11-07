@@ -269,42 +269,56 @@ function handleGetAdminDashboard_() {
 function handleSaveEvent_(data) {
   const sh = getSheet_('Events');
   const existingEvents = getSheetData_('Events');
-  const eventId = data.eventId || ('EVT-' + new Date().getFullYear() + '-' + Utilities.getUuid().slice(0, 5).toUpperCase());
+  const eventId = data.eventId || data.Event_ID || ('EVT-' + new Date().getFullYear() + '-' + Utilities.getUuid().slice(0, 5).toUpperCase());
   const exists = existingEvents.some(e => e.Event_ID === eventId);
+  const isNew = !exists;
   const nowStr = Utilities.formatDate(new Date(), 'GMT+8', 'yyyy-MM-dd HH:mm:ss');
 
-  if (!exists) {
+  const kategori = data.kategoriProgram || data.Kategori_Program || 'Program Hala Tuju';
+  const nama = data.namaAcara || data.Nama_Acara || '';
+  const tarikhMula = data.tarikhMula || data.Tarikh_Mula || '';
+  const tarikhTamat = data.tarikhTamat || data.Tarikh_Tamat || tarikhMula;
+  const masa = data.masa || data.Masa || '';
+  const tempat = data.tempatVenue || data.Tempat_Venue || '';
+  const pautanGPS = data.pautanGPS || data.Pautan_GPS_Maps || '';
+  const pelanSekolahUrl = data.pelanSekolahUrl || data.Pelan_Sekolah_URL || '';
+  const pelanParkingUrl = data.pelanParkingUrl || data.Pelan_Parking_URL || '';
+  const panduanParking = data.panduanParking || data.Panduan_Parking || '';
+  const catatanKhas = data.catatanKhas || data.Catatan_Khas || '';
+  const statusAcara = data.statusAcara || data.Status_Acara || 'Aktif';
+
+  if (isNew) {
     sh.appendRow([
       eventId,
-      data.kategoriProgram || 'Program Hala Tuju',
-      data.namaAcara || '',
-      data.tarikhMula || '',
-      data.tarikhTamat || data.tarikhMula || '',
-      data.masa || '',
-      data.tempatVenue || '',
-      data.pautanGPS || '',
-      data.pelanSekolahUrl || '',
-      data.pelanParkingUrl || '',
-      data.panduanParking || '',
-      data.catatanKhas || '',
-      data.statusAcara || 'Aktif',
+      kategori,
+      nama,
+      tarikhMula,
+      tarikhTamat,
+      masa,
+      tempat,
+      pautanGPS,
+      pelanSekolahUrl,
+      pelanParkingUrl,
+      panduanParking,
+      catatanKhas,
+      statusAcara,
       nowStr
     ]);
   } else {
     updateWhere_('Events', 'Event_ID', {
       [eventId]: {
-        Kategori_Program: data.kategoriProgram,
-        Nama_Acara: data.namaAcara,
-        Tarikh_Mula: data.tarikhMula,
-        Tarikh_Tamat: data.tarikhTamat,
-        Masa: data.masa,
-        Tempat_Venue: data.tempatVenue,
-        Pautan_GPS_Maps: data.pautanGPS,
-        Pelan_Sekolah_URL: data.pelanSekolahUrl,
-        Pelan_Parking_URL: data.pelanParkingUrl,
-        Panduan_Parking: data.panduanParking,
-        Catatan_Khas: data.catatanKhas,
-        Status_Acara: data.statusAcara
+        Kategori_Program: kategori,
+        Nama_Acara: nama,
+        Tarikh_Mula: tarikhMula,
+        Tarikh_Tamat: tarikhTamat,
+        Masa: masa,
+        Tempat_Venue: tempat,
+        Pautan_GPS_Maps: pautanGPS,
+        Pelan_Sekolah_URL: pelanSekolahUrl,
+        Pelan_Parking_URL: pelanParkingUrl,
+        Panduan_Parking: panduanParking,
+        Catatan_Khas: catatanKhas,
+        Status_Acara: statusAcara
       }
     });
   }

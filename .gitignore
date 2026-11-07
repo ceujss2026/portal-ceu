@@ -8,3 +8,13 @@ Desktop.ini
 *.log
 *.tmp
 temp/
+
+# Android Build & IDE
+.gradle/
+build/
+android/.gradle/
+android/.idea/
+android/build/
+android/app/build/
+android/local.properties
+

@@ -1839,6 +1839,16 @@ function selectSchoolAndShowTable(eventId) {
   if (table) table.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
+function editCurrentAdminEvent() {
+  const eventId = (adminSelectedSchoolId && adminSelectedSchoolId !== 'ALL')
+    ? adminSelectedSchoolId
+    : (AppState.activeEvent ? AppState.activeEvent.Event_ID : 'EVT-PHT-01');
+  navigateTo('adminEvents');
+  setTimeout(() => {
+    populateAdminEventForm(eventId);
+  }, 100);
+}
+
 async function renderAdminDashboard() {
   const isEn = typeof I18N !== 'undefined' && I18N.currentLang === 'EN';
   const agencies = (AppState.agenciesList && AppState.agenciesList.length === 50) 
@@ -2314,7 +2324,7 @@ function setAdminEventsDistrictFilter(dist) {
   renderAdminEventsList();
 }
 
-function renderAdminEventsList() {
+function renderAdminEventsList(skipPopulate = false) {
   const container = document.getElementById('adminEventsListContainer');
   if (!container) return;
   const isEn = typeof I18N !== 'undefined' && I18N.currentLang === 'EN';
@@ -2352,12 +2362,13 @@ function renderAdminEventsList() {
 
   container.innerHTML = list.map(ev => {
     const isBelait = ev.Daerah === 'Belait';
+    const isEditing = AppState.activeAdminEditId === ev.Event_ID;
     return `
-      <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col justify-between gap-3 hover:border-slate-300 transition-all">
+      <div class="bg-white p-4 rounded-2xl border ${isEditing ? 'border-[#006194] ring-2 ring-[#006194]/20 shadow-md' : 'border-slate-200/80 shadow-sm'} flex flex-col justify-between gap-3 hover:border-slate-300 transition-all">
         <div class="flex flex-col gap-1">
           <div class="flex items-center justify-between">
             <span class="text-[10px] font-bold px-2 py-0.5 rounded-full ${ev.Kategori_Program === 'Program FutureLink' ? 'bg-amber-50 text-amber-800 border border-amber-200' : 'bg-teal-50 text-teal-800 border border-teal-100'}">${ev.Kategori_Program}</span>
-            <span class="font-mono text-[10px] font-bold text-slate-400">${ev.Event_ID}</span>
+            <span class="font-mono text-[10px] font-bold ${isEditing ? 'text-[#006194] bg-[#006194]/10 px-1.5 py-0.5 rounded' : 'text-slate-400'}">${ev.Event_ID}</span>
           </div>
           <h4 class="text-xs font-bold text-slate-900 mt-1 leading-snug">${ev.Sekolah || ev.Nama_Acara}</h4>
           <div class="flex items-center gap-2 text-[11px] text-slate-500 mt-0.5 flex-wrap">
@@ -2373,9 +2384,9 @@ function renderAdminEventsList() {
 
         <div class="flex items-center justify-between pt-2 border-t border-slate-100">
           <span class="text-[10px] font-bold ${ev.Status_Acara === 'Aktif' ? 'text-emerald-600' : 'text-slate-400'}">● ${ev.Status_Acara === 'Aktif' ? (isEn ? 'Active' : 'Aktif') : (ev.Status_Acara || (isEn ? 'Active' : 'Aktif'))}</span>
-          <button onclick="populateAdminEventForm('${ev.Event_ID}')" class="px-3 py-1.5 bg-[#006194] hover:bg-[#004b73] text-white font-bold text-[11px] rounded-xl flex items-center gap-1 transition-all shadow-sm">
-            <span class="material-symbols-outlined text-[14px]">edit</span>
-            <span>${isEn ? 'Edit &amp; Maps' : 'Kemaskini &amp; Peta'}</span>
+          <button onclick="populateAdminEventForm('${ev.Event_ID}')" class="px-3 py-1.5 ${isEditing ? 'bg-emerald-600 hover:bg-emerald-700 text-white' : 'bg-[#006194] hover:bg-[#004b73] text-white'} font-bold text-[11px] rounded-xl flex items-center gap-1 transition-all shadow-sm">
+            <span class="material-symbols-outlined text-[14px]">${isEditing ? 'edit_note' : 'edit'}</span>
+            <span>${isEditing ? (isEn ? 'Editing Now' : 'Sedang Disunting') : (isEn ? 'Edit &amp; Maps' : 'Kemaskini &amp; Peta')}</span>
           </button>
         </div>
       </div>
@@ -2383,8 +2394,8 @@ function renderAdminEventsList() {
   }).join('');
 
   // Pre-fill borang dengan acara pertama jika belum ada
-  if (list.length > 0 && !AppState.activeAdminEditId) {
-    populateAdminEventForm(list[0].Event_ID);
+  if (!skipPopulate && list.length > 0 && !AppState.activeAdminEditId) {
+    populateAdminEventForm(list[0].Event_ID, true);
   }
 }
 
@@ -2539,11 +2550,13 @@ function setAdminParkingMode(mode) {
   }
 }
 
-function populateAdminEventForm(eventId) {
-  const ev = (AppState.events.find(e => e.Event_ID === eventId) || AppState.activeEvent) || getFallbackEvents()[0];
+function populateAdminEventForm(eventId, skipListRerender = false) {
+  const list = AppState.events.length ? AppState.events : getFallbackEvents();
+  const ev = (list.find(e => e.Event_ID === eventId) || AppState.activeEvent) || getFallbackEvents()[0];
   if (!ev) return;
   const isEn = typeof I18N !== 'undefined' && I18N.currentLang === 'EN';
   AppState.activeAdminEditId = eventId;
+  AppState.activeEvent = ev;
 
   const idBadge = document.getElementById('adminEventIdBadge');
   const formTitle = document.getElementById('adminEventFormTitle');
@@ -2589,34 +2602,79 @@ function populateAdminEventForm(eventId) {
   } else if (previewParkCont) {
     previewParkCont.classList.add('hidden');
   }
+
+  // Segerakkan sorotan kad aktif
+  if (!skipListRerender) {
+    renderAdminEventsList(true);
+  }
+
+  // Skrol lancar ke borang kemaskini dengan maklum balas visual
+  const formSection = document.getElementById('adminEventFormSection') || document.getElementById('adminInputNamaAcara');
+  if (formSection) {
+    formSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    formSection.classList.add('ring-2', 'ring-[#006194]', 'ring-offset-2');
+    setTimeout(() => {
+      formSection.classList.remove('ring-2', 'ring-[#006194]', 'ring-offset-2');
+    }, 1200);
+  }
 }
 
 async function handleSaveAdminEvent(event) {
   if (event) event.preventDefault();
   const isEn = typeof I18N !== 'undefined' && I18N.currentLang === 'EN';
 
+  const saveBtn = document.getElementById('btnSaveAdminEvent');
+  const originalHtml = saveBtn ? saveBtn.innerHTML : '';
+
   const eventId = document.getElementById('adminInputEventId').value;
   const list = AppState.events.length ? AppState.events : getFallbackEvents();
   const idx = list.findIndex(e => e.Event_ID === eventId);
   const prev = idx > -1 ? list[idx] : {};
 
+  const namaAcara = (document.getElementById('adminInputNamaAcara')?.value || '').trim();
+  const kategori = document.getElementById('adminInputKategori')?.value || 'Program Hala Tuju';
+  const tarikhMula = (document.getElementById('adminInputTarikhMula')?.value || '').trim();
+  const masa = (document.getElementById('adminInputMasa')?.value || '').trim();
+  const tempat = (document.getElementById('adminInputTempat')?.value || '').trim();
+  const gps = (document.getElementById('adminInputGps')?.value || '').trim();
+  const pelanSekolah = (document.getElementById('adminInputPelanSekolah')?.value || '').trim();
   const parkingMode = adminSelectedParkingMode || 'info_only';
   const parkingUrl = parkingMode === 'map_info' ? (document.getElementById('adminInputPelanParking')?.value || '').trim() : '';
+  const panduanParking = (document.getElementById('adminInputPanduanParking')?.value || '').trim();
+  const catatanKhas = (document.getElementById('adminInputCatatanKhas')?.value || '').trim();
 
+  // Simpanan data penuh berdwibahasa & dwiformat (camelCase & PascalCase)
   const updated = Object.assign({}, prev, {
     Event_ID: eventId,
-    Nama_Acara: document.getElementById('adminInputNamaAcara').value.trim(),
-    Kategori_Program: document.getElementById('adminInputKategori').value,
-    Tarikh_Mula: document.getElementById('adminInputTarikhMula').value.trim(),
-    Masa: document.getElementById('adminInputMasa').value.trim(),
-    Tempat_Venue: document.getElementById('adminInputTempat').value.trim(),
-    Pautan_GPS_Maps: document.getElementById('adminInputGps').value.trim(),
-    Pelan_Sekolah_URL: (document.getElementById('adminInputPelanSekolah')?.value || '').trim(),
+    eventId: eventId,
+    Nama_Acara: namaAcara,
+    namaAcara: namaAcara,
+    Kategori_Program: kategori,
+    kategoriProgram: kategori,
+    Tarikh_Mula: tarikhMula,
+    tarikhMula: tarikhMula,
+    Tarikh_Paparan: tarikhMula,
+    tarikhPaparan: tarikhMula,
+    Tarikh_Tamat: tarikhMula,
+    tarikhTamat: tarikhMula,
+    Masa: masa,
+    masa: masa,
+    Tempat_Venue: tempat,
+    tempatVenue: tempat,
+    Pautan_GPS_Maps: gps,
+    pautanGPS: gps,
+    Pelan_Sekolah_URL: pelanSekolah,
+    pelanSekolahUrl: pelanSekolah,
     Pelan_Parking_URL: parkingUrl,
+    pelanParkingUrl: parkingUrl,
     Jenis_Parking: parkingMode,
-    Panduan_Parking: (document.getElementById('adminInputPanduanParking')?.value || '').trim(),
-    Catatan_Khas: (document.getElementById('adminInputCatatanKhas')?.value || '').trim(),
-    Status_Acara: 'Aktif'
+    jenisParking: parkingMode,
+    Panduan_Parking: panduanParking,
+    panduanParking: panduanParking,
+    Catatan_Khas: catatanKhas,
+    catatanKhas: catatanKhas,
+    Status_Acara: 'Aktif',
+    statusAcara: 'Aktif'
   });
 
   if (idx > -1) {
@@ -2626,15 +2684,72 @@ async function handleSaveAdminEvent(event) {
   }
 
   AppState.events = list;
-  AppState.activeEvent = updated;
+  if (!AppState.activeEvent || AppState.activeEvent.Event_ID === eventId) {
+    AppState.activeEvent = updated;
+  }
   localStorage.setItem('ceu_cache_events', JSON.stringify(list));
 
-  showToast(isEn ? 'Event details & school maps saved successfully!' : 'Maklumat acara & peta sekolah berjaya disimpan!', 'success');
-  renderAdminEventsList();
-  if (AppState.currentView === 'home') renderHomeScreen();
+  // Maklum balas butang simpanan
+  if (saveBtn) {
+    saveBtn.disabled = true;
+    saveBtn.innerHTML = `
+      <span class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+      <span>${isEn ? 'Saving Changes...' : 'Menyimpan Perubahan...'}</span>
+    `;
+  }
 
-  // Hantar kemaskini ke Apps Script backend
-  apiCall('saveEvent', updated, true).catch(() => {});
+  try {
+    const payload = {
+      eventId: eventId,
+      Event_ID: eventId,
+      kategoriProgram: kategori,
+      Kategori_Program: kategori,
+      namaAcara: namaAcara,
+      Nama_Acara: namaAcara,
+      tarikhMula: tarikhMula,
+      Tarikh_Mula: tarikhMula,
+      tarikhTamat: tarikhMula,
+      Tarikh_Tamat: tarikhMula,
+      tarikhPaparan: tarikhMula,
+      Tarikh_Paparan: tarikhMula,
+      masa: masa,
+      Masa: masa,
+      tempatVenue: tempat,
+      Tempat_Venue: tempat,
+      pautanGPS: gps,
+      Pautan_GPS_Maps: gps,
+      pelanSekolahUrl: pelanSekolah,
+      Pelan_Sekolah_URL: pelanSekolah,
+      pelanParkingUrl: parkingUrl,
+      Pelan_Parking_URL: parkingUrl,
+      jenisParking: parkingMode,
+      Jenis_Parking: parkingMode,
+      panduanParking: panduanParking,
+      Panduan_Parking: panduanParking,
+      catatanKhas: catatanKhas,
+      Catatan_Khas: catatanKhas,
+      statusAcara: 'Aktif',
+      Status_Acara: 'Aktif'
+    };
+
+    const res = await apiCall('saveEvent', payload, true);
+    if (res && res.success) {
+      showToast(isEn ? 'Event details & maps saved to Google Sheets successfully!' : 'Maklumat acara & peta sekolah berjaya disimpan ke Pangkalan Data!', 'success');
+    } else {
+      showToast(isEn ? (res?.message || 'Saved locally in memory.') : (res?.message || 'Disimpan dalam memori peranti.'), 'warning');
+    }
+  } catch (err) {
+    console.warn('Network sync notice on saveEvent:', err);
+    showToast(isEn ? 'Saved locally in device (pending cloud sync).' : 'Disimpan dalam peranti (sandaran tempatan).', 'warning');
+  } finally {
+    if (saveBtn) {
+      saveBtn.disabled = false;
+      saveBtn.innerHTML = originalHtml;
+    }
+    renderAdminEventsList(true);
+    if (AppState.currentView === 'home') renderHomeScreen();
+    if (AppState.currentView === 'admin') renderAdminDashboard();
+  }
 }
 
 // ============================================
@@ -2923,6 +3038,24 @@ function showToast(msg, type = 'info') {
   }, 3500);
 }
 
+function normalizeEventData(ev) {
+  const fb = (getFallbackEvents().find(f => f.Event_ID === ev.Event_ID) || {});
+  return Object.assign({}, fb, ev, {
+    Sekolah: ev.Sekolah || fb.Sekolah || ev.Nama_Acara,
+    Daerah: ev.Daerah || fb.Daerah || 'Brunei Muara',
+    Tarikh_Mula: ev.Tarikh_Mula || fb.Tarikh_Mula || '',
+    Tarikh_Paparan: ev.Tarikh_Paparan || fb.Tarikh_Paparan || ev.Tarikh_Mula || fb.Tarikh_Mula,
+    Masa: ev.Masa || fb.Masa || '09:00 - 11:30',
+    Tempat_Venue: ev.Tempat_Venue || fb.Tempat_Venue || '',
+    Pautan_GPS_Maps: ev.Pautan_GPS_Maps || fb.Pautan_GPS_Maps || '',
+    Pelan_Sekolah_URL: ev.Pelan_Sekolah_URL || fb.Pelan_Sekolah_URL || '',
+    Pelan_Parking_URL: ev.Pelan_Parking_URL || fb.Pelan_Parking_URL || '',
+    Panduan_Parking: ev.Panduan_Parking || fb.Panduan_Parking || '',
+    Catatan_Khas: ev.Catatan_Khas || fb.Catatan_Khas || '',
+    Status_Acara: ev.Status_Acara || fb.Status_Acara || 'Aktif'
+  });
+}
+
 function fetchInitialDataSilently() {
   // 1a. Tarik RSVP awam daripada Google Sheets secara automatik (bebas masalah token tamat)
   if (CONFIG && CONFIG.GAS_URL) {
@@ -2980,8 +3113,15 @@ function fetchInitialDataSilently() {
   apiCall('getInitialData').then(res => {
     if (res && res.success) {
       if (res.events && res.events.length >= 31) {
-        AppState.events = res.events.filter(e => e.Event_ID !== 'EVT-FL-05' && !(e.Nama_Acara || '').includes('Maktab Duli'));
+        const normalizedEvents = res.events
+          .filter(e => e.Event_ID !== 'EVT-FL-05' && !(e.Nama_Acara || '').includes('Maktab Duli'))
+          .map(normalizeEventData);
+        AppState.events = normalizedEvents;
         localStorage.setItem('ceu_cache_events', JSON.stringify(AppState.events));
+        if (AppState.activeEvent) {
+          const match = AppState.events.find(e => e.Event_ID === AppState.activeEvent.Event_ID);
+          if (match) AppState.activeEvent = match;
+        }
       } else {
         if (!AppState.events || AppState.events.length < 31) {
           AppState.events = getFallbackEvents();
@@ -3003,7 +3143,7 @@ function fetchInitialDataSilently() {
         localStorage.setItem('ceu_cache_rsvps', JSON.stringify(AppState.rsvps));
       }
       if (AppState.currentView === 'home') renderHomeScreen(false);
-      if (AppState.currentView === 'adminEvents') renderAdminEventsList();
+      if (AppState.currentView === 'adminEvents') renderAdminEventsList(true);
       if (AppState.currentView === 'admin') renderAdminDashboard();
     }
   }).catch(() => {});
