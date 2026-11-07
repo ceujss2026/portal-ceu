@@ -843,83 +843,108 @@ function renderHomeScreen(populateDropdown = true) {
         : '<span class="bg-amber-100 text-amber-800 text-[10px] font-bold px-2.5 py-1 rounded-full flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-amber-600"></span>Perlu Pengesahan</span>';
     }
 
+    const setupTime = primaryEvent.Waktu_Susun_Meja || (isEn ? '08:00 AM' : '08:00 Pagi');
+    const isFutureLink = primaryEvent.Kategori_Program === 'Program FutureLink';
+    const catBadgeClass = isFutureLink ? 'bg-amber-100 text-amber-800' : 'bg-teal-100 text-teal-800';
+
     heroCardContainer.innerHTML = `
-      <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden flex flex-col">
-        <!-- Lencana Atas & Butang Simpan (Bookmark) -->
-        <div class="p-3 pb-2 flex items-center justify-between gap-2">
-          <div class="flex items-center gap-1.5 flex-wrap">
-            <span class="bg-[#fef3c7] text-[#92400e] text-[10px] font-bold px-2.5 py-1 rounded-full flex items-center gap-1">
-              <span class="material-symbols-outlined text-[13px]">verified</span>
-              ${primaryEvent.Kategori_Program}
-            </span>
-            <span class="bg-slate-100 text-slate-700 text-[10px] font-bold px-2.5 py-1 rounded-full">
-              ${isEn ? `${primaryEvent.Daerah} District` : `Daerah ${primaryEvent.Daerah}`}
-            </span>
+      <div class="bg-white rounded-2xl shadow-sm border border-slate-200/90 overflow-hidden flex flex-col transition-all">
+        <!-- Tajuk & Lencana Status Sesi -->
+        <div class="p-4 md:p-5 border-b border-slate-100 flex flex-col gap-2">
+          <div class="flex items-center justify-between gap-2 flex-wrap">
+            <div class="flex items-center gap-1.5 flex-wrap">
+              <span class="${catBadgeClass} text-[10px] font-bold px-2.5 py-0.5 rounded-full">
+                ${primaryEvent.Kategori_Program}
+              </span>
+              <span class="bg-slate-100 text-slate-700 text-[10px] font-semibold px-2.5 py-0.5 rounded-full">
+                ${isEn ? `${primaryEvent.Daerah} District` : `Daerah ${primaryEvent.Daerah}`}
+              </span>
+            </div>
             ${statusBadge}
           </div>
-          <span class="text-[10px] font-mono font-bold text-slate-400 bg-slate-50 px-2 py-0.5 rounded">${primaryEvent.Event_ID}</span>
-        </div>
 
-        <!-- Imej Dewan berserta Lencana Lokasi Khas -->
-        <div class="relative w-full h-40 md:h-56 bg-slate-100 px-3">
-          <div class="w-full h-full rounded-xl overflow-hidden relative shadow-inner">
-            <img src="${primaryEvent.Pelan_Sekolah_URL || 'https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=600&q=80'}" class="w-full h-full object-cover" alt="Venue Cover" />
-            <div class="absolute bottom-2 left-2 right-2 bg-slate-900/85 backdrop-blur-sm text-white text-[11px] font-semibold px-3 py-1.5 rounded-lg flex items-center justify-between shadow-md">
-              <div class="flex items-center gap-1.5 truncate">
-                <span class="material-symbols-outlined text-[14px] text-amber-400">apartment</span>
-                <span class="truncate">${primaryEvent.Tempat_Venue}</span>
-              </div>
-              <span class="text-[10px] text-teal-300 font-bold shrink-0">${isEn ? 'Agency Parking' : 'Parking Agensi'}</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Maklumat Acara & Butang Aksi -->
-        <div class="p-3.5 flex flex-col gap-2">
-          <span class="text-[10px] font-bold text-[#148e82] uppercase tracking-wider">
-            ${isEn ? 'DEPARTMENT OF SCHOOLS • CAREER EDUCATION UNIT' : 'JABATAN SEKOLAH-SEKOLAH • UNIT PENDIDIKAN KERJAYA'}
-          </span>
-          <h2 class="text-sm md:text-base font-bold text-slate-900 leading-snug">
+          <h2 class="text-base md:text-lg font-black text-slate-900 leading-snug">
             ${primaryEvent.Sekolah || primaryEvent.Nama_Acara}
           </h2>
-          <p class="text-[11px] text-slate-500 leading-relaxed">
-            ${primaryEvent.Catatan_Khas || (isEn ? 'Coordination of career assessment guidelines and agency exhibition booth setup.' : 'Penyelarasan garis panduan penilaian kerjaya dan persediaan meja pameran agensi.')}
-          </p>
+          <div class="flex items-center justify-between text-[11px] text-slate-500 font-medium flex-wrap gap-2">
+            <span class="flex items-center gap-1">
+              <span class="material-symbols-outlined text-[15px] text-slate-400">location_on</span>
+              <span>${primaryEvent.Tempat_Venue}</span>
+            </span>
+            <button type="button" onclick="window.open('${primaryEvent.Pautan_GPS_Maps || 'https://maps.google.com/?q=Brunei+Ministry+of+Education'}', '_blank')" class="text-[#006194] font-bold hover:underline flex items-center gap-0.5">
+              <span class="material-symbols-outlined text-[14px]">map</span>
+              <span>Google Maps</span>
+            </button>
+          </div>
+        </div>
 
-          <!-- Kotak Tarikh, Masa & Venue -->
-          <div class="grid grid-cols-2 gap-2 pt-1 text-xs">
-            <div class="flex items-center gap-1.5 p-2 rounded-xl bg-slate-50 border border-slate-100">
-              <span class="material-symbols-outlined text-[#148e82] text-[18px]">calendar_month</span>
-              <div class="flex flex-col min-w-0">
-                <span class="text-[9px] text-slate-400 font-medium">${isEn ? 'Date' : 'Tarikh'}</span>
-                <span class="text-[11px] font-bold text-slate-800 truncate">${formatDisplayDate(primaryEvent.Tarikh_Paparan || primaryEvent.Tarikh_Mula, isEn)}</span>
-              </div>
+        <!-- Butiran Logistik & Masa Utama (Grid 3 Item Padat) -->
+        <div class="p-4 md:p-5 grid grid-cols-1 sm:grid-cols-3 gap-2.5 bg-slate-50/60">
+          <div class="bg-white p-3 rounded-xl border border-slate-200/70 flex items-center gap-3">
+            <div class="w-9 h-9 rounded-lg bg-sky-50 text-[#006194] flex items-center justify-center shrink-0">
+              <span class="material-symbols-outlined text-[20px]">calendar_month</span>
             </div>
-            <div class="flex items-center gap-1.5 p-2 rounded-xl bg-slate-50 border border-slate-100">
-              <span class="material-symbols-outlined text-[#148e82] text-[18px]">schedule</span>
-              <div class="flex flex-col min-w-0">
-                <span class="text-[9px] text-slate-400 font-medium">${isEn ? 'Session Time' : 'Masa Sesi'}</span>
-                <span class="text-[11px] font-bold ${isBelait ? 'text-amber-800' : 'text-slate-800'} truncate">${primaryEvent.Masa}</span>
-              </div>
+            <div class="flex flex-col min-w-0">
+              <span class="text-[10px] text-slate-400 font-medium">${isEn ? 'Date' : 'Tarikh Acara'}</span>
+              <span class="text-xs font-bold text-slate-800 truncate">${formatDisplayDate(primaryEvent.Tarikh_Paparan || primaryEvent.Tarikh_Mula, isEn)}</span>
             </div>
           </div>
 
-          <!-- Butang Pengesahan Kehadiran (RSVP), Muat Turun Surat & WhatsApp -->
-          <div class="flex items-center gap-2 pt-2 flex-wrap">
-            <button onclick="navigateTo('rsvpForm', '${primaryEvent.Event_ID}')" class="flex-1 h-11 bg-gradient-to-r from-[#f59e0b] to-[#d97706] hover:from-[#d97706] hover:to-[#b45309] text-white font-bold text-xs rounded-xl shadow-md hover:shadow-lg flex items-center justify-center gap-1.5 transition-all">
-              <span class="material-symbols-outlined text-[18px]">how_to_reg</span>
-              <span>${(isAttending || isNotAttending) ? (isEn ? 'Update RSVP for this Session' : 'Kemaskini RSVP Sesi Ini') : (isEn ? 'Confirm Attendance (RSVP)' : 'Sahkan Kehadiran (RSVP)')}</span>
-            </button>
-            <button onclick="openDocumentGeneratorModal()" class="w-11 h-11 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 flex items-center justify-center transition-colors shadow-sm shrink-0" title="${isEn ? 'Download Official QR Letter' : 'Muat Turun Surat Rasmi Ber-QR'}">
-              <span class="material-symbols-outlined text-[20px]">description</span>
-            </button>
-            ${(isAttending || isNotAttending) ? `
-              <button onclick="shareRsvpWhatsApp('${primaryEvent.Event_ID}')" class="h-11 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs flex items-center gap-1.5 shadow-sm transition-all shrink-0" title="${isEn ? 'Send Notification to WhatsApp' : 'Hantar Notifikasi ke WhatsApp'}">
-                <span class="material-symbols-outlined text-[18px]">chat</span>
-                <span class="hidden sm:inline">WhatsApp</span>
-              </button>
-            ` : ''}
+          <div class="bg-white p-3 rounded-xl border border-slate-200/70 flex items-center gap-3">
+            <div class="w-9 h-9 rounded-lg bg-teal-50 text-[#148e82] flex items-center justify-center shrink-0">
+              <span class="material-symbols-outlined text-[20px]">schedule</span>
+            </div>
+            <div class="flex flex-col min-w-0">
+              <span class="text-[10px] text-slate-400 font-medium">${isEn ? 'Event Time' : 'Masa Acara'}</span>
+              <span class="text-xs font-bold ${isBelait ? 'text-amber-800' : 'text-slate-800'} truncate">${primaryEvent.Masa}</span>
+            </div>
           </div>
+
+          <div class="bg-white p-3 rounded-xl border border-amber-200/80 bg-amber-50/40 flex items-center gap-3">
+            <div class="w-9 h-9 rounded-lg bg-amber-100 text-amber-800 flex items-center justify-center shrink-0">
+              <span class="material-symbols-outlined text-[20px]">alarm</span>
+            </div>
+            <div class="flex flex-col min-w-0">
+              <span class="text-[10px] text-amber-700 font-semibold">${isEn ? 'Booth Setup' : 'Susun Meja Booth'}</span>
+              <span class="text-xs font-extrabold text-amber-900 truncate">${setupTime}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Panduan Ringkas Tempat Letak Kereta Agensi -->
+        <div class="px-4 md:px-5 py-2.5 bg-sky-50/80 border-t border-b border-sky-100 flex items-center justify-between gap-2 text-xs">
+          <div class="flex items-center gap-2 text-sky-900 font-medium truncate">
+            <span class="material-symbols-outlined text-[16px] text-sky-700 shrink-0">local_parking</span>
+            <span class="truncate">${isEn ? 'Agency Parking: Gate B (Dedicated Access & Block C)' : 'Parking Agensi: Pintu Pagar B (Pintu Khas & Blok C)'}</span>
+          </div>
+          <button type="button" onclick="openMapModal('parking')" class="text-[11px] font-bold text-sky-800 hover:underline shrink-0">
+            ${isEn ? 'View Guide →' : 'Papar Peta →'}
+          </button>
+        </div>
+
+        <!-- Bar Butang Aksi Pantas -->
+        <div class="p-4 md:p-5 flex items-center gap-2 flex-wrap">
+          <button onclick="navigateTo('rsvpForm', '${primaryEvent.Event_ID}')" class="flex-1 min-w-[180px] h-11 bg-gradient-to-r from-[#f59e0b] to-[#d97706] hover:from-[#d97706] hover:to-[#b45309] text-white font-bold text-xs rounded-xl shadow-sm hover:shadow flex items-center justify-center gap-1.5 transition-all">
+            <span class="material-symbols-outlined text-[18px]">how_to_reg</span>
+            <span>${(isAttending || isNotAttending) ? (isEn ? 'Update RSVP for this Session' : 'Kemaskini RSVP Sesi Ini') : (isEn ? 'Confirm Attendance (RSVP)' : 'Sahkan Kehadiran (RSVP)')}</span>
+          </button>
+
+          <button type="button" onclick="openMapModal('floorPlan')" class="h-11 px-3.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-bold text-xs flex items-center gap-1.5 shadow-2xs transition-colors shrink-0">
+            <span class="material-symbols-outlined text-[18px] text-teal-600">view_quilt</span>
+            <span>${isEn ? 'Floor Plan' : 'Pelan Meja'}</span>
+          </button>
+
+          <button onclick="openDocumentGeneratorModal()" class="h-11 px-3.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-bold text-xs flex items-center gap-1.5 shadow-2xs transition-colors shrink-0" title="${isEn ? 'Download Official QR Letter' : 'Muat Turun Surat Rasmi Ber-QR'}">
+            <span class="material-symbols-outlined text-[18px] text-[#006194]">description</span>
+            <span>${isEn ? 'Letter' : 'Surat Rasmi'}</span>
+          </button>
+
+          ${(isAttending || isNotAttending) ? `
+            <button onclick="shareRsvpWhatsApp('${primaryEvent.Event_ID}')" class="h-11 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs flex items-center gap-1.5 shadow-2xs transition-all shrink-0" title="${isEn ? 'Send Notification to WhatsApp' : 'Hantar Notifikasi ke WhatsApp'}">
+              <span class="material-symbols-outlined text-[18px]">chat</span>
+              <span class="hidden sm:inline">WhatsApp</span>
+            </button>
+          ` : ''}
         </div>
       </div>
     `;

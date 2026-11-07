@@ -575,8 +575,8 @@
               </p>
             </div>
 
-            <!-- Mini Kalendar Strip Dinamik (Desktop & Mobile) -->
-            <div class="flex flex-col bg-black/20 backdrop-blur-md p-3 rounded-2xl md:min-w-[360px] border border-white/10 shadow-inner">
+            <!-- Mini Kalendar Strip Dinamik (Desktop Sahaja) -->
+            <div class="hidden md:flex flex-col bg-black/20 backdrop-blur-md p-3 rounded-2xl md:min-w-[340px] border border-white/10 shadow-inner">
               <div class="flex items-center justify-between pb-2 mb-2 border-b border-white/10 gap-2">
                 <div class="flex items-center gap-1">
                   <button type="button" id="btnCalPrevWeek" onclick="navigateHomeCalendarWeek(-1)" class="w-6 h-6 rounded-lg bg-white/10 hover:bg-white/25 active:scale-95 text-white flex items-center justify-center transition-all text-xs font-bold" title="Minggu Sebelumnya">‹</button>
@@ -595,35 +595,40 @@
           </div>
         </div>
 
-        <!-- 3 Kad Metrik Pantas Terapung (Overlap Lengkungan Atas) -->
-        <div class="max-w-[1240px] mx-auto w-full px-4 md:px-0 -mt-6 relative z-10">
-          <div class="grid grid-cols-3 gap-2.5 md:gap-6">
+        <!-- 3 Kad Metrik Pantas Terapung (Kemas & Padat) -->
+        <div class="max-w-[1240px] mx-auto w-full px-4 md:px-0 -mt-5 relative z-10">
+          <div class="grid grid-cols-3 gap-2 md:gap-4">
             <!-- Kad 1 -->
-            <div class="bg-white rounded-2xl md:rounded-3xl p-3 md:p-5 flex flex-col items-center md:items-start text-center md:text-left shadow-[0_4px_16px_rgba(0,0,0,0.06)] border border-slate-100">
-              <div class="w-8 h-8 md:w-10 md:h-10 rounded-xl bg-cyan-50 text-[#0284c7] flex items-center justify-center mb-1 md:mb-2">
+            <div class="bg-white rounded-xl md:rounded-2xl p-2.5 md:p-3.5 flex items-center gap-2.5 shadow-sm border border-slate-100">
+              <div class="w-8 h-8 md:w-10 md:h-10 rounded-lg bg-sky-50 text-[#0284c7] flex items-center justify-center shrink-0">
                 <span class="material-symbols-outlined text-[18px] md:text-[22px]">calendar_month</span>
               </div>
-              <span id="homeMetricCount1" class="text-lg md:text-2xl font-black text-slate-800 leading-tight">31</span>
-              <span id="homeMetricLabel1" class="text-[10px] md:text-xs font-medium text-slate-500 mt-0.5">Jumlah Sesi Takwim</span>
+              <div class="flex flex-col min-w-0">
+                <span id="homeMetricCount1" class="text-base md:text-xl font-black text-slate-800 leading-tight">31</span>
+                <span id="homeMetricLabel1" class="text-[10px] md:text-xs text-slate-500 truncate">Sesi Takwim</span>
+              </div>
             </div>
 
             <!-- Kad 2 -->
-            <div class="bg-white rounded-2xl md:rounded-3xl p-3 md:p-5 flex flex-col items-center md:items-start text-center md:text-left shadow-[0_4px_16px_rgba(0,0,0,0.06)] border border-slate-100">
-              <div class="w-8 h-8 md:w-10 md:h-10 rounded-xl bg-teal-50 text-[#148e82] flex items-center justify-center mb-1 md:mb-2">
+            <div class="bg-white rounded-xl md:rounded-2xl p-2.5 md:p-3.5 flex items-center gap-2.5 shadow-sm border border-slate-100">
+              <div class="w-8 h-8 md:w-10 md:h-10 rounded-lg bg-teal-50 text-[#148e82] flex items-center justify-center shrink-0">
                 <span class="material-symbols-outlined text-[18px] md:text-[22px]">check_circle</span>
               </div>
-              <span id="homeMetricCount2" class="text-lg md:text-2xl font-black text-slate-800 leading-tight">00</span>
-              <span id="homeMetricLabel2" class="text-[10px] md:text-xs font-medium text-slate-500 mt-0.5">Selesai Hadir</span>
+              <div class="flex flex-col min-w-0">
+                <span id="homeMetricCount2" class="text-base md:text-xl font-black text-emerald-700 leading-tight">00</span>
+                <span id="homeMetricLabel2" class="text-[10px] md:text-xs text-slate-500 truncate">Disahkan</span>
+              </div>
             </div>
 
             <!-- Kad 3 -->
-            <div class="bg-white rounded-2xl md:rounded-3xl p-3 md:p-5 flex flex-col items-center md:items-start text-center md:text-left shadow-[0_4px_16px_rgba(0,0,0,0.06)] border border-slate-100 relative">
-              <div class="w-8 h-8 md:w-10 md:h-10 rounded-xl bg-amber-50 text-[#f59e0b] flex items-center justify-center mb-1 md:mb-2 relative">
+            <div class="bg-white rounded-xl md:rounded-2xl p-2.5 md:p-3.5 flex items-center gap-2.5 shadow-sm border border-slate-100 relative">
+              <div class="w-8 h-8 md:w-10 md:h-10 rounded-lg bg-amber-50 text-[#f59e0b] flex items-center justify-center shrink-0">
                 <span class="material-symbols-outlined text-[18px] md:text-[22px]">priority_high</span>
-                <span class="absolute top-0 right-0 w-2.5 h-2.5 bg-[#f59e0b] rounded-full ring-2 ring-white"></span>
               </div>
-              <span id="homeMetricCount3" class="text-lg md:text-2xl font-black text-[#d97706] leading-tight">31</span>
-              <span id="homeMetricLabel3" class="text-[10px] md:text-xs font-medium text-slate-500 mt-0.5">Perlu Tindakan RSVP</span>
+              <div class="flex flex-col min-w-0">
+                <span id="homeMetricCount3" class="text-base md:text-xl font-black text-amber-700 leading-tight">31</span>
+                <span id="homeMetricLabel3" class="text-[10px] md:text-xs text-slate-500 truncate">Perlu Tindakan</span>
+              </div>
             </div>
           </div>
         </div>
@@ -634,105 +639,79 @@
           <!-- Kolum Utama Kiri (Desktop: 8 Kolum) -->
           <div class="lg:col-span-8 flex flex-col gap-4">
 
-            <!-- Bar Pemilih Sesi Sekolah & Penapis Pantas Takwim 2027 -->
-            <div class="bg-white p-3.5 rounded-2xl shadow-sm border border-slate-100 flex flex-col gap-2.5">
+            <!-- Bar Pemilih Sesi Sekolah (Kemas & Fokus) -->
+            <div class="bg-white p-3.5 md:p-4 rounded-2xl shadow-sm border border-slate-100 flex flex-col gap-2.5">
               <div class="flex items-center justify-between">
                 <label for="homeSessionDropdown" class="text-xs font-bold text-slate-800 flex items-center gap-1.5">
                   <span class="material-symbols-outlined text-[#148e82] text-[18px]">event_note</span>
-                  <span id="homeSessionSelectorText">Pilih Sesi Sekolah / Program (31 Sesi)</span>
+                  <span id="homeSessionSelectorText">Pilih Sesi Sekolah / Program</span>
                 </label>
                 <span id="homeOfficialTakwimBadge" class="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-100">Takwim Rasmi 2027</span>
               </div>
 
               <!-- Dropdown 31 Sesi Sekolah -->
-              <select id="homeSessionDropdown" onchange="selectActiveEvent(this.value)" class="w-full h-11 px-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-900 shadow-inner focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#148e82]/20">
+              <select id="homeSessionDropdown" onchange="selectActiveEvent(this.value)" class="w-full h-11 px-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-900 shadow-xs focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#148e82]/20">
                 <!-- Diisi dinamik oleh app.js -->
               </select>
 
-              <!-- Penapis Kategori & Daerah Pantas -->
-              <div class="flex items-center gap-1.5 overflow-x-auto pb-0.5 text-xs">
-                <button type="button" onclick="setHomeCategoryFilter('ALL')" id="filterCat_ALL" class="px-3 py-1 rounded-full text-xs font-bold bg-[#148e82] text-white shadow-sm shrink-0">Semua (31)</button>
-                <button type="button" onclick="setHomeCategoryFilter('Program Hala Tuju')" id="filterCat_PHT" class="px-3 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 shrink-0">Hala Tuju (27)</button>
-                <button type="button" onclick="setHomeCategoryFilter('Program FutureLink')" id="filterCat_FL" class="px-3 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 shrink-0">FutureLink (4)</button>
-                <span class="text-slate-300">|</span>
-                <button type="button" onclick="setHomeDistrictFilter('ALL')" id="filterDist_ALL" class="px-2.5 py-1 rounded-lg text-[11px] font-bold bg-slate-200 text-slate-800 shrink-0">Semua Daerah</button>
-                <button type="button" onclick="setHomeDistrictFilter('Brunei Muara')" id="filterDist_BM" class="px-2.5 py-1 rounded-lg text-[11px] font-medium text-slate-600 hover:bg-slate-100 shrink-0">Brunei Muara (21)</button>
-                <button type="button" onclick="setHomeDistrictFilter('Tutong')" id="filterDist_Tutong" class="px-2.5 py-1 rounded-lg text-[11px] font-medium text-slate-600 hover:bg-slate-100 shrink-0">Tutong (6)</button>
-                <button type="button" onclick="setHomeDistrictFilter('Belait')" id="filterDist_Belait" class="px-2.5 py-1 rounded-lg text-[11px] font-medium text-slate-600 hover:bg-slate-100 shrink-0">Belait (3)</button>
-                <button type="button" onclick="setHomeDistrictFilter('Temburong')" id="filterDist_Temburong" class="px-2.5 py-1 rounded-lg text-[11px] font-medium text-slate-600 hover:bg-slate-100 shrink-0">Temburong (1)</button>
+              <!-- Penapis Kategori Pantas (Hala Tuju & FutureLink) -->
+              <div class="flex items-center gap-1.5 overflow-x-auto pt-0.5 text-xs">
+                <button type="button" onclick="setHomeCategoryFilter('ALL')" id="filterCat_ALL" class="px-3 py-1 rounded-full text-xs font-bold bg-[#148e82] text-white shadow-xs shrink-0 transition-all">Semua (31)</button>
+                <button type="button" onclick="setHomeCategoryFilter('Program Hala Tuju')" id="filterCat_PHT" class="px-3 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 shrink-0 transition-all">Hala Tuju (27)</button>
+                <button type="button" onclick="setHomeCategoryFilter('Program FutureLink')" id="filterCat_FL" class="px-3 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 shrink-0 transition-all">FutureLink (4)</button>
+              </div>
+
+              <!-- Elemen tersorok untuk mengekalkan keserasian skrip JS sedia ada -->
+              <div class="hidden">
+                <button type="button" onclick="setHomeDistrictFilter('ALL')" id="filterDist_ALL"></button>
+                <button type="button" onclick="setHomeDistrictFilter('Brunei Muara')" id="filterDist_BM"></button>
+                <button type="button" onclick="setHomeDistrictFilter('Tutong')" id="filterDist_Tutong"></button>
+                <button type="button" onclick="setHomeDistrictFilter('Belait')" id="filterDist_Belait"></button>
+                <button type="button" onclick="setHomeDistrictFilter('Temburong')" id="filterDist_Temburong"></button>
               </div>
             </div>
 
-            <!-- 2 Pintasan Khas: Pelan Dewan & Peta Parking (Pintu Pagar B) -->
-            <div class="grid grid-cols-2 gap-3">
-              <button type="button" onclick="openMapModal('floorPlan')" class="bg-white p-3.5 rounded-2xl shadow-sm border border-slate-100 flex items-center gap-3 text-left hover:bg-slate-50 hover:border-slate-200 transition-all">
-                <div class="w-10 h-10 rounded-xl bg-teal-50 text-[#148e82] flex items-center justify-center shrink-0">
-                  <span class="material-symbols-outlined text-[22px]">view_quilt</span>
-                </div>
-                <div class="flex flex-col min-w-0">
-                  <span class="text-xs md:text-sm font-bold text-slate-800 truncate">Pelan Dewan</span>
-                  <span class="text-[10px] md:text-xs text-slate-500 truncate">Susun atur meja pameran &amp; dewan</span>
-                </div>
-              </button>
-
-              <button type="button" onclick="openMapModal('parking')" class="bg-white p-3.5 rounded-2xl shadow-sm border border-slate-100 flex items-center gap-3 text-left hover:bg-slate-50 hover:border-slate-200 transition-all">
-                <div class="w-10 h-10 rounded-xl bg-amber-50 text-[#d97706] flex items-center justify-center shrink-0">
-                  <span class="material-symbols-outlined text-[22px]">directions_car</span>
-                </div>
-                <div class="flex flex-col min-w-0">
-                  <span class="text-xs md:text-sm font-bold text-slate-800 truncate">Peta Parking</span>
-                  <span class="text-[10px] md:text-xs text-slate-500 truncate">Pintu Pagar B (Khusus Agensi)</span>
-                </div>
-              </button>
-            </div>
-
-            <!-- Kad Acara Utama (Featured Hero Event) Container -->
+            <!-- Kad Maklumat Acara Utama (Program Info Card) Container -->
             <div id="homeHeroCardArea">
-              <!-- Diisi dinamik oleh app.js mengikut reka bentuk persis screenshot -->
+              <!-- Diisi dinamik oleh app.js secara kemas tanpa imej stok yang berserabut -->
             </div>
 
             <!-- Seksyen Takwim Penuh 31 Sesi Sekolah (2027) -->
             <div class="flex flex-col gap-3 pt-2">
-              <div class="flex flex-col md:flex-row md:items-center justify-between gap-2.5">
+              <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
                 <div class="flex items-center gap-1.5">
                   <span class="w-2.5 h-2.5 rounded-full bg-[#148e82]"></span>
                   <h3 id="homeScheduleHeaderTitle" class="text-xs md:text-sm font-bold uppercase tracking-wider text-slate-900">Jadual Takwim 31 Sesi Sekolah (2027)</h3>
                 </div>
 
-                <!-- Togol Paparan: Semua / Bulanan (Monthly) / Mingguan (Weekly) -->
-                <div class="flex items-center gap-1 bg-slate-100 p-1 rounded-xl self-start md:self-auto">
-                  <button type="button" onclick="setHomeCalendarView('ALL')" id="viewMode_ALL" class="px-2.5 py-1 text-xs font-bold rounded-lg bg-white text-slate-900 shadow-sm transition-all flex items-center gap-1">
-                    <span class="material-symbols-outlined text-[15px]">list</span>
-                    <span>Semua</span>
-                  </button>
-                  <button type="button" onclick="setHomeCalendarView('MONTHLY')" id="viewMode_MONTHLY" class="px-2.5 py-1 text-xs font-semibold rounded-lg text-slate-600 hover:text-slate-900 transition-all flex items-center gap-1">
-                    <span class="material-symbols-outlined text-[15px]">calendar_month</span>
-                    <span>Bulanan</span>
-                  </button>
-                  <button type="button" onclick="setHomeCalendarView('WEEKLY')" id="viewMode_WEEKLY" class="px-2.5 py-1 text-xs font-semibold rounded-lg text-slate-600 hover:text-slate-900 transition-all flex items-center gap-1">
-                    <span class="material-symbols-outlined text-[15px]">date_range</span>
-                    <span>Mingguan</span>
-                  </button>
+                <div class="relative flex items-center w-full sm:w-64">
+                  <span class="material-symbols-outlined absolute left-2.5 text-slate-400 text-[16px]">search</span>
+                  <input type="text" id="homeScheduleSearch" oninput="renderHomeScheduleList()" placeholder="Cari sekolah, tarikh, daerah..." class="h-9 pl-8 pr-3 bg-white border border-slate-200 rounded-xl text-xs font-medium focus:outline-none focus:ring-2 focus:ring-[#148e82]/20 w-full shadow-2xs" />
                 </div>
               </div>
 
-              <!-- Bar Carian & Sub-Pilihan Bulan / Minggu -->
-              <div class="flex flex-col md:flex-row md:items-center justify-between gap-2">
-                <!-- Penapis Sub-Bulan Pantas (31 Sesi Tersusun Kronologi) -->
-                <div id="homeCalendarMonthPills" class="flex items-center gap-1 overflow-x-auto pb-0.5 text-[11px]">
-                  <button type="button" onclick="setHomeCalendarMonth('ALL')" id="pillMonth_ALL" class="px-2.5 py-0.5 rounded-lg font-bold bg-[#148e82] text-white shrink-0">Semua Bulan (31)</button>
-                  <button type="button" onclick="setHomeCalendarMonth('01')" id="pillMonth_01" class="px-2.5 py-0.5 rounded-lg font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 shrink-0">Jan (3)</button>
-                  <button type="button" onclick="setHomeCalendarMonth('02')" id="pillMonth_02" class="px-2.5 py-0.5 rounded-lg font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 shrink-0">Feb (3)</button>
-                  <button type="button" onclick="setHomeCalendarMonth('03')" id="pillMonth_03" class="px-2.5 py-0.5 rounded-lg font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 shrink-0">Mac (5)</button>
-                  <button type="button" onclick="setHomeCalendarMonth('04')" id="pillMonth_04" class="px-2.5 py-0.5 rounded-lg font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 shrink-0">Apr (10)</button>
-                  <button type="button" onclick="setHomeCalendarMonth('05')" id="pillMonth_05" class="px-2.5 py-0.5 rounded-lg font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 shrink-0">Mei (2)</button>
-                  <button type="button" onclick="setHomeCalendarMonth('06')" id="pillMonth_06" class="px-2.5 py-0.5 rounded-lg font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 shrink-0">Jun (6)</button>
-                  <button type="button" onclick="setHomeCalendarMonth('07')" id="pillMonth_07" class="px-2.5 py-0.5 rounded-lg font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 shrink-0">Jul (2)</button>
+              <!-- Elemen tersorok untuk mengekalkan keserasian fungsi JS (viewMode & monthPills) -->
+              <div class="hidden">
+                <button type="button" id="viewMode_ALL"></button>
+                <button type="button" id="viewMode_MONTHLY"></button>
+                <button type="button" id="viewMode_WEEKLY"></button>
+                <div id="homeCalendarMonthPills">
+                  <button type="button" id="pillMonth_ALL"></button>
+                  <button type="button" id="pillMonth_01"></button>
+                  <button type="button" id="pillMonth_02"></button>
+                  <button type="button" id="pillMonth_03"></button>
+                  <button type="button" id="pillMonth_04"></button>
+                  <button type="button" id="pillMonth_05"></button>
+                  <button type="button" id="pillMonth_06"></button>
+                  <button type="button" id="pillMonth_07"></button>
                 </div>
+              </div>
 
-                <div class="relative flex items-center shrink-0">
-                  <span class="material-symbols-outlined absolute left-2.5 text-slate-400 text-[16px]">search</span>
-                  <input type="text" id="homeScheduleSearch" oninput="renderHomeScheduleList()" placeholder="Cari sekolah, venue, tarikh..." class="h-8 pl-8 pr-3 bg-white border border-slate-200 rounded-xl text-xs font-medium focus:outline-none focus:ring-2 focus:ring-[#148e82]/20 w-full md:w-56" />
+              <!-- Senarai Kad Sesi Sekolah Interaktif (31 Sesi) -->
+              <div id="homeScheduleListContainer" class="flex flex-col gap-2.5">
+                <!-- Diisi dinamik oleh app.js mengikut 31 sesi sebenar -->
+              </div>
+            </div>
                 </div>
               </div>
 
