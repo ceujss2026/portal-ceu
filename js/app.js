@@ -590,6 +590,44 @@ function sortEventsChronologically(list) {
   return (list || []).slice().sort((a, b) => (a.Tarikh_Mula || '').localeCompare(b.Tarikh_Mula || ''));
 }
 
+let agencyCalendarMode = 'WEEKLY'; // 'WEEKLY' or 'MONTHLY'
+
+function switchCalendarViewMode(mode) {
+  agencyCalendarMode = mode;
+  const btnWeekly = document.getElementById('btnCalModeWeekly');
+  const btnMonthly = document.getElementById('btnCalModeMonthly');
+  if (btnWeekly && btnMonthly) {
+    if (mode === 'WEEKLY') {
+      btnWeekly.className = 'px-3 py-1.5 rounded-lg text-xs font-bold bg-white text-slate-900 shadow-xs transition-all flex items-center gap-1';
+      btnMonthly.className = 'px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-600 hover:text-slate-900 transition-all flex items-center gap-1';
+      const wIcon = btnWeekly.querySelector('.material-symbols-outlined');
+      if (wIcon) wIcon.className = 'material-symbols-outlined text-[15px] text-[#148e82]';
+      const mIcon = btnMonthly.querySelector('.material-symbols-outlined');
+      if (mIcon) mIcon.className = 'material-symbols-outlined text-[15px] text-slate-400';
+    } else {
+      btnMonthly.className = 'px-3 py-1.5 rounded-lg text-xs font-bold bg-white text-slate-900 shadow-xs transition-all flex items-center gap-1';
+      btnWeekly.className = 'px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-600 hover:text-slate-900 transition-all flex items-center gap-1';
+      const mIcon = btnMonthly.querySelector('.material-symbols-outlined');
+      if (mIcon) mIcon.className = 'material-symbols-outlined text-[15px] text-[#148e82]';
+      const wIcon = btnWeekly.querySelector('.material-symbols-outlined');
+      if (wIcon) wIcon.className = 'material-symbols-outlined text-[15px] text-slate-400';
+    }
+  }
+  renderInteractiveCalendar();
+}
+
+function navigateCalendar(direction) {
+  if (!homeCalendarCurrentDate) {
+    syncCalendarToActiveEvent();
+  }
+  if (agencyCalendarMode === 'WEEKLY') {
+    homeCalendarCurrentDate.setDate(homeCalendarCurrentDate.getDate() + (direction * 7));
+  } else {
+    homeCalendarCurrentDate.setMonth(homeCalendarCurrentDate.getMonth() + direction);
+  }
+  renderInteractiveCalendar();
+}
+
 function syncCalendarToActiveEvent() {
   const activeEv = AppState.activeEvent || (AppState.events && AppState.events[0]) || getFallbackEvents()[0];
   if (activeEv && activeEv.Tarikh_Mula) {
@@ -598,25 +636,51 @@ function syncCalendarToActiveEvent() {
   } else {
     homeCalendarCurrentDate = new Date(2027, 0, 25);
   }
-  renderHomeMiniCalendar();
+  renderInteractiveCalendar();
 }
 
 function navigateHomeCalendarWeek(direction) {
-  if (!homeCalendarCurrentDate) {
-    syncCalendarToActiveEvent();
-  }
-  homeCalendarCurrentDate.setDate(homeCalendarCurrentDate.getDate() + (direction * 7));
-  renderHomeMiniCalendar();
+  navigateCalendar(direction);
 }
 
-function renderHomeMiniCalendar() {
-  const daysContainer = document.getElementById('homeMiniCalDaysContainer');
-  const monthEl = document.getElementById('homeMiniCalMonth');
-  const weekEl = document.getElementById('homeMiniCalWeek');
-  if (!daysContainer) return;
+function getShortSchoolName(name) {
+  if (!name) return '';
+  const abbrevMap = {
+    'SM Sultan Muhammad Jamalul Alam': 'SMJA',
+    'SM Sayyidina Othman': 'SMSO',
+    'Maktab Sultan Omar \'Ali Saifuddien': 'SOAS',
+    'Sekolah Tinggi Perempuan Raja Isteri': 'STPRI',
+    'Pusat Tingkatan Enam Sengkurong': 'PTES',
+    'Pusat Tingkatan Enam Tutong': 'PTET',
+    'Pusat Tingkatan Enam Belait': 'PTEB',
+    'Maktab Sains Paduka Seri Begawan Sultan': 'Maktab Sains',
+    'SM Sayyidina Hasan': 'SM Hasan',
+    'SM Sayyidina Husain': 'SM Husain',
+    'SM Sayyidina Ali': 'SM Ali',
+    'SM Sayyidina Umar Al-Khattab': 'SMSUA',
+    'SM Sultan Sharif Ali': 'SMSSA',
+    'SM Sultan Hassan Bangar': 'SM Hassan',
+    'Sekolah Menengah Menglait': 'SM Menglait',
+    'Sekolah Menengah Pehin Datu Seri Maharaja': 'SMPDSM',
+    'Sekolah Menengah Rimba': 'SM Rimba',
+    'Sekolah Menengah Rimba II': 'SM Rimba 2',
+    'Sekolah Menengah Berakas': 'SM Berakas',
+    'Sekolah Sukan': 'Sek. Sukan'
+  };
+  if (abbrevMap[name]) return abbrevMap[name];
+  return name.replace('Sekolah Menengah', 'SM').replace('Pusat Tingkatan Enam', 'PTE').split(' ').slice(0, 3).join(' ');
+}
+
+function renderInteractiveCalendar() {
+  const container = document.getElementById('homeCalendarDisplayContainer');
+  const monthYearLabel = document.getElementById('homeCalendarMonthYearLabel');
+  const rangeBadge = document.getElementById('homeCalendarRangeBadge');
+  if (!container) return;
 
   const isEn = typeof I18N !== 'undefined' && I18N.currentLang === 'EN';
-  
+  const user = AppState.currentUser;
+  const userRsvps = AppState.rsvps || [];
+
   if (!homeCalendarCurrentDate) {
     const activeEv = AppState.activeEvent || (AppState.events && AppState.events[0]);
     if (activeEv && activeEv.Tarikh_Mula) {
@@ -627,79 +691,180 @@ function renderHomeMiniCalendar() {
     }
   }
 
-  // Hari Ahad bagi minggu ini (Sunday)
-  const curr = new Date(homeCalendarCurrentDate.getTime());
-  const dayOfWeek = curr.getDay(); // 0 = Ahad
-  const sunday = new Date(curr);
-  sunday.setDate(curr.getDate() - dayOfWeek);
-  sunday.setHours(0, 0, 0, 0);
-
-  const saturday = new Date(sunday);
-  saturday.setDate(sunday.getDate() + 6);
-
-  // Tentukan nama bulan & tahun mengikut pertengahan minggu (Rabu)
-  const midWeek = new Date(sunday);
-  midWeek.setDate(sunday.getDate() + 3);
-  const mIndex = midWeek.getMonth();
-  const yearNum = midWeek.getFullYear();
-
+  const pad = (n) => n < 10 ? '0' + n : '' + n;
   const monthNamesBm = ['Januari', 'Februari', 'Mac', 'April', 'Mei', 'Jun', 'Julai', 'Ogos', 'September', 'Oktober', 'November', 'Disember'];
   const monthNamesEn = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-  const monthName = isEn ? monthNamesEn[mIndex] : monthNamesBm[mIndex];
-
-  if (monthEl) monthEl.innerText = `${monthName} ${yearNum}`;
-
-  const pad = (n) => n < 10 ? '0' + n : '' + n;
-  if (weekEl) {
-    weekEl.innerText = `${pad(sunday.getDate())}/${pad(sunday.getMonth()+1)} - ${pad(saturday.getDate())}/${pad(saturday.getMonth()+1)}`;
-  }
+  const monthNames = isEn ? monthNamesEn : monthNamesBm;
 
   const dayNamesBm = ['Aha', 'Isn', 'Sel', 'Rab', 'Kha', 'Jum', 'Sab'];
   const dayNamesEn = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
   const dayNames = isEn ? dayNamesEn : dayNamesBm;
 
-  const events = AppState.events || [];
+  let events = (AppState.events || []).filter(e => e.Event_ID !== 'EVT-FL-05' && !(e.Nama_Acara || '').includes('Maktab Duli'));
+  if (homeCategoryFilter && homeCategoryFilter !== 'ALL') {
+    events = events.filter(e => e.Kategori_Program === homeCategoryFilter);
+  }
   const activeTarikh = AppState.activeEvent ? AppState.activeEvent.Tarikh_Mula : '';
 
-  let daysHtml = '';
-  for (let i = 0; i < 7; i++) {
-    const d = new Date(sunday);
-    d.setDate(sunday.getDate() + i);
-    const dateStr = `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
-    const dayName = dayNames[i];
-    const dayNumber = pad(d.getDate());
+  // ==========================================
+  // MOD 1: MINGGUAN (WEEKLY 7-DAY STRIP)
+  // ==========================================
+  if (agencyCalendarMode === 'WEEKLY') {
+    const curr = new Date(homeCalendarCurrentDate.getTime());
+    const dayOfWeek = curr.getDay(); // 0 = Ahad
+    const sunday = new Date(curr);
+    sunday.setDate(curr.getDate() - dayOfWeek);
+    sunday.setHours(0, 0, 0, 0);
 
+    const saturday = new Date(sunday);
+    saturday.setDate(sunday.getDate() + 6);
+
+    const midWeek = new Date(sunday);
+    midWeek.setDate(sunday.getDate() + 3);
+    const mIndex = midWeek.getMonth();
+    const yearNum = midWeek.getFullYear();
+
+    if (monthYearLabel) monthYearLabel.innerText = `${monthNames[mIndex]} ${yearNum}`;
+    if (rangeBadge) {
+      rangeBadge.innerText = `${pad(sunday.getDate())}/${pad(sunday.getMonth()+1)} - ${pad(saturday.getDate())}/${pad(saturday.getMonth()+1)}`;
+    }
+
+    let daysHtml = '<div class="grid grid-cols-7 gap-1.5 md:gap-2 pt-2">';
+    for (let i = 0; i < 7; i++) {
+      const d = new Date(sunday);
+      d.setDate(sunday.getDate() + i);
+      const dateStr = `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+      const dayName = dayNames[i];
+      const dayNum = pad(d.getDate());
+
+      const matchingEv = events.find(e => e.Tarikh_Mula === dateStr);
+      const isActive = activeTarikh === dateStr;
+
+      if (matchingEv) {
+        const uRsvp = userRsvps.find(r => r.Event_ID === matchingEv.Event_ID && isAgencyMatch(r.Agensi_ID, user));
+        const isAttending = uRsvp && (uRsvp.Status_RSVP === 'Hadir' || uRsvp.Status_RSVP === 'Hadir (Disahkan)');
+        const isNotAttending = uRsvp && uRsvp.Status_RSVP === 'Tidak Hadir';
+        const isFutureLink = matchingEv.Kategori_Program === 'Program FutureLink';
+        const shortSchool = getShortSchoolName(matchingEv.Sekolah || matchingEv.Nama_Acara);
+
+        let statusDot = '<span class="w-2 h-2 rounded-full bg-amber-400" title="Perlu Tindakan RSVP"></span>';
+        if (isAttending) statusDot = '<span class="w-2 h-2 rounded-full bg-emerald-500 shadow-2xs" title="RSVP Hadir"></span>';
+        else if (isNotAttending) statusDot = '<span class="w-2 h-2 rounded-full bg-rose-500" title="Tidak Hadir"></span>';
+
+        daysHtml += `
+          <div onclick="selectActiveEvent('${matchingEv.Event_ID}')" 
+               class="flex flex-col items-center justify-between p-2 md:p-2.5 rounded-xl md:rounded-2xl cursor-pointer transition-all active:scale-95 text-center min-h-[92px] md:min-h-[105px] border ${
+                 isActive 
+                   ? 'bg-gradient-to-b from-amber-50 to-amber-100/70 border-amber-400 ring-2 ring-amber-400/30 shadow-sm' 
+                   : 'bg-white hover:bg-slate-50 border-slate-200/90 shadow-2xs hover:border-[#148e82]'
+               }">
+            <div class="flex flex-col items-center leading-tight">
+              <span class="text-[10px] font-bold ${isActive ? 'text-amber-900' : 'text-slate-500'} uppercase tracking-tight">${dayName}</span>
+              <span class="text-sm md:text-base font-black ${isActive ? 'text-amber-950' : 'text-slate-900'}">${dayNum}</span>
+            </div>
+            <div class="w-full my-1">
+              <span class="block text-[10px] md:text-[11px] font-black truncate px-1 py-0.5 rounded-md ${
+                isFutureLink ? 'bg-amber-100 text-amber-900' : 'bg-teal-100 text-teal-900'
+              }" title="${matchingEv.Sekolah || matchingEv.Nama_Acara}">${shortSchool}</span>
+            </div>
+            <div class="flex items-center justify-center pt-0.5">
+              ${statusDot}
+            </div>
+          </div>
+        `;
+      } else {
+        daysHtml += `
+          <div class="flex flex-col items-center justify-between p-2 md:p-2.5 rounded-xl md:rounded-2xl bg-slate-50/60 border border-slate-100 text-center min-h-[92px] md:min-h-[105px] opacity-60">
+            <div class="flex flex-col items-center leading-tight">
+              <span class="text-[10px] font-semibold text-slate-400 uppercase tracking-tight">${dayName}</span>
+              <span class="text-sm md:text-base font-bold text-slate-500">${dayNum}</span>
+            </div>
+            <div class="w-full my-auto">
+              <span class="text-[9px] text-slate-400 italic block leading-tight">-</span>
+            </div>
+            <div class="h-2"></div>
+          </div>
+        `;
+      }
+    }
+    daysHtml += '</div>';
+    container.innerHTML = daysHtml;
+    return;
+  }
+
+  // ==========================================
+  // MOD 2: BULANAN (MONTHLY CALENDAR GRID)
+  // ==========================================
+  const year = homeCalendarCurrentDate.getFullYear();
+  const month = homeCalendarCurrentDate.getMonth();
+  const firstDayIndex = new Date(year, month, 1).getDay(); // 0 = Ahad
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+  if (monthYearLabel) monthYearLabel.innerText = `${monthNames[month]} ${year}`;
+  if (rangeBadge) rangeBadge.innerText = `${monthNames[month]} (${daysInMonth} Hari)`;
+
+  let gridHtml = `
+    <div class="flex flex-col gap-1.5 pt-2">
+      <!-- Kepala Lajur Hari (Aha - Sab) -->
+      <div class="grid grid-cols-7 gap-1 text-center font-bold text-[10px] md:text-xs text-slate-500 py-1 border-b border-slate-100">
+        ${dayNames.map(d => `<span class="uppercase tracking-wide">${d}</span>`).join('')}
+      </div>
+      <div class="grid grid-cols-7 gap-1 md:gap-1.5">
+  `;
+
+  // Kotak kosong sebelum hari pertama
+  for (let b = 0; b < firstDayIndex; b++) {
+    gridHtml += '<div class="min-h-[60px] md:min-h-[72px] bg-slate-50/40 rounded-xl border border-dashed border-slate-100"></div>';
+  }
+
+  // Hari-hari dalam bulan
+  for (let day = 1; day <= daysInMonth; day++) {
+    const dateStr = `${year}-${pad(month + 1)}-${pad(day)}`;
     const matchingEv = events.find(e => e.Tarikh_Mula === dateStr);
     const isActive = activeTarikh === dateStr;
 
-    if (isActive) {
-      daysHtml += `
-        <div onclick="${matchingEv ? `selectActiveEvent('${matchingEv.Event_ID}')` : ''}" class="flex flex-col items-center py-1.5 px-0.5 rounded-xl bg-[#f59e0b] text-slate-900 shadow-md ring-2 ring-amber-300 font-bold cursor-pointer transition-transform active:scale-95" title="${matchingEv ? (matchingEv.Sekolah || matchingEv.Nama_Acara) : ''}">
-          <span class="text-[9px] font-bold text-slate-900">${dayName}</span>
-          <span class="text-xs font-black text-slate-900">${dayNumber}</span>
-          <span class="w-1.5 h-1.5 rounded-full bg-slate-900 mt-0.5"></span>
-        </div>
-      `;
-    } else if (matchingEv) {
-      daysHtml += `
-        <div onclick="selectActiveEvent('${matchingEv.Event_ID}'); window.scrollTo({top: 0, behavior: 'smooth'});" class="flex flex-col items-center py-1.5 px-0.5 rounded-xl bg-white/20 hover:bg-white/35 text-white font-bold cursor-pointer border border-amber-300/40 transition-transform active:scale-95 shadow-xs" title="Sesi: ${matchingEv.Sekolah || matchingEv.Nama_Acara}">
-          <span class="text-[9px] text-amber-200">${dayName}</span>
-          <span class="text-xs font-extrabold text-white">${dayNumber}</span>
-          <span class="w-1.5 h-1.5 rounded-full bg-amber-400 mt-0.5"></span>
+    if (matchingEv) {
+      const uRsvp = userRsvps.find(r => r.Event_ID === matchingEv.Event_ID && isAgencyMatch(r.Agensi_ID, user));
+      const isAttending = uRsvp && (uRsvp.Status_RSVP === 'Hadir' || uRsvp.Status_RSVP === 'Hadir (Disahkan)');
+      const isNotAttending = uRsvp && uRsvp.Status_RSVP === 'Tidak Hadir';
+      const isFutureLink = matchingEv.Kategori_Program === 'Program FutureLink';
+      const shortSchool = getShortSchoolName(matchingEv.Sekolah || matchingEv.Nama_Acara);
+
+      let statusDot = '<span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span>';
+      if (isAttending) statusDot = '<span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>';
+      else if (isNotAttending) statusDot = '<span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span>';
+
+      gridHtml += `
+        <div onclick="selectActiveEvent('${matchingEv.Event_ID}')"
+             class="flex flex-col justify-between p-1.5 md:p-2 rounded-xl cursor-pointer transition-all active:scale-95 min-h-[60px] md:min-h-[72px] border ${
+               isActive
+                 ? 'bg-amber-50 border-amber-400 ring-2 ring-amber-400/30 shadow-xs'
+                 : 'bg-white hover:bg-slate-50 border-slate-200/90 shadow-2xs hover:border-[#148e82]'
+             }">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-black ${isActive ? 'text-amber-950' : 'text-slate-900'}">${day}</span>
+            ${statusDot}
+          </div>
+          <span class="text-[9px] md:text-[10px] font-black truncate px-1 py-0.5 rounded ${
+            isFutureLink ? 'bg-amber-100 text-amber-900' : 'bg-teal-100 text-teal-900'
+          }" title="${matchingEv.Sekolah || matchingEv.Nama_Acara}">${shortSchool}</span>
         </div>
       `;
     } else {
-      daysHtml += `
-        <div class="flex flex-col items-center py-1.5 px-0.5 rounded-xl bg-white/10 text-white/70">
-          <span class="text-[9px] text-white/70">${dayName}</span>
-          <span class="text-xs font-semibold text-white/90">${dayNumber}</span>
-          <span class="w-1 h-1 rounded-full bg-transparent mt-0.5"></span>
+      gridHtml += `
+        <div class="flex flex-col justify-start p-1.5 md:p-2 rounded-xl bg-slate-50/50 border border-slate-100 min-h-[60px] md:min-h-[72px]">
+          <span class="text-xs font-semibold text-slate-400">${day}</span>
         </div>
       `;
     }
   }
 
-  daysContainer.innerHTML = daysHtml;
+  gridHtml += '</div></div>';
+  container.innerHTML = gridHtml;
+}
+
+function renderHomeMiniCalendar() {
+  renderInteractiveCalendar();
 }
 
 function selectActiveEvent(eventId) {
@@ -732,6 +897,7 @@ function setHomeCategoryFilter(cat) {
   if (activeBtn) {
     activeBtn.className = 'px-3 py-1 rounded-full text-xs font-bold bg-[#148e82] text-white shadow-sm shrink-0 transition-all';
   }
+  renderInteractiveCalendar();
   renderHomeScheduleList();
 }
 
@@ -776,13 +942,20 @@ function renderHomeScreen(populateDropdown = true) {
   AppState.events = sortEventsChronologically(AppState.events);
   localStorage.setItem('ceu_cache_events', JSON.stringify(AppState.events));
 
+  // Tentukan sama ada hari ini mempunyai acara sekolah sebenar
+  const pad = (n) => n < 10 ? '0' + n : '' + n;
+  const today = new Date();
+  const todayStr = `${today.getFullYear()}-${pad(today.getMonth()+1)}-${pad(today.getDate())}`;
+  const todayEvent = (AppState.events || []).find(e => e.Tarikh_Mula === todayStr);
+
   if (!AppState.activeEvent || AppState.activeEvent.Event_ID === 'EVT-FL-05' || AppState.activeEvent.Nama_Acara.includes('Maktab Duli')) {
-    AppState.activeEvent = AppState.events[0];
+    AppState.activeEvent = todayEvent || AppState.events[0];
   }
   const primaryEvent = AppState.activeEvent;
+  const isTodaySession = (primaryEvent.Tarikh_Mula === todayStr);
 
-  // Render Mini Kalendar Interaktif (Aktifkan dinamik mengikut sesi)
-  renderHomeMiniCalendar();
+  // Render Kalendar Interaktif Baharu (Mingguan / Bulanan)
+  renderInteractiveCalendar();
 
   // Kemas kini Kad Metrik 1, 2, 3
   const mCount1 = document.getElementById('homeMetricCount1');
@@ -820,7 +993,7 @@ function renderHomeScreen(populateDropdown = true) {
     dropdown.value = primaryEvent.Event_ID;
   }
 
-  // 4. Render Hero Event Card
+  // 4. Render Hero Event Card (KAD ACARA HARI INI / SESI PILIHAN & BORANG RSVP)
   const heroCardContainer = document.getElementById('homeHeroCardArea');
   if (heroCardContainer && primaryEvent) {
     const userRsvp = (AppState.rsvps || []).find(r => r.Event_ID === primaryEvent.Event_ID && isAgencyMatch(r.Agensi_ID, user));
@@ -831,116 +1004,139 @@ function renderHomeScreen(populateDropdown = true) {
     let statusBadge = '';
     if (isAttending) {
       statusBadge = isEn 
-        ? '<span class="bg-emerald-100 text-emerald-800 text-[10px] font-bold px-2.5 py-1 rounded-full flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-emerald-600"></span>RSVP Confirmed</span>' 
-        : '<span class="bg-emerald-100 text-emerald-800 text-[10px] font-bold px-2.5 py-1 rounded-full flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-emerald-600"></span>RSVP Disahkan</span>';
+        ? '<span class="bg-emerald-100 text-emerald-800 text-[11px] font-bold px-2.5 py-1 rounded-full flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-emerald-600"></span>RSVP Confirmed</span>' 
+        : '<span class="bg-emerald-100 text-emerald-800 text-[11px] font-bold px-2.5 py-1 rounded-full flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-emerald-600"></span>RSVP Disahkan</span>';
     } else if (isNotAttending) {
       statusBadge = isEn
-        ? '<span class="bg-rose-100 text-rose-800 text-[10px] font-bold px-2.5 py-1 rounded-full flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-rose-600"></span>Not Attending</span>'
-        : '<span class="bg-rose-100 text-rose-800 text-[10px] font-bold px-2.5 py-1 rounded-full flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-rose-600"></span>Tidak Hadir</span>';
+        ? '<span class="bg-rose-100 text-rose-800 text-[11px] font-bold px-2.5 py-1 rounded-full flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-rose-600"></span>Not Attending</span>'
+        : '<span class="bg-rose-100 text-rose-800 text-[11px] font-bold px-2.5 py-1 rounded-full flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-rose-600"></span>Tidak Hadir</span>';
     } else {
       statusBadge = isEn
-        ? '<span class="bg-amber-100 text-amber-800 text-[10px] font-bold px-2.5 py-1 rounded-full flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-amber-600"></span>Confirmation Required</span>'
-        : '<span class="bg-amber-100 text-amber-800 text-[10px] font-bold px-2.5 py-1 rounded-full flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-amber-600"></span>Perlu Pengesahan</span>';
+        ? '<span class="bg-amber-100 text-amber-900 text-[11px] font-bold px-2.5 py-1 rounded-full flex items-center gap-1.5 border border-amber-300/60"><span class="w-2 h-2 rounded-full bg-amber-500"></span>RSVP Required</span>'
+        : '<span class="bg-amber-100 text-amber-900 text-[11px] font-bold px-2.5 py-1 rounded-full flex items-center gap-1.5 border border-amber-300/60"><span class="w-2 h-2 rounded-full bg-amber-500"></span>Perlu Tindakan RSVP</span>';
     }
 
     const setupTime = primaryEvent.Waktu_Susun_Meja || (isEn ? '08:00 AM' : '08:00 Pagi');
     const isFutureLink = primaryEvent.Kategori_Program === 'Program FutureLink';
-    const catBadgeClass = isFutureLink ? 'bg-amber-100 text-amber-800' : 'bg-teal-100 text-teal-800';
+    const catBadgeClass = isFutureLink ? 'bg-amber-100 text-amber-900' : 'bg-teal-100 text-teal-900';
+
+    // Lencana Acara Hari Ini vs Sesi Terpilih
+    let sessionBadgeHeader = '';
+    if (isTodaySession) {
+      sessionBadgeHeader = `
+        <span class="bg-emerald-600 text-white text-[11px] font-black px-3 py-1 rounded-full uppercase tracking-wider flex items-center gap-1.5 shadow-sm">
+          <span class="w-2 h-2 rounded-full bg-white animate-ping"></span>
+          ${isEn ? "TODAY'S EVENT" : "ACARA HARI INI"}
+        </span>
+      `;
+    } else {
+      sessionBadgeHeader = `
+        <span class="bg-[#148e82] text-white text-[11px] font-bold px-3 py-1 rounded-full uppercase tracking-wider flex items-center gap-1.5 shadow-sm">
+          <span class="material-symbols-outlined text-[14px]">event_available</span>
+          ${isEn ? "SELECTED SESSION" : "SESI PILIHAN"}
+        </span>
+      `;
+    }
 
     heroCardContainer.innerHTML = `
-      <div class="bg-white rounded-2xl shadow-sm border border-slate-200/90 overflow-hidden flex flex-col transition-all">
+      <div class="bg-white rounded-2xl md:rounded-3xl shadow-sm border border-slate-200 overflow-hidden flex flex-col transition-all">
         <!-- Tajuk & Lencana Status Sesi -->
-        <div class="p-4 md:p-5 border-b border-slate-100 flex flex-col gap-2">
+        <div class="p-4 md:p-6 border-b border-slate-100 flex flex-col gap-3">
           <div class="flex items-center justify-between gap-2 flex-wrap">
-            <div class="flex items-center gap-1.5 flex-wrap">
-              <span class="${catBadgeClass} text-[10px] font-bold px-2.5 py-0.5 rounded-full">
+            <div class="flex items-center gap-2 flex-wrap">
+              ${sessionBadgeHeader}
+              <span class="${catBadgeClass} text-[11px] font-bold px-2.5 py-0.5 rounded-full">
                 ${primaryEvent.Kategori_Program}
               </span>
-              <span class="bg-slate-100 text-slate-700 text-[10px] font-semibold px-2.5 py-0.5 rounded-full">
+              <span class="bg-slate-100 text-slate-700 text-[11px] font-semibold px-2.5 py-0.5 rounded-full">
                 ${isEn ? `${primaryEvent.Daerah} District` : `Daerah ${primaryEvent.Daerah}`}
               </span>
             </div>
             ${statusBadge}
           </div>
 
-          <h2 class="text-base md:text-lg font-black text-slate-900 leading-snug">
-            ${primaryEvent.Sekolah || primaryEvent.Nama_Acara}
-          </h2>
-          <div class="flex items-center justify-between text-[11px] text-slate-500 font-medium flex-wrap gap-2">
-            <span class="flex items-center gap-1">
-              <span class="material-symbols-outlined text-[15px] text-slate-400">location_on</span>
-              <span>${primaryEvent.Tempat_Venue}</span>
-            </span>
-            <button type="button" onclick="window.open('${primaryEvent.Pautan_GPS_Maps || 'https://maps.google.com/?q=Brunei+Ministry+of+Education'}', '_blank')" class="text-[#006194] font-bold hover:underline flex items-center gap-0.5">
-              <span class="material-symbols-outlined text-[14px]">map</span>
-              <span>Google Maps</span>
-            </button>
+          <div>
+            <h2 class="text-lg md:text-2xl font-black text-slate-900 leading-snug">
+              ${primaryEvent.Sekolah || primaryEvent.Nama_Acara}
+            </h2>
+            <div class="flex items-center justify-between text-xs text-slate-500 font-medium flex-wrap gap-2 mt-1">
+              <span class="flex items-center gap-1">
+                <span class="material-symbols-outlined text-[16px] text-slate-400">location_on</span>
+                <span>${primaryEvent.Tempat_Venue}</span>
+              </span>
+              <button type="button" onclick="window.open('${primaryEvent.Pautan_GPS_Maps || 'https://maps.google.com/?q=Brunei+Ministry+of+Education'}', '_blank')" class="text-[#006194] font-bold hover:underline flex items-center gap-0.5">
+                <span class="material-symbols-outlined text-[15px]">map</span>
+                <span>Google Maps →</span>
+              </button>
+            </div>
           </div>
         </div>
 
         <!-- Butiran Logistik & Masa Utama (Grid 3 Item Padat) -->
-        <div class="p-4 md:p-5 grid grid-cols-1 sm:grid-cols-3 gap-2.5 bg-slate-50/60">
-          <div class="bg-white p-3 rounded-xl border border-slate-200/70 flex items-center gap-3">
-            <div class="w-9 h-9 rounded-lg bg-sky-50 text-[#006194] flex items-center justify-center shrink-0">
-              <span class="material-symbols-outlined text-[20px]">calendar_month</span>
+        <div class="p-4 md:p-6 grid grid-cols-1 sm:grid-cols-3 gap-3 bg-slate-50/70">
+          <div class="bg-white p-3.5 rounded-xl border border-slate-200/80 flex items-center gap-3 shadow-2xs">
+            <div class="w-10 h-10 rounded-xl bg-sky-50 text-[#006194] flex items-center justify-center shrink-0">
+              <span class="material-symbols-outlined text-[22px]">calendar_month</span>
             </div>
             <div class="flex flex-col min-w-0">
-              <span class="text-[10px] text-slate-400 font-medium">${isEn ? 'Date' : 'Tarikh Acara'}</span>
-              <span class="text-xs font-bold text-slate-800 truncate">${formatDisplayDate(primaryEvent.Tarikh_Paparan || primaryEvent.Tarikh_Mula, isEn)}</span>
+              <span class="text-[10px] text-slate-400 font-semibold uppercase tracking-wider">${isEn ? 'Date' : 'Tarikh Acara'}</span>
+              <span class="text-xs md:text-sm font-bold text-slate-900 truncate">${formatDisplayDate(primaryEvent.Tarikh_Paparan || primaryEvent.Tarikh_Mula, isEn)}</span>
             </div>
           </div>
 
-          <div class="bg-white p-3 rounded-xl border border-slate-200/70 flex items-center gap-3">
-            <div class="w-9 h-9 rounded-lg bg-teal-50 text-[#148e82] flex items-center justify-center shrink-0">
-              <span class="material-symbols-outlined text-[20px]">schedule</span>
+          <div class="bg-white p-3.5 rounded-xl border border-amber-200/90 bg-amber-50/40 flex items-center gap-3 shadow-2xs">
+            <div class="w-10 h-10 rounded-xl bg-amber-100 text-amber-800 flex items-center justify-center shrink-0">
+              <span class="material-symbols-outlined text-[22px]">alarm</span>
             </div>
             <div class="flex flex-col min-w-0">
-              <span class="text-[10px] text-slate-400 font-medium">${isEn ? 'Event Time' : 'Masa Acara'}</span>
-              <span class="text-xs font-bold ${isBelait ? 'text-amber-800' : 'text-slate-800'} truncate">${primaryEvent.Masa}</span>
+              <span class="text-[10px] text-amber-700 font-bold uppercase tracking-wider">${isEn ? 'Booth Setup' : 'Susun Meja Booth'}</span>
+              <span class="text-xs md:text-sm font-black text-amber-950 truncate">${setupTime}</span>
             </div>
           </div>
 
-          <div class="bg-white p-3 rounded-xl border border-amber-200/80 bg-amber-50/40 flex items-center gap-3">
-            <div class="w-9 h-9 rounded-lg bg-amber-100 text-amber-800 flex items-center justify-center shrink-0">
-              <span class="material-symbols-outlined text-[20px]">alarm</span>
+          <div class="bg-white p-3.5 rounded-xl border border-slate-200/80 flex items-center gap-3 shadow-2xs">
+            <div class="w-10 h-10 rounded-xl bg-teal-50 text-[#148e82] flex items-center justify-center shrink-0">
+              <span class="material-symbols-outlined text-[22px]">schedule</span>
             </div>
             <div class="flex flex-col min-w-0">
-              <span class="text-[10px] text-amber-700 font-semibold">${isEn ? 'Booth Setup' : 'Susun Meja Booth'}</span>
-              <span class="text-xs font-extrabold text-amber-900 truncate">${setupTime}</span>
+              <span class="text-[10px] text-slate-400 font-semibold uppercase tracking-wider">${isEn ? 'Session Hours' : 'Masa Program'}</span>
+              <span class="text-xs md:text-sm font-bold ${isBelait ? 'text-amber-800' : 'text-slate-900'} truncate">${primaryEvent.Masa}</span>
             </div>
           </div>
         </div>
 
         <!-- Panduan Ringkas Tempat Letak Kereta Agensi -->
-        <div class="px-4 md:px-5 py-2.5 bg-sky-50/80 border-t border-b border-sky-100 flex items-center justify-between gap-2 text-xs">
+        <div class="px-4 md:px-6 py-2.5 bg-sky-50/90 border-t border-b border-sky-100 flex items-center justify-between gap-2 text-xs">
           <div class="flex items-center gap-2 text-sky-900 font-medium truncate">
-            <span class="material-symbols-outlined text-[16px] text-sky-700 shrink-0">local_parking</span>
-            <span class="truncate">${isEn ? 'Agency Parking: Gate B (Dedicated Access & Block C)' : 'Parking Agensi: Pintu Pagar B (Pintu Khas & Blok C)'}</span>
+            <span class="material-symbols-outlined text-[17px] text-sky-700 shrink-0">local_parking</span>
+            <span class="truncate">${isEn ? 'Agency Dedicated Parking: Gate B (Block C Access)' : 'Parking Khas Agensi: Pintu Pagar B (Akses Blok C)'}</span>
           </div>
           <button type="button" onclick="openMapModal('parking')" class="text-[11px] font-bold text-sky-800 hover:underline shrink-0">
-            ${isEn ? 'View Guide →' : 'Papar Peta →'}
+            ${isEn ? 'Parking Guide →' : 'Papar Peta →'}
           </button>
         </div>
 
-        <!-- Bar Butang Aksi Pantas -->
-        <div class="p-4 md:p-5 flex items-center gap-2 flex-wrap">
-          <button onclick="navigateTo('rsvpForm', '${primaryEvent.Event_ID}')" class="flex-1 min-w-[180px] h-11 bg-gradient-to-r from-[#f59e0b] to-[#d97706] hover:from-[#d97706] hover:to-[#b45309] text-white font-bold text-xs rounded-xl shadow-sm hover:shadow flex items-center justify-center gap-1.5 transition-all">
-            <span class="material-symbols-outlined text-[18px]">how_to_reg</span>
-            <span>${(isAttending || isNotAttending) ? (isEn ? 'Update RSVP for this Session' : 'Kemaskini RSVP Sesi Ini') : (isEn ? 'Confirm Attendance (RSVP)' : 'Sahkan Kehadiran (RSVP)')}</span>
+        <!-- Bar Butang Aksi Utama: FOKUS KEPADA BORANG RSVP -->
+        <div class="p-4 md:p-6 bg-white flex items-center gap-2.5 flex-wrap">
+          <!-- Butang Utama: BORANG RSVP -->
+          <button onclick="navigateTo('rsvpForm', '${primaryEvent.Event_ID}')" class="flex-1 min-w-[220px] h-12 bg-gradient-to-r from-[#f59e0b] via-[#ea580c] to-[#d97706] hover:brightness-105 active:scale-98 text-white font-black text-xs md:text-sm rounded-xl shadow-md hover:shadow-lg flex items-center justify-center gap-2 transition-all">
+            <span class="material-symbols-outlined text-[20px]">edit_document</span>
+            <span>${(isAttending || isNotAttending) ? (isEn ? 'Update RSVP Form' : 'Kemaskini Borang RSVP') : (isEn ? 'Fill RSVP Form for this Session' : 'Isi Borang RSVP Sesi Ini')}</span>
           </button>
 
-          <button type="button" onclick="openMapModal('floorPlan')" class="h-11 px-3.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-bold text-xs flex items-center gap-1.5 shadow-2xs transition-colors shrink-0">
+          <!-- Butang Pembantu -->
+          <button type="button" onclick="openMapModal('floorPlan')" class="h-12 px-3.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-bold text-xs flex items-center gap-1.5 shadow-2xs transition-colors shrink-0">
             <span class="material-symbols-outlined text-[18px] text-teal-600">view_quilt</span>
             <span>${isEn ? 'Floor Plan' : 'Pelan Meja'}</span>
           </button>
 
-          <button onclick="openDocumentGeneratorModal()" class="h-11 px-3.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-bold text-xs flex items-center gap-1.5 shadow-2xs transition-colors shrink-0" title="${isEn ? 'Download Official QR Letter' : 'Muat Turun Surat Rasmi Ber-QR'}">
+          <button onclick="openDocumentGeneratorModal()" class="h-12 px-3.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-bold text-xs flex items-center gap-1.5 shadow-2xs transition-colors shrink-0" title="${isEn ? 'Official QR Letter' : 'Surat Rasmi Ber-QR'}">
             <span class="material-symbols-outlined text-[18px] text-[#006194]">description</span>
             <span>${isEn ? 'Letter' : 'Surat Rasmi'}</span>
           </button>
 
           ${(isAttending || isNotAttending) ? `
-            <button onclick="shareRsvpWhatsApp('${primaryEvent.Event_ID}')" class="h-11 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs flex items-center gap-1.5 shadow-2xs transition-all shrink-0" title="${isEn ? 'Send Notification to WhatsApp' : 'Hantar Notifikasi ke WhatsApp'}">
+            <button onclick="shareRsvpWhatsApp('${primaryEvent.Event_ID}')" class="h-12 px-3.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs flex items-center gap-1.5 shadow-2xs transition-all shrink-0" title="${isEn ? 'Send to WhatsApp' : 'Hantar ke WhatsApp'}">
               <span class="material-symbols-outlined text-[18px]">chat</span>
               <span class="hidden sm:inline">WhatsApp</span>
             </button>
@@ -950,7 +1146,7 @@ function renderHomeScreen(populateDropdown = true) {
     `;
   }
 
-  // 5. Render Takwim Penuh 32 Sesi
+  // 5. Render Takwim Penuh 31 Sesi (Carian)
   renderHomeScheduleList();
 }
 

@@ -571,26 +571,20 @@
               </div>
               <h1 id="homeAgencyName" class="text-xl md:text-3xl font-black text-white leading-tight mt-1">Universiti Brunei Darussalam</h1>
               <p id="homeWelcomeDesc" class="text-xs md:text-sm text-white/85 mt-1 hidden md:block">
-                Sesi Penyelarasan Takwim &amp; Logistik Program Hala Tuju &amp; FutureLink.
+                Unit Pendidikan Kerjaya • Jabatan Sekolah-Sekolah • Kementerian Pendidikan
               </p>
             </div>
 
-            <!-- Mini Kalendar Strip Dinamik (Desktop Sahaja) -->
-            <div class="hidden md:flex flex-col bg-black/20 backdrop-blur-md p-3 rounded-2xl md:min-w-[340px] border border-white/10 shadow-inner">
-              <div class="flex items-center justify-between pb-2 mb-2 border-b border-white/10 gap-2">
-                <div class="flex items-center gap-1">
-                  <button type="button" id="btnCalPrevWeek" onclick="navigateHomeCalendarWeek(-1)" class="w-6 h-6 rounded-lg bg-white/10 hover:bg-white/25 active:scale-95 text-white flex items-center justify-center transition-all text-xs font-bold" title="Minggu Sebelumnya">‹</button>
-                  <span id="homeMiniCalMonth" class="text-xs font-bold text-white tracking-wide px-1">Januari 2027</span>
-                  <button type="button" id="btnCalNextWeek" onclick="navigateHomeCalendarWeek(1)" class="w-6 h-6 rounded-lg bg-white/10 hover:bg-white/25 active:scale-95 text-white flex items-center justify-center transition-all text-xs font-bold" title="Minggu Seterusnya">›</button>
-                </div>
-                <div class="flex items-center gap-1.5">
-                  <span id="homeMiniCalWeek" class="bg-white/20 text-white text-[10px] font-bold px-2 py-0.5 rounded-full whitespace-nowrap">24 - 30 Jan</span>
-                  <button type="button" id="btnSyncCalToActive" onclick="syncCalendarToActiveEvent()" class="text-[10px] text-amber-300 hover:text-white underline font-semibold transition-colors shrink-0" title="Papar Minggu Sesi Terpilih">Sesi Ini</button>
-                </div>
-              </div>
-              <div id="homeMiniCalDaysContainer" class="grid grid-cols-7 gap-1 text-center">
-                <!-- Dijana dinamik oleh app.js -->
-              </div>
+            <!-- Butang Pantas Navigasi Kalendar & Borang RSVP (Desktop Header) -->
+            <div class="hidden md:flex items-center gap-2">
+              <button onclick="syncCalendarToActiveEvent()" class="px-3.5 py-2 rounded-xl bg-white/15 hover:bg-white/25 backdrop-blur-md text-white font-bold text-xs flex items-center gap-1.5 border border-white/20 transition-all shadow-sm">
+                <span class="material-symbols-outlined text-[17px]">calendar_today</span>
+                <span id="headerSyncCalText">Ke Sesi Terpilih</span>
+              </button>
+              <button onclick="navigateTo('rsvpForm', AppState.activeEvent ? AppState.activeEvent.Event_ID : null)" class="px-4 py-2 rounded-xl bg-[#f59e0b] hover:bg-[#d97706] text-slate-900 font-black text-xs flex items-center gap-1.5 shadow-md transition-all">
+                <span class="material-symbols-outlined text-[17px]">edit_document</span>
+                <span id="headerQuickRsvpText">Borang RSVP</span>
+              </button>
             </div>
           </div>
         </div>
@@ -637,32 +631,79 @@
         <div class="max-w-[1240px] mx-auto w-full px-4 md:px-0 pt-4 grid grid-cols-1 lg:grid-cols-12 gap-6">
 
           <!-- Kolum Utama Kiri (Desktop: 8 Kolum) -->
-          <div class="lg:col-span-8 flex flex-col gap-4">
+          <div class="lg:col-span-8 flex flex-col gap-5">
 
-            <!-- Bar Pemilih Sesi Sekolah (Kemas & Fokus) -->
-            <div class="bg-white p-3.5 md:p-4 rounded-2xl shadow-sm border border-slate-100 flex flex-col gap-2.5">
-              <div class="flex items-center justify-between">
-                <label for="homeSessionDropdown" class="text-xs font-bold text-slate-800 flex items-center gap-1.5">
-                  <span class="material-symbols-outlined text-[#148e82] text-[18px]">event_note</span>
-                  <span id="homeSessionSelectorText">Pilih Sesi Sekolah / Program</span>
-                </label>
-                <span id="homeOfficialTakwimBadge" class="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-100">Takwim Rasmi 2027</span>
+            <!-- 1. KAD ACARA HARI INI / SESI PILIHAN & BORANG RSVP (UTAMA) -->
+            <div id="homeHeroCardArea">
+              <!-- Dijana secara dinamik oleh app.js -->
+            </div>
+
+            <!-- 2. KALENDAR TAKWIM INTERAKTIF (MINGGUAN & BULANAN) -->
+            <div id="homeCalendarCard" class="bg-white rounded-2xl md:rounded-3xl p-4 md:p-5 shadow-sm border border-slate-100 flex flex-col gap-4">
+              <!-- Bar Kawalan Kalendar: Mod Mingguan/Bulanan & Navigasi -->
+              <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100">
+                <div class="flex items-center gap-2">
+                  <div class="w-8 h-8 rounded-xl bg-teal-50 text-[#148e82] flex items-center justify-center">
+                    <span class="material-symbols-outlined text-[18px]">calendar_month</span>
+                  </div>
+                  <div>
+                    <h3 id="homeCalendarTitle" class="text-xs md:text-sm font-bold text-slate-900 uppercase tracking-wider">Kalendar Takwim Sesi</h3>
+                    <p id="homeCalendarSubtitle" class="text-[11px] text-slate-500">Klik tarikh untuk paparkan acara &amp; borang RSVP</p>
+                  </div>
+                </div>
+
+                <!-- Togol Mod: Mingguan vs Bulanan -->
+                <div class="inline-flex p-1 bg-slate-100 rounded-xl gap-1 shrink-0">
+                  <button type="button" id="btnCalModeWeekly" onclick="switchCalendarViewMode('WEEKLY')" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-white text-slate-900 shadow-xs transition-all flex items-center gap-1">
+                    <span class="material-symbols-outlined text-[15px] text-[#148e82]">view_week</span>
+                    <span id="calModeWeeklyLabel">Mingguan</span>
+                  </button>
+                  <button type="button" id="btnCalModeMonthly" onclick="switchCalendarViewMode('MONTHLY')" class="px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-600 hover:text-slate-900 transition-all flex items-center gap-1">
+                    <span class="material-symbols-outlined text-[15px] text-slate-400">calendar_view_month</span>
+                    <span id="calModeMonthlyLabel">Bulanan</span>
+                  </button>
+                </div>
               </div>
 
-              <!-- Dropdown 31 Sesi Sekolah -->
-              <select id="homeSessionDropdown" onchange="selectActiveEvent(this.value)" class="w-full h-11 px-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-900 shadow-xs focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#148e82]/20">
-                <!-- Diisi dinamik oleh app.js -->
-              </select>
+              <!-- Bar Navigasi Bulan & Minggu -->
+              <div class="flex items-center justify-between bg-slate-50 p-2.5 rounded-xl border border-slate-100 gap-2">
+                <div class="flex items-center gap-1">
+                  <button type="button" id="btnCalPrev" onclick="navigateCalendar(-1)" class="w-8 h-8 rounded-lg bg-white hover:bg-slate-100 border border-slate-200 text-slate-700 font-bold flex items-center justify-center transition-all shadow-2xs" title="Sebelumnya">
+                    <span class="material-symbols-outlined text-[18px]">chevron_left</span>
+                  </button>
+                  <span id="homeCalendarMonthYearLabel" class="text-xs md:text-sm font-bold text-slate-800 px-2 tracking-wide">Januari 2027</span>
+                  <button type="button" id="btnCalNext" onclick="navigateCalendar(1)" class="w-8 h-8 rounded-lg bg-white hover:bg-slate-100 border border-slate-200 text-slate-700 font-bold flex items-center justify-center transition-all shadow-2xs" title="Seterusnya">
+                    <span class="material-symbols-outlined text-[18px]">chevron_right</span>
+                  </button>
+                </div>
 
-              <!-- Penapis Kategori Pantas (Hala Tuju & FutureLink) -->
-              <div class="flex items-center gap-1.5 overflow-x-auto pt-0.5 text-xs">
-                <button type="button" onclick="setHomeCategoryFilter('ALL')" id="filterCat_ALL" class="px-3 py-1 rounded-full text-xs font-bold bg-[#148e82] text-white shadow-xs shrink-0 transition-all">Semua (31)</button>
+                <div class="flex items-center gap-1.5">
+                  <span id="homeCalendarRangeBadge" class="bg-teal-50 text-[#148e82] text-[10px] font-bold px-2.5 py-1 rounded-full border border-teal-100 whitespace-nowrap">24 - 30 Jan</span>
+                  <button type="button" id="btnSyncCalToActive" onclick="syncCalendarToActiveEvent()" class="px-2.5 py-1 rounded-lg bg-white hover:bg-slate-100 border border-slate-200 text-[#148e82] text-[11px] font-bold transition-all shadow-2xs" title="Kembali ke Sesi Terpilih">
+                    Hari Ini / Sesi Terpilih
+                  </button>
+                </div>
+              </div>
+
+              <!-- Penapis Kategori Pantas Program -->
+              <div class="flex items-center gap-1.5 overflow-x-auto text-xs pt-1">
+                <button type="button" onclick="setHomeCategoryFilter('ALL')" id="filterCat_ALL" class="px-3 py-1 rounded-full text-xs font-bold bg-[#148e82] text-white shadow-xs shrink-0 transition-all">Semua Program (31)</button>
                 <button type="button" onclick="setHomeCategoryFilter('Program Hala Tuju')" id="filterCat_PHT" class="px-3 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 shrink-0 transition-all">Hala Tuju (27)</button>
                 <button type="button" onclick="setHomeCategoryFilter('Program FutureLink')" id="filterCat_FL" class="px-3 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 shrink-0 transition-all">FutureLink (4)</button>
               </div>
 
-              <!-- Elemen tersorok untuk mengekalkan keserasian skrip JS sedia ada -->
+              <!-- Kontainer Paparan Kalendar (Mingguan / Bulanan) -->
+              <div id="homeCalendarDisplayContainer" class="w-full transition-all">
+                <!-- Dijana dinamik oleh app.js mengikut mod Mingguan atau Bulanan -->
+              </div>
+
+              <!-- Elemen tersorok untuk keserasian fungsi JS lama -->
               <div class="hidden">
+                <div id="homeMiniCalDaysContainer"></div>
+                <span id="homeMiniCalMonth"></span>
+                <span id="homeMiniCalWeek"></span>
+                <button type="button" id="btnCalPrevWeek"></button>
+                <button type="button" id="btnCalNextWeek"></button>
                 <button type="button" onclick="setHomeDistrictFilter('ALL')" id="filterDist_ALL"></button>
                 <button type="button" onclick="setHomeDistrictFilter('Brunei Muara')" id="filterDist_BM"></button>
                 <button type="button" onclick="setHomeDistrictFilter('Tutong')" id="filterDist_Tutong"></button>
@@ -671,22 +712,17 @@
               </div>
             </div>
 
-            <!-- Kad Maklumat Acara Utama (Program Info Card) Container -->
-            <div id="homeHeroCardArea">
-              <!-- Diisi dinamik oleh app.js secara kemas tanpa imej stok yang berserabut -->
-            </div>
-
-            <!-- Seksyen Takwim Penuh 31 Sesi Sekolah (2027) -->
-            <div class="flex flex-col gap-3 pt-2">
+            <!-- 3. CARIAN & SENARAI LENGKAP 31 SESI SEKOLAH (BOLEH DILIPAT / COLLAPSIBLE) -->
+            <div class="bg-white rounded-2xl md:rounded-3xl p-4 md:p-5 shadow-sm border border-slate-100 flex flex-col gap-3">
               <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
-                <div class="flex items-center gap-1.5">
-                  <span class="w-2.5 h-2.5 rounded-full bg-[#148e82]"></span>
-                  <h3 id="homeScheduleHeaderTitle" class="text-xs md:text-sm font-bold uppercase tracking-wider text-slate-900">Jadual Takwim 31 Sesi Sekolah (2027)</h3>
+                <div class="flex items-center gap-2">
+                  <span class="material-symbols-outlined text-[18px] text-[#148e82]">format_list_bulleted</span>
+                  <h3 id="homeScheduleHeaderTitle" class="text-xs md:text-sm font-bold uppercase tracking-wider text-slate-900">Senarai Penuh 31 Sesi Takwim (2027)</h3>
                 </div>
 
                 <div class="relative flex items-center w-full sm:w-64">
                   <span class="material-symbols-outlined absolute left-2.5 text-slate-400 text-[16px]">search</span>
-                  <input type="text" id="homeScheduleSearch" oninput="renderHomeScheduleList()" placeholder="Cari sekolah, tarikh, daerah..." class="h-9 pl-8 pr-3 bg-white border border-slate-200 rounded-xl text-xs font-medium focus:outline-none focus:ring-2 focus:ring-[#148e82]/20 w-full shadow-2xs" />
+                  <input type="text" id="homeScheduleSearch" oninput="renderHomeScheduleList()" placeholder="Cari sekolah, tarikh, daerah..." class="h-9 pl-8 pr-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#148e82]/20 w-full shadow-2xs" />
                 </div>
               </div>
 
@@ -708,7 +744,7 @@
               </div>
 
               <!-- Senarai Kad Sesi Sekolah Interaktif (31 Sesi) -->
-              <div id="homeScheduleListContainer" class="flex flex-col gap-2.5">
+              <div id="homeScheduleListContainer" class="flex flex-col gap-2.5 max-h-[600px] overflow-y-auto pr-1">
                 <!-- Diisi dinamik oleh app.js mengikut 31 sesi sebenar -->
               </div>
             </div>

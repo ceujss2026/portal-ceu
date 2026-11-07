@@ -707,8 +707,26 @@ const I18N = {
     const mobileUnit = document.getElementById('homeMobileEmblemUnit');
     if (mobileUnit) mobileUnit.innerText = isEn ? 'MOE • CAREER UNIT' : 'KPM • UNIT KERJAYA';
 
+    const headerSyncCal = document.getElementById('headerSyncCalText');
+    if (headerSyncCal) headerSyncCal.innerText = isEn ? 'To Selected Session' : 'Ke Sesi Terpilih';
+
+    const headerQuickRsvp = document.getElementById('headerQuickRsvpText');
+    if (headerQuickRsvp) headerQuickRsvp.innerText = isEn ? 'RSVP Form' : 'Borang RSVP';
+
     const btnSyncCal = document.getElementById('btnSyncCalToActive');
-    if (btnSyncCal) btnSyncCal.innerText = isEn ? 'This Session' : 'Sesi Ini';
+    if (btnSyncCal) btnSyncCal.innerText = isEn ? 'Today / Selected Session' : 'Hari Ini / Sesi Terpilih';
+
+    const calTitle = document.getElementById('homeCalendarTitle');
+    if (calTitle) calTitle.innerText = isEn ? 'Session Takwim Calendar' : 'Kalendar Takwim Sesi';
+
+    const calSub = document.getElementById('homeCalendarSubtitle');
+    if (calSub) calSub.innerText = isEn ? 'Click any date to view session & RSVP form' : 'Klik tarikh untuk paparkan acara & borang RSVP';
+
+    const calModeW = document.getElementById('calModeWeeklyLabel');
+    if (calModeW) calModeW.innerText = isEn ? 'Weekly' : 'Mingguan';
+
+    const calModeM = document.getElementById('calModeMonthlyLabel');
+    if (calModeM) calModeM.innerText = isEn ? 'Monthly' : 'Bulanan';
 
     const hWelcome = document.getElementById('homeWelcomeBadge');
     if (hWelcome) hWelcome.innerText = isEn ? 'WELCOME • INVITED AGENCY' : 'SELAMAT DATANG • AGENSI JEMPUTAN';
@@ -717,7 +735,7 @@ const I18N = {
     if (hCountry) hCountry.innerText = isEn ? 'Brunei Darussalam' : 'Negara Brunei Darussalam';
 
     const hDesc = document.getElementById('homeWelcomeDesc');
-    if (hDesc) hDesc.innerText = isEn ? 'Calendar & Logistics Coordination Session for Program Hala Tuju & FutureLink.' : 'Sesi Penyelarasan Takwim & Logistik Program Hala Tuju & FutureLink.';
+    if (hDesc) hDesc.innerText = isEn ? 'Career Education Unit • Department of Schools • Ministry of Education' : 'Unit Pendidikan Kerjaya • Jabatan Sekolah-Sekolah • Kementerian Pendidikan';
 
     const mLabel1 = document.getElementById('homeMetricLabel1');
     if (mLabel1) mLabel1.innerText = isEn ? 'Official Takwim Sessions' : 'Jumlah Sesi Takwim';
