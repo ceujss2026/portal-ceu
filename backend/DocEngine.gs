@@ -52,7 +52,7 @@ function handleGenerateSuratJemputan_(data) {
     BIL_PLUG: rsvp.Bil_Plug || 0,
     JUMLAH_WAKIL: rsvp.Jumlah_Wakil || 0,
     KODE_VERIFIKASI: kodeVerifikasi,
-    PEGAWAI_PENGESAH: 'Pegawai Pendidikan Kerjaya, Unit Pendidikan Kerjaya'
+    PEGAWAI_PENGESAH: 'Unit Pendidikan Kerjaya'
   };
 
   // Rekodkan ke dalam sheet DE_Dokumen

@@ -2901,7 +2901,7 @@ function openDocumentGeneratorModal(agencyId = null, eventId = null) {
     BIL_KERUSI: rsvp.Bil_Kerusi || rsvp.bilKerusi || 2,
     BIL_PLUG: rsvp.Bil_Plug || rsvp.bilPlug || 1,
     JUMLAH_WAKIL: rsvp.Jumlah_Wakil || rsvp.jumlahWakil || 2,
-    PEGAWAI_PENGESAH: isEn ? 'Career Development Officer, CEU / JSS' : 'Pegawai Perkembangan Kerjaya CEU / JSS',
+    PEGAWAI_PENGESAH: isEn ? 'Career Education Unit' : 'Unit Pendidikan Kerjaya',
     KODE_VERIFIKASI: hmacCode
   };
 
@@ -2967,8 +2967,9 @@ function openDocumentGeneratorModal(agencyId = null, eventId = null) {
 
         <div class="flex justify-between items-end pt-4 font-sans">
           <div>
-            <p class="text-[10px] text-slate-500">Digitally signed:</p>
-            <p class="font-bold mt-1">${d.PEGAWAI_PENGESAH}</p>
+            <p class="text-[10px] text-slate-500 font-medium">Approved by:</p>
+            <p class="font-bold text-xs text-slate-900 mt-0.5">Career Education Unit</p>
+            <p class="text-[9px] text-slate-500">Department of Schools, Ministry of Education</p>
           </div>
           <div class="flex flex-col items-center">
             <div class="w-16 h-16 bg-white border border-slate-300 flex items-center justify-center p-0.5 rounded shadow-xs">
@@ -3019,8 +3020,9 @@ function openDocumentGeneratorModal(agencyId = null, eventId = null) {
 
         <div class="flex justify-between items-end pt-4 font-sans">
           <div>
-            <p class="text-[10px] text-slate-500">Ditandatangani secara digital:</p>
-            <p class="font-bold mt-1">${d.PEGAWAI_PENGESAH}</p>
+            <p class="text-[10px] text-slate-500 font-medium">Disahkan oleh:</p>
+            <p class="font-bold text-xs text-slate-900 mt-0.5">Unit Pendidikan Kerjaya</p>
+            <p class="text-[9px] text-slate-500">Jabatan Sekolah-Sekolah, Kementerian Pendidikan</p>
           </div>
           <div class="flex flex-col items-center">
             <div class="w-16 h-16 bg-white border border-slate-300 flex items-center justify-center p-0.5 rounded shadow-xs">
@@ -3085,6 +3087,7 @@ function checkUrlVerification() {
   const elAmenities = document.getElementById('verifyAmenities');
   const elPax = document.getElementById('verifyPax');
   const elHmac = document.getElementById('verifyHmacCode');
+  const elApprovedBy = document.getElementById('verifyApprovedBy');
   const elBtn = document.getElementById('verifyBtnDone');
 
   if (elTitle) elTitle.innerText = isEn ? 'Official QR Letter Verification' : 'Pengesahan Surat Rasmi Ber-QR';
@@ -3097,6 +3100,7 @@ function checkUrlVerification() {
   if (elAmenities) elAmenities.innerText = isEn ? `${meja} Table(s) · ${kerusi} Chair(s) · ${plug} Plug` : `${meja} Meja · ${kerusi} Kerusi · ${plug} Plug`;
   if (elPax) elPax.innerText = isEn ? `${wakil} Officer(s)` : `${wakil} Orang`;
   if (elHmac) elHmac.innerText = verifyCode;
+  if (elApprovedBy) elApprovedBy.innerText = isEn ? 'Approved by: Career Education Unit' : 'Disahkan oleh: Unit Pendidikan Kerjaya';
   if (elBtn) elBtn.innerText = isEn ? 'Close / Continue to Portal' : 'Selesai / Teruskan ke Portal';
 
   elModal.classList.add('active');
