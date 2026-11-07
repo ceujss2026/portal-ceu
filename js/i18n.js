@@ -729,13 +729,28 @@ const I18N = {
     if (calModeM) calModeM.innerText = isEn ? 'Monthly' : 'Bulanan';
 
     const hWelcome = document.getElementById('homeWelcomeBadge');
-    if (hWelcome) hWelcome.innerText = isEn ? 'WELCOME • INVITED AGENCY' : 'SELAMAT DATANG • AGENSI JEMPUTAN';
+    if (hWelcome) hWelcome.innerText = isEn ? 'PORTAL • INVITED AGENCY' : 'PORTAL • AGENSI JEMPUTAN';
 
     const hCountry = document.getElementById('homeCountryBadge');
     if (hCountry) hCountry.innerText = isEn ? 'Brunei Darussalam' : 'Negara Brunei Darussalam';
 
     const hDesc = document.getElementById('homeWelcomeDesc');
     if (hDesc) hDesc.innerText = isEn ? 'Career Education Unit • Department of Schools • Ministry of Education' : 'Unit Pendidikan Kerjaya • Jabatan Sekolah-Sekolah • Kementerian Pendidikan';
+
+    const headerLogout = document.getElementById('headerLogoutText');
+    if (headerLogout) headerLogout.innerText = isEn ? 'Log Out' : 'Log Keluar';
+
+    const titleToday = document.getElementById('titleTodayProgram');
+    if (titleToday) titleToday.innerText = isEn ? "Today's Program" : 'Program Hari Ini';
+
+    const selectedDateHeader = document.getElementById('selectedDateProgramHeader');
+    if (selectedDateHeader) selectedDateHeader.innerText = isEn ? 'Program on Selected Date' : 'Program Pada Tarikh Dipilih';
+
+    const footerLogout = document.getElementById('footerLogoutBtnText');
+    if (footerLogout) footerLogout.innerText = isEn ? 'Log Out from Portal' : 'Log Keluar dari Portal';
+
+    const rsvpSelectTitle = document.getElementById('rsvpSessionSelectTitle');
+    if (rsvpSelectTitle) rsvpSelectTitle.innerText = isEn ? 'Select School Session *' : 'Pilih Sesi Sekolah *';
 
     const mLabel1 = document.getElementById('homeMetricLabel1');
     if (mLabel1) mLabel1.innerText = isEn ? 'Official Takwim Sessions' : 'Jumlah Sesi Takwim';
