@@ -778,6 +778,10 @@
                   <span class="material-symbols-outlined text-teal-600 text-[18px]">chair</span>
                   <span id="amenityLi2">2 Kerusi pegawai pempamer agensi</span>
                 </li>
+                <li class="flex items-center gap-2 text-teal-800 font-semibold bg-teal-50/70 px-2 py-1 rounded-lg">
+                  <span class="material-symbols-outlined text-[#148e82] text-[18px]">alarm</span>
+                  <span id="amenityLiSetup">Waktu susun meja booth: 08:00 Pagi</span>
+                </li>
                 <li class="flex items-center gap-2">
                   <span class="material-symbols-outlined text-teal-600 text-[18px]">power</span>
                   <span id="amenityLi3">1 Soket plug elektrik (atas permintaan)</span>
@@ -847,6 +851,10 @@
             <div class="flex items-center gap-2">
               <span class="material-symbols-outlined text-teal-accent text-[18px]">schedule</span>
               <span id="detailsEventTime">08:00 Pagi — 04:30 Petang</span>
+            </div>
+            <div class="flex items-center gap-2 text-teal-900 font-semibold bg-teal-50/80 px-2.5 py-1 rounded-lg">
+              <span class="material-symbols-outlined text-teal-accent text-[18px]">alarm</span>
+              <span id="detailsEventBoothSetup">Susun Meja Booth: 08:00 Pagi</span>
             </div>
             <div class="flex items-center gap-2">
               <span class="material-symbols-outlined text-teal-accent text-[18px]">location_on</span>
@@ -1563,7 +1571,13 @@
             <!-- Masa Program -->
             <div class="flex flex-col gap-1.5">
               <label id="labelAdminInputMasa" class="font-bold text-slate-800">Masa Program *</label>
-              <input type="text" id="adminInputMasa" placeholder="cth: 08:00 - 16:30" class="w-full h-11 px-3.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold" required />
+              <input type="text" id="adminInputMasa" placeholder="cth: 09:00 - 11:30" class="w-full h-11 px-3.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold" required />
+            </div>
+
+            <!-- Waktu Susun Meja Booth -->
+            <div class="flex flex-col gap-1.5">
+              <label id="labelAdminInputWaktuSusun" class="font-bold text-slate-800">Waktu Susun Meja Booth</label>
+              <input type="text" id="adminInputWaktuSusun" placeholder="cth: 08:00 Pagi / 08:00 AM" value="08:00 Pagi" class="w-full h-11 px-3.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold" />
             </div>
 
             <!-- Tempat / Venue Sekolah -->
@@ -1664,7 +1678,7 @@
             <!-- Catatan Khas -->
             <div class="md:col-span-2 flex flex-col gap-1.5">
               <label id="labelAdminInputCatatanKhas" class="font-bold text-slate-800">Catatan Khas / Etika Pakaian Agensi</label>
-              <textarea id="adminInputCatatanKhas" rows="2" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs" placeholder="cth: Pakaian rasmi pejabat / kot. Meja boleh diatur seawal 06:45 pagi."></textarea>
+              <textarea id="adminInputCatatanKhas" rows="2" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs" placeholder="cth: Pakaian rasmi pejabat / kot. Meja boleh diatur seawal 08:00 pagi."></textarea>
             </div>
 
             <div class="md:col-span-2 pt-2 flex items-center justify-end gap-2">

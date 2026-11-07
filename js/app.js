@@ -1214,6 +1214,11 @@ function renderEventDetailsScreen(eventId) {
   if (venueEl) venueEl.innerText = ev.Tempat_Venue;
   if (dateEl) dateEl.innerText = formatDisplayDate(ev.Tarikh_Paparan || ev.Tarikh_Mula, isEn);
   if (timeEl) timeEl.innerText = ev.Masa;
+  const setupEl = document.getElementById('detailsEventBoothSetup');
+  if (setupEl) {
+    const setupTime = ev.Waktu_Susun_Meja || (isEn ? '08:00 AM' : '08:00 Pagi');
+    setupEl.innerText = (isEn ? 'Booth Setup Time: ' : 'Susun Meja Booth: ') + setupTime;
+  }
   if (notesEl) notesEl.innerText = ev.Catatan_Khas || (isEn ? 'Formal office attire / blazer. Exhibition table prepared by host school.' : 'Pakaian rasmi pejabat / kot. Meja pameran disediakan oleh sekolah.');
 
   if (gpsBtn) {
@@ -2573,6 +2578,7 @@ function populateAdminEventForm(eventId, skipListRerender = false) {
   setVal('adminInputKategori', ev.Kategori_Program || 'Program Hala Tuju');
   setVal('adminInputTarikhMula', ev.Tarikh_Mula);
   setVal('adminInputMasa', ev.Masa);
+  setVal('adminInputWaktuSusun', ev.Waktu_Susun_Meja || (isEn ? '08:00 AM' : '08:00 Pagi'));
   setVal('adminInputTempat', ev.Tempat_Venue);
   setVal('adminInputGps', ev.Pautan_GPS_Maps);
   setVal('adminInputPelanSekolah', ev.Pelan_Sekolah_URL || '');
@@ -2635,6 +2641,7 @@ async function handleSaveAdminEvent(event) {
   const kategori = document.getElementById('adminInputKategori')?.value || 'Program Hala Tuju';
   const tarikhMula = (document.getElementById('adminInputTarikhMula')?.value || '').trim();
   const masa = (document.getElementById('adminInputMasa')?.value || '').trim();
+  const waktuSusun = (document.getElementById('adminInputWaktuSusun')?.value || '').trim() || (isEn ? '08:00 AM' : '08:00 Pagi');
   const tempat = (document.getElementById('adminInputTempat')?.value || '').trim();
   const gps = (document.getElementById('adminInputGps')?.value || '').trim();
   const pelanSekolah = (document.getElementById('adminInputPelanSekolah')?.value || '').trim();
@@ -2659,6 +2666,8 @@ async function handleSaveAdminEvent(event) {
     tarikhTamat: tarikhMula,
     Masa: masa,
     masa: masa,
+    Waktu_Susun_Meja: waktuSusun,
+    waktuSusunMeja: waktuSusun,
     Tempat_Venue: tempat,
     tempatVenue: tempat,
     Pautan_GPS_Maps: gps,
@@ -2714,6 +2723,8 @@ async function handleSaveAdminEvent(event) {
       Tarikh_Paparan: tarikhMula,
       masa: masa,
       Masa: masa,
+      waktuSusunMeja: waktuSusun,
+      Waktu_Susun_Meja: waktuSusun,
       tempatVenue: tempat,
       Tempat_Venue: tempat,
       pautanGPS: gps,
@@ -2788,13 +2799,13 @@ function openMapModal(type) {
           </div>
         `}
         <div class="grid grid-cols-2 gap-2 text-xs">
-          <div class="p-2.5 rounded-lg bg-slate-50 border border-slate-100">
-            <span class="text-[10px] text-slate-400 block uppercase">${isEn ? 'Booth Setup Time' : 'Waktu Susun Meja'}</span>
-            <span class="font-bold text-slate-800">${isEn ? '07:00 AM' : '07:00 Pagi'}</span>
+          <div class="p-2.5 rounded-lg bg-teal-50 border border-teal-100">
+            <span class="text-[10px] text-teal-700 block uppercase font-bold">${isEn ? 'Booth Setup Time' : 'Waktu Susun Meja'}</span>
+            <span class="font-bold text-teal-950 text-xs">${ev.Waktu_Susun_Meja || (isEn ? '08:00 AM' : '08:00 Pagi')}</span>
           </div>
           <div class="p-2.5 rounded-lg bg-slate-50 border border-slate-100">
-            <span class="text-[10px] text-slate-400 block uppercase">${isEn ? 'Agency Entry Gate' : 'Pintu Masuk Agensi'}</span>
-            <span class="font-bold text-slate-800">${isEn ? 'Main Hall Entrance' : 'Pintu Utama Dewan'}</span>
+            <span class="text-[10px] text-slate-400 block uppercase font-bold">${isEn ? 'Agency Entry Gate' : 'Pintu Masuk Agensi'}</span>
+            <span class="font-bold text-slate-800 text-xs">${isEn ? 'Main Hall Entrance' : 'Pintu Utama Dewan'}</span>
           </div>
         </div>
       </div>
@@ -3046,6 +3057,7 @@ function normalizeEventData(ev) {
     Tarikh_Mula: ev.Tarikh_Mula || fb.Tarikh_Mula || '',
     Tarikh_Paparan: ev.Tarikh_Paparan || fb.Tarikh_Paparan || ev.Tarikh_Mula || fb.Tarikh_Mula,
     Masa: ev.Masa || fb.Masa || '09:00 - 11:30',
+    Waktu_Susun_Meja: ev.Waktu_Susun_Meja || fb.Waktu_Susun_Meja || '08:00 Pagi',
     Tempat_Venue: ev.Tempat_Venue || fb.Tempat_Venue || '',
     Pautan_GPS_Maps: ev.Pautan_GPS_Maps || fb.Pautan_GPS_Maps || '',
     Pelan_Sekolah_URL: ev.Pelan_Sekolah_URL || fb.Pelan_Sekolah_URL || '',

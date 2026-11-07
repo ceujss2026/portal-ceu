@@ -234,8 +234,9 @@ const I18N = {
       parkingInfoCardTitle: 'Maklumat & Arahan Tempat Letak Kereta',
       parkingInfoNoticeText: 'Pihak sekolah menyediakan maklumat bertulis bagi kemudahan tempat letak kereta wakil agensi seperti di bawah.',
       parkingPassStatusText: 'Status: Sah Berdaftar · 1 Petak Disediakan',
+      labelAdminInputWaktuSusun: 'Waktu Susun Meja Booth',
       labelAdminInputCatatanKhas: 'Catatan Khas / Etika Pakaian Agensi',
-      placeholderAdminInputCatatanKhas: 'cth: Pakaian rasmi pejabat / kot. Meja boleh diatur seawal 06:45 pagi.',
+      placeholderAdminInputCatatanKhas: 'cth: Pakaian rasmi pejabat / kot. Meja boleh diatur seawal 08:00 pagi.',
       btnSaveAdminEventText: 'Simpan Perubahan Acara & Peta',
 
       // Modals & Extras
@@ -497,8 +498,9 @@ const I18N = {
       parkingInfoCardTitle: 'Parking Instructions & Guidance',
       parkingInfoNoticeText: 'The host school provides written parking guidance for invited agency representatives as detailed below.',
       parkingPassStatusText: 'Status: Valid Registered · 1 Slot Allocated',
+      labelAdminInputWaktuSusun: 'Booth Setup Time',
       labelAdminInputCatatanKhas: 'Special Notes / Agency Dress Code',
-      placeholderAdminInputCatatanKhas: 'e.g., Formal office attire / blazer. Booth setup starts at 06:45 AM.',
+      placeholderAdminInputCatatanKhas: 'e.g., Formal office attire / blazer. Booth setup starts at 08:00 AM.',
       btnSaveAdminEventText: 'Save Event & Map Changes',
 
       // Modals & Extras
@@ -809,6 +811,8 @@ const I18N = {
     if (aLi1) aLi1.innerText = isEn ? '1 Standard Exhibition Table (covered)' : '1 Meja Pameran standard (beralas)';
     const aLi2 = document.getElementById('amenityLi2');
     if (aLi2) aLi2.innerText = isEn ? '2 Agency exhibitor chairs' : '2 Kerusi pegawai pempamer agensi';
+    const aLiSetup = document.getElementById('amenityLiSetup');
+    if (aLiSetup) aLiSetup.innerText = isEn ? 'Booth setup time: 08:00 AM' : 'Waktu susun meja booth: 08:00 Pagi';
     const aLi3 = document.getElementById('amenityLi3');
     if (aLi3) aLi3.innerText = isEn ? '1 Electrical extension plug (upon request)' : '1 Soket plug elektrik (atas permintaan)';
     const aLi4 = document.getElementById('amenityLi4');
@@ -1041,7 +1045,11 @@ const I18N = {
     const lAeTime = document.getElementById('labelAdminInputMasa');
     if (lAeTime) lAeTime.innerText = isEn ? 'Program Time *' : 'Masa Program *';
     const inAeTime = document.getElementById('adminInputMasa');
-    if (inAeTime) inAeTime.placeholder = isEn ? 'e.g., 08:00 - 16:30' : 'cth: 08:00 - 16:30';
+    if (inAeTime) inAeTime.placeholder = isEn ? 'e.g., 09:00 - 11:30' : 'cth: 09:00 - 11:30';
+    const lAeSetup = document.getElementById('labelAdminInputWaktuSusun');
+    if (lAeSetup) lAeSetup.innerText = isEn ? 'Booth Setup Time' : 'Waktu Susun Meja Booth';
+    const inAeSetup = document.getElementById('adminInputWaktuSusun');
+    if (inAeSetup) inAeSetup.placeholder = isEn ? 'e.g., 08:00 AM' : 'cth: 08:00 Pagi';
     const lAeVenue = document.getElementById('labelAdminInputTempat');
     if (lAeVenue) lAeVenue.innerText = isEn ? 'School Venue / Hall *' : 'Tempat / Venue Sekolah *';
     const inAeVenue = document.getElementById('adminInputTempat');
@@ -1082,7 +1090,7 @@ const I18N = {
     const lAeNotes = document.getElementById('labelAdminInputCatatanKhas');
     if (lAeNotes) lAeNotes.innerText = isEn ? 'Special Notes / Agency Dress Code' : 'Catatan Khas / Etika Pakaian Agensi';
     const inAeNotes = document.getElementById('adminInputCatatanKhas');
-    if (inAeNotes) inAeNotes.placeholder = isEn ? 'e.g., Formal office attire / blazer. Booth setup starts at 06:45 AM.' : 'cth: Pakaian rasmi pejabat / kot. Meja boleh diatur seawal 06:45 pagi.';
+    if (inAeNotes) inAeNotes.placeholder = isEn ? 'e.g., Formal office attire / blazer. Booth setup starts at 08:00 AM.' : 'cth: Pakaian rasmi pejabat / kot. Meja boleh diatur seawal 08:00 pagi.';
 
     const btnSaveAe = document.getElementById('btnSaveAdminEventText');
     if (btnSaveAe) btnSaveAe.innerText = isEn ? 'Save Event & Map Changes' : 'Simpan Perubahan Acara & Peta';
