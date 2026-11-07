@@ -1017,8 +1017,8 @@ function renderEventCardHtml(ev) {
           </div>
           <h4 class="text-xs md:text-sm font-bold text-slate-900 mt-1 leading-snug truncate">${ev.Sekolah || ev.Nama_Acara}</h4>
           <div class="flex items-center gap-2 text-[11px] text-slate-500 mt-0.5 flex-wrap">
-            <span>📅 ${formatDisplayDate(ev.Tarikh_Paparan || ev.Tarikh_Mula, isEn)}</span>
-            <span class="${isBelait ? 'font-bold text-amber-800' : ''}">🕒 ${ev.Masa}</span>
+            <span class="flex items-center gap-1"><span class="material-symbols-outlined text-[13px] text-slate-400">calendar_month</span><span>${formatDisplayDate(ev.Tarikh_Paparan || ev.Tarikh_Mula, isEn)}</span></span>
+            <span class="flex items-center gap-1 ${isBelait ? 'font-bold text-amber-800' : ''}"><span class="material-symbols-outlined text-[13px] text-slate-400">schedule</span><span>${ev.Masa}</span></span>
           </div>
           <span class="text-[11px] text-slate-600 truncate flex items-center gap-1 mt-0.5">
             <span class="material-symbols-outlined text-[13px] text-slate-400">location_on</span>
@@ -1253,8 +1253,8 @@ function switchRsvpSession(eventId, updateDropdown = true) {
   if (catEl) catEl.innerText = ev.Kategori_Program;
   if (distEl) distEl.innerText = isEn ? `${ev.Daerah} District` : 'Daerah ' + ev.Daerah;
   if (nameEl) nameEl.innerText = ev.Sekolah || ev.Nama_Acara;
-  if (dateEl) dateEl.innerText = '📅 ' + formatDisplayDate(ev.Tarikh_Paparan || ev.Tarikh_Mula, isEn);
-  if (timeEl) timeEl.innerText = '🕒 ' + ev.Masa;
+  if (dateEl) dateEl.innerHTML = `<span class="material-symbols-outlined text-[13px] text-slate-400">calendar_month</span><span>${formatDisplayDate(ev.Tarikh_Paparan || ev.Tarikh_Mula, isEn)}</span>`;
+  if (timeEl) timeEl.innerHTML = `<span class="material-symbols-outlined text-[13px] text-slate-400">schedule</span><span>${ev.Masa}</span>`;
   if (venueEl) venueEl.innerHTML = `<span class="material-symbols-outlined text-[13px] text-slate-400">location_on</span> ${ev.Tempat_Venue}`;
 
   // Semak jika sudah ada rekod RSVP sebelum ini bagi agensi ini dan sesi ini
@@ -1522,10 +1522,10 @@ Ministry of Education, Brunei Darussalam
 To: CEU Secretariat (+6738669690)
 Agency: *${user.namaAgensi}* (Code: ${user.id})
 
-📌 Event: *${ev.Nama_Acara}*
-📅 Date: *${displayDateStr}*
-⏰ Time: *${ev.Masa}*
-📍 Venue: *${ev.Tempat_Venue} (${ev.Daerah} District)*
+• Event: *${ev.Nama_Acara}*
+• Date: *${displayDateStr}*
+• Time: *${ev.Masa}*
+• Venue: *${ev.Tempat_Venue} (${ev.Daerah} District)*
 
 ATTENDANCE STATUS: *${isHadir ? 'ATTENDING (CONFIRMED)' : 'NOT ATTENDING (SCHEDULE CONSTRAINTS)'}*
 
@@ -1545,10 +1545,10 @@ Kementerian Pendidikan Negara Brunei Darussalam
 Kepada: Urus Setia UPK (+6738669690)
 Nama Agensi: *${user.namaAgensi}* (Kod: ${user.id})
 
-📌 Program: *${ev.Nama_Acara}*
-📅 Tarikh: *${ev.Tarikh_Paparan || ev.Tarikh_Mula}*
-⏰ Masa: *${ev.Masa}*
-📍 Tempat: *${ev.Tempat_Venue} (${ev.Daerah})*
+• Program: *${ev.Nama_Acara}*
+• Tarikh: *${ev.Tarikh_Paparan || ev.Tarikh_Mula}*
+• Masa: *${ev.Masa}*
+• Tempat: *${ev.Tempat_Venue} (${ev.Daerah})*
 
 STATUS KEHADIRAN: *${isHadir ? 'HADIR (MENYERTAI BOOTH)' : 'TIDAK HADIR (KEKANGAN JADUAL)'}*
 
@@ -1788,7 +1788,7 @@ function populateAdminSchoolSelector() {
     adminSelectedSchoolId = events[0] ? events[0].Event_ID : 'EVT-PHT-01';
   }
 
-  let html = `<option value="ALL" ${adminSelectedSchoolId === 'ALL' ? 'selected' : ''}>🌟 ${isEn ? 'All 31 Schools (Overall Summary)' : 'Semua 31 Sekolah / Sesi (Ringkasan Keseluruhan)'}</option>`;
+  let html = `<option value="ALL" ${adminSelectedSchoolId === 'ALL' ? 'selected' : ''}>${isEn ? 'All 31 Schools (Overall Summary)' : 'Semua 31 Sekolah / Sesi (Ringkasan Keseluruhan)'}</option>`;
 
   events.forEach((ev, idx) => {
     const isSel = (adminSelectedSchoolId === ev.Event_ID);
@@ -1880,15 +1880,15 @@ async function renderAdminDashboard() {
     if (catBadge) catBadge.innerText = isEn ? 'All Programs' : 'Semua Program';
     if (distBadge) distBadge.innerText = isEn ? '4 Districts (Nationwide)' : '4 Daerah (Seluruh Negara)';
     if (titleEl) titleEl.innerText = isEn ? 'Comprehensive Summary of 31 School Sessions' : 'Ringkasan Menyeluruh 31 Sesi Sekolah & Institusi';
-    if (dateEl) dateEl.innerText = '📅 Jan – Mei 2027';
-    if (timeEl) timeEl.innerText = '🕒 Pagi & Petang';
+    if (dateEl) dateEl.innerHTML = `<span class="material-symbols-outlined text-[13px] text-slate-400">calendar_month</span><span>Jan – Mei 2027</span>`;
+    if (timeEl) timeEl.innerHTML = `<span class="material-symbols-outlined text-[13px] text-slate-400">schedule</span><span>Pagi & Petang</span>`;
     if (venueEl) venueEl.innerHTML = `<span class="material-symbols-outlined text-[13px] text-slate-400">location_on</span>31 Dewan Sekolah & Institusi`;
   } else if (currentEvent) {
     if (catBadge) catBadge.innerText = currentEvent.Kategori_Program || 'Program Hala Tuju';
     if (distBadge) distBadge.innerText = (isEn ? `${currentEvent.Daerah} District` : `Daerah ${currentEvent.Daerah}`);
     if (titleEl) titleEl.innerText = currentEvent.Sekolah || currentEvent.Nama_Acara;
-    if (dateEl) dateEl.innerText = '📅 ' + formatDisplayDate(currentEvent.Tarikh_Paparan || currentEvent.Tarikh_Mula, isEn);
-    if (timeEl) timeEl.innerText = '🕒 ' + currentEvent.Masa;
+    if (dateEl) dateEl.innerHTML = `<span class="material-symbols-outlined text-[13px] text-slate-400">calendar_month</span><span>${formatDisplayDate(currentEvent.Tarikh_Paparan || currentEvent.Tarikh_Mula, isEn)}</span>`;
+    if (timeEl) timeEl.innerHTML = `<span class="material-symbols-outlined text-[13px] text-slate-400">schedule</span><span>${currentEvent.Masa}</span>`;
     if (venueEl) venueEl.innerHTML = `<span class="material-symbols-outlined text-[13px] text-slate-400">location_on</span>${currentEvent.Tempat_Venue}`;
   }
 
@@ -2218,8 +2218,8 @@ function renderAdminSchoolsGrid() {
             <div class="bg-gradient-to-r from-[#148e82] to-[#006194] h-2 rounded-full transition-all" style="width: ${percent}%"></div>
           </div>
           <div class="flex items-center justify-between text-[10px] text-slate-500 pt-0.5">
-            <span>🪑 ${totalMeja} ${isEn ? 'Tables' : 'Meja'} / ${totalKerusi} ${isEn ? 'Chairs' : 'Kerusi'}</span>
-            <span>⚡ ${totalPlug} Plug</span>
+            <span class="flex items-center gap-1"><span class="material-symbols-outlined text-[13px] text-slate-400">table_restaurant</span><span>${totalMeja} ${isEn ? 'Tables' : 'Meja'} / ${totalKerusi} ${isEn ? 'Chairs' : 'Kerusi'}</span></span>
+            <span class="flex items-center gap-1"><span class="material-symbols-outlined text-[13px] text-amber-500">power</span><span>${totalPlug} Plug</span></span>
           </div>
         </div>
 
@@ -2377,8 +2377,8 @@ function renderAdminEventsList(skipPopulate = false) {
           </div>
           <h4 class="text-xs font-bold text-slate-900 mt-1 leading-snug">${ev.Sekolah || ev.Nama_Acara}</h4>
           <div class="flex items-center gap-2 text-[11px] text-slate-500 mt-0.5 flex-wrap">
-            <span>📅 ${formatDisplayDate(ev.Tarikh_Paparan || ev.Tarikh_Mula, isEn)}</span>
-            <span class="${isBelait ? 'font-bold text-amber-800' : ''}">🕒 ${ev.Masa}</span>
+            <span class="flex items-center gap-1"><span class="material-symbols-outlined text-[13px] text-slate-400">calendar_month</span><span>${formatDisplayDate(ev.Tarikh_Paparan || ev.Tarikh_Mula, isEn)}</span></span>
+            <span class="flex items-center gap-1 ${isBelait ? 'font-bold text-amber-800' : ''}"><span class="material-symbols-outlined text-[13px] text-slate-400">schedule</span><span>${ev.Masa}</span></span>
             <span class="text-[10px] font-semibold bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded">${isEn ? `${ev.Daerah} District` : `Daerah ${ev.Daerah}`}</span>
           </div>
           <span class="text-[11px] text-slate-600 truncate flex items-center gap-1 mt-0.5">
@@ -3881,10 +3881,10 @@ Assalamu'alaikum Warahmatullahi Wabarakatuh,
 To: Liaison Officer of *${agency.namaAgensi || agency.nama}*
 
 We would like to gently remind your agency regarding RSVP confirmation & logistics coordination for:
-📌 *${ev.Nama_Acara}*
-📅 Date: *${formatDisplayDate(ev.Tarikh_Paparan || ev.Tarikh_Mula, isEn)}*
-⏰ Time: *${ev.Masa}*
-📍 Venue: *${ev.Tempat_Venue}*
+• Program: *${ev.Nama_Acara}*
+• Date: *${formatDisplayDate(ev.Tarikh_Paparan || ev.Tarikh_Mula, isEn)}*
+• Time: *${ev.Masa}*
+• Venue: *${ev.Tempat_Venue}*
 Current Agency Status: *${status}*
 
 Please visit the official portal to confirm exhibition tables & agency parking access:
@@ -3898,10 +3898,10 @@ Assalamu'alaikum Warahmatullahi Wabarakatuh,
 Kepada: Pegawai Perhubungan *${agency.namaAgensi || agency.nama}*
 
 Sukacita dimaklumkan mengenai pengesahan kehadiran (RSVP) & penyelarasan logistik bagi:
-📌 *${ev.Nama_Acara}*
-📅 Tarikh: *${ev.Tarikh_Paparan || ev.Tarikh_Mula}*
-⏰ Masa: *${ev.Masa}*
-📍 Venue: *${ev.Tempat_Venue}*
+• Program: *${ev.Nama_Acara}*
+• Tarikh: *${ev.Tarikh_Paparan || ev.Tarikh_Mula}*
+• Masa: *${ev.Masa}*
+• Venue: *${ev.Tempat_Venue}*
 Status Semasa Agensi: *${status}*
 
 Sila layari portal rasmi untuk mengesahkan permohonan meja pameran & pas parking agensi:
@@ -3952,7 +3952,7 @@ function getInAppNotifications() {
       read: !!an.read,
       actions: [
         { label: isEn ? 'View Agency RSVP →' : 'Lihat Rekod Agensi →', onclick: "navigateTo('admin')" },
-        { label: isEn ? 'WhatsApp Secretariat (+6738669690) 📲' : 'WhatsApp Urus Setia (+6738669690) 📲', onclick: "window.open('https://wa.me/6738669690', '_blank')" }
+        { label: isEn ? 'WhatsApp Secretariat (+6738669690)' : 'WhatsApp Urus Setia (+6738669690)', onclick: "window.open('https://wa.me/6738669690', '_blank')" }
       ]
     }));
     notifs = notifs.concat(adminNotifs);
@@ -3999,7 +3999,7 @@ function getInAppNotifications() {
         : ('Permohonan ' + (userRsvp.bilMeja || 1) + ' meja pameran dan ' + (userRsvp.bilKerusi || 2) + ' kerusi untuk ' + (user ? user.namaAgensi : 'Agensi') + ' telah disahkan sistem.'),
       type: 'success',
       actions: [
-        { label: isEn ? 'Share to WhatsApp (+6738669690) 📲' : 'Hantar ke WhatsApp (+6738669690) 📲', onclick: `shareRsvpWhatsApp('${ev.Event_ID}')` },
+        { label: isEn ? 'Share to WhatsApp (+6738669690)' : 'Hantar ke WhatsApp (+6738669690)', onclick: `shareRsvpWhatsApp('${ev.Event_ID}')` },
         { label: isEn ? 'View QR Letter →' : 'Papar Surat Ber-QR →', onclick: "openDocumentGeneratorModal()" }
       ]
     });

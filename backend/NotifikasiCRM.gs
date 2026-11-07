@@ -14,13 +14,13 @@ const NOTIF_EVENTS = {
     label: 'Pengesahan Kehadiran RSVP Diterima',
     wa: true, email: true,
     subjek: 'Pengesahan Kehadiran & Permohonan Logistik: {namaAcara}',
-    pesan: 'Assalamu\'alaikum dan Salam Sejahtera,\n\nKepada pihak *{namaAgensi}*,\nPengesahan RSVP bagi *{namaAcara}* telah selamat diterima sistem.\n\n📌 *Ringkasan Permohonan Dewan:*\n• Status: *{statusRsvp}*\n• Meja: {meja} unit\n• Kerusi: {kerusi} unit\n• Plug Elektrik: {plug} unit\n• Jumlah Wakil: {wakil} orang\n\nSila layari portal untuk menyemak Pelan Susun Atur Dewan & Peta Tempat Letak Kereta Agensi:\n{pautan}\n\nSekian, terima kasih.\n— *Unit Pendidikan Kerjaya (UPK), Jabatan Sekolah-Sekolah*'
+    pesan: 'Assalamu\'alaikum dan Salam Sejahtera,\n\nKepada pihak *{namaAgensi}*,\nPengesahan RSVP bagi *{namaAcara}* telah selamat diterima sistem.\n\n*Ringkasan Permohonan Dewan:*\n• Status: *{statusRsvp}*\n• Meja: {meja} unit\n• Kerusi: {kerusi} unit\n• Plug Elektrik: {plug} unit\n• Jumlah Wakil: {wakil} orang\n\nSila layari portal untuk menyemak Pelan Susun Atur Dewan & Peta Tempat Letak Kereta Agensi:\n{pautan}\n\nSekian, terima kasih.\n— *Unit Pendidikan Kerjaya (UPK), Jabatan Sekolah-Sekolah*'
   },
   PERINGATAN_H1: {
     label: 'Peringatan Acara H-1',
     wa: true, email: true,
     subjek: 'Peringatan H-1: {namaAcara} Berlangsung Esok',
-    pesan: 'Assalamu\'alaikum dan Salam Sejahtera,\n\nKepada pihak *{namaAgensi}*,\n\nPeringatan bahawa *{namaAcara}* akan berlangsung *ESOK*:\n📅 Tarikh: {tarikh}\n⏰ Masa: {masa}\n📍 Tempat: {tempat}\n\n🚗 *Panduan Parking Agensi:*\nSila masuk melalui Pintu Pagar B (Pagar Khas Agensi & VIP). Zon letak kereta adalah di Blok C.\n\nSemak semula pelan susun atur meja booth di Portal CEU:\n{pautan}\n\n— *Unit Pendidikan Kerjaya (UPK)*'
+    pesan: 'Assalamu\'alaikum dan Salam Sejahtera,\n\nKepada pihak *{namaAgensi}*,\n\nPeringatan bahawa *{namaAcara}* akan berlangsung *ESOK*:\n• Tarikh: {tarikh}\n• Masa: {masa}\n• Tempat: {tempat}\n\n*Panduan Parking Agensi:*\nSila masuk melalui Pintu Pagar B (Pagar Khas Agensi & VIP). Zon letak kereta adalah di Blok C.\n\nSemak semula pelan susun atur meja booth di Portal CEU:\n{pautan}\n\n— *Unit Pendidikan Kerjaya (UPK)*'
   },
   SURAT_TERBIT: {
     label: 'Surat Rasmi Diterbitkan',
