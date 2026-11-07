@@ -3,7 +3,7 @@
  * Unit Pendidikan Kerjaya (UPK / CEU), Jabatan Sekolah-Sekolah
  */
 
-const CACHE_NAME = 'ceu-pwa-v1.7';
+const CACHE_NAME = 'ceu-pwa-v2.0';
 const STATIC_ASSETS = [
   '/',
   './',
@@ -45,7 +45,10 @@ self.addEventListener('activate', (event) => {
     caches.keys().then((keys) => {
       return Promise.all(
         keys.map((key) => {
-          if (key !== CACHE_NAME) return caches.delete(key);
+          if (key !== CACHE_NAME) {
+            console.log('PWA SW: Purging old cache version:', key);
+            return caches.delete(key);
+          }
         })
       );
     })
@@ -56,24 +59,39 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url);
 
-  // Permintaan API Google Apps Script mestilah SENTIASA terus ke rangkaian (bebas cache basi)
+  // 1. Permintaan API Google Apps Script mestilah SENTIASA terus ke rangkaian
   if (url.origin.includes('script.google.com') || url.origin.includes('script.googleusercontent.com')) {
     event.respondWith(fetch(event.request));
     return;
   }
 
-  // Aset statis: Cache First, fallback ke Rangkaian
+  // 2. Permintaan navigasi HTML (Dokumen): Network First, fallback ke Cache
+  if (event.request.mode === 'navigate' || event.request.destination === 'document') {
+    event.respondWith(
+      fetch(event.request)
+        .then((networkResponse) => {
+          if (networkResponse && networkResponse.status === 200) {
+            const copy = networkResponse.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(event.request, copy));
+          }
+          return networkResponse;
+        })
+        .catch(() => caches.match('/') || caches.match('./index.html'))
+    );
+    return;
+  }
+
+  // 3. Aset statis (CSS, JS, Ikon): Network First dengan cache fallback
   event.respondWith(
-    caches.match(event.request).then((cachedResponse) => {
-      return cachedResponse || fetch(event.request).then((networkResponse) => {
-        return networkResponse;
-      }).catch(() => {
-        // Fallback jika offline
-        if (event.request.mode === 'navigate') {
-          return caches.match('./index.html');
+    fetch(event.request)
+      .then((networkResponse) => {
+        if (networkResponse && networkResponse.status === 200) {
+          const copy = networkResponse.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, copy));
         }
-      });
-    })
+        return networkResponse;
+      })
+      .catch(() => caches.match(event.request))
   );
 });
 

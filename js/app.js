@@ -400,9 +400,13 @@ function updateBottomNav(viewId) {
     }
   }
 
-  // Tunjukkan Nav yang sesuai mengikut lebar skrin (Bar Navigasi Bawah SENTIASA Aktif di Bawah Skrin)
+  // Tunjukkan Nav yang sesuai: Pada skrin borang (rsvpForm/adminEvents), sorokkan bar navigasi supaya butang Hantar bebas dari sebarang halangan
   const isDesktop = window.innerWidth >= 768;
-  if (bottomNav) bottomNav.style.display = 'block';
+  const isFormScreen = (viewId === 'rsvpForm' || viewId === 'adminEvents');
+  if (bottomNav) {
+    bottomNav.style.display = isFormScreen ? 'none' : 'block';
+  }
+
   if (isDesktop) {
     if (desktopNav) desktopNav.style.display = 'block';
     if (appHeader) appHeader.style.display = 'none';

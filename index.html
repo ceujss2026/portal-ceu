@@ -174,20 +174,25 @@
       }
     }
 
-    /* Bar Navigasi Bawah Sentiasa Kekal di Bawah Skrin (Fixed Bottom Nav) */
+    /* Bar Navigasi Bawah Sentiasa Terpateri Kemas di Bawah Skrin (Zero Extra Space) */
     #bottomNavBar {
       position: fixed !important;
       bottom: 0 !important;
       left: 0 !important;
       right: 0 !important;
       width: 100% !important;
-      z-index: 50 !important;
-      background-color: rgba(255, 255, 255, 0.96) !important;
+      height: 60px !important;
+      min-height: 60px !important;
+      max-height: 60px !important;
+      z-index: 40 !important;
+      background-color: rgba(255, 255, 255, 0.98) !important;
       backdrop-filter: blur(12px) !important;
       -webkit-backdrop-filter: blur(12px) !important;
       border-top: 1px solid rgba(226, 232, 240, 0.9) !important;
-      box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.06) !important;
-      padding-bottom: max(env(safe-area-inset-bottom, 0px), 4px) !important;
+      box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.04) !important;
+      padding: 0 !important;
+      margin: 0 !important;
+      overflow: hidden !important;
     }
 
     /* Skrin Lebar untuk Pentadbir di Komputer (Admin View) */
@@ -880,7 +885,7 @@
       <!-- ======================================== -->
       <!-- SKRIN 04: BORANG RSVP & LOGISTIK        -->
       <!-- ======================================== -->
-      <section id="screen_rsvpForm" class="view-screen pt-16 md:pt-6 pb-36 md:pb-24 px-4 md:px-6 max-w-4xl mx-auto w-full flex flex-col gap-4">
+      <section id="screen_rsvpForm" class="view-screen pt-16 md:pt-6 pb-24 md:pb-16 px-4 md:px-6 max-w-4xl mx-auto w-full flex flex-col gap-4">
         <div class="flex items-center gap-2">
           <button onclick="navigateTo('home')" class="p-2 rounded-xl bg-surface-container text-on-surface hover:bg-slate-200">
             <span class="material-symbols-outlined text-[20px]">arrow_back</span>
@@ -1060,8 +1065,8 @@
             <label for="checkDeclaration" id="labelDeclaration">Pihak agensi mengesahkan maklumat permohonan logistik ini adalah muktamad.</label>
           </div>
 
-          <!-- Bar Aksi Butang Hantar / Kemaskini (Sentiasa Kelihatan / Sticky) -->
-          <div class="sticky bottom-16 md:bottom-3 z-30 pt-3 pb-2 bg-white/95 backdrop-blur-md -mx-4 px-4 border-t border-slate-200/80 flex items-center gap-2.5 shadow-[0_-4px_20px_rgba(0,0,0,0.08)] rounded-b-2xl">
+          <!-- Bar Aksi Butang Hantar / Kemaskini (Bebas Halangan) -->
+          <div class="pt-4 pb-1 border-t border-slate-100 flex items-center gap-3 mt-4">
             <button type="button" id="btnCancelRsvp" onclick="navigateTo('home')" class="w-1/3 h-12 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl text-xs flex items-center justify-center gap-1.5 transition-all">
               <span class="material-symbols-outlined text-[18px]">arrow_back</span>
               <span id="btnCancelRsvpText">Batal</span>
@@ -1859,13 +1864,26 @@
   <script src="js/i18n.js"></script>
   <script src="js/app.js"></script>
 
-  <!-- PWA & APK Service Worker Registration -->
+  <!-- PWA & APK Service Worker Registration with Auto-Update -->
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
         navigator.serviceWorker.register('./sw.js')
           .then((reg) => {
             console.log('PWA Service Worker registered:', reg.scope);
+            // Segera semak kemaskini versi baharu dari pelayan
+            reg.update().catch(() => {});
+            reg.onupdatefound = () => {
+              const installingWorker = reg.installing;
+              if (installingWorker) {
+                installingWorker.onstatechange = () => {
+                  if (installingWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                    console.log('PWA Service Worker updated, reloading...');
+                    window.location.reload();
+                  }
+                };
+              }
+            };
           })
           .catch((err) => {
             console.warn('PWA Service Worker registration failed:', err);
