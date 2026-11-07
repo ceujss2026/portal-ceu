@@ -7,11 +7,27 @@
   "scope": "./",
   "display": "standalone",
   "display_override": [
+    "tabbed",
     "window-controls-overlay",
     "standalone",
     "minimal-ui",
     "browser"
   ],
+  "tab_strip": {
+    "home_tab": {
+      "scope_patterns": [
+        {
+          "pathname": "/*"
+        }
+      ]
+    },
+    "new_tab_button": {
+      "url": "./index.html#home"
+    }
+  },
+  "note_taking": {
+    "new_note_url": "./index.html#note"
+  },
   "orientation": "portrait-primary",
   "background_color": "#f8fafc",
   "theme_color": "#006194",
