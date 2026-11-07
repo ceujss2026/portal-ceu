@@ -2905,6 +2905,24 @@ function openDocumentGeneratorModal(agencyId = null, eventId = null) {
     KODE_VERIFIKASI: hmacCode
   };
 
+  const baseUrl = (window.location.origin && window.location.origin !== 'null') 
+    ? (window.location.origin + window.location.pathname) 
+    : 'https://rsvp-ceu.vercel.app/';
+  const verifyParams = new URLSearchParams({
+    verify: d.KODE_VERIFIKASI,
+    ref: d.NOMOR,
+    agency: d.NAMA_AGENSI,
+    event: d.NAMA_ACARA,
+    date: d.TARIKH_ACARA,
+    status: d.STATUS_RSVP,
+    meja: d.BIL_MEJA,
+    kerusi: d.BIL_KERUSI,
+    plug: d.BIL_PLUG,
+    wakil: d.JUMLAH_WAKIL
+  });
+  const verifyUrl = `${baseUrl}?${verifyParams.toString()}`;
+  const qrImgUrl = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&margin=2&data=${encodeURIComponent(verifyUrl)}`;
+
   const modal = document.getElementById('docEngineModal');
   const previewArea = document.getElementById('docPreviewArea');
 
@@ -2953,10 +2971,11 @@ function openDocumentGeneratorModal(agencyId = null, eventId = null) {
             <p class="font-bold mt-1">${d.PEGAWAI_PENGESAH}</p>
           </div>
           <div class="flex flex-col items-center">
-            <div class="w-16 h-16 bg-slate-100 border border-dashed border-slate-400 flex items-center justify-center p-1 rounded">
-              <span class="material-symbols-outlined text-[36px] text-slate-700">qr_code_2</span>
+            <div class="w-16 h-16 bg-white border border-slate-300 flex items-center justify-center p-0.5 rounded shadow-xs">
+              <img src="${qrImgUrl}" alt="Security QR Code" class="w-full h-full object-contain" />
             </div>
             <span class="text-[9px] font-mono text-slate-500 mt-0.5">CODE: ${String(d.KODE_VERIFIKASI).slice(0, 8)}</span>
+            <span class="text-[8px] font-sans text-emerald-600 font-bold">Scan to Verify</span>
           </div>
         </div>
       </div>
@@ -3004,10 +3023,11 @@ function openDocumentGeneratorModal(agencyId = null, eventId = null) {
             <p class="font-bold mt-1">${d.PEGAWAI_PENGESAH}</p>
           </div>
           <div class="flex flex-col items-center">
-            <div class="w-16 h-16 bg-slate-100 border border-dashed border-slate-400 flex items-center justify-center p-1 rounded">
-              <span class="material-symbols-outlined text-[36px] text-slate-700">qr_code_2</span>
+            <div class="w-16 h-16 bg-white border border-slate-300 flex items-center justify-center p-0.5 rounded shadow-xs">
+              <img src="${qrImgUrl}" alt="Kod QR Keselamatan" class="w-full h-full object-contain" />
             </div>
             <span class="text-[9px] font-mono text-slate-500 mt-0.5">KOD: ${String(d.KODE_VERIFIKASI).slice(0, 8)}</span>
+            <span class="text-[8px] font-sans text-emerald-600 font-bold">Imbas untuk Sahkan</span>
           </div>
         </div>
       </div>
@@ -3034,6 +3054,62 @@ function openDocumentGeneratorModal(agencyId = null, eventId = null) {
 function closeDocModal() {
   const modal = document.getElementById('docEngineModal');
   if (modal) modal.classList.remove('active');
+}
+
+function checkUrlVerification() {
+  const params = new URLSearchParams(window.location.search);
+  const verifyCode = params.get('verify');
+  if (!verifyCode) return;
+
+  const isEn = typeof I18N !== 'undefined' && I18N.currentLang === 'EN';
+  const agencyName = params.get('agency') || (isEn ? 'Invited Agency' : 'Agensi Jemputan');
+  const refNo = params.get('ref') || `CEU/JSS/VERIFY/${verifyCode}`;
+  const eventName = params.get('event') || (isEn ? 'Career Education Program' : 'Program Pendidikan Kerjaya');
+  const eventDate = params.get('date') || '-';
+  const status = params.get('status') || (isEn ? 'Confirmed Attending' : 'Hadir (Disahkan)');
+  const meja = params.get('meja') || 1;
+  const kerusi = params.get('kerusi') || 2;
+  const plug = params.get('plug') || 1;
+  const wakil = params.get('wakil') || 2;
+
+  const elModal = document.getElementById('docVerificationModal');
+  if (!elModal) return;
+
+  const elTitle = document.getElementById('verifyModalTitle');
+  const elSub = document.getElementById('verifyModalSubtitle');
+  const elAgency = document.getElementById('verifyAgencyName');
+  const elRef = document.getElementById('verifyRefNo');
+  const elEvent = document.getElementById('verifyEventName');
+  const elDate = document.getElementById('verifyEventDate');
+  const elStatus = document.getElementById('verifyStatus');
+  const elAmenities = document.getElementById('verifyAmenities');
+  const elPax = document.getElementById('verifyPax');
+  const elHmac = document.getElementById('verifyHmacCode');
+  const elBtn = document.getElementById('verifyBtnDone');
+
+  if (elTitle) elTitle.innerText = isEn ? 'Official QR Letter Verification' : 'Pengesahan Surat Rasmi Ber-QR';
+  if (elSub) elSub.innerHTML = `<span class="material-symbols-outlined text-[14px]">check_circle</span><span>${isEn ? 'Official & Validated Document' : 'Dokumen Sah & Berdaftar Rasmi'}</span>`;
+  if (elAgency) elAgency.innerText = agencyName;
+  if (elRef) elRef.innerText = (isEn ? 'Ref: ' : 'Ruj: ') + refNo;
+  if (elEvent) elEvent.innerText = eventName;
+  if (elDate) elDate.innerText = eventDate;
+  if (elStatus) elStatus.innerText = status;
+  if (elAmenities) elAmenities.innerText = isEn ? `${meja} Table(s) · ${kerusi} Chair(s) · ${plug} Plug` : `${meja} Meja · ${kerusi} Kerusi · ${plug} Plug`;
+  if (elPax) elPax.innerText = isEn ? `${wakil} Officer(s)` : `${wakil} Orang`;
+  if (elHmac) elHmac.innerText = verifyCode;
+  if (elBtn) elBtn.innerText = isEn ? 'Close / Continue to Portal' : 'Selesai / Teruskan ke Portal';
+
+  elModal.classList.add('active');
+}
+
+function closeVerificationModal() {
+  const elModal = document.getElementById('docVerificationModal');
+  if (elModal) elModal.classList.remove('active');
+  // Bersihkan parameter query dari address bar browser tanpa reload
+  if (window.history && window.history.replaceState) {
+    const cleanUrl = window.location.pathname + window.location.hash;
+    window.history.replaceState({}, document.title, cleanUrl);
+  }
 }
 
 // ============================================
@@ -4275,6 +4351,9 @@ window.addEventListener('DOMContentLoaded', () => {
 
   // Aktifkan pemicu PWA Install
   setupPwaInstallPrompt();
+
+  // Semak jika pengguna mengimbas Kod QR verifikasi surat rasmi
+  checkUrlVerification();
 
   // Tangani hash navigation awal
   const hash = window.location.hash.replace('#', '') || (AppState.currentUser ? (AppState.currentUser.role === 'ADMIN' ? 'admin' : 'home') : 'login');
