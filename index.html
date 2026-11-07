@@ -295,6 +295,12 @@
             </div>
           </div>
 
+          <!-- PWA Install Button (Desktop/Laptop) -->
+          <button id="btnPwaInstallDesktop" onclick="triggerPwaInstall()" class="hidden items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gradient-to-r from-[#0284c7] to-[#006194] text-white text-xs font-bold shadow-sm hover:brightness-110 active:scale-95 transition-all" title="Pasang RSVP CEU ke Desktop/Laptop">
+            <span class="material-symbols-outlined text-[16px]">install_desktop</span>
+            <span>Pasang App</span>
+          </button>
+
           <!-- Logout Button -->
           <button id="btnLogoutDesktop" onclick="logoutUser()" class="p-2 rounded-xl text-rose-600 hover:bg-rose-50 transition-colors" title="Log Keluar">
             <span class="material-symbols-outlined text-[20px]">logout</span>
@@ -1764,6 +1770,66 @@
           </button>
         </div>
       </div>
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- KOMPONEN PWA: INSTALL BANNER & MODAL iOS   -->
+  <!-- ========================================== -->
+  <!-- PWA Install Banner (Terapung Pantas di Mobile & Desktop) -->
+  <div id="pwaInstallBanner" class="hidden fixed bottom-20 md:bottom-6 right-4 left-4 md:left-auto md:w-96 z-50 bg-white/95 backdrop-blur-md rounded-2xl shadow-2xl border border-slate-200/90 p-4 transition-all transform duration-300">
+    <div class="flex items-start gap-3">
+      <img src="img/logo.png" alt="RSVP CEU" class="w-12 h-12 rounded-xl object-contain bg-slate-50 p-1 border border-slate-200/60 shadow-sm flex-shrink-0" />
+      <div class="flex-1 min-w-0">
+        <h4 class="text-xs font-extrabold text-slate-800 flex items-center gap-1.5">
+          <span>Pasang RSVP CEU</span>
+          <span class="inline-block w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+        </h4>
+        <p class="text-[11px] text-slate-600 leading-tight mt-0.5">
+          Pasang ke Skrin Utama untuk akses pantas luar talian, skrin penuh & bebas bar alamat.
+        </p>
+        <div class="flex items-center gap-2 mt-2.5">
+          <button id="btnPwaInstallAction" onclick="triggerPwaInstall()" class="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-[#006194] to-[#148e82] text-white text-xs font-bold shadow-sm hover:brightness-110 active:scale-95 transition-all">
+            Pasang Sekarang
+          </button>
+          <button onclick="dismissPwaInstallBanner()" class="px-2.5 py-1.5 text-xs text-slate-500 hover:text-slate-700 font-medium transition-colors">
+            Nanti
+          </button>
+        </div>
+      </div>
+      <button onclick="dismissPwaInstallBanner()" class="text-slate-400 hover:text-slate-600 p-1 -mr-1 -mt-1" title="Tutup">
+        <span class="material-symbols-outlined text-[16px]">close</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Panduan Pemasangan iOS Safari (Add to Home Screen) -->
+  <div id="pwaIosModal" class="hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-end sm:items-center justify-center p-4">
+    <div class="w-full max-w-sm bg-white rounded-3xl p-6 shadow-2xl border border-slate-200 text-center animate-slide-up">
+      <div class="w-14 h-14 mx-auto rounded-2xl bg-slate-50 p-1.5 border border-slate-200/70 shadow-sm flex items-center justify-center mb-3">
+        <img src="img/logo.png" alt="RSVP CEU" class="w-full h-full object-contain" />
+      </div>
+      <h3 class="text-base font-extrabold text-slate-800">Pasang pada iPhone / iPad</h3>
+      <p class="text-xs text-slate-600 mt-1 mb-4 leading-relaxed">
+        Untuk menambah aplikasi RSVP CEU ke Skrin Utama peranti Apple anda:
+      </p>
+      <div class="space-y-3 text-left bg-slate-50 p-3.5 rounded-2xl border border-slate-200/70 text-xs text-slate-700">
+        <div class="flex items-center gap-2.5">
+          <span class="w-6 h-6 rounded-full bg-[#006194] text-white font-bold text-[11px] flex items-center justify-center flex-shrink-0">1</span>
+          <span>Tekan butang <strong>Kongsi (Share)</strong> <span class="material-symbols-outlined text-[15px] inline align-text-bottom text-[#006194]">ios_share</span> di menu bar bawah Safari.</span>
+        </div>
+        <div class="flex items-center gap-2.5">
+          <span class="w-6 h-6 rounded-full bg-[#006194] text-white font-bold text-[11px] flex items-center justify-center flex-shrink-0">2</span>
+          <span>Skrol ke bawah lalu tekan <strong>'Tambah ke Skrin Utama' (Add to Home Screen)</strong> <span class="material-symbols-outlined text-[15px] inline align-text-bottom text-[#006194]">add_box</span>.</span>
+        </div>
+        <div class="flex items-center gap-2.5">
+          <span class="w-6 h-6 rounded-full bg-[#006194] text-white font-bold text-[11px] flex items-center justify-center flex-shrink-0">3</span>
+          <span>Tekan <strong>Tambah (Add)</strong> di penjuru atas kanan.</span>
+        </div>
+      </div>
+      <button onclick="closeIosInstallModal()" class="w-full mt-4 py-2.5 rounded-xl bg-[#006194] text-white text-xs font-bold hover:bg-[#004b73] transition-colors">
+        Faham, Tutup
+      </button>
     </div>
   </div>
 

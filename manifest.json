@@ -1,5 +1,5 @@
 {
-  "id": "/",
+  "id": "./index.html",
   "name": "RSVP CEU",
   "short_name": "RSVP CEU",
   "description": "Sistem Pengesahan Kehadiran RSVP & Penyelarasan Logistik Program Hala Tuju & FutureLink - Unit Pendidikan Kerjaya, Jabatan Sekolah-Sekolah, Kementerian Pendidikan Brunei Darussalam",
@@ -52,7 +52,7 @@
     },
     {
       "src": "./screenshot-mobile.png",
-      "sizes": "720x1280",
+      "sizes": "375x812",
       "type": "image/png",
       "form_factor": "narrow",
       "label": "Antara Muka Telefon Pintar RSVP CEU"

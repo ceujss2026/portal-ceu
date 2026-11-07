@@ -3994,6 +3994,9 @@ window.addEventListener('DOMContentLoaded', () => {
   // Pastikan data RSVP bersepadu disemai dengan teratur
   ensureInitialRsvpsSeeded();
 
+  // Aktifkan pemicu PWA Install
+  setupPwaInstallPrompt();
+
   // Tangani hash navigation awal
   const hash = window.location.hash.replace('#', '') || (AppState.currentUser ? (AppState.currentUser.role === 'ADMIN' ? 'admin' : 'home') : 'login');
   navigateTo(hash);
@@ -4004,3 +4007,76 @@ window.addEventListener('DOMContentLoaded', () => {
     fetchInitialDataSilently();
   }
 });
+
+// ============================================
+// 14. PWA INSTALLATION PROMPT & OFFLINE UX
+// ============================================
+let deferredInstallPrompt = null;
+
+function setupPwaInstallPrompt() {
+  if (typeof window === 'undefined') return;
+
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredInstallPrompt = e;
+
+    // Jika pengguna pernah menutup banner dalam sesi ini, simpan dalam ingatan
+    if (sessionStorage.getItem('ceu_pwa_dismissed') === 'true') return;
+
+    const banner = document.getElementById('pwaInstallBanner');
+    if (banner) banner.classList.remove('hidden');
+
+    const desktopBtn = document.getElementById('btnPwaInstallDesktop');
+    if (desktopBtn) {
+      desktopBtn.classList.remove('hidden');
+      desktopBtn.classList.add('inline-flex');
+    }
+  });
+
+  window.addEventListener('appinstalled', () => {
+    deferredInstallPrompt = null;
+    const banner = document.getElementById('pwaInstallBanner');
+    if (banner) banner.classList.add('hidden');
+    const desktopBtn = document.getElementById('btnPwaInstallDesktop');
+    if (desktopBtn) desktopBtn.classList.add('hidden');
+    const isEn = typeof I18N !== 'undefined' && I18N.currentLang === 'EN';
+    showToast(isEn ? 'RSVP CEU successfully installed to your Home Screen!' : 'RSVP CEU berjaya dipasang pada Skrin Utama anda!', 'info');
+  });
+}
+
+function triggerPwaInstall() {
+  if (deferredInstallPrompt) {
+    deferredInstallPrompt.prompt();
+    deferredInstallPrompt.userChoice.then((choiceResult) => {
+      if (choiceResult && choiceResult.outcome === 'accepted') {
+        const banner = document.getElementById('pwaInstallBanner');
+        if (banner) banner.classList.add('hidden');
+      }
+      deferredInstallPrompt = null;
+    });
+  } else {
+    const isIos = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+    if (isIos) {
+      showIosInstallModal();
+    } else {
+      const isEn = typeof I18N !== 'undefined' && I18N.currentLang === 'EN';
+      showToast(isEn ? 'Use your browser menu to "Install App" or "Add to Home Screen".' : 'Sila gunakan menu pelayar untuk "Pasang Aplikasi" atau "Tambah ke Skrin Utama".', 'info');
+    }
+  }
+}
+
+function dismissPwaInstallBanner() {
+  const banner = document.getElementById('pwaInstallBanner');
+  if (banner) banner.classList.add('hidden');
+  sessionStorage.setItem('ceu_pwa_dismissed', 'true');
+}
+
+function showIosInstallModal() {
+  const modal = document.getElementById('pwaIosModal');
+  if (modal) modal.classList.remove('hidden');
+}
+
+function closeIosInstallModal() {
+  const modal = document.getElementById('pwaIosModal');
+  if (modal) modal.classList.add('hidden');
+}

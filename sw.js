@@ -3,7 +3,7 @@
  * Unit Pendidikan Kerjaya (UPK / CEU), Jabatan Sekolah-Sekolah
  */
 
-const CACHE_NAME = 'ceu-pwa-v1.3';
+const CACHE_NAME = 'ceu-pwa-v1.5';
 const STATIC_ASSETS = [
   './',
   './index.html',
@@ -22,7 +22,15 @@ const STATIC_ASSETS = [
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => cache.addAll(STATIC_ASSETS))
+    caches.open(CACHE_NAME).then(async (cache) => {
+      for (const asset of STATIC_ASSETS) {
+        try {
+          await cache.add(asset);
+        } catch (e) {
+          console.warn('PWA SW: Asset cache skipped:', asset);
+        }
+      }
+    })
   );
   self.skipWaiting();
 });
