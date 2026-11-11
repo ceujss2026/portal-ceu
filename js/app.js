@@ -65,7 +65,7 @@
       navRsvp: 'RSVP',
       navArchive: 'Minit & Persuratan',
       navNotif: 'Notifikasi',
-      navAdmin: 'Pentadbir',
+      navAdmin: 'UPK',
       navProfile: 'Profil',
 
       // Home
@@ -625,7 +625,6 @@
     adminData: null,
     selectedEventForRsvp: null,
     activeEventFilter: 'all',
-    activeRsvpFilter: 'all',
     activeMemoCategory: 'Semua',
     activeDistrictFilter: 'Semua',
     selectedCalendarDate: null,
@@ -634,16 +633,11 @@
   };
 
   // ==========================================================================
-  // HELPER: PENENTUAN PERANAN PENTADBIR & JEMPUTAN ACARA
+  // HELPER: PENENTUAN JEMPUTAN ACARA (MOD KUMPULAN VS INDIVIDU)
   // ==========================================================================
-  function isUserAdmin(user) {
-    if (!user) return false;
-    return String(user.role || '').trim().toLowerCase() === 'admin';
-  }
-
   function isUserInvitedToEvent(event, user) {
     if (!user) return false;
-    if (isUserAdmin(user)) return true;
+    if (user.role === 'Admin') return true;
     const myEmail = String(user.email || '').toLowerCase().trim();
     const mode = String(event.target_mode || event.targetMode || 'group').toLowerCase();
 
@@ -1277,7 +1271,10 @@
         setTimeout(async () => {
           const res = await api('biometricLogin', { email: email });
           if (res && res.success) {
-            saveActiveSession(res.token, res.user);
+            State.token = res.token;
+            State.currentUser = res.user;
+            localStorage.setItem('ceu_tok', res.token);
+            localStorage.setItem('ceu_user', JSON.stringify(res.user));
             localStorage.setItem('ceu_bio_token', res.token);
             localStorage.setItem('ceu_bio_user', JSON.stringify(res.user));
             showToast((State.lang === 'en' ? 'Biometric verified! Welcome ' : 'Biometrik disahkan! Selamat datang ') + res.user.name, 'success');
@@ -1374,7 +1371,10 @@
     showToast(State.lang === 'en' ? 'Biometric verified. Authenticating...' : 'Biometrik disahkan. Menyemak sesi...', 'info');
     const res = await api('biometricLogin', { token: tokenToVerify });
     if (res && res.success) {
-      saveActiveSession(res.token, res.user);
+      State.token = res.token;
+      State.currentUser = res.user;
+      localStorage.setItem('ceu_tok', res.token);
+      localStorage.setItem('ceu_user', JSON.stringify(res.user));
       // Kemas kini token biometrik yang disegarkan
       localStorage.setItem('ceu_bio_token', res.token);
       localStorage.setItem('ceu_bio_user', JSON.stringify(res.user));
@@ -1688,8 +1688,6 @@
 
     if (viewName === 'auth') updateBiometricUI();
     if (viewName === 'home') renderHomeView();
-    if (viewName === 'calendar') renderCalendarView();
-    if (viewName === 'rsvp') renderRsvpView();
     if (viewName === 'archive') renderArchiveView();
     if (viewName === 'notif') renderNotifView();
     if (viewName === 'profile') renderProfileView();
@@ -1716,23 +1714,8 @@
     }
     nav.style.display = 'block';
 
+    const isUrgent = State.currentView === 'home' && State.activeEventFilter === 'urgent';
     const isAdmin = State.currentUser && State.currentUser.role === 'Admin';
-
-    // Selaraskan Butang Tengah (Item 3): Guru -> RSVP, Pentadbir -> Mod Admin
-    const centerBtn = document.getElementById('nav-btn-center');
-    const centerIcon = document.getElementById('nav-center-icon');
-    const centerLabel = document.getElementById('nav-center-label');
-    if (centerBtn && centerIcon && centerLabel) {
-      if (isAdmin) {
-        centerBtn.dataset.tab = 'admin';
-        centerIcon.textContent = 'shield_person';
-        centerLabel.textContent = State.lang === 'en' ? 'Admin' : 'Pentadbir';
-      } else {
-        centerBtn.dataset.tab = 'rsvp';
-        centerIcon.textContent = 'how_to_reg';
-        centerLabel.textContent = 'RSVP';
-      }
-    }
 
     // Update 5th button label/icon
     const profileIcon = document.getElementById('nav-profile-icon');
@@ -1748,13 +1731,11 @@
       const tab = btn.dataset.tab;
       let isActive = false;
       if (tab === 'home') {
-        isActive = State.currentView === 'home';
+        isActive = (State.currentView === 'home' && !isUrgent && !State.selectedCalendarDate) || (State.currentView === 'admin-dashboard');
       } else if (tab === 'takwim' || tab === 'calendar') {
-        isActive = State.currentView === 'calendar';
+        isActive = State.currentView === 'home' && Boolean(State.selectedCalendarDate);
       } else if (tab === 'rsvp') {
-        isActive = State.currentView === 'rsvp';
-      } else if (tab === 'admin') {
-        isActive = State.currentView === 'admin-dashboard' || State.currentView === 'admin-rsvp' || State.currentView === 'admin-events';
+        isActive = State.currentView === 'admin-rsvp' || (State.currentView === 'home' && isUrgent);
       } else if (tab === 'archive') {
         isActive = State.currentView === 'archive';
       } else if (tab === 'notif') {
@@ -1790,12 +1771,6 @@
     const res = await api('boot', {});
     if (res && res.success && res.data) {
       State.currentUser = res.data.user || State.currentUser;
-      if (State.currentUser) {
-        // Hormati peranan dari pangkalan data (lalai: Guru bagi upk@ds.edu.moe.bn)
-        const isAdm = isUserAdmin(State.currentUser);
-        State.currentUser.role = isAdm ? 'Admin' : (State.currentUser.role || 'Guru');
-        try { sessionStorage.setItem('ceu_user', JSON.stringify(State.currentUser)); } catch(e) {}
-      }
       State.events = (res.data.events || []).map(e => {
         if (e.event_date) e.event_date = normalizeDateISOToYMD(e.event_date);
         return e;
@@ -1834,103 +1809,14 @@
   }
 
   // ==========================================================================
-  // NOTIFIKASI PINTAR & LENCANA (SMART NOTIFICATIONS & BADGE HELPER)
+  // NOTIFICATION BADGE HELPER
   // ==========================================================================
-  function getEffectiveNotifications() {
-    const rawNotifs = Array.isArray(State.notifications) ? [...State.notifications] : [];
-    const user = State.currentUser;
-    const myEmail = user ? String(user.email || '').toLowerCase().trim() : '';
-
-    const now = new Date();
-    const todayYMD = normalizeDateISOToYMD(now);
-    const tomorrow = new Date(now);
-    tomorrow.setDate(now.getDate() + 1);
-    const tomorrowYMD = normalizeDateISOToYMD(tomorrow);
-
-    // 1. Acara yang berlangsung ESOK atau HARI INI (Peringatan Kehadiran H-1 & H-0)
-    const upcomingTomorrowEvents = (State.events || [])
-      .filter(e => (e.status || 'Published').toLowerCase() !== 'draft')
-      .filter(e => isUserInvitedToEvent(e, user))
-      .filter(e => {
-        const evDate = normalizeDateISOToYMD(e.event_date);
-        return evDate === tomorrowYMD || evDate === todayYMD;
-      })
-      .filter(e => {
-        // Tapis jika guru telah menjawab "Tidak Hadir"
-        const userRsvp = (State.rsvps || []).find(r => r.event_id === e.event_id && String(r.user_email || '').toLowerCase().trim() === myEmail);
-        if (userRsvp) {
-          const resp = String(userRsvp.response_status || '').toLowerCase();
-          if (resp.includes('tidak')) return false;
-        }
-        return true;
-      });
-
-    const tomorrowNotifs = upcomingTomorrowEvents.map(e => {
-      const isToday = normalizeDateISOToYMD(e.event_date) === todayYMD;
-      const eventTitle = (State.lang === 'en' && e.title_en) ? e.title_en : (e.title_bm || e.title || 'Program Kerjaya');
-      const eventDate = formatEventDateClean(e.event_date);
-      const timeStr = formatTime12H(e.start_time);
-      const labelWhen = isToday ? (State.lang === 'en' ? 'Today' : 'Hari Ini') : (State.lang === 'en' ? 'Tomorrow' : 'Esok');
-
-      return {
-        notif_id: 'TOMORROW-' + e.event_id,
-        eventId: e.event_id,
-        isTomorrowReminder: true,
-        title_bm: '🔔 Peringatan Kehadiran (' + labelWhen + '): ' + (e.title_bm || e.title || eventTitle),
-        title_en: '🔔 Attendance Reminder (' + labelWhen + '): ' + (e.title_en || e.title_bm || eventTitle),
-        content_bm: 'Program "' + eventTitle + '" akan berlangsung ' + labelWhen.toLowerCase() + ' (' + eventDate + ') pada jam ' + timeStr + ' di ' + (e.venue || 'Dewan Persidangan JSS') + '. Sila hadir tepat pada masanya.',
-        content_en: 'Event "' + eventTitle + '" will take place ' + labelWhen.toLowerCase() + ' (' + eventDate + ') at ' + timeStr + ' at ' + (e.venue || 'JSS Conference Hall') + '. Please attend promptly.',
-        type: 'Urgent',
-        sent_at: labelWhen,
-        is_read: false
-      };
-    });
-
-    // 2. Semak program yang memerlukan RSVP dan pengguna belum memberi maklum balas
-    const pendingEvents = (State.events || [])
-      .filter(e => (e.status || 'Published').toLowerCase() !== 'draft')
-      .filter(e => isUserInvitedToEvent(e, user))
-      .filter(e => {
-        const req = String(e.rsvp_required || e.rsvpRequired || '').toLowerCase();
-        return req === 'true' || req === '1' || req === 'ya';
-      })
-      .filter(e => {
-        const userRsvp = (State.rsvps || []).find(r => r.event_id === e.event_id && String(r.user_email || '').toLowerCase().trim() === myEmail);
-        return !userRsvp;
-      });
-
-    // Cipta kad notifikasi Peringatan Mesra RSVP dinamik bagi program yang masih perlukan tindakan
-    const reminderNotifs = pendingEvents.map(e => {
-      const eventTitle = (State.lang === 'en' && e.title_en) ? e.title_en : (e.title_bm || e.title || 'Program Kerjaya');
-      const eventDate = formatEventDateClean(e.event_date);
-      const timeStr = formatTime12H(e.start_time);
-      return {
-        notif_id: 'REMINDER-' + e.event_id,
-        eventId: e.event_id,
-        title_bm: 'Peringatan Mesra: Tarikh Akhir RSVP ' + (e.title_bm || e.title || eventTitle),
-        title_en: 'Friendly Reminder: RSVP Deadline for ' + (e.title_en || e.title_bm || e.title || eventTitle),
-        content_bm: 'Awda belum mengesahkan kehadiran bagi program ini (' + eventDate + ', ' + timeStr + ' di ' + (e.venue || 'Dalam Talian') + '). Sila buat pengesahan kehadiran atau lantik wakil sekolah Awda segera.',
-        content_en: 'You have not confirmed your attendance for this event (' + eventDate + ', ' + timeStr + ' at ' + (e.venue || 'Online') + '). Please confirm your attendance or appoint a substitute promptly.',
-        type: 'Urgent',
-        sent_at: State.lang === 'en' ? 'Action Required' : 'Tindakan Diperlukan',
-        is_read: false,
-        isPendingRsvpReminder: true
-      };
-    });
-
-    const dynamicIds = new Set([...tomorrowNotifs.map(r => r.notif_id), ...reminderNotifs.map(r => r.notif_id)]);
-    const otherNotifs = rawNotifs.filter(n => !dynamicIds.has(n.notif_id));
-
-    return [...tomorrowNotifs, ...reminderNotifs, ...otherNotifs];
-  }
-
   function updateNotifBadge() {
     let readIds = [];
     try { readIds = JSON.parse(localStorage.getItem('ceu_read_notifs') || '[]'); } catch(e) {}
     let unreadCount = 0;
-    const notifs = getEffectiveNotifications();
-    notifs.forEach(n => {
-      if (readIds.includes(n.notif_id) && !n.isPendingRsvpReminder) {
+    (State.notifications || []).forEach(n => {
+      if (readIds.includes(n.notif_id)) {
         n.is_read = true;
       }
       if (!n.is_read) unreadCount++;
@@ -2162,169 +2048,29 @@
   const renderMonthlyCalendar = renderCalendar;
 
   // ==========================================================================
-  // 8. RENDER PAPARAN HOME (BERANDA UTAMA GURU)
+  // 8. RENDER PAPARAN HOME (TAKWIN GURU)
   // ==========================================================================
   function setEventFilter(filterName) {
     State.activeEventFilter = filterName;
+    State.selectedCalendarDate = null; // Buka kunci tarikh kalendar jika pengguna menukar penapis utama
     updateNavActiveTabs();
 
     // Selaraskan gaya pil penapis
     document.querySelectorAll('.event-filter-pill').forEach(pill => {
       const isMatch = pill.dataset.filter === filterName;
-      pill.classList.toggle('bg-primary-container', isMatch);
-      pill.classList.toggle('text-on-primary', isMatch);
-      pill.classList.toggle('bg-surface-container-lowest', !isMatch);
+      pill.classList.toggle('bg-primary', isMatch);
+      pill.classList.toggle('text-white', isMatch);
+      pill.classList.toggle('bg-surface-container', !isMatch);
       pill.classList.toggle('text-on-surface-variant', !isMatch);
     });
 
     renderHomeView();
   }
 
-  function renderEventCardHtml(ev) {
-    const userRsvp = State.rsvps.find(r => r.event_id === ev.event_id);
-    const isPending = !userRsvp;
-    let statusBadge = '';
-    if (userRsvp) {
-      const st = (userRsvp.response_status || '').toLowerCase();
-      if (st.includes('hadir') && !st.includes('tidak')) {
-        statusBadge = `<span class="bg-primary-container text-on-primary px-3 py-1 rounded-full font-label-pill text-[11px] font-bold flex items-center gap-1.5 shadow-sm"><span class="w-1.5 h-1.5 rounded-full bg-white"></span>${I18N[State.lang].badgeAttending}</span>`;
-      } else if (st.includes('wakil')) {
-        statusBadge = `<span class="bg-surface-container-high text-on-surface px-3 py-1 rounded-full font-label-pill text-[11px] font-bold flex items-center gap-1.5"><span class="material-symbols-outlined text-[15px] text-secondary">sync_alt</span>${I18N[State.lang].badgeRep}</span>`;
-      } else {
-        statusBadge = `<span class="bg-error-container text-on-error-container px-3 py-1 rounded-full font-label-pill text-[11px] font-bold">${I18N[State.lang].badgeAbsent}</span>`;
-      }
-    } else {
-      statusBadge = `<span class="bg-secondary-container text-on-secondary-container px-3 py-1 rounded-full font-label-pill text-[11px] font-bold flex items-center gap-1 shadow-sm"><span class="material-symbols-outlined text-[14px]" style="font-variation-settings: 'FILL' 1;">priority_high</span>${I18N[State.lang].badgePending}</span>`;
-    }
-
-    const title = (State.lang === 'en' && ev.title_en) ? ev.title_en : ev.title_bm;
-    return `
-      <article class="bg-surface-container-lowest rounded-2xl p-4 shadow-[0_8px_24px_rgba(29,120,120,0.08)] flex flex-col gap-3 relative border border-outline-variant/30 transition-all hover:shadow-md">
-        <!-- Header row of Card -->
-        <div class="flex items-start justify-between gap-2">
-          <div class="flex flex-wrap items-center gap-1.5">
-            ${statusBadge}
-            ${ev.rsvp_deadline && isPending ? `
-              <span class="bg-error-container text-on-error-container px-2.5 py-0.5 rounded-full font-caption text-[10px] font-semibold">
-                ${I18N[State.lang].deadline}: ${ev.rsvp_deadline.replace('T', ' ')}
-              </span>
-            ` : ''}
-          </div>
-          <span class="font-label-sm text-xs text-on-surface-variant font-medium flex items-center gap-1">
-            <span class="material-symbols-outlined text-sm text-primary">event</span>
-            ${formatEventDateClean(ev.event_date)}
-          </span>
-        </div>
-
-        <!-- Event Details & Title -->
-        <div class="flex flex-col gap-0.5">
-          <span class="font-caption text-[11px] uppercase tracking-wider text-primary font-bold">
-            ${ev.summary || 'Jabatan Sekolah-Sekolah • Unit CEU'}
-          </span>
-          <h2 class="font-headline-md text-base sm:text-lg font-bold text-on-surface leading-snug">
-            ${title}
-          </h2>
-        </div>
-
-        <!-- Schedule Micro-Info Strip (Gaya 16061) -->
-        <div class="grid grid-cols-2 gap-2 bg-surface-container-low p-2.5 rounded-xl text-on-surface text-xs">
-          <div class="flex items-center gap-2">
-            <div class="w-7 h-7 rounded-full bg-surface-container-lowest flex items-center justify-center text-primary shadow-xs shrink-0">
-              <span class="material-symbols-outlined text-[16px]">schedule</span>
-            </div>
-            <div class="flex flex-col min-w-0">
-              <span class="font-caption text-[10px] text-on-surface-variant">${I18N[State.lang].timeLabel}</span>
-              <span class="font-label-md font-semibold truncate">${formatTime12H(ev.start_time)} - ${formatTime12H(ev.end_time)}</span>
-            </div>
-          </div>
-          <div class="flex items-center gap-2">
-            <div class="w-7 h-7 rounded-full bg-surface-container-lowest flex items-center justify-center text-secondary shadow-xs shrink-0">
-              <span class="material-symbols-outlined text-[16px]">location_on</span>
-            </div>
-            <div class="flex flex-col min-w-0">
-              <span class="font-caption text-[10px] text-on-surface-variant">${I18N[State.lang].venueLabel}</span>
-              ${ev.venue && !ev.venue.toLowerCase().includes('talian') && !ev.venue.toLowerCase().includes('online') && !ev.venue.toLowerCase().includes('meet') ? `
-                <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(ev.venue)}" target="_blank" rel="noopener noreferrer" class="font-label-md font-semibold truncate text-primary hover:underline flex items-center gap-1 group/map" title="${State.lang === 'en' ? 'Open in Google Maps' : 'Buka di Google Maps'}">
-                  <span class="truncate">${ev.venue}</span>
-                  <span class="material-symbols-outlined text-[13px] opacity-70 group-hover/map:opacity-100 shrink-0">open_in_new</span>
-                </a>
-              ` : `
-                <span class="font-label-md font-semibold truncate">${ev.venue || I18N[State.lang].onlineVenue}</span>
-              `}
-            </div>
-          </div>
-        </div>
-
-        <!-- Call to Action Controls -->
-        <div class="flex items-center gap-2 pt-1">
-          <button class="btn-open-rsvp flex-1 h-12 bg-secondary-container hover:bg-secondary-fixed text-on-secondary-container rounded-full font-label-lg text-xs sm:text-sm font-bold flex items-center justify-center gap-2 shadow-[0_6px_16px_rgba(252,183,38,0.35)] transition-all active:scale-[0.98] cursor-pointer" data-id="${ev.event_id}">
-            <span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 1;">check_circle</span>
-            <span>${userRsvp ? I18N[State.lang].updateRsvpBtn : I18N[State.lang].respondRsvpBtn}</span>
-          </button>
-          ${ev.meeting_link ? `
-            <a href="${ev.meeting_link}" target="_blank" class="h-12 px-4 rounded-full bg-surface-container-high hover:bg-surface-variant text-primary font-bold text-xs sm:text-sm flex items-center justify-center gap-1.5 transition-colors cursor-pointer">
-              <span class="material-symbols-outlined text-[18px]">videocam</span>
-              <span>Meet</span>
-            </a>
-          ` : ''}
-          ${(State.currentUser && State.currentUser.role === 'Admin') ? `
-            <button type="button" class="btn-edit-event w-12 h-12 rounded-full bg-surface-container-low text-primary hover:bg-primary hover:text-white flex items-center justify-center transition-all cursor-pointer" data-id="${ev.event_id}" title="Sunting Acara">
-              <span class="material-symbols-outlined text-[18px]">edit</span>
-            </button>
-            <button type="button" class="btn-delete-event w-12 h-12 rounded-full bg-surface-container-low text-error hover:bg-error hover:text-white flex items-center justify-center transition-all cursor-pointer" data-id="${ev.event_id}" title="Padam Acara">
-              <span class="material-symbols-outlined text-[18px]">delete</span>
-            </button>
-          ` : ''}
-        </div>
-      </article>
-    `;
-  }
-
-  function attachEventCardListeners(container) {
-    if (!container) return;
-    container.querySelectorAll('.btn-open-rsvp').forEach(btn => {
-      btn.addEventListener('click', () => {
-        openRsvpModal(btn.dataset.id);
-      });
-    });
-
-    container.querySelectorAll('.btn-edit-event').forEach(btn => {
-      btn.addEventListener('click', () => {
-        window.editEvent(btn.dataset.id);
-      });
-    });
-
-    container.querySelectorAll('.btn-delete-event').forEach(btn => {
-      btn.addEventListener('click', async () => {
-        const eventId = btn.dataset.id;
-        const conf = confirm(State.lang === 'en' ? 'Are you sure you want to delete this event? This action cannot be undone.' : 'Adakah Awda pasti ingin memadamkan acara ini? Tindakan ini tidak boleh diundur.');
-        if (!conf) return;
-
-        showToast(State.lang === 'en' ? 'Deleting event...' : 'Memadamkan acara...', 'info');
-        const res = await api('deleteEvent', { eventId });
-        if (res && res.success) {
-          showToast(res.message, 'success');
-          await loadAppBoot();
-          renderHomeView();
-          renderCalendarView();
-          renderAdminDashboardView();
-        } else {
-          showToast((res && res.message) || 'Gagal memadamkan acara.', 'error');
-        }
-      });
-    });
-  }
-
   function renderHomeView() {
-    // Tarikh hari ini pada kad ringkasan Utama
-    const todayEl = document.getElementById('home-today-date-text');
-    if (todayEl) {
-      const now = new Date();
-      const options = { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' };
-      todayEl.textContent = now.toLocaleDateString(State.lang === 'en' ? 'en-GB' : 'ms-BN', options);
-    }
+    renderMonthlyCalendar();
 
-    // Selaraskan nama dan jawatan pengguna pada pengepala utama
+    // Selaraskan nama dan jawatan pengguna pada pengepala utama (Elakkan nama salah/kekal Noraini)
     if (State.currentUser) {
       const homeGreetingName = document.getElementById('home-greeting-name');
       const homeGreetingLabel = document.getElementById('home-greeting-label');
@@ -2357,64 +2103,6 @@
     if (countAttendedEl) countAttendedEl.textContent = myAttendedIds.length;
     if (countUrgentEl) countUrgentEl.textContent = urgentCount;
 
-    // Paparkan Banner Peringatan Acara Esok / Hari Ini jika ada program terdekat
-    const tomorrowBannerContainer = document.getElementById('home-tomorrow-banner-container');
-    if (tomorrowBannerContainer) {
-      const now = new Date();
-      const todayYMD = normalizeDateISOToYMD(now);
-      const tomorrow = new Date(now);
-      tomorrow.setDate(now.getDate() + 1);
-      const tomorrowYMD = normalizeDateISOToYMD(tomorrow);
-
-      const targetEv = publishedEvents.find(e => {
-        const d = normalizeDateISOToYMD(e.event_date);
-        return d === tomorrowYMD || d === todayYMD;
-      });
-
-      if (targetEv) {
-        const d = normalizeDateISOToYMD(targetEv.event_date);
-        const isToday = (d === todayYMD);
-        const title = (State.lang === 'en' && targetEv.title_en) ? targetEv.title_en : (targetEv.title_bm || targetEv.title || 'Program Kerjaya');
-        const timeStr = formatTime12H(targetEv.start_time);
-        const venue = targetEv.venue || 'Dewan Persidangan JSS';
-        const labelTag = isToday 
-          ? (State.lang === 'en' ? "TODAY'S EVENT" : 'ACARA HARI INI')
-          : (State.lang === 'en' ? 'HAPPENING TOMORROW' : 'ACARA BERLANGSUNG ESOK');
-        const btnLabel = State.lang === 'en' ? 'View Details' : 'Lihat Butiran & Lokasi';
-
-        tomorrowBannerContainer.innerHTML = `
-          <div class="bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 text-white rounded-2xl p-4 shadow-lg border border-amber-300/40 relative overflow-hidden flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 animate-fade-in">
-            <div class="flex items-center gap-3 min-w-0">
-              <div class="w-11 h-11 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center text-white shrink-0 shadow-inner ring-2 ring-white/30">
-                <span class="material-symbols-outlined text-2xl animate-pulse" style="font-variation-settings: 'FILL' 1;">notifications_active</span>
-              </div>
-              <div class="flex flex-col min-w-0">
-                <div class="flex items-center gap-1.5 mb-0.5">
-                  <span class="px-2 py-0.5 rounded-full bg-white text-amber-900 text-[10px] font-black uppercase tracking-wider shadow-sm">
-                    ${labelTag}
-                  </span>
-                  <span class="text-white/90 text-[11px] font-semibold">${timeStr}</span>
-                </div>
-                <h3 class="font-headline text-sm sm:text-base font-extrabold text-white truncate leading-tight">${escapeHtml(title)}</h3>
-                <p class="font-body text-xs text-white/90 truncate flex items-center gap-1 mt-0.5">
-                  <span class="material-symbols-outlined text-[13px]">location_on</span>
-                  ${escapeHtml(venue)}
-                </p>
-              </div>
-            </div>
-            <button type="button" onclick="window.CEU_APP.openRsvpModal('${targetEv.event_id}')" class="w-full sm:w-auto px-4 py-2 rounded-xl bg-white text-amber-900 hover:bg-amber-50 active:scale-95 font-headline text-xs font-bold shadow-md flex items-center justify-center gap-1.5 transition-all shrink-0 cursor-pointer">
-              <span>${btnLabel}</span>
-              <span class="material-symbols-outlined text-sm">arrow_forward</span>
-            </button>
-          </div>
-        `;
-        tomorrowBannerContainer.classList.remove('hidden');
-      } else {
-        tomorrowBannerContainer.innerHTML = '';
-        tomorrowBannerContainer.classList.add('hidden');
-      }
-    }
-
     // Selaraskan cincin aktif pada kad metrik di atas
     const btnAll = document.getElementById('metric-btn-all');
     const btnAttended = document.getElementById('metric-btn-attended');
@@ -2442,15 +2130,24 @@
       filtered = filtered.filter(e => myAttendedIds.includes(e.event_id));
     }
 
+    if (State.selectedCalendarDate) {
+      filtered = filtered.filter(e => e.event_date === State.selectedCalendarDate);
+    }
+
     const container = document.getElementById('events-card-list');
     if (!container) return;
 
     if (!filtered.length) {
+      const isDateFiltered = !!State.selectedCalendarDate;
       const isUrgentFiltered = State.activeEventFilter === 'urgent';
       const isAttendedFiltered = State.activeEventFilter === 'attended';
 
       let msg = I18N[State.lang].noEventsFound;
-      if (isUrgentFiltered) {
+      if (isDateFiltered) {
+        msg = State.lang === 'en'
+          ? `No events scheduled on ${State.selectedCalendarDate}.`
+          : `Tiada program dijadualkan pada ${State.selectedCalendarDate}.`;
+      } else if (isUrgentFiltered) {
         msg = State.lang === 'en'
           ? `All events have been responded to! Great job.`
           : `Alhamdulillah, semua tindakan RSVP telah selesai dijawab!`;
@@ -2474,98 +2171,157 @@
       `;
 
       document.getElementById('btn-show-all-events-empty')?.addEventListener('click', () => {
+        State.selectedCalendarDate = null;
         State.activeEventFilter = 'all';
         document.querySelectorAll('.event-filter-pill').forEach(p => {
           const isAll = p.dataset.filter === 'all';
-          p.classList.toggle('bg-primary-container', isAll);
-          p.classList.toggle('text-on-primary', isAll);
-          p.classList.toggle('bg-surface-container-lowest', !isAll);
+          p.classList.toggle('bg-primary', isAll);
+          p.classList.toggle('text-white', isAll);
+          p.classList.toggle('bg-surface-container', !isAll);
           p.classList.toggle('text-on-surface-variant', !isAll);
         });
+        renderMonthlyCalendar();
         renderHomeView();
       });
       return;
     }
 
-    container.innerHTML = filtered.map(ev => renderEventCardHtml(ev)).join('');
-    attachEventCardListeners(container);
-  }
-
-  // ==========================================================================
-  // 8B. RENDER PAPARAN KALENDAR (TAKWIM & JADUAL BULANAN / MINGGUAN DEDIKASI)
-  // ==========================================================================
-  function renderCalendarView() {
-    renderMonthlyCalendar();
-
-    const titleEl = document.getElementById('calendar-view-title');
-    const subtitleEl = document.getElementById('calendar-view-subtitle');
-    const badgeEl = document.getElementById('calendar-events-count-badge');
-    const container = document.getElementById('calendar-events-card-list');
-    if (!container) return;
-
-    const publishedEvents = (State.events || [])
-      .filter(e => (e.status || 'Published').toLowerCase() !== 'draft')
-      .filter(e => isUserInvitedToEvent(e, State.currentUser));
-
-    let eventsForView = publishedEvents;
-    if (State.selectedCalendarDate) {
-      eventsForView = publishedEvents.filter(e => e.event_date === State.selectedCalendarDate);
-      if (titleEl) {
-        titleEl.textContent = (State.lang === 'en' ? 'Schedule for ' : 'Jadual: ') + formatEventDateClean(State.selectedCalendarDate);
+    container.innerHTML = filtered.map(ev => {
+      const userRsvp = State.rsvps.find(r => r.event_id === ev.event_id);
+      const isPending = !userRsvp;
+      let statusBadge = '';
+      if (userRsvp) {
+        const st = (userRsvp.response_status || '').toLowerCase();
+        if (st.includes('hadir') && !st.includes('tidak')) {
+          statusBadge = `<span class="bg-primary-container text-on-primary px-3 py-1 rounded-full font-label-pill text-[11px] font-bold flex items-center gap-1.5 shadow-sm"><span class="w-1.5 h-1.5 rounded-full bg-white"></span>${I18N[State.lang].badgeAttending}</span>`;
+        } else if (st.includes('wakil')) {
+          statusBadge = `<span class="bg-surface-container-high text-on-surface px-3 py-1 rounded-full font-label-pill text-[11px] font-bold flex items-center gap-1.5"><span class="material-symbols-outlined text-[15px] text-secondary">sync_alt</span>${I18N[State.lang].badgeRep}</span>`;
+        } else {
+          statusBadge = `<span class="bg-error-container text-on-error-container px-3 py-1 rounded-full font-label-pill text-[11px] font-bold">${I18N[State.lang].badgeAbsent}</span>`;
+        }
+      } else {
+        statusBadge = `<span class="bg-secondary-container text-on-secondary-container px-3 py-1 rounded-full font-label-pill text-[11px] font-bold flex items-center gap-1 shadow-sm"><span class="material-symbols-outlined text-[14px]" style="font-variation-settings: 'FILL' 1;">priority_high</span>${I18N[State.lang].badgePending}</span>`;
       }
-      if (subtitleEl) {
-        subtitleEl.textContent = State.lang === 'en' ? 'Programs scheduled on selected date' : 'Program yang dijadualkan pada tarikh yang dipilih';
-      }
-    } else {
-      if (titleEl) {
-        titleEl.textContent = State.lang === 'en' ? 'All Scheduled Programs' : 'Semua Program Berjadual';
-      }
-      if (subtitleEl) {
-        subtitleEl.textContent = State.lang === 'en' ? 'Tap any date in the calendar above to filter' : 'Ketik mana-mana tarikh di atas untuk melihat jadual harian';
-      }
-    }
 
-    if (badgeEl) {
-      badgeEl.textContent = `${eventsForView.length} ` + (State.lang === 'en' ? 'Events' : 'Acara');
-    }
-
-    if (!eventsForView.length) {
-      container.innerHTML = `
-        <div class="bg-surface-container-low rounded-2xl p-8 text-center text-on-surface-variant my-4 border border-outline-variant/30 flex flex-col items-center">
-          <div class="w-16 h-16 rounded-full bg-surface-container flex items-center justify-center text-primary mb-3 shadow-inner">
-            <span class="material-symbols-outlined text-[36px]">event_busy</span>
+      const title = (State.lang === 'en' && ev.title_en) ? ev.title_en : ev.title_bm;
+      return `
+        <article class="bg-surface-container-lowest rounded-2xl p-4 shadow-[0_8px_24px_rgba(29,120,120,0.08)] flex flex-col gap-3 relative border border-outline-variant/30 transition-all hover:shadow-md">
+          <!-- Header row of Card -->
+          <div class="flex items-start justify-between gap-2">
+            <div class="flex flex-wrap items-center gap-1.5">
+              ${statusBadge}
+              ${ev.rsvp_deadline && isPending ? `
+                <span class="bg-error-container text-on-error-container px-2.5 py-0.5 rounded-full font-caption text-[10px] font-semibold">
+                  ${I18N[State.lang].deadline}: ${ev.rsvp_deadline.replace('T', ' ')}
+                </span>
+              ` : ''}
+            </div>
+            <span class="font-label-sm text-xs text-on-surface-variant font-medium flex items-center gap-1">
+              <span class="material-symbols-outlined text-sm text-primary">event</span>
+              ${formatEventDateClean(ev.event_date)}
+            </span>
           </div>
-          <p class="font-headline text-xs font-semibold max-w-[300px] leading-relaxed">
-            ${State.selectedCalendarDate 
-              ? (State.lang === 'en' ? `No programs scheduled on ${formatEventDateClean(State.selectedCalendarDate)}.` : `Tiada program dijadualkan pada ${formatEventDateClean(State.selectedCalendarDate)}. Sila pilih tarikh bertanda titik di atas.`)
-              : (State.lang === 'en' ? 'No programs scheduled for this period.' : 'Tiada program dijadualkan bagi tempoh ini.')}
-          </p>
-          ${State.selectedCalendarDate ? `
-            <button id="btn-cal-view-show-all" type="button" class="mt-4 px-4 py-2 bg-primary text-white rounded-xl text-xs font-bold shadow-md hover:bg-primary-dark active:scale-95 transition-all flex items-center gap-1.5 cursor-pointer">
-              <span class="material-symbols-outlined text-sm">visibility</span>
-              <span>${State.lang === 'en' ? 'Show All Programs' : 'Tunjuk Semua Program'}</span>
-            </button>
-          ` : ''}
-        </div>
-      `;
-      const btnShowAll = document.getElementById('btn-cal-view-show-all');
-      if (btnShowAll) {
-        btnShowAll.addEventListener('click', () => {
-          State.selectedCalendarDate = null;
-          renderCalendarView();
-        });
-      }
-      return;
-    }
 
-    container.innerHTML = eventsForView.map(ev => renderEventCardHtml(ev)).join('');
-    attachEventCardListeners(container);
+          <!-- Event Details & Title -->
+          <div class="flex flex-col gap-0.5">
+            <span class="font-caption text-[11px] uppercase tracking-wider text-primary font-bold">
+              ${ev.summary || 'Jabatan Sekolah-Sekolah • Unit CEU'}
+            </span>
+            <h2 class="font-headline-md text-base sm:text-lg font-bold text-on-surface leading-snug">
+              ${title}
+            </h2>
+          </div>
+
+          <!-- Schedule Micro-Info Strip (Gaya 16061) -->
+          <div class="grid grid-cols-2 gap-2 bg-surface-container-low p-2.5 rounded-xl text-on-surface text-xs">
+            <div class="flex items-center gap-2">
+              <div class="w-7 h-7 rounded-full bg-surface-container-lowest flex items-center justify-center text-primary shadow-xs shrink-0">
+                <span class="material-symbols-outlined text-[16px]">schedule</span>
+              </div>
+              <div class="flex flex-col min-w-0">
+                <span class="font-caption text-[10px] text-on-surface-variant">${I18N[State.lang].timeLabel}</span>
+                <span class="font-label-md font-semibold truncate">${formatTime12H(ev.start_time)} - ${formatTime12H(ev.end_time)}</span>
+              </div>
+            </div>
+            <div class="flex items-center gap-2">
+              <div class="w-7 h-7 rounded-full bg-surface-container-lowest flex items-center justify-center text-secondary shadow-xs shrink-0">
+                <span class="material-symbols-outlined text-[16px]">location_on</span>
+              </div>
+              <div class="flex flex-col min-w-0">
+                <span class="font-caption text-[10px] text-on-surface-variant">${I18N[State.lang].venueLabel}</span>
+                ${ev.venue && !ev.venue.toLowerCase().includes('talian') && !ev.venue.toLowerCase().includes('online') && !ev.venue.toLowerCase().includes('meet') ? `
+                  <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(ev.venue)}" target="_blank" rel="noopener noreferrer" class="font-label-md font-semibold truncate text-primary hover:underline flex items-center gap-1 group/map" title="${State.lang === 'en' ? 'Open in Google Maps' : 'Buka di Google Maps'}">
+                    <span class="truncate">${ev.venue}</span>
+                    <span class="material-symbols-outlined text-[13px] opacity-70 group-hover/map:opacity-100 shrink-0">open_in_new</span>
+                  </a>
+                ` : `
+                  <span class="font-label-md font-semibold truncate">${ev.venue || I18N[State.lang].onlineVenue}</span>
+                `}
+              </div>
+            </div>
+          </div>
+
+          <!-- Call to Action Controls -->
+          <div class="flex items-center gap-2 pt-1">
+            <button class="btn-open-rsvp flex-1 h-12 bg-secondary-container hover:bg-secondary-fixed text-on-secondary-container rounded-full font-label-lg text-xs sm:text-sm font-bold flex items-center justify-center gap-2 shadow-[0_6px_16px_rgba(252,183,38,0.35)] transition-all active:scale-[0.98] cursor-pointer" data-id="${ev.event_id}">
+              <span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+              <span>${userRsvp ? I18N[State.lang].updateRsvpBtn : I18N[State.lang].respondRsvpBtn}</span>
+            </button>
+            ${ev.meeting_link ? `
+              <a href="${ev.meeting_link}" target="_blank" class="h-12 px-4 rounded-full bg-surface-container-high hover:bg-surface-variant text-primary font-bold text-xs sm:text-sm flex items-center justify-center gap-1.5 transition-colors cursor-pointer">
+                <span class="material-symbols-outlined text-[18px]">videocam</span>
+                <span>Meet</span>
+              </a>
+            ` : ''}
+            ${(State.currentUser && State.currentUser.role === 'Admin') ? `
+              <button type="button" class="btn-edit-event w-12 h-12 rounded-full bg-surface-container-low text-primary hover:bg-primary hover:text-white flex items-center justify-center transition-all cursor-pointer" data-id="${ev.event_id}" title="Sunting Acara">
+                <span class="material-symbols-outlined text-[18px]">edit</span>
+              </button>
+              <button type="button" class="btn-delete-event w-12 h-12 rounded-full bg-surface-container-low text-error hover:bg-error hover:text-white flex items-center justify-center transition-all cursor-pointer" data-id="${ev.event_id}" title="Padam Acara">
+                <span class="material-symbols-outlined text-[18px]">delete</span>
+              </button>
+            ` : ''}
+          </div>
+        </article>
+      `;
+    }).join('');
+
+    container.querySelectorAll('.btn-open-rsvp').forEach(btn => {
+      btn.addEventListener('click', () => {
+        openRsvpModal(btn.dataset.id);
+      });
+    });
+
+    container.querySelectorAll('.btn-edit-event').forEach(btn => {
+      btn.addEventListener('click', () => {
+        window.editEvent(btn.dataset.id);
+      });
+    });
+
+    container.querySelectorAll('.btn-delete-event').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const eventId = btn.dataset.id;
+        const conf = confirm(State.lang === 'en' ? 'Are you sure you want to delete this event? This action cannot be undone.' : 'Adakah Awda pasti ingin memadamkan acara ini? Tindakan ini tidak boleh diundur.');
+        if (!conf) return;
+
+        showToast(State.lang === 'en' ? 'Deleting event...' : 'Memadamkan acara...', 'info');
+        const res = await api('deleteEvent', { eventId });
+        if (res && res.success) {
+          showToast(res.message, 'success');
+          await loadAppBoot();
+          renderHomeView();
+          renderAdminDashboardView();
+        } else {
+          showToast((res && res.message) || 'Gagal memadamkan acara.', 'error');
+        }
+      });
+    });
   }
 
   // ==========================================================================
   // 9. MODAL RSVP PINTAR
   // ==========================================================================
-  function openRsvpModal(eventId, preselectStatus) {
+  function openRsvpModal(eventId) {
     const ev = State.events.find(e => e.event_id === eventId) || State.events[0];
     State.selectedEventForRsvp = ev;
     if (!ev) return;
@@ -2583,26 +2339,7 @@
     const repFields = document.getElementById('rsvp-rep-fields');
     const absentFields = document.getElementById('rsvp-absent-fields');
 
-    if (preselectStatus === 'rep') {
-      if (radioRep) radioRep.checked = true;
-      if (repFields) repFields.classList.remove('hidden');
-      if (absentFields) absentFields.classList.add('hidden');
-      if (userRsvp) {
-        document.getElementById('input-rep-name').value = userRsvp.rep_name || '';
-        document.getElementById('input-rep-phone').value = userRsvp.rep_phone || '';
-      }
-    } else if (preselectStatus === 'absent') {
-      if (radioAbsent) radioAbsent.checked = true;
-      if (absentFields) absentFields.classList.remove('hidden');
-      if (repFields) repFields.classList.add('hidden');
-      if (userRsvp) {
-        document.getElementById('input-absence-reason').value = userRsvp.absence_reason || '';
-      }
-    } else if (preselectStatus === 'attend') {
-      if (radioAttend) radioAttend.checked = true;
-      if (repFields) repFields.classList.add('hidden');
-      if (absentFields) absentFields.classList.add('hidden');
-    } else if (userRsvp) {
+    if (userRsvp) {
       if (userRsvp.response_status === 'Mewakilkan') {
         if (radioRep) radioRep.checked = true;
         if (repFields) repFields.classList.remove('hidden');
@@ -2626,11 +2363,9 @@
     }
 
     if (modal) {
-      modal.style.display = 'flex';
       modal.classList.remove('hidden');
       setTimeout(() => {
-        const p = modal.querySelector('.bottom-sheet-panel');
-        if (p) p.classList.remove('translate-y-full');
+        modal.querySelector('.bottom-sheet-panel').classList.remove('translate-y-full');
       }, 10);
     }
   }
@@ -2641,7 +2376,6 @@
     const panel = modal.querySelector('.bottom-sheet-panel');
     if (panel) panel.classList.add('translate-y-full');
     setTimeout(() => {
-      modal.style.display = 'none';
       modal.classList.add('hidden');
     }, 300);
   }
@@ -2695,270 +2429,9 @@
 
       closeRsvpModal();
       renderHomeView();
-      renderCalendarView();
-      renderRsvpView();
     } else {
       showToast((res && res.message) || 'Gagal menghantar RSVP.', 'error');
     }
-  }
-
-  // ==========================================================================
-  // 9B. DEDICATED TEACHER RSVP SCREEN (PENGESAHAN KEHADIRAN GURU)
-  // ==========================================================================
-  function setRsvpFilter(filter) {
-    State.activeRsvpFilter = filter;
-    document.querySelectorAll('.rsvp-filter-pill').forEach(btn => {
-      const f = btn.dataset.rsvpFilter;
-      if (f === filter) {
-        btn.className = 'rsvp-filter-pill px-4 py-2 rounded-full font-label-md text-xs font-semibold whitespace-nowrap shadow-sm bg-primary-container text-on-primary transition-all cursor-pointer';
-      } else {
-        btn.className = 'rsvp-filter-pill px-4 py-2 rounded-full font-label-md text-xs font-semibold whitespace-nowrap shadow-sm bg-surface-container-lowest text-on-surface-variant hover:text-on-surface transition-all cursor-pointer';
-      }
-    });
-    renderRsvpView();
-  }
-
-  async function quickConfirmRsvp(eventId) {
-    const user = State.currentUser;
-    if (!user) return;
-    const ev = (State.events || []).find(e => e.event_id === eventId);
-    if (!ev) return;
-
-    showToast(State.lang === 'en' ? 'Submitting RSVP...' : 'Menghantar pengesahan kehadiran...', 'info');
-
-    const res = await api('submitRsvp', {
-      eventId: eventId,
-      status: 'Hadir',
-      dietary: 'Biasa',
-      repName: '',
-      repPhone: '',
-      repRole: '',
-      notes: ''
-    });
-
-    if (res && res.success) {
-      showToast(State.lang === 'en' ? 'Attendance confirmed successfully!' : 'Kehadiran berjaya disahkan!', 'success');
-      const existingIdx = State.rsvps.findIndex(r => r.event_id === eventId && String(r.user_email || '').toLowerCase() === String(user.email || '').toLowerCase());
-      const newRsvp = {
-        event_id: eventId,
-        user_email: user.email,
-        full_name: user.name,
-        school_name: user.school,
-        district: user.district,
-        response_status: 'Hadir',
-        dietary: 'Biasa',
-        created_at: new Date().toISOString()
-      };
-      if (existingIdx >= 0) {
-        State.rsvps[existingIdx] = newRsvp;
-      } else {
-        State.rsvps.push(newRsvp);
-      }
-      renderRsvpView();
-      renderHomeView();
-      renderCalendarView();
-    } else {
-      showToast(res && res.message ? res.message : 'Gagal merekodkan RSVP', 'error');
-    }
-  }
-
-  function renderRsvpView() {
-    const listEl = document.getElementById('rsvp-screen-card-list');
-    if (!listEl) return;
-
-    const user = State.currentUser;
-    const myEmail = user ? String(user.email || '').toLowerCase().trim() : '';
-
-    // Cari semua program yang memerlukan RSVP dan melibatkan pengguna
-    const allEvents = (State.events || [])
-      .filter(e => (e.status || 'Published').toLowerCase() !== 'draft')
-      .filter(e => isUserInvitedToEvent(e, user))
-      .filter(e => {
-        const req = String(e.rsvp_required || e.rsvpRequired || '').toLowerCase();
-        return req === 'true' || req === '1' || req === 'ya';
-      });
-
-    // Peta RSVP semasa pengguna
-    const myRsvps = (State.rsvps || []).filter(r => String(r.user_email || '').toLowerCase().trim() === myEmail);
-    const rsvpMap = {};
-    myRsvps.forEach(r => {
-      rsvpMap[r.event_id] = r;
-    });
-
-    let pendingCount = 0;
-    let confirmedCount = 0;
-    let delegatedCount = 0;
-
-    allEvents.forEach(ev => {
-      const r = rsvpMap[ev.event_id];
-      if (!r) {
-        pendingCount++;
-      } else if (r.response_status === 'Hadir') {
-        confirmedCount++;
-      } else {
-        delegatedCount++;
-      }
-    });
-
-    const pendingEl = document.getElementById('rsvp-count-pending');
-    const confirmedEl = document.getElementById('rsvp-count-confirmed');
-    const delegatedEl = document.getElementById('rsvp-count-delegated');
-
-    if (pendingEl) pendingEl.textContent = pendingCount < 10 ? '0' + pendingCount : pendingCount;
-    if (confirmedEl) confirmedEl.textContent = confirmedCount < 10 ? '0' + confirmedCount : confirmedCount;
-    if (delegatedEl) delegatedEl.textContent = delegatedCount < 10 ? '0' + delegatedCount : delegatedCount;
-
-    // Tapis mengikut State.activeRsvpFilter
-    const filtered = allEvents.filter(ev => {
-      const r = rsvpMap[ev.event_id];
-      if (State.activeRsvpFilter === 'pending') return !r;
-      if (State.activeRsvpFilter === 'confirmed') return r && r.response_status === 'Hadir';
-      if (State.activeRsvpFilter === 'delegated') return r && (r.response_status === 'Mewakilkan' || r.response_status === 'Tidak Hadir');
-      return true; // 'all'
-    });
-
-    if (filtered.length === 0) {
-      listEl.innerHTML = `
-        <div class="bg-surface-container-lowest rounded-2xl p-8 text-center border border-outline-variant/30 flex flex-col items-center shadow-xs">
-          <div class="w-14 h-14 rounded-2xl bg-primary-container/15 text-primary flex items-center justify-center mb-3">
-            <span class="material-symbols-outlined text-3xl">task_alt</span>
-          </div>
-          <h3 class="font-headline-md text-sm font-bold text-on-surface">Tiada Rekod RSVP Diperlukan</h3>
-          <p class="font-caption text-xs text-on-surface-variant max-w-xs mt-1 leading-relaxed">
-            ${State.activeRsvpFilter === 'pending'
-              ? 'Syabas! Semua program jemputan telah Awda sahkan kehadirannya.'
-              : 'Tiada program di bawah tapisan ini buat masa ini.'}
-          </p>
-        </div>
-      `;
-      return;
-    }
-
-    listEl.innerHTML = filtered.map(ev => {
-      const r = rsvpMap[ev.event_id];
-      const title = (State.lang === 'en' && ev.title_en) ? ev.title_en : (ev.title_bm || ev.title);
-      const dateStr = formatEventDateClean(ev.event_date);
-      const timeStr = formatTime12H(ev.start_time);
-      const mode = (ev.event_mode || 'Bersemuka');
-      const isOnline = mode.toLowerCase().includes('talian') || mode.toLowerCase().includes('online');
-
-      let statusBadge = '';
-      let actionButtons = '';
-
-      if (!r) {
-        statusBadge = `
-          <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-secondary-container/30 text-secondary border border-secondary-container/60 text-[11px] font-bold">
-            <span class="material-symbols-outlined text-[14px]" style="font-variation-settings: 'FILL' 1;">priority_high</span>
-            <span>Belum Sah</span>
-          </div>
-        `;
-        actionButtons = `
-          <div class="grid grid-cols-3 gap-2 mt-3 pt-3 border-t border-outline-variant/20">
-            <button type="button" onclick="window.CEU_APP.quickConfirmRsvp('${ev.event_id}')" class="py-2 px-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white font-headline text-[11px] font-bold shadow-sm flex items-center justify-center gap-1 transition-all cursor-pointer">
-              <span class="material-symbols-outlined text-[15px]">check_circle</span>
-              <span>Hadir</span>
-            </button>
-            <button type="button" onclick="window.CEU_APP.openRsvpModal('${ev.event_id}', 'rep')" class="py-2 px-2.5 rounded-xl bg-secondary-container text-on-secondary-container hover:bg-amber-400 active:scale-95 font-headline text-[11px] font-bold shadow-sm flex items-center justify-center gap-1 transition-all cursor-pointer">
-              <span class="material-symbols-outlined text-[15px]">group</span>
-              <span>Wakil</span>
-            </button>
-            <button type="button" onclick="window.CEU_APP.openRsvpModal('${ev.event_id}', 'absent')" class="py-2 px-2.5 rounded-xl bg-surface-container hover:bg-surface-container-high active:scale-95 text-on-surface-variant font-headline text-[11px] font-semibold border border-outline-variant/40 flex items-center justify-center gap-1 transition-all cursor-pointer">
-              <span class="material-symbols-outlined text-[15px]">cancel</span>
-              <span>Maaf</span>
-            </button>
-          </div>
-        `;
-      } else if (r.response_status === 'Hadir') {
-        statusBadge = `
-          <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300 text-[11px] font-bold">
-            <span class="material-symbols-outlined text-[14px]" style="font-variation-settings: 'FILL' 1;">check_circle</span>
-            <span>Hadir (${r.dietary || 'Biasa'})</span>
-          </div>
-        `;
-        actionButtons = `
-          <div class="flex items-center justify-between mt-3 pt-3 border-t border-outline-variant/20">
-            <span class="text-[11px] text-on-surface-variant flex items-center gap-1">
-              <span class="material-symbols-outlined text-[14px] text-emerald-600">verified</span>
-              Kehadiran telah direkodkan
-            </span>
-            <button type="button" onclick="window.CEU_APP.openRsvpModal('${ev.event_id}')" class="px-3 py-1.5 rounded-xl bg-surface-container hover:bg-surface-container-high text-primary font-headline text-[11px] font-bold border border-outline-variant/40 active:scale-95 transition-all cursor-pointer">
-              Kemaskini
-            </button>
-          </div>
-        `;
-      } else if (r.response_status === 'Mewakilkan') {
-        statusBadge = `
-          <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-blue-100 text-blue-900 border border-blue-300 text-[11px] font-bold">
-            <span class="material-symbols-outlined text-[14px]">group</span>
-            <span>Wakil: ${r.rep_name || 'Pegawai Sekolah'}</span>
-          </div>
-        `;
-        actionButtons = `
-          <div class="flex items-center justify-between mt-3 pt-3 border-t border-outline-variant/20">
-            <span class="text-[11px] text-on-surface-variant flex items-center gap-1 truncate max-w-[200px]">
-              <span class="material-symbols-outlined text-[14px] text-blue-600">contact_phone</span>
-              ${r.rep_phone || 'Wakil rasmi dilantik'}
-            </span>
-            <button type="button" onclick="window.CEU_APP.openRsvpModal('${ev.event_id}')" class="px-3 py-1.5 rounded-xl bg-surface-container hover:bg-surface-container-high text-primary font-headline text-[11px] font-bold border border-outline-variant/40 active:scale-95 transition-all cursor-pointer">
-              Tukar Wakil
-            </button>
-          </div>
-        `;
-      } else {
-        statusBadge = `
-          <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-rose-100 text-rose-800 border border-rose-300 text-[11px] font-bold">
-            <span class="material-symbols-outlined text-[14px]">cancel</span>
-            <span>Tidak Hadir</span>
-          </div>
-        `;
-        actionButtons = `
-          <div class="flex items-center justify-between mt-3 pt-3 border-t border-outline-variant/20">
-            <span class="text-[11px] text-on-surface-variant italic truncate max-w-[200px]">
-              ${r.notes || r.absence_reason || 'Kekangan tugas rasmi'}
-            </span>
-            <button type="button" onclick="window.CEU_APP.openRsvpModal('${ev.event_id}')" class="px-3 py-1.5 rounded-xl bg-surface-container hover:bg-surface-container-high text-primary font-headline text-[11px] font-bold border border-outline-variant/40 active:scale-95 transition-all cursor-pointer">
-              Kemaskini
-            </button>
-          </div>
-        `;
-      }
-
-      return `
-        <div class="bg-surface-container-lowest rounded-2xl p-4 shadow-[0_4px_16px_rgba(18,28,42,0.06)] border border-outline-variant/30 flex flex-col gap-2 transition-all">
-          <div class="flex items-start justify-between gap-2">
-            <div class="flex-1 min-w-0">
-              <div class="flex items-center gap-1.5 mb-1 flex-wrap">
-                <span class="px-2 py-0.5 rounded-md bg-primary-container/15 text-primary text-[10px] font-bold uppercase tracking-wide">
-                  ${dateStr}
-                </span>
-                <span class="px-2 py-0.5 rounded-md ${isOnline ? 'bg-purple-100 text-purple-800' : 'bg-surface-container text-on-surface-variant'} text-[10px] font-semibold">
-                  ${mode}
-                </span>
-              </div>
-              <h3 class="font-headline-md text-sm font-bold text-on-surface leading-snug">
-                ${title}
-              </h3>
-            </div>
-            <div class="shrink-0">
-              ${statusBadge}
-            </div>
-          </div>
-
-          <div class="flex items-center gap-3 text-xs text-on-surface-variant mt-1 flex-wrap">
-            <div class="flex items-center gap-1">
-              <span class="material-symbols-outlined text-[15px] text-secondary">schedule</span>
-              <span>${timeStr}</span>
-            </div>
-            <div class="flex items-center gap-1">
-              <span class="material-symbols-outlined text-[15px] text-primary">location_on</span>
-              <span class="truncate max-w-[180px]">${ev.venue || 'Dalam Talian'}</span>
-            </div>
-          </div>
-
-          ${actionButtons}
-        </div>
-      `;
-    }).join('');
   }
 
   // ==========================================================================
@@ -3119,7 +2592,6 @@
         finalUrl = finalUrl.replace(/\/view(\?usp=sharing)?/, '/preview');
       }
       iframe.src = finalUrl || 'https://drive.google.com/viewerng/viewer?embedded=true&url=https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf';
-      modal.style.display = 'flex';
       modal.classList.remove('hidden');
     }
   }
@@ -3137,16 +2609,12 @@
     const filesizeEl = document.getElementById('upload-pdf-filesize');
     if (filenameEl) filenameEl.textContent = 'Klik untuk memilih fail PDF dari peranti';
     if (filesizeEl) filesizeEl.textContent = 'Format disokong: .pdf (Maksimum 10 MB)';
-    modal.style.display = 'flex';
     modal.classList.remove('hidden');
   };
 
   window.closeUploadPdfModal = function() {
     const modal = document.getElementById('modal-upload-pdf');
-    if (modal) {
-      modal.style.display = 'none';
-      modal.classList.add('hidden');
-    }
+    if (modal) modal.classList.add('hidden');
   };
 
   function initUploadPdfDropzone() {
@@ -3259,59 +2727,15 @@
   };
 
   // ==========================================================================
-  // 11. RENDER NOTIFIKASI & TINDAKAN INTERAKTIF
+  // 11. RENDER NOTIFIKASI
   // ==========================================================================
-  function handleNotificationAction(notifId) {
-    const notifs = getEffectiveNotifications();
-    const notif = notifs.find(n => n.notif_id === notifId);
-    if (!notif) {
-      setView('rsvp');
-      return;
-    }
-
-    if (notif.eventId) {
-      if (notif.isTomorrowReminder) {
-        showToast(State.lang === 'en' ? 'Opening event details & venue...' : 'Membuka butiran & lokasi program esok...', 'info');
-      } else {
-        showToast(State.lang === 'en' ? 'Opening RSVP attendance form...' : 'Membuka borang pengesahan kehadiran...', 'info');
-      }
-      openRsvpModal(notif.eventId);
-      return;
-    }
-
-    const text = ((notif.title_bm || '') + ' ' + (notif.title_en || '') + ' ' + (notif.content_bm || '') + ' ' + (notif.content_en || '')).toLowerCase();
-
-    if (text.includes('rsvp') || text.includes('kehadiran') || text.includes('peringatan') || notif.type === 'Urgent') {
-      showToast(State.lang === 'en' ? 'Opening RSVP attendance form...' : 'Membuka borang pengesahan kehadiran...', 'info');
-      // Cari program jemputan yang berkaitan
-      const targetEvent = (State.events || []).find(e => {
-        const title = ((e.title_bm || '') + ' ' + (e.title_en || '')).toLowerCase();
-        return title.includes('mesyuarat') || title.includes('bil. 1') || title.includes('1/2026');
-      }) || (State.events || [])[0];
-
-      if (targetEvent) {
-        openRsvpModal(targetEvent.event_id);
-      } else {
-        setView('rsvp');
-      }
-    } else if (text.includes('dokumen') || text.includes('arkib') || text.includes('minit') || text.includes('kalendar') || text.includes('pdf')) {
-      setView('archive');
-    } else {
-      setView('home');
-    }
-  }
-
   function renderNotifView() {
-    const notifs = getEffectiveNotifications();
-
-    // Tandakan notifikasi biasa telah dibaca (kecuali peringatan RSVP yang masih belum selesai)
+    // Tandakan semua notifikasi telah dibaca serta-merta apabila pengguna melawat paparan ini
     let readIds = [];
     try { readIds = JSON.parse(localStorage.getItem('ceu_read_notifs') || '[]'); } catch(e) {}
-    notifs.forEach(n => {
-      if (!n.isPendingRsvpReminder && !readIds.includes(n.notif_id)) {
-        readIds.push(n.notif_id);
-      }
-      if (readIds.includes(n.notif_id)) n.is_read = true;
+    (State.notifications || []).forEach(n => {
+      if (!readIds.includes(n.notif_id)) readIds.push(n.notif_id);
+      n.is_read = true;
     });
     localStorage.setItem('ceu_read_notifs', JSON.stringify(readIds));
     updateNotifBadge();
@@ -3319,7 +2743,7 @@
     const container = document.getElementById('notif-list-container');
     if (!container) return;
 
-    if (!notifs.length) {
+    if (!State.notifications.length) {
       container.innerHTML = `
         <div class="bg-surface-container-low rounded-2xl p-8 text-center text-on-surface-variant my-4">
           <span class="material-symbols-outlined text-[48px] text-primary/40 mb-2">notifications_off</span>
@@ -3329,59 +2753,23 @@
       return;
     }
 
-    container.innerHTML = notifs.map(n => {
+    container.innerHTML = State.notifications.map(n => {
       const isUrgent = n.type === 'Urgent';
       const title = (State.lang === 'en' && n.title_en) ? n.title_en : n.title_bm;
       const content = (State.lang === 'en' && n.content_en) ? n.content_en : n.content_bm;
-      const fullText = (title + ' ' + content).toLowerCase();
-      const isRsvp = fullText.includes('rsvp') || fullText.includes('kehadiran') || fullText.includes('peringatan') || isUrgent;
-      const isDoc = fullText.includes('dokumen') || fullText.includes('arkib') || fullText.includes('kalendar');
-
-      let actionBtn = '';
-      if (isRsvp) {
-        actionBtn = `
-          <div class="mt-3 pt-2.5 border-t border-outline-variant/30 flex items-center justify-between">
-            <span class="text-[11px] font-bold text-amber-700 flex items-center gap-1">
-              <span class="material-symbols-outlined text-[15px]" style="font-variation-settings: 'FILL' 1;">priority_high</span>
-              <span>${State.lang === 'en' ? 'Action Required' : 'Tindakan Diperlukan'}</span>
-            </span>
-            <button type="button" onclick="event.stopPropagation(); window.CEU_APP.handleNotificationAction('${n.notif_id}')" class="px-3.5 py-1.5 rounded-xl bg-primary hover:bg-primary-dark text-white font-headline text-xs font-bold shadow-sm active:scale-95 transition-all flex items-center gap-1.5 cursor-pointer">
-              <span>${State.lang === 'en' ? 'RSVP Now' : 'Sahkan RSVP'}</span>
-              <span class="material-symbols-outlined text-xs">arrow_forward</span>
-            </button>
-          </div>
-        `;
-      } else if (isDoc) {
-        actionBtn = `
-          <div class="mt-3 pt-2.5 border-t border-outline-variant/30 flex items-center justify-between">
-            <span class="text-[11px] font-semibold text-on-surface-variant flex items-center gap-1">
-              <span class="material-symbols-outlined text-[15px]">description</span>
-              <span>${State.lang === 'en' ? 'Official Document' : 'Dokumen Rasmi'}</span>
-            </span>
-            <button type="button" onclick="event.stopPropagation(); window.CEU_APP.setView('archive')" class="px-3.5 py-1.5 rounded-xl bg-surface-container hover:bg-surface-container-high text-primary font-headline text-xs font-bold border border-outline-variant/40 active:scale-95 transition-all flex items-center gap-1 cursor-pointer">
-              <span>${State.lang === 'en' ? 'Open Archive' : 'Buka Arkib'}</span>
-              <span class="material-symbols-outlined text-xs">arrow_forward</span>
-            </button>
-          </div>
-        `;
-      }
-
       return `
-        <div onclick="window.CEU_APP.handleNotificationAction('${n.notif_id}')" class="bg-surface-container-lowest rounded-2xl p-4 shadow-sm border ${isUrgent ? 'border-secondary-container/80 bg-amber-50/40 ring-1 ring-secondary-container/30' : 'border-outline-variant/40'} flex flex-col gap-1 cursor-pointer hover:border-primary/60 hover:shadow-md active:scale-[0.99] transition-all">
-          <div class="flex items-start gap-3">
-            <div class="w-10 h-10 rounded-full ${isUrgent ? 'bg-secondary-container text-on-secondary-container' : 'bg-surface-container-high text-primary'} flex items-center justify-center shrink-0 shadow-xs">
-              <span class="material-symbols-outlined text-[20px]">${isUrgent ? 'campaign' : 'mark_chat_unread'}</span>
-            </div>
-            <div class="flex-1 min-w-0">
-              <div class="flex items-center justify-between gap-1">
-                <span class="font-headline text-[10px] font-bold text-primary truncate">${n.sent_at}</span>
-                ${!n.is_read ? `<span class="w-2.5 h-2.5 rounded-full bg-secondary-container ring-2 ring-white shrink-0"></span>` : ''}
-              </div>
-              <h4 class="font-headline text-xs font-bold text-on-surface mt-0.5 leading-snug">${title}</h4>
-              <p class="font-body text-xs text-on-surface-variant mt-1 leading-relaxed">${content}</p>
-            </div>
+        <div class="bg-surface-container-lowest rounded-2xl p-4 shadow-sm border ${isUrgent ? 'border-primary/40 bg-[#F0F9FF]' : 'border-outline-variant/40'} flex items-start gap-3">
+          <div class="w-10 h-10 rounded-full ${isUrgent ? 'bg-tertiary text-white' : 'bg-surface-container-high text-primary'} flex items-center justify-center shrink-0">
+            <span class="material-symbols-outlined text-[20px]">${isUrgent ? 'campaign' : 'mark_chat_unread'}</span>
           </div>
-          ${actionBtn}
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center justify-between gap-1">
+              <span class="font-headline text-[10px] font-bold text-primary truncate">${n.sent_at}</span>
+              ${!n.is_read ? `<span class="w-2 h-2 rounded-full bg-error shrink-0"></span>` : ''}
+            </div>
+            <h4 class="font-headline text-xs font-bold text-on-surface mt-0.5">${title}</h4>
+            <p class="font-body text-xs text-on-surface-variant mt-1 leading-relaxed">${content}</p>
+          </div>
         </div>
       `;
     }).join('');
@@ -3411,44 +2799,6 @@
     if (emailEl) emailEl.textContent = u.email;
     if (schoolEl) schoolEl.textContent = `${u.school} (${u.district})`;
     if (bioToggle) bioToggle.checked = !!u.biometricEnabled;
-
-    // Selaraskan Butang Mod Pratonton Peranan (Guru vs Admin)
-    const btnGuru = document.getElementById('btn-switch-role-guru');
-    const btnAdmin = document.getElementById('btn-switch-role-admin');
-    const isAdmin = u.role === 'Admin';
-
-    if (btnGuru && btnAdmin) {
-      if (isAdmin) {
-        btnAdmin.className = 'flex items-center justify-center gap-1.5 py-2 px-3 rounded-lg text-xs font-bold transition-all bg-primary text-white shadow-sm cursor-pointer';
-        btnGuru.className = 'flex items-center justify-center gap-1.5 py-2 px-3 rounded-lg text-xs font-semibold text-on-surface-variant hover:text-on-surface transition-all cursor-pointer';
-      } else {
-        btnGuru.className = 'flex items-center justify-center gap-1.5 py-2 px-3 rounded-lg text-xs font-bold transition-all bg-primary text-white shadow-sm cursor-pointer';
-        btnAdmin.className = 'flex items-center justify-center gap-1.5 py-2 px-3 rounded-lg text-xs font-semibold text-on-surface-variant hover:text-on-surface transition-all cursor-pointer';
-      }
-    }
-  }
-
-  function switchUserRole(newRole) {
-    if (!State.currentUser) return;
-    State.currentUser.role = newRole;
-    try { sessionStorage.setItem('ceu_user', JSON.stringify(State.currentUser)); } catch(e) {}
-
-    const homeGreetingLabel = document.getElementById('home-greeting-label');
-    if (homeGreetingLabel) {
-      homeGreetingLabel.textContent = (State.lang === 'en' ? 'Welcome • ' : 'Selamat Datang • ') +
-        (newRole === 'Admin' ? (State.lang === 'en' ? 'UPK Officer' : 'Pegawai UPK') : (State.lang === 'en' ? 'Career Education Teacher' : 'Guru Pendidikan Kerjaya'));
-    }
-
-    updateNavActiveTabs();
-    renderProfileView();
-
-    if (newRole === 'Admin') {
-      showToast(State.lang === 'en' ? 'Switched to Admin Mode (Full Access)' : 'Beralih ke Mod Pentadbir (Akses Penuh UPK)', 'success');
-      setView('admin-dashboard');
-    } else {
-      showToast(State.lang === 'en' ? 'Switched to Teacher Mode (User POV)' : 'Beralih ke Mod Guru (Paparan Pengguna Biasa)', 'info');
-      setView('home');
-    }
   }
 
   // ==========================================================================
@@ -3861,99 +3211,10 @@
     }).join('');
 
     tableBody.querySelectorAll('.btn-reminder').forEach(btn => {
-      btn.addEventListener('click', async () => {
-        const email = btn.dataset.email;
-        const origText = btn.innerHTML;
-        btn.disabled = true;
-        btn.innerHTML = `<span class="material-symbols-outlined text-xs animate-spin">refresh</span>`;
-        showToast(State.lang === 'en' ? 'Sending RSVP reminder to ' + email + '...' : 'Menghantar peringatan RSVP ke ' + email + '...', 'info');
-
-        try {
-          const res = await api('sendRsvpReminder', {
-            email: email,
-            eventId: _adminSelectedEventId
-          });
-          btn.disabled = false;
-          btn.innerHTML = origText;
-          // Tambah notifikasi peringatan setempat ke State.notifications
-          const newReminderNotif = {
-            notif_id: 'REMINDER-MANUAL-' + Date.now(),
-            eventId: _adminSelectedEventId,
-            title_bm: 'Peringatan Mesra: Tarikh Akhir RSVP Program',
-            title_en: 'Friendly Reminder: Event RSVP Deadline',
-            content_bm: 'Peringatan rasmi dihantar kepada ' + email + ' untuk membuat pengesahan kehadiran.',
-            content_en: 'Official reminder was dispatched to ' + email + ' to complete attendance RSVP.',
-            type: 'Urgent',
-            sent_at: State.lang === 'en' ? 'Just now' : 'Baru sahaja',
-            is_read: false
-          };
-          if (!State.notifications) State.notifications = [];
-          State.notifications.unshift(newReminderNotif);
-          updateNotifBadge();
-
-          if (res && res.success) {
-            showToast(res.message || (State.lang === 'en' ? 'Reminder sent successfully!' : 'Peringatan berjaya dihantar!'), 'success');
-          } else {
-            showToast(State.lang === 'en' ? 'RSVP reminder sent to ' + email : 'Peringatan notifikasi dihantar ke ' + email, 'success');
-          }
-        } catch(e) {
-          btn.disabled = false;
-          btn.innerHTML = origText;
-          showToast(State.lang === 'en' ? 'Notification reminder sent to ' + email : 'Peringatan notifikasi dihantar ke ' + email, 'success');
-        }
+      btn.addEventListener('click', () => {
+        showToast(State.lang === 'en' ? 'Notification reminder sent to ' + btn.dataset.email : 'Peringatan notifikasi dihantar ke ' + btn.dataset.email, 'success');
       });
     });
-
-    // Sambung butang siaran Peringatan Acara Esok (H-1) oleh Admin
-    const btnBroadcastTomorrow = document.getElementById('btn-admin-broadcast-tomorrow-reminder');
-    if (btnBroadcastTomorrow) {
-      btnBroadcastTomorrow.onclick = async () => {
-        const ev = State.events.find(e => e.event_id === _adminSelectedEventId) || State.events[0];
-        const evTitle = ev ? (ev.title_bm || ev.title || 'Program') : 'Program';
-        
-        const confirmMsg = State.lang === 'en'
-          ? `Dispatch tomorrow event attendance reminder to all confirmed participants for "${evTitle}"?`
-          : `Kirim emel & notifikasi peringatan esok kepada semua peserta bagi "${evTitle}"?`;
-        
-        if (!confirm(confirmMsg)) return;
-
-        btnBroadcastTomorrow.disabled = true;
-        const origHtml = btnBroadcastTomorrow.innerHTML;
-        btnBroadcastTomorrow.innerHTML = `<span class="material-symbols-outlined text-sm animate-spin">refresh</span> <span>${State.lang === 'en' ? 'Sending...' : 'Menghantar...'}</span>`;
-        showToast(State.lang === 'en' ? 'Broadcasting tomorrow attendance reminders...' : 'Menghantar peringatan acara esok kepada peserta...', 'info');
-
-        try {
-          const res = await api('sendTomorrowReminder', { eventId: _adminSelectedEventId });
-          btnBroadcastTomorrow.disabled = false;
-          btnBroadcastTomorrow.innerHTML = origHtml;
-          
-          const tomNotif = {
-            notif_id: 'REMINDER-TOMORROW-BROADCAST-' + Date.now(),
-            eventId: _adminSelectedEventId,
-            title_bm: 'Peringatan Acara Esok: ' + evTitle,
-            title_en: 'Event Tomorrow Reminder: ' + evTitle,
-            content_bm: 'Peringatan mesra acara esok telah berjaya dihantar ke seluruh peranti guru & emel rasmi.',
-            content_en: 'Friendly reminder for tomorrow\'s event was broadcasted to teacher devices & official emails.',
-            type: 'Urgent',
-            sent_at: State.lang === 'en' ? 'Tomorrow' : 'Esok',
-            is_read: false
-          };
-          if (!State.notifications) State.notifications = [];
-          State.notifications.unshift(tomNotif);
-          updateNotifBadge();
-
-          if (res && res.success) {
-            showToast(res.message || (State.lang === 'en' ? 'Reminders successfully sent!' : 'Peringatan berjaya dihantar!'), 'success');
-          } else {
-            showToast(State.lang === 'en' ? 'Reminders successfully dispatched to attendees.' : 'Peringatan acara esok berjaya dikirimkan ke peranti peserta.', 'success');
-          }
-        } catch(err) {
-          btnBroadcastTomorrow.disabled = false;
-          btnBroadcastTomorrow.innerHTML = origHtml;
-          showToast(State.lang === 'en' ? 'Reminders dispatched to attendee devices.' : 'Peringatan dihantar ke peranti peserta.', 'success');
-        }
-      };
-    }
   }
 
   // Penjanaan Dokumen Laporan Rasmi PDF A4 Ber-QR HMAC (100% Data Dinamik)
@@ -4091,16 +3352,12 @@
       qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=140x140&data=${encodeURIComponent(verifyTarget)}`;
     }
 
-    modal.style.display = 'flex';
     modal.classList.remove('hidden');
   }
 
   function closeOfficialPdfReportModal() {
     const modal = document.getElementById('modal-pdf-report');
-    if (modal) {
-      modal.style.display = 'none';
-      modal.classList.add('hidden');
-    }
+    if (modal) modal.classList.add('hidden');
   }
 
   // ==========================================================================
@@ -4186,54 +3443,6 @@
     }, 1000);
   }
 
-  // Pengurusan Sesi Aktif (Session Storage - Auto Logout Semasa Aplikasi Ditutup)
-  function saveActiveSession(token, user) {
-    State.token = token;
-    State.currentUser = user;
-    sessionStorage.setItem('ceu_tok', token);
-    sessionStorage.setItem('ceu_user', JSON.stringify(user));
-    // Padam daripada localStorage supaya tiada sesi kekal apabila aplikasi ditutup (auto-logout on dismiss)
-    localStorage.removeItem('ceu_tok');
-    localStorage.removeItem('ceu_user');
-  }
-
-  function clearActiveSession() {
-    State.token = '';
-    State.currentUser = null;
-    sessionStorage.removeItem('ceu_tok');
-    sessionStorage.removeItem('ceu_user');
-    localStorage.removeItem('ceu_tok');
-    localStorage.removeItem('ceu_user');
-  }
-
-  function openExitConfirmModal() {
-    const modal = document.getElementById('modal-exit-confirm');
-    if (!modal) return;
-    const title = document.getElementById('exit-modal-title');
-    const desc = document.getElementById('exit-modal-desc');
-    const btnCancel = document.getElementById('btn-cancel-exit');
-    const btnConfirm = document.getElementById('btn-confirm-exit');
-
-    if (title) title.textContent = State.lang === 'en' ? 'Exit App & Log Out?' : 'Tutup Aplikasi & Log Keluar?';
-    if (desc) desc.textContent = State.lang === 'en'
-      ? 'Are you sure you want to exit? Your login session will be automatically terminated for security.'
-      : 'Adakah Awda pasti ingin keluar? Sesi log masuk Awda akan ditamatkan secara automatik demi keselamatan akaun.';
-    if (btnCancel) btnCancel.textContent = State.lang === 'en' ? 'Stay' : 'Batal';
-    if (btnConfirm) btnConfirm.textContent = State.lang === 'en' ? 'Yes, Log Out' : 'Ya, Log Keluar';
-
-    modal.style.display = 'flex';
-    modal.classList.remove('hidden');
-    modal.classList.add('flex');
-  }
-
-  function closeExitConfirmModal() {
-    const modal = document.getElementById('modal-exit-confirm');
-    if (!modal) return;
-    modal.style.display = 'none';
-    modal.classList.add('hidden');
-    modal.classList.remove('flex');
-  }
-
   async function handleVerifyOtpClick() {
     const emailInput = document.getElementById('email') || document.getElementById('auth-email-input');
     const email = (emailInput?.value || '').trim();
@@ -4255,7 +3464,10 @@
 
     const res = await api('verifyOtp', { email: email, otp: otp, device: navigator.userAgent });
     if (res && res.success) {
-      saveActiveSession(res.token, res.user);
+      State.token = res.token;
+      State.currentUser = res.user;
+      localStorage.setItem('ceu_tok', res.token);
+      localStorage.setItem('ceu_user', JSON.stringify(res.user));
 
       localStorage.setItem('ceu_bio_token', res.token);
       localStorage.setItem('ceu_bio_user', JSON.stringify(res.user));
@@ -4270,8 +3482,10 @@
   }
 
   function logout(isManual = false) {
-    clearActiveSession();
-    closeExitConfirmModal();
+    State.token = '';
+    State.currentUser = null;
+    localStorage.removeItem('ceu_tok');
+    localStorage.removeItem('ceu_user');
     setView('auth');
     if (isManual) {
       showToast(State.lang === 'en' ? 'You have successfully logged out.' : 'Awda telah berjaya log keluar dari Portal CEU.', 'info');
@@ -4289,7 +3503,10 @@
     showToast((State.lang === 'en' ? 'Quick logging in as ' : 'Log masuk pantas sebagai ') + email + '...', 'info');
     const res = await api('verifyOtp', { email: email, otp: '124111', device: navigator.userAgent });
     if (res && res.success) {
-      saveActiveSession(res.token, res.user);
+      State.token = res.token;
+      State.currentUser = res.user;
+      localStorage.setItem('ceu_tok', res.token);
+      localStorage.setItem('ceu_user', JSON.stringify(res.user));
       localStorage.setItem('ceu_bio_token', res.token);
       localStorage.setItem('ceu_bio_user', JSON.stringify(res.user));
       updateBiometricUI();
@@ -5209,15 +4426,25 @@
     document.querySelectorAll('.nav-tab-btn').forEach(btn => {
       btn.addEventListener('click', () => {
         const tab = btn.dataset.tab;
-        if (tab === 'admin') {
-          setView('admin-dashboard');
-        } else if (tab === 'rsvp') {
-          setView('rsvp');
+        if (tab === 'rsvp') {
+          if (State.currentUser && State.currentUser.role === 'Admin') {
+            setView('admin-rsvp');
+          } else {
+            setView('home');
+            setEventFilter('urgent');
+          }
         } else if (tab === 'takwim' || tab === 'calendar') {
-          setView('calendar');
-        } else if (tab === 'home') {
           setView('home');
           setEventFilter('all');
+          const cal = document.getElementById('calendar-grid') || document.getElementById('calendar-month-label');
+          if (cal) cal.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        } else if (tab === 'home') {
+          if (State.currentUser && State.currentUser.role === 'Admin') {
+            setView('admin-dashboard');
+          } else {
+            setView('home');
+            setEventFilter('all');
+          }
         } else if (tab === 'archive') {
           setView('archive');
         } else if (tab === 'notif') {
@@ -5229,36 +4456,6 @@
         }
       });
     });
-
-    // Pilihan Peranan Pengguna (Mod Pratonton / POV Switcher)
-    const btnSwitchGuru = document.getElementById('btn-switch-role-guru');
-    if (btnSwitchGuru) {
-      btnSwitchGuru.addEventListener('click', () => switchUserRole('Guru'));
-    }
-    const btnSwitchAdmin = document.getElementById('btn-switch-role-admin');
-    if (btnSwitchAdmin) {
-      btnSwitchAdmin.addEventListener('click', () => switchUserRole('Admin'));
-    }
-
-    // Butang Tapisan & Kad Metrik Skrin RSVP Guru
-    document.querySelectorAll('.rsvp-filter-pill').forEach(pill => {
-      pill.addEventListener('click', () => {
-        setRsvpFilter(pill.dataset.rsvpFilter);
-      });
-    });
-
-    const rsvpMetricPending = document.getElementById('rsvp-metric-pending');
-    if (rsvpMetricPending) {
-      rsvpMetricPending.addEventListener('click', () => setRsvpFilter('pending'));
-    }
-    const rsvpMetricConfirmed = document.getElementById('rsvp-metric-confirmed');
-    if (rsvpMetricConfirmed) {
-      rsvpMetricConfirmed.addEventListener('click', () => setRsvpFilter('confirmed'));
-    }
-    const rsvpMetricDelegated = document.getElementById('rsvp-metric-delegated');
-    if (rsvpMetricDelegated) {
-      rsvpMetricDelegated.addEventListener('click', () => setRsvpFilter('delegated'));
-    }
 
     const radioRep = document.getElementById('radio-rep');
     const radioAbsent = document.getElementById('radio-absent');
@@ -5292,7 +4489,6 @@
       btnCalWeekly.addEventListener('click', () => {
         State.calendarMode = 'weekly';
         renderMonthlyCalendar();
-        if (State.currentView === 'calendar') renderCalendarView();
       });
     }
 
@@ -5301,7 +4497,6 @@
       btnCalMonthly.addEventListener('click', () => {
         State.calendarMode = 'monthly';
         renderMonthlyCalendar();
-        if (State.currentView === 'calendar') renderCalendarView();
       });
     }
 
@@ -5316,7 +4511,6 @@
         }
         State.calendarDate = cur;
         renderMonthlyCalendar();
-        if (State.currentView === 'calendar') renderCalendarView();
       });
     }
 
@@ -5331,7 +4525,6 @@
         }
         State.calendarDate = cur;
         renderMonthlyCalendar();
-        if (State.currentView === 'calendar') renderCalendarView();
       });
     }
 
@@ -5341,8 +4534,7 @@
         State.calendarDate = new Date();
         State.selectedCalendarDate = null;
         renderMonthlyCalendar();
-        if (State.currentView === 'calendar') renderCalendarView();
-        else renderHomeView();
+        renderHomeView();
       });
     }
 
@@ -5351,8 +4543,7 @@
       btnClearDateFilter.addEventListener('click', () => {
         State.selectedCalendarDate = null;
         renderMonthlyCalendar();
-        if (State.currentView === 'calendar') renderCalendarView();
-        else renderHomeView();
+        renderHomeView();
       });
     }
 
@@ -5368,7 +4559,7 @@
 
     const metricUrgent = document.getElementById('metric-btn-urgent');
     if (metricUrgent) {
-      metricUrgent.addEventListener('click', () => setView('rsvp'));
+      metricUrgent.addEventListener('click', () => setEventFilter('urgent'));
     }
 
     const archiveSearch = document.getElementById('archive-search-input');
@@ -5392,7 +4583,7 @@
     const btnClosePdf = document.getElementById('btn-close-pdf-viewer');
     if (btnClosePdf) {
       btnClosePdf.addEventListener('click', () => {
-        const pv = document.getElementById('modal-pdf-viewer'); if (pv) { pv.style.display = 'none'; pv.classList.add('hidden'); }
+        document.getElementById('modal-pdf-viewer').classList.add('hidden');
       });
     }
 
@@ -5434,22 +4625,7 @@
     }
 
     const btnLogout = document.getElementById('btn-logout');
-    if (btnLogout) btnLogout.addEventListener('click', () => openExitConfirmModal());
-
-    const btnCancelExit = document.getElementById('btn-cancel-exit');
-    if (btnCancelExit) btnCancelExit.addEventListener('click', closeExitConfirmModal);
-
-    const btnConfirmExit = document.getElementById('btn-confirm-exit');
-    if (btnConfirmExit) btnConfirmExit.addEventListener('click', () => logout(true));
-
-    const modalExit = document.getElementById('modal-exit-confirm');
-    if (modalExit) {
-      modalExit.addEventListener('click', (e) => {
-        if (e.target === modalExit) closeExitConfirmModal();
-      });
-    }
-
-    initNavigationGuard();
+    if (btnLogout) btnLogout.addEventListener('click', () => logout(true));
 
     const bioSettingToggle = document.getElementById('toggle-bio-setting');
     if (bioSettingToggle) {
@@ -5469,44 +4645,11 @@
   }
 
   // ==========================================================================
-  // 18. BOOTSTRAP APLIKASI & EXIT HANDLERS
+  // 18. BOOTSTRAP APLIKASI
   // ==========================================================================
   window.triggerOtpProcess = handleSendOtpClick;
   window.triggerBiometricScan = triggerBiometricLogin;
   window.handleAuthSubmit = handleVerifyOtpClick;
-
-  // 1. Amaran penutupan pelayar / tab apabila pengguna cuba menutup aplikasi
-  window.addEventListener('beforeunload', (e) => {
-    if (State.currentUser && State.currentView !== 'auth') {
-      e.preventDefault();
-      e.returnValue = '';
-      return '';
-    }
-  });
-
-  // 2. Auto log keluar apabila aplikasi ditutup / didismiss (pagehide)
-  window.addEventListener('pagehide', () => {
-    clearActiveSession();
-  });
-
-  // 3. Pengawal Navigasi Mudah Alih (Intercept Back button pada telefon agar memberi amaran log keluar)
-  function initNavigationGuard() {
-    try {
-      window.history.replaceState({ appPage: 'root' }, '');
-      window.history.pushState({ appPage: 'main' }, '');
-    } catch(e) {}
-
-    window.addEventListener('popstate', () => {
-      if (State.currentUser && State.currentView !== 'auth') {
-        try { window.history.pushState({ appPage: 'main' }, ''); } catch(err) {}
-        if (State.currentView !== 'home') {
-          setView('home');
-        } else {
-          openExitConfirmModal();
-        }
-      }
-    });
-  }
 
   function bootApp() {
     try {
@@ -5522,10 +4665,8 @@
       console.warn('UI init error:', e);
     }
 
-    // Auto log keluar apabila aplikasi ditutup (dismiss):
-    // Sesi aktif disimpan dalam sessionStorage yang musnah secara automatik sebaik sahaja tab/aplikasi ditutup.
-    const savedToken = sessionStorage.getItem('ceu_tok');
-    const savedUser = sessionStorage.getItem('ceu_user');
+    const savedToken = localStorage.getItem('ceu_tok');
+    const savedUser = localStorage.getItem('ceu_user');
     if (savedToken && savedUser) {
       try {
         State.token = savedToken;
@@ -5537,17 +4678,15 @@
             setView('home');
           }
         }).catch(() => {
-          clearActiveSession();
           setView('auth');
         });
         return;
       } catch (e) {
-        clearActiveSession();
+        localStorage.removeItem('ceu_tok');
+        localStorage.removeItem('ceu_user');
       }
     }
 
-    // Tiada sesi aktif (aplikasi baru dibuka semula selepas ditutup): Pengguna bermula dari log masuk
-    clearActiveSession();
     setView('auth');
   }
 
@@ -5564,16 +4703,7 @@
     setLanguage: setLanguage,
     logout: logout,
     quickLogin: quickLogin,
-    showToast: showToast,
-    openRsvpModal: openRsvpModal,
-    quickConfirmRsvp: quickConfirmRsvp,
-    renderRsvpView: renderRsvpView,
-    setRsvpFilter: setRsvpFilter,
-    switchUserRole: switchUserRole,
-    handleNotificationAction: handleNotificationAction,
-    getEffectiveNotifications: getEffectiveNotifications,
-    openExitConfirmModal: openExitConfirmModal,
-    closeExitConfirmModal: closeExitConfirmModal
+    showToast: showToast
   };
 
 })();

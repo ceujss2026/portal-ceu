@@ -449,11 +449,6 @@ function dispatchPost_(action, data, token) {
     return { success: false, code: 'AUTH_EXPIRED', message: 'Sesi anda telah tamat atau tidak sah. Sila log masuk semula.' };
   }
 
-  // Peranan Pengguna: Hormati data daripada pangkalan data Users (lalai: Guru)
-  // upk@ds.edu.moe.bn kekal sebagai Guru agar dapat melihat paparan POV pengguna sebenar
-  const uRole = String(user.role || '').toLowerCase().trim();
-  user.role = (uRole === 'admin') ? 'Admin' : 'Guru';
-
   switch (action) {
     case 'boot':
       return handleBoot_(user);
@@ -505,12 +500,6 @@ function dispatchPost_(action, data, token) {
     case 'publishDraft':
       if (user.role !== 'Admin') return { success: false, message: 'Capaian ditolak.' };
       return handlePublishDraft_(user, data.eventId);
-    case 'sendRsvpReminder':
-      if (user.role !== 'Admin') return { success: false, message: 'Capaian ditolak.' };
-      return handleSendRsvpReminder_(user, data);
-    case 'sendTomorrowReminder':
-      if (user.role !== 'Admin') return { success: false, message: 'Capaian ditolak.' };
-      return handleSendTomorrowReminder_(user, data);
 
     default:
       return { success: false, message: 'Action [' + action + '] tidak dikenali.' };
@@ -696,10 +685,8 @@ function handleVerifyOtp_(email, otp, device) {
     };
   }
 
-  // Buat Sesi HMAC 30 Hari mengikut peranan dari pangkalan data Users (lalai: Guru)
-  let userRole = String(user.role || 'Guru').trim();
-  userRole = (userRole.toLowerCase() === 'admin') ? 'Admin' : 'Guru';
-  const token = buatSesi_(em, userRole, user.full_name, user.district, user.school_name);
+  // Buat Sesi HMAC 30 Hari
+  const token = buatSesi_(em, user.role, user.full_name, user.district, user.school_name);
 
   // Catat Audit Sesi
   try {
@@ -722,7 +709,7 @@ function handleVerifyOtp_(email, otp, device) {
     user: {
       email: em,
       name: user.full_name,
-      role: userRole,
+      role: user.role,
       district: user.district,
       school: user.school_name,
       biometricEnabled: String(user.biometric_enabled).toUpperCase() === 'TRUE'
@@ -844,30 +831,8 @@ function handleBoot_(user) {
   const rsvpList = readSheetAsObjects_(CONFIG.SHEET_NAMES.rsvp)
     .filter(r => String(r.user_email).toLowerCase().trim() === user.email);
 
-  const notifList = readSheetAsObjects_(CONFIG.SHEET_NAMES.notif).slice(-15).reverse();
-
-  // Jana automatik Peringatan Mesra RSVP bagi program yang memerlukan RSVP tetapi belum dijawab oleh pengguna
-  const userPendingEvents = allEvents.filter(e => {
-    const req = String(e.rsvp_required || '').toLowerCase();
-    if (req !== 'true' && req !== '1' && req !== 'ya') return false;
-    const hasRsvp = rsvpList.some(r => r.event_id === e.event_id);
-    return !hasRsvp;
-  });
-
-  const autoReminders = userPendingEvents.map(e => ({
-    notif_id: 'REMINDER-' + e.event_id,
-    eventId: e.event_id,
-    title_bm: 'Peringatan Mesra: Tarikh Akhir RSVP ' + (e.title_bm || e.title),
-    title_en: 'Friendly Reminder: RSVP Deadline for ' + (e.title_en || e.title_bm || e.title),
-    content_bm: 'Sila buat pengesahan kehadiran Awda bagi acara ini sebelum tarikh tutup. Kerjasama Awda amat dihargai.',
-    content_en: 'Please complete your RSVP attendance for this event before the deadline. Your cooperation is greatly appreciated.',
-    type: 'Urgent',
-    sent_at: 'Tindakan Diperlukan',
-    is_read: false
-  }));
-
-  const finalNotifs = [...autoReminders, ...notifList];
-  const unreadCount = finalNotifs.filter(n => String(n.fcm_status || '').toLowerCase() !== 'read').length;
+  const notifList = readSheetAsObjects_(CONFIG.SHEET_NAMES.notif).slice(-10).reverse();
+  const unreadCount = notifList.filter(n => String(n.fcm_status || '').toLowerCase() !== 'read').length;
 
   const data = {
     user: {
@@ -880,7 +845,7 @@ function handleBoot_(user) {
     users: userList,
     events: allEvents,
     rsvp: rsvpList,
-    notifications: finalNotifs,
+    notifications: notifList,
     unreadNotifCount: unreadCount,
     config: {
       appName: APP_NAME,
@@ -1130,29 +1095,7 @@ function handleUploadMemoDoc_(user, data) {
 // Senarai Notifikasi
 function handleGetNotifications_(user) {
   const notifs = readSheetAsObjects_(CONFIG.SHEET_NAMES.notif).reverse();
-  const allEvents = handleGetEvents_(user).data || [];
-  const rsvpList = readSheetAsObjects_(CONFIG.SHEET_NAMES.rsvp)
-    .filter(r => String(r.user_email).toLowerCase().trim() === user.email);
-
-  const userPendingEvents = allEvents.filter(e => {
-    const req = String(e.rsvp_required || '').toLowerCase();
-    if (req !== 'true' && req !== '1' && req !== 'ya') return false;
-    return !rsvpList.some(r => r.event_id === e.event_id);
-  });
-
-  const autoReminders = userPendingEvents.map(e => ({
-    notif_id: 'REMINDER-' + e.event_id,
-    eventId: e.event_id,
-    title_bm: 'Peringatan Mesra: Tarikh Akhir RSVP ' + (e.title_bm || e.title),
-    title_en: 'Friendly Reminder: RSVP Deadline for ' + (e.title_en || e.title_bm || e.title),
-    content_bm: 'Sila buat pengesahan kehadiran Awda bagi acara ini sebelum tarikh tutup. Kerjasama Awda amat dihargai.',
-    content_en: 'Please complete your RSVP attendance for this event before the deadline. Your cooperation is greatly appreciated.',
-    type: 'Urgent',
-    sent_at: 'Tindakan Diperlukan',
-    is_read: false
-  }));
-
-  return { success: true, data: [...autoReminders, ...notifs] };
+  return { success: true, data: notifs };
 }
 
 function handleMarkNotifRead_(user, notifId) {
@@ -1666,237 +1609,6 @@ function handleBroadcastNotif_(user, data) {
   ]);
   bump('global');
   return { success: true, message: 'Notifikasi rasmi berjaya disiarkan ke seluruh peranti guru.' };
-}
-
-function handleSendRsvpReminder_(user, data) {
-  const targetEmail = String(data.email || '').toLowerCase().trim();
-  const eventId = data.eventId;
-  if (!targetEmail) return { success: false, message: 'Emel guru tidak sah.' };
-
-  let teacherName = 'Guru Pendidikan Kerjaya';
-  try {
-    const users = readSheetAsObjects_(CONFIG.SHEET_NAMES.users);
-    const targetUser = users.find(u => String(u.email || '').toLowerCase().trim() === targetEmail);
-    if (targetUser && (targetUser.full_name || targetUser.name || targetUser.nama)) {
-      teacherName = targetUser.full_name || targetUser.name || targetUser.nama;
-    }
-  } catch(e) {}
-
-  let eventTitle = 'Mesyuarat Penyelarasan Pendidikan Kerjaya';
-  let eventDate = 'Akan datang';
-  let eventVenue = 'Dewan Persidangan JSS';
-  try {
-    const events = readSheetAsObjects_(CONFIG.SHEET_NAMES.events);
-    const ev = (eventId ? events.find(e => e.event_id === eventId) : null) || events[0] || {};
-    eventTitle = ev.title_bm || ev.title || eventTitle;
-    eventDate = ev.event_date ? formatTarikh_(ev.event_date) : eventDate;
-    eventVenue = ev.venue || eventVenue;
-  } catch(e) {}
-
-  // 1. Rekod ke lembaran Notifikasi
-  try {
-    const shNotif = getSheet_(CONFIG.SHEET_NAMES.notif);
-    shNotif.appendRow([
-      'NOTIF-' + Utilities.getUuid().slice(0, 8),
-      'Peringatan Mesra RSVP: ' + eventTitle,
-      'Friendly Reminder: RSVP for ' + eventTitle,
-      'Sila lengkapkan pengesahan kehadiran (RSVP) bagi ' + eventTitle + ' pada ' + eventDate + '. Kerjasama Awda amat dihargai.',
-      'Please complete your RSVP attendance for ' + eventTitle + ' on ' + eventDate + '. Your cooperation is greatly appreciated.',
-      'Urgent',
-      new Date().toISOString(),
-      user.email,
-      targetEmail
-    ]);
-    bump('global');
-    bump('u_' + targetEmail);
-  } catch(e) {
-    Logger.log('Gagal catat notif: ' + e.message);
-  }
-
-  // 2. Kirim Emel Peringatan Rasmi
-  try {
-    const subject = '[PERINGATAN RSVP] ' + eventTitle + ' - Unit Pendidikan Kerjaya MOE';
-    const body = 'Salam Sejahtera ' + teacherName + ',\n\n' +
-      'Peringatan mesra daripada Unit Pendidikan Kerjaya (UPK), Jabatan Sekolah-Sekolah.\n\n' +
-      'Sila lengkapkan pengesahan kehadiran (RSVP) Awda bagi acara berikut:\n' +
-      'Program: ' + eventTitle + '\n' +
-      'Tarikh: ' + eventDate + '\n' +
-      'Tempat: ' + eventVenue + '\n\n' +
-      'Awda boleh mengesahkan kehadiran (Hadir / Lantik Wakil / Tidak Hadir) terus di Portal CEU:\n' +
-      'https://portal-ceu2026.vercel.app\n\n' +
-      'Sekian, terima kasih.\nUnit Pendidikan Kerjaya (UPK)\nJabatan Sekolah-Sekolah\nKementerian Pendidikan Brunei Darussalam';
-
-    if (typeof GmailApp !== 'undefined' && GmailApp.sendEmail) {
-      GmailApp.sendEmail(targetEmail, subject, body);
-    } else {
-      MailApp.sendEmail(targetEmail, subject, body);
-    }
-  } catch(e) {
-    Logger.log('Gagal kirim emel peringatan: ' + e.message);
-  }
-
-  return {
-    success: true,
-    message: 'Peringatan RSVP berjaya dihantar ke ' + targetEmail
-  };
-}
-
-/**
- * PENGHANTARAN PERINGATAN ACARA ESOK (H-1 ATTENDANCE REMINDER)
- * Menghantar notifikasi & emel rasmi kepada semua peserta yang mengesahkan kehadiran.
- */
-function handleSendTomorrowReminder_(user, data) {
-  const eventId = data ? data.eventId : null;
-  const events = readSheetAsObjects_(CONFIG.SHEET_NAMES.events);
-  
-  let targetEvent = null;
-  if (eventId) {
-    targetEvent = events.find(e => e.event_id === eventId);
-  }
-  
-  if (!targetEvent) {
-    const tomorrow = new Date();
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    const tomYmd = Utilities.formatDate(tomorrow, 'Asia/Brunei', 'yyyy-MM-dd');
-    targetEvent = events.find(e => {
-      const dStr = normalizeDateYMD_(e.event_date);
-      return dStr === tomYmd;
-    }) || events[0];
-  }
-
-  if (!targetEvent) return { success: false, message: 'Tiada acara dijumpai.' };
-
-  const eventTitle = targetEvent.title_bm || targetEvent.title || 'Program Rasmi UPK';
-  const eventDate = targetEvent.event_date ? formatTarikh_(targetEvent.event_date) : 'Esok';
-  const eventTime = targetEvent.start_time || '08:30 Pagi';
-  const eventVenue = targetEvent.venue || 'Dewan Persidangan JSS';
-
-  const allUsers = readSheetAsObjects_(CONFIG.SHEET_NAMES.users);
-  const rsvps = readSheetAsObjects_(CONFIG.SHEET_NAMES.rsvp).filter(r => r.event_id === targetEvent.event_id);
-  
-  let targetEmails = [];
-  if (rsvps.length > 0) {
-    targetEmails = rsvps
-      .filter(r => {
-        const st = String(r.response_status || '').toLowerCase();
-        return (st.includes('hadir') || st.includes('wakil')) && !st.includes('tidak');
-      })
-      .map(r => String(r.user_email || '').toLowerCase().trim());
-  }
-  
-  // Jika belum ramai rekod RSVP khusus, hantar kepada semua guru berdaftar
-  if (targetEmails.length === 0) {
-    targetEmails = allUsers.map(u => String(u.email || '').toLowerCase().trim());
-  }
-
-  targetEmails = [...new Set(targetEmails)].filter(Boolean);
-
-  let sentCount = 0;
-  targetEmails.forEach(email => {
-    const u = allUsers.find(x => String(x.email || '').toLowerCase().trim() === email);
-    const teacherName = u ? (u.full_name || u.name || 'Guru Pendidikan Kerjaya') : 'Guru Pendidikan Kerjaya';
-
-    try {
-      const subject = '[PERINGATAN ESOK] ' + eventTitle + ' - Unit Pendidikan Kerjaya MOE';
-      const body = 'Salam Sejahtera ' + teacherName + ',\n\n' +
-        'Peringatan mesra daripada Unit Pendidikan Kerjaya (UPK), Jabatan Sekolah-Sekolah.\n\n' +
-        'Program "' + eventTitle + '" dijadualkan berlangsung ESOK seperti maklumat berikut:\n\n' +
-        '📅 Tarikh: ' + eventDate + '\n' +
-        '⏰ Masa: ' + eventTime + '\n' +
-        '📍 Tempat: ' + eventVenue + '\n\n' +
-        'Awda disarankan untuk hadir 15 minit lebih awal bagi sesi pendaftaran dan membawa dokumen atau komputer riba yang berkaitan.\n\n' +
-        'Maklumat lanjut, pautan memo dan jadual penuh boleh disemak di Portal CEU:\n' +
-        'https://portal-ceu2026.vercel.app\n\n' +
-        'Sekian, terima kasih.\nUnit Pendidikan Kerjaya (UPK)\nJabatan Sekolah-Sekolah\nKementerian Pendidikan Brunei Darussalam';
-
-      if (typeof GmailApp !== 'undefined' && GmailApp.sendEmail) {
-        GmailApp.sendEmail(email, subject, body);
-      } else {
-        MailApp.sendEmail(email, subject, body);
-      }
-      sentCount++;
-    } catch(e) {
-      Logger.log('Gagal hantar emel ke ' + email + ': ' + e.message);
-    }
-  });
-
-  // Catat ke lembaran notifikasi portal
-  try {
-    const shNotif = getSheet_(CONFIG.SHEET_NAMES.notif);
-    shNotif.appendRow([
-      'NOTIF-' + Utilities.getUuid().slice(0, 8),
-      'Peringatan Acara Esok: ' + eventTitle,
-      'Event Tomorrow Reminder: ' + eventTitle,
-      'Program "' + eventTitle + '" akan berlangsung esok (' + eventDate + ') pada jam ' + eventTime + ' di ' + eventVenue + '. Sila hadir tepat pada masanya.',
-      'Event "' + eventTitle + '" will take place tomorrow (' + eventDate + ') at ' + eventTime + ' at ' + eventVenue + '. Please attend promptly.',
-      'Urgent',
-      new Date().toISOString(),
-      user.email,
-      'ALL_ATTENDEES'
-    ]);
-    bump('global');
-  } catch(e) {}
-
-  return {
-    success: true,
-    sentCount: sentCount,
-    message: 'Peringatan acara esok berjaya dihantar ke ' + sentCount + ' orang peserta.'
-  };
-}
-
-/**
- * PENCETUS HARIAN AUTOMATIK (APPS SCRIPT DAILY TIME-DRIVEN TRIGGER)
- * Boleh dijadualkan berjalan setiap hari pada jam 07:00 atau 08:00 pagi
- * untuk menghantar emel peringatan secara automatik tanpa perlu klik manual.
- */
-function cronHantarPeringatanAcaraEsok() {
-  const events = readSheetAsObjects_(CONFIG.SHEET_NAMES.events);
-  const tomorrow = new Date();
-  tomorrow.setDate(tomorrow.getDate() + 1);
-  const tomYmd = Utilities.formatDate(tomorrow, 'Asia/Brunei', 'yyyy-MM-dd');
-
-  const tomorrowEvents = events.filter(e => {
-    const dStr = normalizeDateYMD_(e.event_date);
-    return dStr === tomYmd && (e.status || 'Published').toLowerCase() !== 'draft';
-  });
-
-  if (tomorrowEvents.length === 0) {
-    Logger.log('Tiada acara dijadualkan untuk esok (' + tomYmd + ').');
-    return;
-  }
-
-  const systemUser = { email: 'sistem.upk@ds.edu.moe.bn', role: 'Admin' };
-  tomorrowEvents.forEach(ev => {
-    Logger.log('Menghantar peringatan automatik bagi acara: ' + (ev.title_bm || ev.title));
-    handleSendTomorrowReminder_(systemUser, { eventId: ev.event_id });
-  });
-}
-
-function normalizeDateYMD_(dVal) {
-  if (!dVal) return '';
-  if (typeof dVal === 'object' && dVal instanceof Date) {
-    return Utilities.formatDate(dVal, 'Asia/Brunei', 'yyyy-MM-dd');
-  }
-  const s = String(dVal).trim();
-  if (s.includes('T')) {
-    const d = new Date(s);
-    if (!isNaN(d.getTime())) {
-      return Utilities.formatDate(d, 'Asia/Brunei', 'yyyy-MM-dd');
-    }
-  }
-  return s.slice(0, 10);
-}
-
-function formatTarikh_(dVal) {
-  if (!dVal) return '';
-  try {
-    const d = (dVal instanceof Date) ? dVal : new Date(dVal);
-    if (!isNaN(d.getTime())) {
-      const months = ['Januari', 'Februari', 'Mac', 'April', 'Mei', 'Jun', 'Julai', 'Ogos', 'September', 'Oktober', 'November', 'Disember'];
-      return d.getDate() + ' ' + months[d.getMonth()] + ' ' + d.getFullYear();
-    }
-  } catch(e) {}
-  return String(dVal);
 }
 
 function getPublicConfig_() {
